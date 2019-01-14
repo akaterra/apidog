@@ -1,0 +1,222 @@
+const generate = require('../src/generate');
+
+const hbs = () => {
+  const hbs = {
+    compile: (template) => {
+      hbs.template = template;
+
+      return (params) => {
+        hbs.params = params;
+
+        return '';
+      }
+    }
+  };
+
+  return hbs;
+};
+
+describe('generate', () => {
+  it('should generate with public filtering', () => {
+    const blocks = [
+      {
+        $id: 0, api: {}, private: true,
+      },
+      {
+        $id: 1, api: {}, private: false,
+      },
+      {
+        $id: 2, api: {}, private: ['a', 'b', 'c'],
+      },
+      {
+        $id: 3, api: {}, private: ['a'],
+      },
+      {
+        $id: 4, api: {},
+      },
+    ];
+    const handlebars = hbs();
+
+    generate.generate(blocks, '', {}, handlebars);
+
+    expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([1, 4]);
+  });
+
+  it('should generate with private filtering', () => {
+    const blocks = [
+      {
+        $id: 0, api: {}, private: true,
+      },
+      {
+        $id: 1, api: {}, private: false,
+      },
+      {
+        $id: 2, api: {}, private: ['a', 'b', 'c'],
+      },
+      {
+        $id: 3, api: {}, private: ['a'],
+      },
+      {
+        $id: 4, api: {},
+      },
+    ];
+    const handlebars = hbs();
+
+    generate.generate(blocks, '', {private: true}, handlebars);
+
+    expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2, 3]);
+  });
+
+  it('should generate with private filtering of slices', () => {
+    const blocks = [
+      {
+        $id: 0, api: {}, private: true,
+      },
+      {
+        $id: 1, api: {}, private: false,
+      },
+      {
+        $id: 2, api: {}, private: ['a', 'b', 'c'],
+      },
+      {
+        $id: 3, api: {}, private: ['a'],
+      },
+      {
+        $id: 4, api: {},
+      },
+    ];
+    const handlebars = hbs();
+
+    generate.generate(blocks, '', {private: ['a', 'b']}, handlebars);
+
+    expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2]);
+  });
+});
+
+describe('generate sections', () => {
+  it('should generate sections', () => {
+    const blocks = [
+      {
+        api: {}, group: 'A', name: 'A', subgroup: 'A', title: 'A', version: '1',
+      },
+      {
+        api: {}, group: 'A', name: 'A', subgroup: 'A', title: 'A', version: '2',
+      },
+      {
+        api: {}, group: 'A', name: 'B', subgroup: 'A', title: 'B', version: '1',
+      },
+      {
+        api: {}, group: 'B', name: 'A', subgroup: 'B', title: 'A', version: '1',
+      },
+      {
+        api: {}, group: 'B', name: 'A', subgroup: 'B', title: 'A', version: '2',
+      },
+      {
+        api: {}, group: 'B', name: 'B', subgroup: 'B', title: 'B', version: '1',
+      },
+    ];
+
+    expect(generate.generateSections(blocks)).toEqual({
+      A: {
+        A: {
+          A: { '1': blocks[0], '2': blocks[1] },
+          B: { '1': blocks[2] },
+        },
+      },
+      B: {
+        B: {
+          A: { '1': blocks[3], '2': blocks[4] },
+          B: { '1': blocks[5]},
+        },
+      },
+    });
+  });
+
+  it('should generate sections filling default group', () => {
+    const blocks = [
+      {
+        api: {},
+        name: 'name',
+        title: 'title',
+        version: 'version',
+      },
+    ];
+
+    expect(generate.generateSections(blocks)).toEqual({
+      $: {
+        $: {
+          name: { version: Object.assign({group: 'default'}, blocks[0]) },
+        },
+      },
+    });
+  });
+
+  it('should generate sections filling default version', () => {
+    const blocks = [
+      {
+        api: {},
+        group: 'group',
+        name: 'name',
+        title: 'title',
+      },
+    ];
+
+    expect(generate.generateSections(blocks)).toEqual({
+      group: {
+        $: {
+          name: { '0.0.1': Object.assign({version: '0.0.1'}, blocks[0]) },
+        },
+      },
+    });
+  });
+
+  // it('should generate sections filling defaults from use', () => {
+  //   const blocks = [
+  //     {
+  //       define: {
+  //         description: ['default description'],
+  //         name: 'default name',
+  //         title: 'default title',
+  //       },
+  //       description: ['default description'],
+  //       title: 'default title',
+  //     },
+  //     {
+  //       api: {},
+  //       group: 'group',
+  //       name: 'name',
+  //       title: 'title',
+  //       use: ['default name'],
+  //     },
+  //   ];
+  //
+  //   expect(generate.generateSections(blocks)).toEqual({
+  //     group: {
+  //       name: {
+  //         '0.0.1': {
+  //           api: {},
+  //           description: ['default description'],
+  //           group: 'group',
+  //           id: 'group_0.0.1_name',
+  //           name: 'name',
+  //           title: 'title',
+  //           use: ['default name'],
+  //           version: '0.0.1',
+  //         },
+  //       },
+  //     }
+  //   });
+  // });
+
+  it('should generate sections skipping "ignore" blocks', () => {
+    const blocks = [{ ignore: true }];
+
+    expect(generate.generateSections(blocks)).toEqual({});
+  });
+
+  // it('should raise exception on unknown use', () => {
+  //   const blocks = [{ api: {}, use: ['unknown'] }];
+  //
+  //   expect(() => generate.generateSections(blocks)).toThrow();
+  // });
+});

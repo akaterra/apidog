@@ -1,0 +1,88 @@
+# {{title}}
+{{description}}
+
+### Table of contents:
+{{#each groupsAsLists}}
+  {{#ifCond this.title '!=' '$'}}
+* {{../this.title}}
+    {{#each ../this.subgroups}}
+      {{#ifCond this.title '!=' '$'}}
+  * {{../this.title}}
+        {{#each ../this.names}}
+    * {{this.0.title}}
+        {{/each}}
+      {{else}}
+        {{#each ../this.names}}
+  * {{this.0.title}}
+        {{/each}}
+      {{/ifCond}}
+    {{/each}}
+  {{else}}
+    {{#each ../this.subgroups}}
+      {{#ifCond this.title '!=' '$'}}
+* {{../this.title}}
+        {{#each ../this.names}}
+  * {{this.0.title}}
+        {{/each}}
+      {{else}}
+        {{#each ../this.names}}
+* {{this.0.title}}
+        {{/each}}
+      {{/ifCond}}
+    {{/each}}
+  {{/ifCond}}
+{{/each}}
+
+{{#each groupsAsLists}}
+  {{#ifCond this.title '!=' '$'}}
+### {{../this.title}}
+  {{/ifCond}}
+  {{#each this.subgroups}}
+    {{#ifCond this.title '!=' '$'}}
+#### {{../this.title}}
+    {{/ifCond}}
+    {{#each this.names}}
+      {{#each this as |block index|}}
+
+##### {{this.title}} *{{this.version}}*
+{{join this.description}}
+
+{{#ifCond this.api.transport.name '==' 'http'}}
+**{{upper ../this.api.transport.name}}**
+```
+{{upper ../this.api.transport.method}} {{../this.api.endpoint}}
+```
+{{else}}
+**{{upper ../this.api.transport.name}}**
+```
+{{../this.api.endpoint}}
+```
+
+{{/ifCond}}
+
+{{#if this.headers.length}}
+  {{#each this.headersGroups as |params key|}}
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+    {{#each params}}
+| {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
+    {{/each}}
+  {{/each}}
+{{/if}}
+
+
+{{#if this.params.length}}
+  {{#each this.paramsGroups as |params key|}}
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+    {{#each params}}
+| {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
+    {{/each}}
+  {{/each}}
+{{/if}}
+
+
+      {{/each}}
+    {{/each}}
+  {{/each}}
+{{/each}}

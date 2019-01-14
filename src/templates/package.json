@@ -1,0 +1,8 @@
+{
+  "main": "proxy.js",
+  "dependencies": {
+    "amqplib": "0.5.2",
+    "amqplib-rpc": "3.1.0",
+    "express": "4.16.4"
+  }
+}

@@ -1,0 +1,2283 @@
+<html>
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    .section {
+      margin-bottom: 0.5rem;
+    }
+
+    .padded {
+      padding: 0 0.5rem;
+    }
+
+    .left-padded {
+      padding-left: 0.5rem;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .mono {
+      font-family: monospace;
+    }
+
+    .small {
+      font-size: small;
+    }
+
+    .smaller {
+      font-size: smaller;
+    }
+
+    .sup {
+      position: absolute;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+    }
+
+    .line-through {
+      text-decoration: line-through;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-1 {
+      flex: 1;
+    }
+
+    .flex-2 {
+      flex: 2;
+    }
+
+    .flex-3 {
+      flex: 3;
+    }
+
+    .flex-4 {
+      flex: 4;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .height-1 {
+      height: 1.25rem;
+    }
+
+    .height-2 {
+      height: 1.5rem;
+    }
+
+    .width-10 {
+      width: 10%;
+    }
+
+    .width-15 {
+      width: 15%;
+    }
+
+    .width-20 {
+      width: 20%;
+    }
+
+    .width-25 {
+      width: 25%;
+    }
+
+    .width-80 {
+      width: 80%;
+    }
+
+    .bg-color-1 {
+      background-color: #383838;
+    }
+
+    .bg-color-2 {
+      background-color: #707070;
+    }
+
+    .bg-color-3 {
+      background-color: #a8a8a8;
+    }
+
+    .bg-color-4 {
+      background-color: #e0e0e0;
+    }
+
+    .bg-color-black {
+      background-color: black !important;
+    }
+
+    .bg-color-dark-blue {
+      background-color: darkblue !important;
+    }
+
+    .bg-color-blue {
+      background-color: blue !important;
+    }
+
+    .bg-color-dark-green {
+      background-color: darkgreen !important;
+    }
+
+    .bg-color-green {
+      background-color: green !important;
+    }
+
+    .bg-color-dark-orange {
+      background-color: darkorange !important;
+    }
+
+    .bg-color-orange {
+      background-color: orange !important;
+    }
+
+    .bg-color-dark-red {
+      background-color: darkred !important;
+    }
+
+    .bg-color-red {
+      background-color: red !important;
+    }
+
+    .bg-color-cyan {
+      background-color: cyan !important;
+    }
+
+    .bg-color-dark-cyan {
+      background-color: darkslateblue;
+    }
+
+    .bg-color-white {
+      background-color: white !important;
+    }
+
+    .color-1 {
+      color: #383838 !important;
+    }
+
+    .color-2 {
+      color: #707070 !important;
+    }
+
+    .color-3 {
+      color: #a8a8a8 !important;
+    }
+
+    .color-4 {
+      color: #e0e0e0 !important;
+    }
+
+    .color-blue {
+      color: blue !important;
+    }
+
+    .color-green {
+      color: green !important;
+    }
+
+    .color-orange {
+      color: orange !important;
+    }
+
+    .color-red {
+      color: red !important;
+    }
+
+    .color-white {
+      color: white !important;
+    }
+
+    .font-size-1 {
+      font-size: 1.25rem !important;
+    }
+
+    .font-size-2 {
+      font-size: 1.5rem !important;
+    }
+
+    .font-size-3 {
+      font-size: 1.75rem !important;
+    }
+
+    .font-size-4 {
+      font-size: 2rem !important;
+    }
+
+    .badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0 0.5rem;
+    }
+
+    .element-badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .big-badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0.5rem;
+    }
+
+    .main-container {
+      padding: 1rem 0.5rem 0 0.5rem;
+    }
+
+    .menu-container {
+      padding: 1rem 0.5rem;
+    }
+
+    .block {
+      border-top: 1px solid #e0e0e0;
+      padding: 1rem 0;
+    }
+
+    .table {
+      display: flex;
+    }
+
+    .table > * {
+      box-sizing: border-box;
+      border: #e0e0e0 solid;
+      border-width: 0 1px 1px 0;
+      min-height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .table > *:last-child {
+      border-right-width: 0;
+    }
+
+    .send-button {
+      border: 1px solid #e0e0e0;
+      color: #383838;
+      cursor: pointer;
+      font-size: 1rem;
+      height: 2rem;
+      padding: 0 1rem;
+      margin-left: 25%;
+    }
+
+    .inner-label {
+      color: #383838;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      padding: 1rem 0 0 25%;
+    }
+
+    .label {
+      color: #383838;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      padding: 1rem 0 0 0.5rem;
+    }
+
+    .control {
+      background-color: #fcfcfc;
+      border: 1px solid #e0e0e0;
+      font-size: 0.75rem;
+      height: 1.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .input {
+      background-color: #fcfcfc;
+      border: 1px solid #e0e0e0;
+      font: 1rem monospace;
+      height: 1.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .input-label {
+      color: #808080;
+      font-size: 1rem;
+      height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+      text-align: right;
+    }
+
+    .input-placeholder {
+      background-color: #e0e0e0;
+      color: #808080;
+      font-size: 1rem;
+      height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .response {
+      margin: 0;
+      white-space: pre-wrap;
+      width: 100%;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+
+    .menu-item {
+      color: #383838;
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover {
+      background-color: #e0e0e0;
+    }
+
+    .control-panel {
+      position: relative;
+    }
+
+    .control-panel > div {
+      position: absolute;
+      right: 0;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container flex">
+
+  <div class="width-20">
+    <div class="menu-container">
+          <div class="element-badge bg-color-1 color-white bold">A</div>
+            <a class="menu-item element-badge" href="#A_$_Name1">Get 1</a>
+            <a class="menu-item element-badge" href="#A_$_Name2">Transaction</a>
+          <div class="element-badge bg-color-1 color-white bold">B</div>
+            <a class="menu-item element-badge" href="#B_$_Name3">Transaction</a>
+            <a class="menu-item element-badge" href="#B_$_Name4">Transaction</a>
+    </div>
+  </div>
+
+  <div class="width-80">
+    <div class="main-container">
+      <div class="section left-padded color-1 font-size-4 bold">No title</div>
+      <div class="section left-padded color-2">No description</div>
+            <div class="control-panel">
+              <div class="flex width-25" data-block-control-panel="A_$_Name1">
+                <button class="control flex-1 color-blue">Hide hints</button>
+                <select class="input flex-1 right color-blue">
+                    <option value="1.0.0">1.0.0</option>
+                    <option value="1.0.1">1.0.1</option>
+                </select>
+              </div>
+            </div>
+                <a name="A_$_Name1"></a>
+              <div class="block " data-block="A_$_Name1_1.0.0">
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="">
+                    Get 1
+                    <span class="color-3">
+                        A /
+                      1.0.0
+                    </span>
+                  </span>
+                </div>
+                <div class="section left-padded color-2">Get</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">HTTP</span>
+                      <span class="badge bg-color-green color-white font-size-1 uppercase mono bold">GET</span>
+                </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">https://entel-dev.fintier.com/api/wallet/v1/transaction</div>
+                </div>
+
+                <div data-block-hint="A_$_Name1">
+                      <div class="label">Header:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">Authorization</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Authorization bearer token</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">X-Request-Id</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">X-Request-Id</div>
+                          </div>
+                      </div>
+
+
+                      <div class="label">Parameter:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">type</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Transaction type</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">net</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Amount</div>
+                          </div>
+                      </div>
+
+
+
+
+
+                </div>
+
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="A_$_Name1_1.0.0"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="https://entel-dev.fintier.com/api/wallet/v1/transaction"
+                    />
+                  </div>
+
+                    <div class="inner-label">Header:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_Authorization">Authorization</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="Authorization"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_X-Request-Id">X-Request-Id</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="X-Request-Id"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+
+                    <div class="inner-label">Parameter:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_type">type</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_type"
+                                  name="type"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_net">net</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_net"
+                                  name="net"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+              <div class="block hidden" data-block="A_$_Name1_1.0.1">
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="">
+                    Get 2
+                    <span class="color-3">
+                        A /
+                      1.0.1
+                    </span>
+                  </span>
+                </div>
+                <div class="section left-padded color-2">Get</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">HTTP</span>
+                      <span class="badge bg-color-green color-white font-size-1 uppercase mono bold">GET</span>
+                </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">https://entel-dev.fintier.com/api/wallet/v2/transaction</div>
+                </div>
+
+                <div data-block-hint="A_$_Name1">
+                      <div class="label">Header:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">Authorization</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Authorization bearer token</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">X-Request-Id</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">X-Request-Id</div>
+                          </div>
+                      </div>
+
+
+                      <div class="label">Parameter:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">type</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Transaction type</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">net</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Amount</div>
+                          </div>
+                      </div>
+
+
+
+
+
+                </div>
+
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="A_$_Name1_1.0.1"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="https://entel-dev.fintier.com/api/wallet/v2/transaction"
+                    />
+                  </div>
+
+                    <div class="inner-label">Header:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_Authorization">Authorization</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="Authorization"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_X-Request-Id">X-Request-Id</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="X-Request-Id"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+
+                    <div class="inner-label">Parameter:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_type">type</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_type"
+                                  name="type"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_net">net</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_net"
+                                  name="net"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+            <div class="control-panel">
+              <div class="flex width-25" data-block-control-panel="A_$_Name2">
+                <button class="control flex-1 color-blue">Hide hints</button>
+                <select class="input flex-1 right color-blue">
+                    <option value="0.0.1">0.0.1</option>
+                </select>
+              </div>
+            </div>
+                <a name="A_$_Name2"></a>
+              <div class="block " data-block="A_$_Name2_0.0.1">
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="line-through">
+                    Transaction
+                    <span class="color-3">
+                        A /
+                      0.0.1
+                    </span>
+                  </span>
+                      <span class="left-padded color-red small sup">Use v2 instead</span>
+                </div>
+                <div class="section left-padded color-2">Test</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">HTTP</span>
+                      <span class="badge bg-color-blue color-white font-size-1 uppercase mono bold">post</span>
+                                    </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">https://entel-dev.fintier.com/api/wallet/v1/transaction</div>
+                </div>
+
+                <div data-block-hint="A_$_Name2">
+                      <div class="label">Header:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">Authorization</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Authorization bearer token</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">X-Request-Id</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">X-Request-Id</div>
+                          </div>
+                      </div>
+
+
+                      <div class="label">Parameter:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">type</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Transaction type</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">net</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Amount</div>
+                          </div>
+                      </div>
+
+
+
+
+
+                </div>
+
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="A_$_Name2_0.0.1"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="https://entel-dev.fintier.com/api/wallet/v1/transaction"
+                    />
+                  </div>
+
+                    <div class="inner-label">Header:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_Authorization">Authorization</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="Authorization"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_X-Request-Id">X-Request-Id</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="X-Request-Id"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+
+                    <div class="inner-label">Parameter:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_type">type</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_type"
+                                  name="type"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_net">net</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_net"
+                                  name="net"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+            <div class="control-panel">
+              <div class="flex width-25" data-block-control-panel="B_$_Name3">
+                <button class="control flex-1 color-blue">Hide hints</button>
+                <select class="input flex-1 right color-blue">
+                    <option value="0.0.1">0.0.1</option>
+                </select>
+              </div>
+            </div>
+                <a name="B_$_Name3"></a>
+              <div class="block " data-block="B_$_Name3_0.0.1">
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="">
+                    Transaction
+                    <span class="color-3">
+                        B /
+                      0.0.1
+                    </span>
+                  </span>
+                </div>
+                <div class="section left-padded color-2">Test</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">HTTP</span>
+                      <span class="badge bg-color-blue color-white font-size-1 uppercase mono bold">post</span>
+                                    </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">https://entel-dev.fintier.com/api/wallet/v1/transaction</div>
+                </div>
+
+                <div data-block-hint="B_$_Name3">
+                      <div class="label">Header:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">Authorization</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Authorization bearer token</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">X-Request-Id</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">X-Request-Id</div>
+                          </div>
+                      </div>
+
+
+                      <div class="label">Parameter:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">type</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Transaction type</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">net</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Amount</div>
+                          </div>
+                      </div>
+
+
+
+
+
+                </div>
+
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="B_$_Name3_0.0.1"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="https://entel-dev.fintier.com/api/wallet/v1/transaction"
+                    />
+                  </div>
+
+                    <div class="inner-label">Header:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_Authorization">Authorization</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="Authorization"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_X-Request-Id">X-Request-Id</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="X-Request-Id"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+
+                    <div class="inner-label">Parameter:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_type">type</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_type"
+                                  name="type"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_net">net</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_net"
+                                  name="net"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+            <div class="control-panel">
+              <div class="flex width-25" data-block-control-panel="B_$_Name4">
+                <button class="control flex-1 color-blue">Hide hints</button>
+                <select class="input flex-1 right color-blue">
+                    <option value="0.0.1">0.0.1</option>
+                </select>
+              </div>
+            </div>
+                <a name="B_$_Name4"></a>
+              <div class="block " data-block="B_$_Name4_0.0.1">
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="">
+                    Transaction
+                    <span class="color-3">
+                        B /
+                      0.0.1
+                    </span>
+                  </span>
+                </div>
+                <div class="section left-padded color-2">Test</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">WEBSOCKET</span>
+                </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">ws://localhost:8080</div>
+                </div>
+
+                <div data-block-hint="B_$_Name4">
+                      <div class="label">Header:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">Authorization</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Authorization bearer token</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">X-Request-Id</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">X-Request-Id</div>
+                          </div>
+                      </div>
+
+
+                      <div class="label">Parameter:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">type</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Transaction type</div>
+                          </div>
+                          <div class="table">
+                            <div class="width-25 color-2 mono">net</div>
+                            <div class="width-15 color-2 mono">String</div>
+                            <div class="flex-1">Amount</div>
+                          </div>
+                      </div>
+
+
+
+
+
+                </div>
+
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="B_$_Name4_0.0.1"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="ws://localhost:8080"
+                    />
+                  </div>
+
+                    <div class="inner-label">Header:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_Authorization">Authorization</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="Authorization"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_h_X-Request-Id">X-Request-Id</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_h_"
+                                  name="X-Request-Id"
+                                  type="text"
+                                  data-block-element="header"
+                                  value=""
+                          />
+                        <!-- <span class="input-placeholder mono">String</span> -->
+                      </div>
+
+                    <div class="inner-label">Parameter:</div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_type">type</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_type"
+                                  name="type"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="_p_net">net</label>
+                          <input
+                                  class="input flex-1"
+                                  id="_p_net"
+                                  name="net"
+                                  type="text"
+                                  data-block-element="param"
+                                  value=""
+                          />
+                        <span class="input-placeholder mono">String</span>
+                      </div>
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+    </div>
+  </div>
+
+</div>
+</body>
+<script>
+  var config = {
+  "transports": {
+    "http": {
+      "sampleRequestUrl": null
+    },
+    "https": {
+      "sampleRequestUrl": null
+    }
+  }
+};
+  var sections = {
+  "A_$_Name1_1.0.0": {
+    "api": {
+      "endpoint": "https://entel-dev.fintier.com/api/wallet/v1/transaction",
+      "title": "Get 1",
+      "transport": {
+        "name": "http",
+        "method": "get"
+      }
+    },
+    "title": "Get 1",
+    "description": [
+      "Get"
+    ],
+    "headers": [
+      {
+        "description": [
+          "Authorization bearer token"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "Authorization"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "X-Request-Id"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "X-Request-Id"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "headersGroups": {
+      "$": [
+        {
+          "description": [
+            "Authorization bearer token"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "Authorization"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "X-Request-Id"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "X-Request-Id"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "params": [
+      {
+        "description": [
+          "Transaction type"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "type"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "Amount"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "net"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "paramsGroups": {
+      "$": [
+        {
+          "description": [
+            "Transaction type"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "type"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "Amount"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "net"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "contentType": [
+      "json"
+    ],
+    "group": "A",
+    "version": "1.0.0",
+    "name": "Name1",
+    "subgroup": "$",
+    "familyId": "A_$_Name1",
+    "id": "A_$_Name1_1.0.0"
+  },
+  "A_$_Name1_1.0.1": {
+    "api": {
+      "endpoint": "https://entel-dev.fintier.com/api/wallet/v2/transaction",
+      "title": "Get 2",
+      "transport": {
+        "name": "http",
+        "method": "get"
+      }
+    },
+    "title": "Get 2",
+    "description": [
+      "Get"
+    ],
+    "headers": [
+      {
+        "description": [
+          "Authorization bearer token"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "Authorization"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "X-Request-Id"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "X-Request-Id"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "headersGroups": {
+      "$": [
+        {
+          "description": [
+            "Authorization bearer token"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "Authorization"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "X-Request-Id"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "X-Request-Id"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "params": [
+      {
+        "description": [
+          "Transaction type"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "type"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "Amount"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "net"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "paramsGroups": {
+      "$": [
+        {
+          "description": [
+            "Transaction type"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "type"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "Amount"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "net"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "contentType": [
+      "json"
+    ],
+    "group": "A",
+    "version": "1.0.1",
+    "name": "Name1",
+    "subgroup": "$",
+    "familyId": "A_$_Name1",
+    "id": "A_$_Name1_1.0.1"
+  },
+  "A_$_Name2_0.0.1": {
+    "api": {
+      "endpoint": "https://entel-dev.fintier.com/api/wallet/v1/transaction",
+      "title": "Transaction",
+      "transport": {
+        "name": "http",
+        "method": "post"
+      }
+    },
+    "title": "Transaction",
+    "description": [
+      "Test"
+    ],
+    "sampleRequest": {
+      "$": "aaa"
+    },
+    "headers": [
+      {
+        "description": [
+          "Authorization bearer token"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "Authorization"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "X-Request-Id"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "X-Request-Id"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "headersGroups": {
+      "$": [
+        {
+          "description": [
+            "Authorization bearer token"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "Authorization"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "X-Request-Id"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "X-Request-Id"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "params": [
+      {
+        "description": [
+          "Transaction type"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "type"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "Amount"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "net"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "paramsGroups": {
+      "$": [
+        {
+          "description": [
+            "Transaction type"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "type"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "Amount"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "net"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "contentType": [
+      "json"
+    ],
+    "deprecated": "Use v2 instead",
+    "name": "Name2",
+    "group": "A",
+    "subgroup": "$",
+    "version": "0.0.1",
+    "familyId": "A_$_Name2",
+    "id": "A_$_Name2_0.0.1"
+  },
+  "B_$_Name3_0.0.1": {
+    "api": {
+      "endpoint": "https://entel-dev.fintier.com/api/wallet/v1/transaction",
+      "title": "Transaction",
+      "transport": {
+        "name": "http",
+        "method": "post"
+      }
+    },
+    "title": "Transaction",
+    "description": [
+      "Test"
+    ],
+    "headers": [
+      {
+        "description": [
+          "Authorization bearer token"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "Authorization"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "X-Request-Id"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "X-Request-Id"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "headersGroups": {
+      "$": [
+        {
+          "description": [
+            "Authorization bearer token"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "Authorization"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "X-Request-Id"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "X-Request-Id"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "params": [
+      {
+        "description": [
+          "Transaction type"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "type"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "Amount"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "net"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "paramsGroups": {
+      "$": [
+        {
+          "description": [
+            "Transaction type"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "type"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "Amount"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "net"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "contentType": [
+      "json"
+    ],
+    "name": "Name3",
+    "sampleRequest": {
+      "$": false
+    },
+    "group": "B",
+    "subgroup": "$",
+    "version": "0.0.1",
+    "familyId": "B_$_Name3",
+    "id": "B_$_Name3_0.0.1"
+  },
+  "B_$_Name4_0.0.1": {
+    "api": {
+      "endpoint": "ws://localhost:8080",
+      "title": "Transaction",
+      "transport": {
+        "name": "websocket"
+      }
+    },
+    "title": "Transaction",
+    "description": [
+      "Test"
+    ],
+    "headers": [
+      {
+        "description": [
+          "Authorization bearer token"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "Authorization"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "X-Request-Id"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "X-Request-Id"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "headersGroups": {
+      "$": [
+        {
+          "description": [
+            "Authorization bearer token"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "Authorization"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "X-Request-Id"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "X-Request-Id"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "params": [
+      {
+        "description": [
+          "Transaction type"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "type"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      },
+      {
+        "description": [
+          "Amount"
+        ],
+        "field": {
+          "defaultValue": null,
+          "name": "net"
+        },
+        "group": null,
+        "type": {
+          "allowedValues": [],
+          "name": "String"
+        }
+      }
+    ],
+    "paramsGroups": {
+      "$": [
+        {
+          "description": [
+            "Transaction type"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "type"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        },
+        {
+          "description": [
+            "Amount"
+          ],
+          "field": {
+            "defaultValue": null,
+            "name": "net"
+          },
+          "group": null,
+          "type": {
+            "allowedValues": [],
+            "name": "String"
+          }
+        }
+      ]
+    },
+    "contentType": [
+      "json"
+    ],
+    "name": "Name4",
+    "group": "B",
+    "subgroup": "$",
+    "version": "0.0.1",
+    "familyId": "B_$_Name4",
+    "id": "B_$_Name4_0.0.1"
+  }
+};
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+    
+    function bySelector(selector, el) {
+      return Array.prototype.slice.call((el || document).querySelectorAll(selector));
+    }
+    
+    function addClass(el, cls) {
+      var className = el.className.split(' ');
+      var index = className.findIndex(function (e) {
+        return e === cls;
+      });
+    
+      if (index !== - 1) {
+          return;
+      }
+    
+      className.push(cls);
+    
+      el.className = className.join(' ').trim();
+    }
+    
+    function removeClass(el, cls) {
+      var className = el.className.split(' ');
+      var index = className.findIndex(function (e) {
+        return e === cls;
+      });
+    
+      if (index === - 1) {
+          return;
+      }
+    
+      className.splice(index, 1);
+    
+      el.className = className.join(' ').trim();
+    }
+    
+    function replaceClass(el, clsOld, clsNew) {
+      removeClass(el, clsOld);
+      addClass(el, clsNew);
+    }
+    
+    function onChange(el, fn) {
+      el.onchange = (event) => {
+        fn(getValue(event.srcElement));
+      };
+    }
+    
+    function onClick(el, fn) {
+      el.onclick = (event) => {
+        fn(event.srcElement);
+      };
+    }
+    
+    function getValue(el) {
+      return el.options ? el.options[el.selectedIndex].value : el.value;
+    }
+    
+    function Null() {
+    
+    }
+    
+    function del(obj, path) {
+      for (const key of path.split('.')) {
+        if (obj !== null && typeof obj === 'object' && key in obj) {
+          delete obj[key];
+        } else {
+          return false;
+        }
+      }
+    
+      return true;
+    }
+    
+    function get(obj, path, defaultValue) {
+      for (const key of path.split('.')) {
+        if (obj !== null && typeof obj === 'object' && key in obj) {
+          obj = obj[key];
+        } else {
+          return defaultValue;
+        }
+      }
+    
+      return obj;
+    }
+    
+    function has(obj, path) {
+      for (const key of path.split('.')) {
+        if (obj !== null && typeof obj === 'object' && key in obj) {
+          obj = obj[key];
+        } else {
+          return false;
+        }
+      }
+    
+      return true;
+    }
+    
+    function hideResponse(el) {
+      addClass(
+        bySelector('[data-block-element="response"]', el)[0],
+        'hidden'
+      );
+      bySelector('[data-block-element="response"]>pre', el)[0].textContent = '';
+    }
+    
+    function showResponse(el, text) {
+      removeClass(
+        bySelector('[data-block-element="response"]', el)[0],
+        'hidden'
+      );
+      bySelector('[data-block-element="response"]>pre', el)[0].textContent = text;
+    }
+    
+    const wsConnections = {};
+    
+    function request(transport, url, method, params, headers, contentType, cb) {
+      url = url.replace(/:\w+/g, (key) => {
+        if (has(params, key.substr(1))) {
+          const value = get(params, key.substr(1));
+    
+          del(params, key.substr(1));
+    
+          return value;
+        } else {
+          return key;
+        }
+      });
+    
+      if (! headers) {
+        headers = {};
+      }
+    
+      if (params) {
+        switch (contentType) {
+          case 'form':
+            params = Object.keys(params).reduce((acc, key) => {
+              if (params[key] !== void 0) {
+                acc[key] = encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key])) + '&';
+              }
+    
+              return acc;
+            }, {});
+            headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    
+            break;
+    
+          case 'json':
+            params = JSON.stringify(params);
+            headers['Content-Type'] = 'application/json';
+    
+            break;
+        }
+      }
+    
+      switch (transport) {
+        case 'http':
+          return fetch(url, {
+            body: params,
+            headers,
+            method,
+          })
+            .then((response) => response.text().then((text) => ({status: response.status, text, response})))
+            .catch((error) => {
+              if (error instanceof TypeError) {
+                return {status: 0, text: 'ApiDog proxy is not available'};
+              }
+    
+              if (error.text) {
+                return error.text().then((text) => ({status: 0, text: error.text()}));
+              }
+    
+              return {status: 0, text: error};
+            });
+    
+        case 'ws':
+          if (! (url in wsConnections)) {
+            wsConnections[url] = new WebSocket(url);
+    
+            wsConnections[url].onmessage = (msg) => cb(null, msg);
+          }
+    
+          try {
+            wsConnections[url].send(params);
+          } catch (err) {
+            cb(err);
+          }
+    
+          return wsConnections[url];
+      }
+    }
+    
+    const lastHintsStatus = {};
+    const lastSelectedVersions = {};
+    
+    bySelector('[data-block-control-panel]').forEach((el) => {
+      const family = el.dataset.blockControlPanel;
+    
+      const showHintEl = bySelector('button', el)[0];
+    
+      lastHintsStatus[family] = true;
+    
+      onClick(showHintEl, () => {
+        if (lastHintsStatus[family]) {
+          bySelector(`[data-block-hint="${family}"]`).forEach((el) => {
+            addClass(el, 'hidden');
+          });
+    
+          showHintEl.textContent = 'Show hints';
+        } else {
+          bySelector(`[data-block-hint="${family}"]`).forEach((el) => {
+            removeClass(el, 'hidden');
+          });
+    
+          showHintEl.textContent = 'Hide hints';
+        }
+    
+        lastHintsStatus[family] = ! lastHintsStatus[family];
+      });
+    
+      const versionSelectorEl = bySelector('select', el)[0];
+    
+      lastSelectedVersions[family] = getValue(versionSelectorEl);
+    
+      onChange(versionSelectorEl, (value) => {
+        addClass(bySelector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+    
+        lastSelectedVersions[family] = value;
+    
+        removeClass(bySelector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+      });
+    });
+    
+    bySelector('[data-block]').forEach((el) => {
+      onClick(bySelector('[data-block-element="send"]', el)[0], () => {
+        hideResponse(el);
+    
+        const blockDescriptor = sections[el.dataset.block];
+        const blockHeaders = {};
+        const blockParams = {};
+    
+        bySelector('[data-block-element]', el).forEach((blockEl) => {
+          switch (blockEl.dataset.blockElement) {
+            case 'header':
+              blockHeaders[blockEl.name] = getValue(blockEl);
+    
+              break;
+    
+            case 'param':
+              blockParams[blockEl.name] = getValue(blockEl);
+    
+              break;
+          }
+        });
+    
+        const params = {};
+    
+        Object.keys(blockParams).forEach((key) => {
+          const blockDescriptorParam = blockDescriptor.params.find((blockDescriptorParam) => blockDescriptorParam.field.name === key);
+          const path = key.split('.');
+          const [type, modificator] = blockDescriptorParam.type
+            ? blockDescriptorParam.type.name.split(':').map((chunk) => chunk.toLowerCase())
+            : [];
+    
+          let value = blockParams[key];
+    
+          if (modificator === 'null') {
+            value = blockParams[key] === '' ? Null : blockParams[key];
+          }
+    
+          if (value !== Null) {
+            switch (type) {
+              case 'array':
+                value = [];
+    
+                break;
+    
+              case 'boolean':
+                value = value === '' ? void 0 : (blockParams[key] === '1' || blockParams[key] === 'true');
+    
+                break;
+    
+              case 'date':
+                value = value === '' ? void 0 : new Date(blockParams[key]);
+    
+                break;
+    
+              case 'number':
+                value = value === '' ? void 0 : Number(blockParams[key]);
+    
+                break;
+    
+              case 'object':
+                value = {};
+    
+                break;
+            }
+          }
+    
+          if (value === Null) {
+            value = null;
+          }
+    
+          if (value !== void 0) {
+            let bodyNode = params;
+    
+            path.forEach((key, index) => {
+              if (index === path.length - 1) {
+                bodyNode[key] = value;
+              } else {
+                if (Array.isArray(bodyNode) && ! (key in bodyNode)) {
+                  bodyNode.push({});
+                }
+    
+                if (! bodyNode[key]) {
+                  bodyNode[key] = {};
+                }
+    
+                bodyNode = bodyNode[key];
+              }
+            });
+          }
+        });
+    
+        if (blockDescriptor.proxy) {
+          request(
+            'http',
+            `${blockDescriptor.proxy}/${blockDescriptor.api.transport.name}/${bySelector('[data-block-element="endpoint"]', el)[0].value}`,
+            'post',
+            params,
+            blockHeaders,
+            blockDescriptor.contentType[0] || 'form'
+          ).then(({text}) => {
+            showResponse(el, text);
+          });
+        } else {
+          switch (blockDescriptor.api.transport.name) {
+            case 'amqp':
+            case 'amqpRpc':
+              showResponse(el, 'ApiDog proxy must be used for AMQP');
+    
+              break;
+    
+            case 'http':
+            case 'https':
+              request(
+                'http',
+                bySelector('[data-block-element="endpoint"]', el)[0].value,
+                blockDescriptor.api.transport.method || 'get',
+                blockDescriptor.api.transport.method === 'get' || !blockDescriptor.api.transport.method ? void 0 : params,
+                blockHeaders,
+                blockDescriptor.contentType[0] || 'form'
+              ).then(({text}) => {
+                showResponse(el, text);
+              });
+    
+              break;
+    
+            case 'websocket':
+            case 'ws':
+              request(
+                'ws',
+                bySelector('[data-block-element="endpoint"]', el)[0].value,
+                blockDescriptor.api.transport.method || 'get',
+                blockDescriptor.api.transport.method === 'get' || !blockDescriptor.api.transport.method ? void 0 : params,
+                blockHeaders,
+                blockDescriptor.contentType[0] || 'form',
+                (err, msg) => showResponse(el, err || msg)
+              );
+    
+              break;
+    
+            default:
+              showResponse(el, `Unknown transport: ${blockDescriptor.api.transport.name}`);
+          }
+        }
+      });
+    });
+</script>
+</html>

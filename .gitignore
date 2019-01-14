@@ -1,0 +1,9 @@
+src/templates/config.js
+.DS_Store
+.env
+.idea/
+.vscode/
+dist/
+ignore*
+coverage/
+node_modules/

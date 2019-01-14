@@ -1,0 +1,748 @@
+<html>
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    .sub-container {
+      padding: 1rem 0.5rem 0 0.5rem;
+    }
+
+    .section {
+      margin-bottom: 0.5rem;
+    }
+
+    .splitter {
+      margin: 1.5rem 0;
+    }
+
+    .padded {
+      padding: 0 0.5rem;
+    }
+
+    .left-padded {
+      padding-left: 0.5rem;
+    }
+
+    .top-padded {
+      padding-top: 0.5rem;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .mono {
+      font-family: monospace;
+    }
+
+    .small {
+      font-size: small;
+    }
+
+    .smaller {
+      font-size: smaller;
+    }
+
+    .sup {
+      position: absolute;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+    }
+
+    .line-through {
+      text-decoration: line-through;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-1 {
+      flex: 1;
+    }
+
+    .flex-2 {
+      flex: 2;
+    }
+
+    .flex-3 {
+      flex: 3;
+    }
+
+    .flex-4 {
+      flex: 4;
+    }
+
+    .flex-5 {
+      flex: 5;
+    }
+
+    .flex-6 {
+      flex: 6;
+    }
+
+    .flex-7 {
+      flex: 7;
+    }
+
+    .flex-8 {
+      flex: 8;
+    }
+
+    .flex-9 {
+      flex: 9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .height-1 {
+      height: 1.25rem;
+    }
+
+    .height-2 {
+      height: 1.5rem;
+    }
+
+    .width-10 {
+      width: 10%;
+    }
+
+    .width-15 {
+      width: 15%;
+    }
+
+    .width-20 {
+      width: 20%;
+    }
+
+    .width-25 {
+      width: 25%;
+    }
+
+    .width-30 {
+      width: 30%;
+    }
+
+    .width-80 {
+      width: 80%;
+    }
+
+    .width-100 {
+      width: 100%;
+    }
+
+    .bg-color-1 {
+      background-color: #383838;
+    }
+
+    .bg-color-2 {
+      background-color: #707070;
+    }
+
+    .bg-color-3 {
+      background-color: #a8a8a8;
+    }
+
+    .bg-color-4 {
+      background-color: #e0e0e0;
+    }
+
+    .bg-color-black {
+      background-color: black !important;
+    }
+
+    .bg-color-dark-blue {
+      background-color: darkblue !important;
+    }
+
+    .bg-color-blue {
+      background-color: blue !important;
+    }
+
+    .bg-color-dark-green {
+      background-color: darkgreen !important;
+    }
+
+    .bg-color-green {
+      background-color: green !important;
+    }
+
+    .bg-color-dark-orange {
+      background-color: darkorange !important;
+    }
+
+    .bg-color-orange {
+      background-color: orange !important;
+    }
+
+    .bg-color-dark-red {
+      background-color: darkred !important;
+    }
+
+    .bg-color-red {
+      background-color: red !important;
+    }
+
+    .bg-color-cyan {
+      background-color: cyan !important;
+    }
+
+    .bg-color-dark-cyan {
+      background-color: darkslateblue;
+    }
+
+    .bg-color-white {
+      background-color: white !important;
+    }
+
+    .color-1 {
+      color: #383838 !important;
+    }
+
+    .color-2 {
+      color: #707070 !important;
+    }
+
+    .color-3 {
+      color: #a8a8a8 !important;
+    }
+
+    .color-4 {
+      color: #e0e0e0 !important;
+    }
+
+    .color-blue {
+      color: blue !important;
+    }
+
+    .color-green {
+      color: green !important;
+    }
+
+    .color-orange {
+      color: orange !important;
+    }
+
+    .color-red {
+      color: red !important;
+    }
+
+    .color-white {
+      color: white !important;
+    }
+
+    .font-size-1 {
+      font-size: 1.25rem !important;
+    }
+
+    .font-size-2 {
+      font-size: 1.5rem !important;
+    }
+
+    .font-size-3 {
+      font-size: 1.75rem !important;
+    }
+
+    .font-size-4 {
+      font-size: 2rem !important;
+    }
+
+    .badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0 0.5rem;
+    }
+
+    .element-badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .big-badge {
+      border-radius: 0.25rem;
+      border-width: 0;
+      padding: 0.5rem;
+    }
+
+    .block {
+      //padding: 1rem 0;
+    }
+
+    .table {
+      display: flex;
+    }
+
+    .table > * {
+      box-sizing: border-box;
+      border: #e0e0e0 solid;
+      border-width: 0 1px 1px 0;
+      min-height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .table > *:last-child {
+      border-right-width: 0;
+    }
+
+    .send-button {
+      border: 1px solid #e0e0e0;
+      color: #383838;
+      cursor: pointer;
+      font-size: 1rem;
+      height: 2rem;
+      padding: 0 1rem;
+      margin-left: 25%;
+    }
+
+    .inner-label {
+      color: #383838;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      padding: 1rem 0 0 25%;
+    }
+
+    .label {
+      color: #383838;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      padding: 1rem 0 0 0.5rem;
+    }
+
+    .control {
+      background-color: #fcfcfc;
+      border: 1px solid #e0e0e0;
+      font-size: 0.75rem;
+      height: 1.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .input {
+      background-color: #fcfcfc;
+      border: 1px solid #e0e0e0;
+      font: 1rem monospace;
+      height: 1.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .input-label {
+      color: #808080;
+      font-size: 1rem;
+      height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+      text-align: right;
+    }
+
+    .input-placeholder {
+      background-color: #e0e0e0;
+      color: #808080;
+      font-size: 1rem;
+      height: 1.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .response {
+      margin: 0;
+      white-space: pre-wrap;
+      width: 100%;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+
+    .menu-item {
+      color: #383838;
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover {
+      background-color: #e0e0e0;
+    }
+
+    .control-panel {
+      position: relative;
+    }
+
+    .control-panel > div {
+      position: absolute;
+      right: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container flex">
+
+  <div class="width-100">
+    <div class="sub-container">
+      <div class="section left-padded color-1 font-size-4 bold">{{title}}</div>
+      <div class="section left-padded color-2">{{html description}}</div>
+    </div>
+  </div>
+
+</div>
+<div class="container flex">
+
+  <div class="width-20">
+    <div class="sub-container">
+      {{#each groupsAsLists}}
+        {{#ifCond this.title '!=' '$'}}
+          <div class="element-badge bg-color-1 color-white bold">{{../this.title}}</div>
+        {{/ifCond}}
+        {{#each this.subgroups}}
+          {{#ifCond this.title '!=' '$'}}
+            <div class="left-padded top-padded bold smaller">{{../this.title}}</div>
+          {{/ifCond}}
+          {{#each this.names}}
+            <a class="menu-item element-badge" href="#{{this.0.familyId}}">{{this.0.title}}</a>
+          {{/each}}
+        {{/each}}
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="width-80">
+    <div class="sub-container">
+      {{#each groupsAsLists}}
+        {{#each this.subgroups}}
+          {{#each this.names}}
+            <div class="block">
+              <div class="control-panel">
+                <div class="width-30 flex" data-control-panel="{{this.0.familyId}}">
+                  <div class="flex-1">
+                    <button class="width-100 control flex-1 color-blue">Hide hints</button>
+                  </div>
+                  <div class="flex-1">
+                    <select class="width-100 input flex-1 right color-blue">
+                      {{#each this}}
+                        <option value="{{this.version}}">{{this.version}}</option>
+                      {{/each}}
+                    </select>
+                  </div>
+                  <div class="flex-1"></div>
+                </div>
+              </div>
+              {{#each this as |block index|}}
+                {{#ifCond index '==' 0}}
+                  <a name="{{block.familyId}}"></a>
+                {{/ifCond}}
+              <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
+                <div class="control-panel">
+                  <div class="width-10 flex" data-block-control-panel="{{block.id}}">
+                    <div class="flex-1">
+                      <select class="width-100 input right color-blue" data-block-element="contentType">
+                        {{#each block.contentType}}
+                          <option value="{{this}}">{{this}}</option>
+                        {{/each}}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <span class="{{#if this.deprecated}}line-through{{/if}}">
+                    {{this.title}}
+                    <span class="color-3">
+                      {{#ifCond this.group '!=' '$'}}
+                        {{../this.group}} /
+                      {{/ifCond}}
+                      {{#ifCond this.subgroup '!=' '$'}}
+                        {{../this.subgroup}} /
+                      {{/ifCond}}
+                      {{this.version}}
+                    </span>
+                  </span>
+                  {{#if this.deprecated}}
+                    {{#ifCond this.deprecated '!=' true}}
+                      <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                    {{/ifCond}}
+                  {{/if}}
+                </div>
+                <div class="section left-padded color-2">{{html (join this.description)}}</div>
+
+                <div class="section flex">
+                  <span class="padded font-size-1 uppercase mono bold">{{upper this.api.transport.name}}</span>
+                  {{#ifCond this.api.transport.name '==' 'http'}}
+                    {{#ifCond ../this.api.transport.method '==' 'delete'}}
+                      <span class="badge bg-color-red color-white font-size-1 uppercase mono bold">DELETE</span>
+                    {{else ifCond ../this.api.transport.method '==' 'get'}}
+                      <span class="badge bg-color-green color-white font-size-1 uppercase mono bold">GET</span>
+                    {{else ifCond ../this.api.transport.method '==' 'put'}}
+                      <span class="badge bg-color-orange color-white font-size-1 uppercase mono bold">PUT</span>
+                    {{else}}
+                      <span class="badge bg-color-blue color-white font-size-1 uppercase mono bold">{{../this.api.transport.method}}</span>
+                    {{/ifCond}}
+                  {{/ifCond}}
+                </div>
+
+                <div class="section">
+                  <div class="response big-badge bg-color-black color-white font-size-1 mono">{{this.api.endpoint}}</div>
+                </div>
+
+                {{#if this.example}}
+                  {{#each this.example}}
+                    <div class="section">
+                      <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example:{{/if}}</div>
+                      <pre class="response big-badge bg-color-dark-green color-white mono">{{html
+                              (join this.description)}}</pre>
+                    </div>
+                  {{/each}}
+                {{/if}}
+
+                <div data-block-hint="{{block.familyId}}">
+                  {{#if this.headers.length}}
+                    {{#each this.headersGroups as |params key|}}
+                      <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                        {{#each params}}
+                          <div class="table">
+                            <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                            <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                            <div class="flex-1">{{html (join this.description)}}</div>
+                          </div>
+                        {{/each}}
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.headerExample}}
+                    {{#each this.headerExample}}
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                           data-block-example="{{../this.id}}_{{this.type}}">
+                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example:{{/if}}</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                                (join this.description)}}</pre>
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.params.length}}
+                    {{#each this.paramsGroups as |params key|}}
+                      <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                        {{#each params}}
+                          <div class="table">
+                            <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                            <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                            <div class="flex-1">{{html (join this.description)}}</div>
+                          </div>
+                        {{/each}}
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.paramExample}}
+                    {{#each this.paramExample}}
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                           data-block-example="{{../this.id}}_{{this.type}}">
+                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example:{{/if}}</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                                (join this.description)}}</pre>
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.successs.length}}
+                    {{#each this.successsGroups as |successes key|}}
+                      <div class="label color-green">{{#ifCond key '==' '$'}}Success 200{{else}}{{key}}{{/ifCond}}:
+                      </div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Field</div>
+                          <div class="width-15 bg-color-4 bold">Type</div>
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                        {{#each successes}}
+                          <div class="table">
+                            <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                            <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                            <div class="flex-1">{{html (join this.description)}}</div>
+                          </div>
+                        {{/each}}
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.successExample}}
+                    {{#each this.successExample}}
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                           data-block-example="{{../this.id}}_{{this.type}}">
+                        <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
+                          Success example:{{/if}}</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                                (join this.description)}}</pre>
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.errors.length}}
+                    {{#each this.errorsGroups as |errors key|}}
+                      <div class="label color-red">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{key}}{{/ifCond}}:</div>
+                      <div class="section">
+                        <div class="table">
+                          <div class="width-25 bg-color-4 bold">Name</div>
+                          <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                          <div class="flex-1 bg-color-4 bold">Description</div>
+                        </div>
+                        {{#each errors}}
+                          <div class="table">
+                            <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                            <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                            <div class="flex-1">{{html (join this.description)}}</div>
+                          </div>
+                        {{/each}}
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if this.errorExample}}
+                    {{#each this.errorExample}}
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                           data-block-example="{{../this.id}}_{{this.type}}">
+                        <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example:{{/if}}</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                                (join this.description)}}</pre>
+                      </div>
+                    {{/each}}
+                  {{/if}}
+                </div>
+
+                {{#ifCond this.sampleRequest.[0] '!=' false}}
+                  <div class="label">Sample request:</div>
+
+                  <div class="section flex">
+                    <label class="input-label width-25" for="{{this.id}}">Endpoint</label>
+                    <input
+                            class="input flex-1"
+                            id="{{../this.id}}"
+                            name="endpoint"
+                            type="text"
+                            data-block-element="endpoint"
+                            value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
+                    />
+                  </div>
+
+                  {{#if ../this.headers.length}}
+                    <div class="inner-label">Header:</div>
+                    {{#each ../this.headers}}
+                      <div class="section flex">
+                        <label class="input-label width-25"
+                               for="{{../this.id}}_h_{{this.field.name}}">{{this.field.name}}</label>
+                        {{#if this.type.modifiers.enum}}
+                          <select
+                                  class="input flex-1"
+                                  id="{{../../this.id}}_h_{{this.field.name}}"
+                                  name="{{this.field.name}}"
+                                  type="text"
+                                  data-block-element="header"
+                                  value="{{this.field.defaultValue}}"
+                          >
+                            {{#each ../this.type.allowedValues}}
+                              <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                          </select>
+                        {{else}}
+                          <input
+                                  class="input flex-1"
+                                  id="{{../../this.id}}_h_{{this.field.name}}"
+                                  name="{{this.field.name}}"
+                                  type="text"
+                                  data-block-element="header"
+                                  value="{{this.field.defaultValue}}"
+                          />
+                        {{/if}}
+                        <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
+                  {{#if ../this.params.length}}
+                    <div class="inner-label">Parameter:</div>
+                    {{#each ../this.params}}
+                      {{#hook 'isNotContainerType' this.type.name}}
+                        <div class="section flex">
+                          <label class="input-label width-25"
+                                 for="{{../../../this.id}}_p_{{../this.field.name}}">{{../this.field.name}}</label>
+                          {{#if ../this.type.modifiers.enum}}
+                            <select
+                                    class="input flex-1"
+                                    id="{{../../../this.id}}_p_{{../this.field.name}}"
+                                    name="{{../this.field.name}}"
+                                    type="text"
+                                    data-block-element="param"
+                                    value="{{../this.field.defaultValue}}"
+                            >
+                              {{#each ../this.type.allowedValues}}
+                                <option value="{{this}}">{{this}}</option>
+                              {{/each}}
+                            </select>
+                          {{else}}
+                            <input
+                                    class="input flex-1"
+                                    id="{{../../../this.id}}_p_{{../this.field.name}}"
+                                    name="{{../this.field.name}}"
+                                    type="text"
+                                    data-block-element="param"
+                                    value="{{../this.field.defaultValue}}"
+                            />
+                          {{/if}}
+                          <span class="input-placeholder mono">{{../this.type.name}}</span>
+                        </div>
+                      {{/hook}}
+                    {{/each}}
+                  {{/if}}
+
+                  <div class="section">
+                    <button class="send-button" data-block-element="send">Send</button>
+                  </div>
+
+                  <div class="section hidden" data-block-element="response">
+                    <div class="label">Response:</div>
+                    <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                  </div>
+                </div>
+                {{/ifCond}}
+              {{/each}}
+            </div>
+          {{/each}}
+          <hr class="splitter">
+        {{/each}}
+      {{/each}}
+    </div>
+  </div>
+
+</div>
+</body>
+<script>
+  const config = {{json this.config}};
+  const sections = {{json this.sections}};
+
+  {{> prepare_body.js }}
+  {{> js.js }}
+  {{> sample_request_hooks.js }}
+</script>
+</html>

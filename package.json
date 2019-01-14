@@ -1,0 +1,21 @@
+{
+  "name": "apidog",
+  "version": "1.0.0",
+  "description": "ApiDog is a API documentation generator alternative to the ApiDoc",
+  "main": "start.js",
+  "dependencies": {
+    "handlebars": "^4.0.12"
+  },
+  "devDependencies": {
+    "amqplib": "^0.5.2",
+    "amqplib-rpc": "^3.1.0",
+    "express": "^4.16.4",
+    "jasmine": "3.3.0",
+    "supertest": "^3.3.0"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test node $NODE_DEBUG_OPTION ./node_modules/.bin/jasmine JASMINE_CONFIG_PATH=jasmine.json"
+  },
+  "author": "",
+  "license": "ISC"
+}
