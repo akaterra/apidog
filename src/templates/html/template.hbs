@@ -741,6 +741,8 @@
   const config = {{json this.config}};
   const sections = {{json this.sections}};
 
+  {{> compile_body_from.js }}
+  {{> compile_body_xml.js }}
   {{> prepare_body.js }}
   {{> js.js }}
   {{> sample_request_hooks.js }}

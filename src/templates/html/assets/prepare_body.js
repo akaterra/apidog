@@ -1,5 +1,3 @@
-const Null = _ => _;
-
 const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
 
 const prepareBody = (params, paramsDescriptors) => {

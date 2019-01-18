@@ -139,13 +139,7 @@ function request(transport, url, method, params, headers, contentType, config) {
   if (params) {
     switch (contentType) {
       case 'form':
-        params = Object.keys(params).reduce((acc, key) => {
-          if (params[key] !== void 0) {
-            acc += encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key])) + '&';
-          }
-
-          return acc;
-        }, '');
+        params = compileBodyForm(params);
         headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
         break;
@@ -157,40 +151,7 @@ function request(transport, url, method, params, headers, contentType, config) {
         break;
 
       case 'xml':
-        function compile(e, k) {
-          if (e && typeof e === 'object') {
-            const attr = Object.keys(e).reduce((acc, key) => {
-              if (! e[key] || typeof e[key] !== 'object') {
-                acc.push(`${key}="${e[key]}"`);
-              }
-
-              return acc;
-            }, []);
-            const subs = Object.keys(e).reduce((acc, key) => {
-              if (e[key] && typeof e[key] === 'object') {
-                acc.push(compile(e[key], key));
-              }
-
-              return acc;
-            }, []);
-
-            return subs.length
-                ? `<${k}${attr.length ? ' ' + attr.join(' ') : ''}>${subs.join()}</${k}>`
-                : `<${k}${attr.length ? ' ' + attr.join(' ') : ''} />`;
-          } else {
-            return `<${k}>${e}</${k}>`;
-          }
-        }
-
-        if (config.options.sampleRequestXmlRoot) {
-          params = {[config.options.sampleRequestXmlRoot]: params};
-        }
-
-        params = Object.keys(params).reduce((acc, key) => {
-          acc += compile(params[key], key);
-
-          return acc;
-        }, '<?xml version="1.0" encoding="UTF-8" ?>');
+        params = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
         headers['Content-Type'] = 'text/xml';
     }
   }
@@ -203,7 +164,9 @@ function request(transport, url, method, params, headers, contentType, config) {
         headers,
         method,
       })
-        .then((response) => response.text().then((text) => ({status: response.status, text, response})))
+        .then((response) => {
+          response.text().then((text) => ({status: response.status, text, response}))
+        })
         .catch((error) => {
           if (error instanceof TypeError) {
             return {status: 0, text: 'ApiDog proxy is not available'};
