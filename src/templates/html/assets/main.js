@@ -165,11 +165,11 @@ function request(transport, url, method, params, headers, contentType, config) {
         method,
       })
         .then((response) => {
-          response.text().then((text) => ({status: response.status, text, response}))
+          return response.text().then((text) => ({status: response.status, text, response}))
         })
         .catch((error) => {
           if (error instanceof TypeError) {
-            return {status: 0, text: 'ApiDog proxy is not available'};
+            return {status: 0, text: 'Network error'};
           }
 
           if (error.text) {
