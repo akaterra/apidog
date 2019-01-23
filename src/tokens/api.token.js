@@ -101,12 +101,26 @@ function blockValidate(block, config) {
         throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()}`);
       }
 
+      if (block.sampleRequest) {
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          if (typeof sampleRequest === 'string') {
+            return sampleRequest;
+          }
+
+          if (sampleRequest === true) {
+            return block.api.endpoint;
+          }
+
+          return false;
+        });
+      }
+
       break;
 
     default:
       if (block.sampleRequest) {
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          if (sampleRequest[0] !== '/') {
+          if (typeof sampleRequest === 'string' && sampleRequest[0] !== '/') {
             return sampleRequest;
           }
 
