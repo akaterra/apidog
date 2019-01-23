@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const qs = require('qs');
 const URL = require('url').URL;
 
 function createApp(env) {
@@ -74,7 +75,7 @@ function createApp(env) {
               }, {}),
             hostname: url.hostname,
             method: req.method,
-            path: url.pathname,
+            path: `${url.pathname}?${qs.stringify(req.query)}`,
             protocol: url.protocol,
             timeout: 60000,
           };
