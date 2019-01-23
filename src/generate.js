@@ -46,6 +46,11 @@ handlebars.registerHelper('join', (inputData) => new handlebars.SafeString(
 ));
 handlebars.registerHelper('json', (inputData) => new handlebars.SafeString(JSON.stringify(inputData, void 0, 2)));
 handlebars.registerHelper('lower', (inputData) => inputData.toLowerCase());
+handlebars.registerHelper('mdLink', (...args) => {
+  const options = args.pop();
+
+  return args.join('').replace(/[^\w\s]/g, '').replace(/\s/g, '-');
+});
 handlebars.registerHelper('pathLastKeyIndented', (inputData) => {
   const pathKeys = inputData.split('.');
 
