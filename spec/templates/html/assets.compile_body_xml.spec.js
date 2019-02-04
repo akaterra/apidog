@@ -1,7 +1,7 @@
 const compileBodyXml = require('../../../src/templates/html/assets/compile_body_xml').compileBodyXml;
 
 describe('template html assets, compileBodyForm', () => {
-  fit('should compile', () => {
+  it('should compile', () => {
     const text = compileBodyXml({
       a: 1,
       b: {
@@ -29,7 +29,7 @@ describe('template html assets, compileBodyForm', () => {
     );
   });
 
-  fit('should compile fine formatted', () => {
+  it('should compile fine formatted', () => {
     const text = compileBodyXml({
       a: 1,
       b: {
@@ -43,17 +43,17 @@ describe('template html assets, compileBodyForm', () => {
     }, {fine: true, root: 'body'});
 
     expect(text).toEqual('<?xml version="1.0" opts="UTF-8" ?>\n' +
-      '  <body a="1">\n' +
-      '    <b a="2">\n' +
-      '      <b a="3" />\n' +
-      '      <c>4</c>\n' +
-      '      <c>5</c>\n' +
-      '      <c>6</c>\n' +
-      '    </b>\n' +
-      '    <c>7</c>\n' +
-      '    <c>8</c>\n' +
-      '    <c>9</c>\n' +
-      '  </body>\n'
+      '<body a="1">\n' +
+      '  <b a="2">\n' +
+      '    <b a="3" />\n' +
+      '    <c>4</c>\n' +
+      '    <c>5</c>\n' +
+      '    <c>6</c>\n' +
+      '  </b>\n' +
+      '  <c>7</c>\n' +
+      '  <c>8</c>\n' +
+      '  <c>9</c>\n' +
+      '</body>\n'
     );
   });
 });

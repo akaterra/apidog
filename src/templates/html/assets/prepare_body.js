@@ -41,7 +41,7 @@ const prepareBody = (params, paramsDescriptors) => {
     let value = params[key];
 
     if (paramsDescriptor) {
-      if (paramsDescriptor.type.modifiers.none) {
+      if (paramsDescriptor.type.modifiers.none || paramsDescriptor.field.isOptional) {
         value = params[key] === '' ? void 0 : params[key];
       } else if (paramsDescriptor && paramsDescriptor.type.modifiers.null) {
         value = params[key] === '' ? null : params[key];

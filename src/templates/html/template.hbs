@@ -282,7 +282,7 @@
     }
 
     .block {
-      //padding: 1rem 0;
+    / / padding: 1 rem 0;
     }
 
     .table {
@@ -391,7 +391,7 @@
   <div class="width-100">
     <div class="sub-container">
       <div class="section left-padded color-1 font-size-4 bold">{{title}}</div>
-      <div class="section left-padded color-2">{{html description}}</div>
+      <div class="section left-padded color-2">{{toHtml description}}</div>
     </div>
   </div>
 
@@ -472,10 +472,10 @@
                     {{/ifCond}}
                   {{/if}}
                 </div>
-                <div class="section left-padded color-2">{{html (join this.description)}}</div>
+                <div class="section left-padded color-2">{{toHtml (join this.description)}}</div>
 
                 <div class="section flex">
-                  <span class="padded font-size-1 uppercase mono bold">{{upper this.api.transport.name}}</span>
+                  <span class="padded font-size-1 uppercase mono bold">{{toUpperCase this.api.transport.name}}</span>
                   {{#ifCond this.api.transport.name '==' 'http'}}
                     {{#ifCond ../this.api.transport.method '==' 'delete'}}
                       <span class="badge bg-color-red color-white font-size-1 uppercase mono bold">DELETE</span>
@@ -496,8 +496,8 @@
                 {{#if this.example}}
                   {{#each this.example}}
                     <div class="section">
-                      <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example:{{/if}}</div>
-                      <pre class="response big-badge bg-color-dark-green color-white mono">{{html
+                      <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
+                      <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
                               (join this.description)}}</pre>
                     </div>
                   {{/each}}
@@ -517,7 +517,7 @@
                           <div class="table">
                             <div class="width-25 color-2 mono">{{this.field.name}}</div>
                             <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                            <div class="flex-1">{{html (join this.description)}}</div>
+                            <div class="flex-1">{{toHtml (join this.description)}}</div>
                           </div>
                         {{/each}}
                       </div>
@@ -526,10 +526,11 @@
 
                   {{#if this.headerExample}}
                     {{#each this.headerExample}}
-                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                   'any'}} hidden{{/ifCond}}"
                            data-block-example="{{../this.id}}_{{this.type}}">
-                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example:{{/if}}</div>
-                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}:</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                 (join this.description)}}</pre>
                       </div>
                     {{/each}}
@@ -548,7 +549,7 @@
                           <div class="table">
                             <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
                             <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                            <div class="flex-1">{{html (join this.description)}}</div>
+                            <div class="flex-1">{{toHtml (join this.description)}}</div>
                           </div>
                         {{/each}}
                       </div>
@@ -557,10 +558,11 @@
 
                   {{#if this.paramExample}}
                     {{#each this.paramExample}}
-                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                   'any'}} hidden{{/ifCond}}"
                            data-block-example="{{../this.id}}_{{this.type}}">
-                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example:{{/if}}</div>
-                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}:</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                 (join this.description)}}</pre>
                       </div>
                     {{/each}}
@@ -580,7 +582,7 @@
                           <div class="table">
                             <div class="width-25 color-2 mono">{{this.field.name}}</div>
                             <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                            <div class="flex-1">{{html (join this.description)}}</div>
+                            <div class="flex-1">{{toHtml (join this.description)}}</div>
                           </div>
                         {{/each}}
                       </div>
@@ -589,11 +591,13 @@
 
                   {{#if this.successExample}}
                     {{#each this.successExample}}
-                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                   'any'}} hidden{{/ifCond}}"
                            data-block-example="{{../this.id}}_{{this.type}}">
                         <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
-                          Success example:{{/if}}</div>
-                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                          Success example{{/if}}:
+                        </div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                 (join this.description)}}</pre>
                       </div>
                     {{/each}}
@@ -612,7 +616,7 @@
                           <div class="table">
                             <div class="width-25 color-2 mono">{{this.field.name}}</div>
                             <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                            <div class="flex-1">{{html (join this.description)}}</div>
+                            <div class="flex-1">{{toHtml (join this.description)}}</div>
                           </div>
                         {{/each}}
                       </div>
@@ -621,10 +625,11 @@
 
                   {{#if this.errorExample}}
                     {{#each this.errorExample}}
-                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0]}} hidden{{/ifCond}}"
+                      <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                   'any'}} hidden{{/ifCond}}"
                            data-block-example="{{../this.id}}_{{this.type}}">
-                        <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example:{{/if}}</div>
-                        <pre class="response big-badge bg-color-2 color-white mono">{{html
+                        <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}:</div>
+                        <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                 (join this.description)}}</pre>
                       </div>
                     {{/each}}
@@ -647,72 +652,80 @@
                   </div>
 
                   {{#if ../this.headers.length}}
-                    <div class="inner-label">Header:</div>
-                    {{#each ../this.headers}}
-                      <div class="section flex">
-                        <label class="input-label width-25"
-                               for="{{../this.id}}_h_{{this.field.name}}">{{this.field.name}}</label>
-                        {{#if this.type.modifiers.enum}}
-                          <select
-                                  class="input flex-1"
-                                  id="{{../../this.id}}_h_{{this.field.name}}"
-                                  name="{{this.field.name}}"
-                                  type="text"
-                                  data-block-element="header"
-                                  value="{{this.field.defaultValue}}"
-                          >
-                            {{#each ../this.type.allowedValues}}
-                              <option value="{{this}}">{{this}}</option>
-                            {{/each}}
-                          </select>
-                        {{else}}
-                          <input
-                                  class="input flex-1"
-                                  id="{{../../this.id}}_h_{{this.field.name}}"
-                                  name="{{this.field.name}}"
-                                  type="text"
-                                  data-block-element="header"
-                                  value="{{this.field.defaultValue}}"
-                          />
-                        {{/if}}
-                        <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
+                    {{#each ../this.headersGroups as |params key|}}
+                      <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:</div>
+                      <div class="section">
+                        {{#each params}}
+                          <div class="section flex">
+                            <label class="input-label width-25"
+                                   for="{{../../../this.id}}_h_{{this.field.name}}">{{this.field.name}}</label>
+                            {{#if this.type.modifiers.enum}}
+                              <select
+                                      class="input flex-1"
+                                      id="{{../../../this.id}}_h_{{this.field.name}}"
+                                      name="{{this.field.name}}"
+                                      type="text"
+                                      data-block-element="header"
+                                      value="{{this.field.defaultValue}}"
+                              >
+                                {{#each ../this.type.allowedValues}}
+                                  <option value="{{this}}">{{this}}</option>
+                                {{/each}}
+                              </select>
+                            {{else}}
+                              <input
+                                      class="input flex-1"
+                                      id="{{../../../this.id}}_h_{{this.field.name}}"
+                                      name="{{this.field.name}}"
+                                      type="text"
+                                      data-block-element="header"
+                                      value="{{this.field.defaultValue}}"
+                              />
+                            {{/if}}
+                            <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
+                          </div>
+                        {{/each}}
                       </div>
                     {{/each}}
                   {{/if}}
 
                   {{#if ../this.params.length}}
-                    <div class="inner-label">Parameter:</div>
-                    {{#each ../this.params}}
-                      {{#hook 'isNotContainerType' this.type.name}}
-                        <div class="section flex">
-                          <label class="input-label width-25"
-                                 for="{{../../../this.id}}_p_{{../this.field.name}}">{{../this.field.name}}</label>
-                          {{#if ../this.type.modifiers.enum}}
-                            <select
-                                    class="input flex-1"
-                                    id="{{../../../this.id}}_p_{{../this.field.name}}"
-                                    name="{{../this.field.name}}"
-                                    type="text"
-                                    data-block-element="param"
-                                    value="{{../this.field.defaultValue}}"
-                            >
-                              {{#each ../this.type.allowedValues}}
-                                <option value="{{this}}">{{this}}</option>
-                              {{/each}}
-                            </select>
-                          {{else}}
-                            <input
-                                    class="input flex-1"
-                                    id="{{../../../this.id}}_p_{{../this.field.name}}"
-                                    name="{{../this.field.name}}"
-                                    type="text"
-                                    data-block-element="param"
-                                    value="{{../this.field.defaultValue}}"
-                            />
-                          {{/if}}
-                          <span class="input-placeholder mono">{{../this.type.name}}</span>
-                        </div>
-                      {{/hook}}
+                    {{#each ../this.paramsGroups as |params key|}}
+                      <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:</div>
+                      <div class="section">
+                        {{#each params}}
+                          {{#hook 'isNotContainerType' this.type.name}}
+                            <div class="section flex">
+                              <label class="input-label width-25"
+                                     for="{{../../../../this.id}}_h_{{../this.field.name}}">{{../this.field.name}}</label>
+                              {{#if ../this.type.modifiers.enum}}
+                                <select
+                                        class="input flex-1"
+                                        id="{{../../../../this.id}}_h_{{../this.field.name}}"
+                                        name="{{../this.field.name}}"
+                                        type="text"
+                                        data-block-element="param"
+                                        value="{{../this.field.defaultValue}}"
+                                >
+                                  {{#each ../this.type.allowedValues}}
+                                    <option value="{{this}}">{{this}}</option>
+                                  {{/each}}
+                                </select>
+                              {{else}}
+                                <input
+                                        class="input flex-1"
+                                        id="{{../../../../this.id}}_h_{{../this.field.name}}"
+                                        name="{{../this.field.name}}"
+                                        type="text"
+                                        data-block-element="param"
+                                        value="{{../this.field.defaultValue}}"
+                                />
+                              {{/if}}
+                              <span class="input-placeholder mono">{{../this.type.name}}</span>
+                            </div>
+                          {{/hook}}
+                        {{/each}}
+                      </div>
                     {{/each}}
                   {{/if}}
 
@@ -738,13 +751,13 @@
 </div>
 </body>
 <script>
-  const config = {{json this.config}};
-  const sections = {{json this.sections}};
+  const config = {{toJson this.config}};
+  const sections = {{toJson this.sections}};
 
-  {{> compile_body_form.js }}
-  {{> compile_body_xml.js }}
-  {{> prepare_body.js }}
-  {{> main.js }}
-  {{> sample_request_hooks.js }}
+    {{> compile_body_form.js }}
+    {{> compile_body_xml.js }}
+    {{> prepare_body.js }}
+    {{> main.js }}
+    {{> sample_request_hooks.js }}
 </script>
 </html>

@@ -46,6 +46,7 @@ function construct(name, usePrefix) {
 
       field = {
         defaultValue: fieldTokens[1] ? utils.strSplitByQuotedTokens(fieldTokens[1])[0] : null,
+        isOptional: !! tokens[6],
         name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldTokens[0] : fieldTokens[0],
       }
     }

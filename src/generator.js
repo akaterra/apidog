@@ -1,63 +1,6 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
 
-handlebars.registerHelper('first', (...args) => {
-  for (let i = 0; i < args.length - 1; i ++) {
-    if (args[i]) {
-      return new handlebars.SafeString(args[i]);
-    }
-  }
-
-  return new handlebars.SafeString();
-});
-handlebars.registerHelper('html', (inputData) => new handlebars.SafeString(inputData.toString().replace('\n', '<br>')));
-handlebars.registerHelper('ifCond', (v1, operator, v2, options) => {
-  switch (operator) {
-    case '==':
-      return (v1 === v2) ? options.fn(this) : options.inverse(this);
-
-    case '!=':
-      return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-
-    case '<':
-      return (v1 < v2) ? options.fn(this) : options.inverse(this);
-
-    case '<=':
-      return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-
-    case '>':
-      return (v1 > v2) ? options.fn(this) : options.inverse(this);
-
-    case '>=':
-      return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-
-    case '&&':
-      return (v1 && v2) ? options.fn(this) : options.inverse(this);
-
-    case '||':
-      return (v1 || v2) ? options.fn(this) : options.inverse(this);
-
-    default:
-      return options.inverse(this);
-  }
-});
-handlebars.registerHelper('join', (inputData) => new handlebars.SafeString(
-  (Array.isArray(inputData) ? inputData : [inputData]).map((line) => line || '').join('\n')
-));
-handlebars.registerHelper('json', (inputData) => new handlebars.SafeString(JSON.stringify(inputData, void 0, 2)));
-handlebars.registerHelper('lower', (inputData) => inputData.toLowerCase());
-handlebars.registerHelper('mdLink', (...args) => {
-  const options = args.pop();
-
-  return args.join('').replace(/[^\w\s]/g, '').replace(/\s/g, '-');
-});
-handlebars.registerHelper('pathLastKeyIndented', (inputData) => {
-  const pathKeys = inputData.split('.');
-
-  return new handlebars.SafeString('&nbsp;&nbsp;'.repeat(pathKeys.length - 1) + pathKeys.pop());
-});
-handlebars.registerHelper('upper', (inputData) => inputData.toUpperCase());
-
 function generate(blocks, template, config, hbs) {
   blocks = blocks.filter((block) => {
     if (block.private) {
@@ -132,26 +75,6 @@ function generate(blocks, template, config, hbs) {
   });
 
   return (hbs || handlebars).compile(template)(templateParams);
-}
-
-function generateByTemplateFile(blocks, path, config, hbs) {
-  if (path[0] === '@') { // embedded templates (./src/templates)
-    path = `${__dirname}/templates/${path.substr(1)}`
-  }
-
-  const dirList = fs.readdirSync(`${path}/assets/`);
-
-  dirList.forEach((dirEntry) => {
-    const fsStat = fs.statSync(`${path}/assets/${dirEntry}`);
-
-    if (fsStat.isFile()) {
-      handlebars.registerPartial(dirEntry, fs.readFileSync(`${path}/assets/${dirEntry}`, {encoding: 'utf8'}));
-    }
-  });
-
-  const template = fs.readFileSync(`${path}/template.hbs`, { encoding: 'utf8' });
-
-  return generate(blocks, template, config, hbs);
 }
 
 function generateSections(blocks, config) {
@@ -245,7 +168,6 @@ function generateSections(blocks, config) {
 }
 
 module.exports = {
-  generateByTemplateFile,
   generate,
   generateSections,
 };

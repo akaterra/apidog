@@ -1,7 +1,9 @@
-# {{title}}
+{{title}}
+===
 {{description}}
 
-## Table of contents:
+Table of contents:
+---
 {{#each groupsAsLists}}
   {{#ifCond this.title '!=' '$'}}
 * {{../this.title}}
@@ -13,7 +15,7 @@
         {{/each}}
       {{else}}
         {{#each ../this.names}}
-  * {{this.0.title}}
+  * [{{this.0.title}}](#{{mdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
         {{/each}}
       {{/ifCond}}
     {{/each}}
@@ -35,7 +37,8 @@
 
 {{#each groupsAsLists}}
   {{#ifCond this.title '!=' '$'}}
-## {{../this.title}}
+{{../this.title}}
+---
   {{/ifCond}}
   {{#each this.subgroups}}
     {{#each this.names}}
@@ -57,8 +60,12 @@
 
 {{/ifCond}}
 
+
 {{#if this.headers.length}}
   {{#each this.headersGroups as |params key|}}
+
+**{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:**
+
 | Field | Type | Description |
 | ----- | ---- | ----------- |
     {{#each params}}
@@ -66,10 +73,12 @@
     {{/each}}
   {{/each}}
 {{/if}}
-
 
 {{#if this.params.length}}
   {{#each this.paramsGroups as |params key|}}
+
+**{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:**
+
 | Field | Type | Description |
 | ----- | ---- | ----------- |
     {{#each params}}
@@ -78,6 +87,27 @@
   {{/each}}
 {{/if}}
 
+{{#if this.example}}
+  {{#each this.example}}
+
+**{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:**
+
+```{{this.type}}
+{{html (join this.description)}}
+```
+  {{/each}}
+{{/if}}
+
+{{#if this.successExample}}
+  {{#each this.successExample}}
+
+**{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}:**
+
+```{{this.type}}
+{{join this.description}}
+```
+  {{/each}}
+{{/if}}
 
       {{/each}}
     {{/each}}

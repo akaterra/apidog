@@ -6,7 +6,7 @@ const compileBodyXml = (body, opts) => {
   function compile(e, k, prefix) {
     if (Array.isArray(e)) {
       return e.reduce((acc, val) => {
-        acc.push(compile(val, k, fine ? `  ${prefix}` : ''));
+        acc.push(compile(val, k, fine ? `${prefix}` : ''));
 
         return acc;
       }, []).join('');

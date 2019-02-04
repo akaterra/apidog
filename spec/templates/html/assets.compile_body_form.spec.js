@@ -1,7 +1,7 @@
 const compileBodyForm = require('../../../src/templates/html/assets/compile_body_form').compileBodyForm;
 
 describe('template html assets, compileBodyForm', () => {
-  fit('should compile', () => {
+  it('should compile', () => {
     const text = compileBodyForm({
       a: 1,
       b: {

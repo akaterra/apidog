@@ -1,6 +1,6 @@
 const fs = require('fs');
-const generate = require('./src/generate');
-const parse = require('./src/parse');
+const generate = require('./src/generator');
+const parse = require('./src/parser');
 
 function parseArgs(args, defs) {
   let parsed = {};
@@ -65,14 +65,71 @@ const args = parseArgs(process.argv.slice(2), {
 
 const argsPrivate = args.p || args.private;
 
-const html = generate.generateByTemplateFile(
+function loadConfig(dir) {
+  let configApidoc = {};
+
+  if (fs.existsSync(`${dir}/apidoc.json`)) {
+    configApidoc = JSON.parse(fs.readFileSync(`${dir}/apidoc.json`, {encoding: 'utf8'}))
+  } else if (fs.existsSync(`${process.cwd()}/apidoc.json`)) {
+    configApidoc = JSON.parse(fs.readFileSync(`${process.cwd()}/apidoc.json`, {encoding: 'utf8'}))
+  }
+
+  let configPackage = {};
+
+  if (fs.existsSync(`${dir}/package.json`)) {
+    configPackage = require(`${dir}/package.json`).apidoc || {};
+  } else if (fs.existsSync(`${process.cwd()}/package.json`)) {
+    configPackage = require(`${process.cwd()}/package.json`).apidoc || {};
+  }
+
+  return {
+    description: configApidoc.description || configPackage.description,
+    name: configApidoc.name || configPackage.name,
+    sampleUrl: configApidoc.sampleUrl || configPackage.sampleUrl,
+    title: configApidoc.title || configPackage.title,
+    version: configApidoc.version || configPackage.version,
+    url: configApidoc.url || configPackage.url,
+  };
+}
+
+function loadTemplate(path, hbs) {
+  if (path[0] === '@') { // embedded templates (./src/templates)
+    path = `${__dirname}/src/templates/${path.substr(1)}`
+  }
+
+  const assetsDir = fs.readdirSync(`${path}/assets/`);
+
+  assetsDir.forEach((dirEntry) => {
+    const fsStat = fs.statSync(`${path}/assets/${dirEntry}`);
+
+    if (fsStat.isFile()) {
+      hbs.registerPartial(dirEntry, fs.readFileSync(`${path}/assets/${dirEntry}`, {encoding: 'utf8'}));
+    }
+  });
+
+  for (const helpersDir of [`${path}/helpers`, './src/helpers']) {
+    if (fs.existsSync(`${helpersDir}/index.js`)) {
+      for (const [key, val] of Object.entries(require(`${helpersDir}/index.js`))) {
+        hbs.registerHelper(key, val);
+      }
+    }
+  }
+
+  return fs.readFileSync(`${path}/template.hbs`, { encoding: 'utf8' });
+}
+
+const config = loadConfig(args.i || args.input);
+const hbs = require('handlebars');
+const template = loadTemplate(args.t || args.template || '@html', hbs);
+
+const html = generate.generate(
   parse.parseDir(args.i || args.input),
-  args.t || args.template || '@html',
+  template,
   {
-    description: args.description,
+    description: args.description || config.description,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
-    sampleUrl: args.s || args.sampleUrl,
-    title: args.title,
+    sampleUrl: args.s || args.sampleUrl || config.sampleUrl,
+    title: args.title || config.title,
     transports: {
       http: {
         sampleRequestUrl: null,
@@ -81,7 +138,8 @@ const html = generate.generateByTemplateFile(
         sampleRequestUrl: null,
       }
     }
-  }
+  },
+  hbs,
 );
 
 fs.writeFileSync(args.o || args.output || 'apidog', html);
