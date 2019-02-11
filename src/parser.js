@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const utils = require('./utils');
 
 const cmdParsers = {
@@ -31,7 +32,22 @@ const cmdParsers = {
   '@apiVersion': require('./tokens/api_version.token'),
 };
 
-function parseDir(dir, blocks) {
+function parseDir(dir, blocks, ignoreList) {
+  dir = path.resolve(dir);
+
+  if (ignoreList) {
+    ignoreList = ignoreList
+      .filter((ignoreDir) => ignoreDir.trim())
+      .map((ignoreDir) => new RegExp(`^${dir}/${ignoreDir
+        .replace(/\*\*/g, '.*')
+        .replace(/\*/g, '[^\\/]*')
+      }`));
+  }
+
+  return parseDirInternal(dir, blocks, ignoreList);
+}
+
+function parseDirInternal(dir, blocks, ignoreList) {
   if (! blocks) {
     blocks = [];
   }
@@ -42,7 +58,15 @@ function parseDir(dir, blocks) {
     const fsStat = fs.statSync(dir + '/' + dirEntry);
 
     if (fsStat.isDirectory()) {
-      blocks = parseDir(dir + '/' + dirEntry, blocks);
+      if (ignoreList) {
+        for (const ignoreDir of ignoreList) {
+          if (ignoreDir.test(dir + '/' + dirEntry)) {
+            return blocks;
+          }
+        }
+      }
+
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList);
     } else if (fsStat.isFile()) {
       const extensionIndex = dirEntry.lastIndexOf('.');
 

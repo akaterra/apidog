@@ -245,7 +245,13 @@ bySelector('[data-control-panel]').forEach((el) => {
 });
 
 bySelector('[data-block]').forEach((el) => {
-  onClick(bySelector('[data-block-element="send"]', el)[0], () => {
+  const blockElementSend = bySelector('[data-block-element="send"]', el)[0];
+
+  if (! blockElementSend) {
+    return;
+  }
+
+  onClick(blockElementSend, () => {
     hideResponse(el);
 
     const blockDescriptor = sections[el.dataset.block];

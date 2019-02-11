@@ -87,8 +87,8 @@ function createApp(env) {
           const proxyReq = protocol.request(options, (proxyRes) => {
             res.status(proxyRes.statusCode);
 
-            for (const key of Object.keys(proxyRes.headers)) {
-              res.setHeader(key, proxyRes.headers[key]);
+            for (const [key, val] of Object.entries(proxyRes.headers)) {
+              res.setHeader(key, val);
             }
 
             proxyRes.pipe(res, {end: true});
@@ -117,9 +117,9 @@ function createApp(env) {
             req.query
           );
 
-          Object.keys(response.headers).forEach((key) => {
-            res.header(key, response.headers[key]);
-          });
+          for (const [key, val] of Object.entries(response.headers)) {
+            res.setHeader(key, val);
+          }
 
           res.status(200).send(response.body);
 
@@ -139,9 +139,9 @@ function createApp(env) {
             req.query
           );
 
-          Object.keys(response.headers).forEach((key) => {
-            res.header(key, response.headers[key]);
-          });
+          for (const [key, val] of Object.entries(response.headers)) {
+            res.setHeader(key, val);
+          }
 
           res.status(200).send(response.body);
 
@@ -216,7 +216,7 @@ function createApp(env) {
     });
 
     return {
-      body: true,
+      body: `Message has been sent to "${queue}" queue by ApiDog proxy`,
       headers: {},
     };
   }

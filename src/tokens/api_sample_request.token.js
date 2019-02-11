@@ -1,5 +1,5 @@
 /**
- * @apiSampleRequest [off]|[...]
+ * @apiSampleRequest [off]|[on]|[...]
  */
 
 const utils = require('../utils');

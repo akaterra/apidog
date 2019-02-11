@@ -77,19 +77,29 @@ function loadConfig(dir) {
   let configPackage = {};
 
   if (fs.existsSync(`${dir}/package.json`)) {
-    configPackage = require(`${dir}/package.json`).apidoc || {};
+    configPackage = require(`${dir}/package.json`) || {};
   } else if (fs.existsSync(`${process.cwd()}/package.json`)) {
-    configPackage = require(`${process.cwd()}/package.json`).apidoc || {};
+    configPackage = require(`${process.cwd()}/package.json`) || {};
+  }
+
+  if (! configPackage.apidoc) {
+    configPackage.apidoc = {};
   }
 
   return {
-    description: configApidoc.description || configPackage.description,
-    name: configApidoc.name || configPackage.name,
-    sampleUrl: configApidoc.sampleUrl || configPackage.sampleUrl,
-    title: configApidoc.title || configPackage.title,
-    version: configApidoc.version || configPackage.version,
-    url: configApidoc.url || configPackage.url,
+    description: configApidoc.description || configPackage.apidoc.description || configPackage.description,
+    name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
+    sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
+    version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
+    url: configApidoc.url || configPackage.apidoc.url,
   };
+}
+
+function loadGitIgnore(dir) {
+  if (fs.existsSync(`${dir}/.gitignore`)) {
+    return fs.readFileSync(`${dir}/.gitignore`, {encoding: 'utf8'}).split('\n');
+  }
 }
 
 function loadTemplate(path, hbs) {
@@ -123,7 +133,7 @@ const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 
 const html = generate.generate(
-  parse.parseDir(args.i || args.input),
+  parse.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input)),
   template,
   {
     description: args.description || config.description,
