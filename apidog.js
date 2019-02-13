@@ -69,17 +69,17 @@ function loadConfig(dir) {
   let configApidoc = {};
 
   if (fs.existsSync(`${dir}/apidoc.json`)) {
-    configApidoc = JSON.parse(fs.readFileSync(`${dir}/apidoc.json`, {encoding: 'utf8'}))
+    configApidoc = JSON.parse(fs.readFileSync(`${dir}/apidoc.json`, 'utf8'))
   } else if (fs.existsSync(`${process.cwd()}/apidoc.json`)) {
-    configApidoc = JSON.parse(fs.readFileSync(`${process.cwd()}/apidoc.json`, {encoding: 'utf8'}))
+    configApidoc = JSON.parse(fs.readFileSync(`${process.cwd()}/apidoc.json`, 'utf8'))
   }
 
   let configPackage = {};
 
   if (fs.existsSync(`${dir}/package.json`)) {
-    configPackage = require(`${dir}/package.json`) || {};
+    configPackage = JSON.parse(fs.readFileSync(`${dir}/package.json`, 'utf8')) || {};
   } else if (fs.existsSync(`${process.cwd()}/package.json`)) {
-    configPackage = require(`${process.cwd()}/package.json`) || {};
+    configPackage = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`, 'utf8')) || {};
   }
 
   if (! configPackage.apidoc) {
@@ -104,7 +104,7 @@ function loadGitIgnore(dir) {
 
 function loadTemplate(path, hbs) {
   if (path[0] === '@') { // embedded templates (./src/templates)
-    path = `${__dirname}/src/templates/${path.substr(1)}`
+    path = `${__dirname}/src/templates/${path.substr(1)}`;
   }
 
   const assetsDir = fs.readdirSync(`${path}/assets/`);
@@ -125,16 +125,19 @@ function loadTemplate(path, hbs) {
     }
   }
 
-  return fs.readFileSync(`${path}/template.hbs`, { encoding: 'utf8' });
+  return {
+    config: JSON.parse(fs.readFileSync(`${path}/config.json`, { encoding: 'utf8' })),
+    template: fs.readFileSync(`${path}/template.hbs`, { encoding: 'utf8' }),
+  };
 }
 
 const config = loadConfig(args.i || args.input);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 
-const html = generate.generate(
+const content = generate.generate(
   parse.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input)),
-  template,
+  template.template,
   {
     description: args.description || config.description,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
@@ -152,4 +155,14 @@ const html = generate.generate(
   hbs,
 );
 
-fs.writeFileSync(args.o || args.output || 'apidog', html);
+const outputDir = args.o || args.output || args.i || args.input;
+
+fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
+
+if (args['with-proxy']) {
+  for (const file of ['config.js', 'package.json', 'proxy.js']) {
+    if (! fs.existsSync(`${outputDir}/${file}`)) {
+      fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
+    }
+  }
+}
