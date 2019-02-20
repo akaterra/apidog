@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiDefine token by parseBlockLines', () => {
+describe('parser for @apiDefine token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiDefine name',
     ];
 
-    expect(parse.parseBlockLines(lines, {})).toEqual({
+    expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: [],
         name: 'name',
@@ -20,7 +20,7 @@ describe('parse @apiDefine token by parseBlockLines', () => {
       '@apiDefine name This is a title',
     ];
 
-    expect(parse.parseBlockLines(lines, {})).toEqual({
+    expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: [],
         name: 'name',
@@ -34,7 +34,7 @@ describe('parse @apiDefine token by parseBlockLines', () => {
       '@apiDefine name This is a title', 'A', 'B',
     ];
 
-    expect(parse.parseBlockLines(lines, {})).toEqual({
+    expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: ['A', 'B'],
         name: 'name',

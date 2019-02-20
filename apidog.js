@@ -160,7 +160,7 @@ const outputDir = args.o || args.output || args.i || args.input;
 fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
 
 if (args['with-proxy']) {
-  for (const file of ['config.js', 'package.json', 'proxy.js']) {
+  for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {
     if (! fs.existsSync(`${outputDir}/${file}`)) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }

@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiSubgroup token by parseBlockLines', () => {
+describe('parser for @apiSubgroup token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiSubgroup subgroup',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       subgroup: 'subgroup',
     })
   });
@@ -16,6 +16,6 @@ describe('parse @apiSubgroup token by parseBlockLines', () => {
       '@apiSubgroup',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 });

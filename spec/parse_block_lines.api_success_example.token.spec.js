@@ -1,6 +1,6 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiSuccessExample token by parseBlockLines', () => {
+describe('parser for @apiSuccessExample token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiSuccessExample This is a title',
@@ -9,7 +9,7 @@ describe('parse @apiSuccessExample token by parseBlockLines', () => {
       '@apiSuccessExample {type} This is a title', 'A', 'B',
     ];
 
-    expect(parse.parseBlockLines(lines, {})).toEqual({
+    expect(parser.parseBlockLines(lines, {})).toEqual({
       successExample: [{
         description: [],
         title: 'This is a title',

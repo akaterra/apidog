@@ -5,7 +5,7 @@ const qs = require('qs');
 const URL = require('url').URL;
 
 function createApp(env) {
-  const config = env && env.config || require('./config.js');
+  const config = env && env.config || require('./apidog_proxy_config.js');
   const app = express();
 
   app.use((req, res, next) => {
@@ -238,7 +238,7 @@ function createApp(env) {
 }
 
 if (process.env.NODE_ENV !== 'test') {
-  const config = require('./config.js');
+  const config = require('./apidog_proxy_config.js');
 
   createApp({}).listen(config.port || 8088, () => console.log(`ApiDog proxy started on ${config.port || 8088}`));
 }

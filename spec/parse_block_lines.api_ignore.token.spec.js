@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiIgnore token by parseBlockLines', () => {
+describe('parser for @apiIgnore token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiIgnore 1.2.3',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       ignore: '1.2.3',
     })
   });

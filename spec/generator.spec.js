@@ -1,4 +1,4 @@
-const generate = require('../src/generate');
+const generator = require('../src/generator');
 
 const hbs = () => {
   const hbs = {
@@ -16,7 +16,7 @@ const hbs = () => {
   return hbs;
 };
 
-describe('generate', () => {
+describe('generator', () => {
   it('should generate with public filtering', () => {
     const blocks = [
       {
@@ -37,7 +37,7 @@ describe('generate', () => {
     ];
     const handlebars = hbs();
 
-    generate.generate(blocks, '', {}, handlebars);
+    generator.generate(blocks, '', {}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([1, 4]);
   });
@@ -62,7 +62,7 @@ describe('generate', () => {
     ];
     const handlebars = hbs();
 
-    generate.generate(blocks, '', {private: true}, handlebars);
+    generator.generate(blocks, '', {private: true}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2, 3]);
   });
@@ -87,7 +87,7 @@ describe('generate', () => {
     ];
     const handlebars = hbs();
 
-    generate.generate(blocks, '', {private: ['a', 'b']}, handlebars);
+    generator.generate(blocks, '', {private: ['a', 'b']}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2]);
   });
@@ -116,7 +116,7 @@ describe('generate sections', () => {
       },
     ];
 
-    expect(generate.generateSections(blocks)).toEqual({
+    expect(generator.generateSections(blocks)).toEqual({
       A: {
         A: {
           A: { '1': blocks[0], '2': blocks[1] },
@@ -142,7 +142,7 @@ describe('generate sections', () => {
       },
     ];
 
-    expect(generate.generateSections(blocks)).toEqual({
+    expect(generator.generateSections(blocks)).toEqual({
       $: {
         $: {
           name: { version: Object.assign({group: 'default'}, blocks[0]) },
@@ -161,7 +161,7 @@ describe('generate sections', () => {
       },
     ];
 
-    expect(generate.generateSections(blocks)).toEqual({
+    expect(generator.generateSections(blocks)).toEqual({
       group: {
         $: {
           name: { '0.0.1': Object.assign({version: '0.0.1'}, blocks[0]) },
@@ -211,7 +211,7 @@ describe('generate sections', () => {
   it('should generate sections skipping "ignore" blocks', () => {
     const blocks = [{ ignore: true }];
 
-    expect(generate.generateSections(blocks)).toEqual({});
+    expect(generator.generateSections(blocks)).toEqual({});
   });
 
   // it('should raise exception on unknown use', () => {

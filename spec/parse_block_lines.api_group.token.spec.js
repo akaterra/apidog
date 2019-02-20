@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiGroup token by parseBlockLines', () => {
+describe('parser for @apiGroup token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiGroup group',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       group: 'group',
     })
   });
@@ -16,6 +16,6 @@ describe('parse @apiGroup token by parseBlockLines', () => {
       '@apiGroup',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 });

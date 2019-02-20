@@ -1,6 +1,6 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiError token by parseBlockLines', () => {
+describe('parser for @apiError token by parseBlockLines', () => {
   it('should parse multiple errors', () => {
     const lines = [
       '@apiError A_B.C',
@@ -18,7 +18,7 @@ describe('parse @apiError token by parseBlockLines', () => {
       '@apiError (groupA) {typeA="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       errors: [{ // 0
         description: [],
         field: { defaultValue: null, isOptional: false, name: 'A_B.C' },

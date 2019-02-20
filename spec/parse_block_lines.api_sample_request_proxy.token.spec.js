@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiSampleRequestProxy token by parseBlockLines', () => {
+describe('parser for @apiSampleRequestProxy token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiSampleRequestProxy 0.0.0.0',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       proxy: '0.0.0.0',
     })
   });
@@ -16,6 +16,6 @@ describe('parse @apiSampleRequestProxy token by parseBlockLines', () => {
       '@apiSampleRequestProxy',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 });

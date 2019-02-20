@@ -32,7 +32,7 @@ describe('proxy', () => {
       config: {},
     };
 
-    app = require('../src/templates/proxy').createApp(env);
+    app = require('../src/templates/apidog_proxy').createApp(env);
   }
 
   it('should process rabbitmq request', async () => {
@@ -48,7 +48,7 @@ describe('proxy', () => {
       .expect(res => {
         expect(env.amqplibQueue).toBe('queue');
         expect(env.amqplibConnection.uri).toBe('connection');
-        expect(res.text).toBe('true');
+        expect(res.text).toBe('Message has been sent to "connection/queue" queue by ApiDog proxy');
       });
   });
 

@@ -1,13 +1,13 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiSampleRequestHook token by parseBlockLines', () => {
+describe('parser for @apiSampleRequestHook token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiSampleRequestHook hook1',
       '@apiSampleRequestHook hook2',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       sampleRequestHook: ['hook1', 'hook2'],
     });
   });

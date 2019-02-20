@@ -1,8 +1,8 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
 describe('parse by parsePy', () => {
   it('should parse', () => {
-    const blocks = parse.parsePy('' +
+    const blocks = parser.parsePy('' +
       '"""\n' +
       '@api {test} url\n' +
       '"""'
@@ -20,7 +20,7 @@ describe('parse by parsePy', () => {
   });
 
   it('should parse indented', () => {
-    const blocks = parse.parsePy('' +
+    const blocks = parser.parsePy('' +
       '    """\n' +
       '    @api {test} url\n' +
       '    """'

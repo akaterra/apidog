@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiSampleRequest token by parseBlockLines', () => {
+describe('parser for @apiSampleRequest token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiSampleRequest baseEndpoint',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       sampleRequest: [
         'baseEndpoint',
       ],
@@ -18,7 +18,7 @@ describe('parse @apiSampleRequest token by parseBlockLines', () => {
       '@apiSampleRequest off',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       sampleRequest: [
         false,
       ],
@@ -30,7 +30,7 @@ describe('parse @apiSampleRequest token by parseBlockLines', () => {
       '@apiSampleRequest on',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       sampleRequest: [
         true,
       ],
@@ -42,6 +42,6 @@ describe('parse @apiSampleRequest token by parseBlockLines', () => {
       '@apiSampleRequest',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 });

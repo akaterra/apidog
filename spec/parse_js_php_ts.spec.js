@@ -1,8 +1,8 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
 describe('parse by parseJsPhpTs', () => {
   it('should parse', () => {
-    const blocks = parse.parseJsPhpTs('' +
+    const blocks = parser.parseJsPhpTs('' +
       '/**\n' +
       ' * @api {test} url\n' +
       ' */'

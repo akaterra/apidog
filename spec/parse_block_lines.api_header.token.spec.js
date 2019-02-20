@@ -1,6 +1,6 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiHeader token by parseBlockLines', () => {
+describe('parser for @apiHeader token by parseBlockLines', () => {
   it('should parse multiple headers', () => {
     const lines = [
       '@apiHeader A_B.C',
@@ -18,73 +18,142 @@ describe('parse @apiHeader token by parseBlockLines', () => {
       '@apiHeader (groupA) {typeA="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
-      headers: [{
+    expect(parser.parseBlockLines(lines)).toEqual({
+      headers: [{ // 0
         description: [],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 1
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 2
         description: ['This is a description', 'Some description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 3
         description: ['This is a description'],
-        field: { defaultValue: 'A', name: 'A_B.C' },
+        field: { defaultValue: 'A', isOptional: false, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 4
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: false, name: 'A_B.C' },
         group: null,
         type: null
-      }, {
+      }, { // 5
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: true, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 6
         description: ['This is a description'],
-        field: { defaultValue: 'A', name: 'A_B.C' },
+        field: { defaultValue: 'A', isOptional: true, name: 'A_B.C' },
         group: null,
         type: null,
-      }, {
+      }, { // 7
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
         group: null,
         type: null
-      }, {
+      }, { // 8
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: 'groupA',
         type: null,
-      }, {
+      }, { // 9
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
-        type: { allowedValues: [], name: 'typeA' },
-      }, {
+        type: { allowedValues: [], modifiers: { typea: true }, name: 'typeA' },
+      }, { // 10
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
-        type: { allowedValues: ['A', 'B', 'C'], name: 'typeA' },
-      }, {
+        type: { allowedValues: ['A', 'B', 'C'], modifiers: { typea: true }, name: 'typeA' },
+      }, { // 11
         description: ['This is a description'],
-        field: { defaultValue: null, name: 'A_B.C' },
+        field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
-        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], name: 'typeA' },
-      }, {
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { typea: true }, name: 'typeA' },
+      }, { // 12
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
         group: 'groupA',
-        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], name: 'typeA' },
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { typea: true }, name: 'typeA' },
       }],
+      headersGroups: {
+        $: [{ // 0
+          description: [],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 1
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 2
+          description: ['This is a description', 'Some description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 3
+          description: ['This is a description'],
+          field: { defaultValue: 'A', isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 4
+          description: ['This is a description'],
+          field: { defaultValue: 'A B C', isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: null
+        }, { // 5
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: true, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 6
+          description: ['This is a description'],
+          field: { defaultValue: 'A', isOptional: true, name: 'A_B.C' },
+          group: null,
+          type: null,
+        }, { // 7
+          description: ['This is a description'],
+          field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
+          group: null,
+          type: null
+        }, { // 8
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: { allowedValues: [], modifiers: { typea: true }, name: 'typeA' },
+        }, { // 9
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: { allowedValues: ['A', 'B', 'C'], modifiers: { typea: true }, name: 'typeA' },
+        }, { // 10
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: null,
+          type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { typea: true }, name: 'typeA' },
+        }],
+        groupA: [{
+          description: ['This is a description'],
+          field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
+          group: 'groupA',
+          type: null,
+        }, {
+          description: ['This is a description'],
+          field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
+          group: 'groupA',
+          type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { typea: true }, name: 'typeA' },
+        }],
+      }
     });
   });
 });

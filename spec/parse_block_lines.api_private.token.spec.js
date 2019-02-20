@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @apiPrivate token by parseBlockLines', () => {
+describe('parser for @apiPrivate token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiPrivate',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       private: true,
     });
   });
@@ -16,7 +16,7 @@ describe('parse @apiPrivate token by parseBlockLines', () => {
       '@apiPrivate a,b,c',
     ];
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       private: ['a', 'b', 'c'],
     });
   });

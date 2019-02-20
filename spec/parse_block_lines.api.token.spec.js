@@ -1,12 +1,12 @@
-const parse = require('../src/parse');
+const parser = require('../src/parser');
 
-describe('parse @api token by parseBlockLines', () => {
+describe('parser for @api token by parseBlockLines', () => {
   it('should parse for http transport', () => {
     const lines = [
       '@api {get} /url This is a title',
     ];
 
-    const block = parse.parseBlockLines(lines);
+    const block = parser.parseBlockLines(lines);
 
     expect(block).toEqual({
       api: {
@@ -24,9 +24,9 @@ describe('parse @api token by parseBlockLines', () => {
       '@api {rabbitmq:exchange} url This is a title',
     ];
 
-    const block = parse.parseBlockLines(lines);
+    const block = parser.parseBlockLines(lines);
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -42,9 +42,9 @@ describe('parse @api token by parseBlockLines', () => {
       '@api {rabbitmqRpc:exchange} url This is a title',
     ];
 
-    const block = parse.parseBlockLines(lines);
+    const block = parser.parseBlockLines(lines);
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -60,9 +60,9 @@ describe('parse @api token by parseBlockLines', () => {
       '@api {nats} url This is a title',
     ];
 
-    const block = parse.parseBlockLines(lines);
+    const block = parser.parseBlockLines(lines);
 
-    expect(parse.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -78,7 +78,7 @@ describe('parse @api token by parseBlockLines', () => {
       '@api',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 
   it('should raise error on missing transport', () => {
@@ -86,7 +86,7 @@ describe('parse @api token by parseBlockLines', () => {
       '@api url This is a title',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 
   it('should raise error on unknown transport', () => {
@@ -94,7 +94,7 @@ describe('parse @api token by parseBlockLines', () => {
       '@api {unknown} url This is a title',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 
   it('should raise error on duplicated definition', () => {
@@ -102,6 +102,6 @@ describe('parse @api token by parseBlockLines', () => {
       '@api url This is a title', '@api url This is a title',
     ];
 
-    expect(() => parse.parseBlockLines(lines)).toThrow();
+    expect(() => parser.parseBlockLines(lines)).toThrow();
   });
 });
