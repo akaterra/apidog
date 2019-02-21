@@ -1,67 +1,70 @@
+const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
 const generate = require('./src/generator');
 const parse = require('./src/parser');
 
-function parseArgs(args, defs) {
-  let parsed = {};
-  let lastArgName = null;
-
-  args.forEach(function (arg) {
-    let valueIndex = arg.indexOf('=');
-
-    if (valueIndex !== - 1) {
-      parsed[arg.substr(0, valueIndex).replace(/^-*/, '')] = arg.substr(valueIndex + 1);
-    } else {
-      if (lastArgName) {
-        if (arg.substr(0, 1) === '-') {
-          parsed[lastArgName] = true;
-          lastArgName = arg.substr(1);
-        } else if (arg.substr(0, 2) === '--') {
-          parsed[lastArgName] = true;
-          lastArgName = arg.substr(2);
-        } else {
-          parsed[lastArgName] = arg;
-          lastArgName = null;
-        }
-      } else {
-        lastArgName = arg.replace(/^-*/, '');
-      }
-    }
-  });
-
-  if (lastArgName) {
-    parsed[lastArgName] = true;
-  }
-
-  if (defs) {
-    Object.keys(defs).forEach((key) => {
-      const [type, defaultValue] = Array.isArray(defs[key]) ? defs[key] : [null, defs[key]];
-
-      if (! (key in parsed) && defaultValue !== void 0) {
-        parsed[key] = defaultValue;
-      }
-
-      if (type === Boolean) {
-        if (parsed[key] === 'true') {
-          parsed[key] = true;
-        }
-
-        if (parsed[key] === 'false') {
-          parsed[key] = false;
-        }
-      } else if (type === Number) {
-        parsed[key] = parseInt(parsed[key]);
-      }
-    });
-  }
-
-  return parsed;
-}
-
-const args = parseArgs(process.argv.slice(2), {
-  p: [Boolean],
-  private: [Boolean],
+const argumentParser = new ArgumentParser({
+  addHelp: true,
+  description: 'ApiDog',
+  version: JSON.parse(fs.readFileSync(`${__dirname}/package.json`)).version,
 });
+
+argumentParser.addArgument(
+  [ '--description' ],
+  {
+    help: 'custom description that will be used as a description of the generated documentation',
+  },
+);
+argumentParser.addArgument(
+  [ '-i', '--input' ],
+  {
+    help: 'input directory to be scanned for blocks',
+  },
+);
+argumentParser.addArgument(
+  [ '-o', '--output' ],
+  {
+    help: 'output directory where apidoc.html and additional files will be saved',
+  },
+);
+argumentParser.addArgument(
+  [ '-p', '--private' ],
+  {
+    help: 'filters blocks having all the private tags or entirely marked as private',
+  },
+);
+argumentParser.addArgument(
+  [ '-s', '--sampleUrl ' ],
+  {
+    help: 'base url that will be used as a prefix for all relative api paths in sample requests',
+  },
+);
+argumentParser.addArgument(
+  [ '-t', '--template' ],
+  {
+    help: 'alias of embedded template (@html or @md) or directory where the custom template be load from',
+  },
+);
+argumentParser.addArgument(
+  [ '--title' ],
+  {
+    help: 'custom title that will be used as a title of the generated documentation',
+  },
+);
+argumentParser.addArgument(
+  [ '--withProxy' ],
+  {
+    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
+  },
+);
+argumentParser.addArgument(
+  [ '--withProxyUpdate' ],
+  {
+    help: 'updates also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
+  },
+);
+
+const args = argumentParser.parseArgs();
 
 const argsPrivate = args.p || args.private;
 
@@ -159,9 +162,9 @@ const outputDir = args.o || args.output || args.i || args.input;
 
 fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
 
-if (args['with-proxy']) {
+if (args['withProxy'] || args['withProxyUpdate']) {
   for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {
-    if (! fs.existsSync(`${outputDir}/${file}`)) {
+    if (! fs.existsSync(`${outputDir}/${file}`) || args['withProxyUpdate']) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }
   }

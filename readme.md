@@ -15,7 +15,7 @@ npm i apidog -g
 ### CLI
 
 ```sh
-apidog
+apidog.js -h
 ```
 
 Parameters:
