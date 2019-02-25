@@ -34,7 +34,7 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '-s', '--sampleUrl ' ],
+  [ '-s', '--sampleUrl' ],
   {
     help: 'base url that will be used as a prefix for all relative api paths in sample requests',
   },

@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$id": "jsonschema.json",
+  "type": "object",
+  "required": [
+    "b"
+  ],
+  "properties": {
+    "a": {
+      "type": "string",
+      "title": "Title"
+    },
+    "b": {
+      "type": "number",
+      "default": 5
+    },
+    "c": {
+      "type": "boolean",
+      "description": "Description"
+    },
+    "d": {
+      "type": "object",
+      "required": [
+        "b"
+      ],
+      "properties": {
+        "a": {
+          "type": "string",
+          "title": "Title"
+        },
+        "b": {
+          "type": "number",
+          "default": 5
+        },
+        "c": {
+          "type": "boolean",
+          "description": "Description"
+        }
+      }
+    },
+    "e": {
+      "type": "array",
+      "item": {
+        "type": "object",
+        "required": [
+          "b"
+        ],
+        "properties": {
+          "a": {
+            "type": "string",
+            "title": "Title"
+          },
+          "b": {
+            "type": "number",
+            "default": 5
+          },
+          "c": {
+            "type": "boolean",
+            "description": "Description"
+          }
+        }
+      }
+    },
+    "f": {
+      "type": "string",
+      "enum": ["a", "b", "c"]
+    }
+  }
+}

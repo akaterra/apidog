@@ -25,6 +25,7 @@ const cmdParsers = {
   '@apiSampleRequest': require('./tokens/api_sample_request.token'),
   '@apiSampleRequestHook': require('./tokens/api_sample_request_hook.token'),
   '@apiSampleRequestProxy': require('./tokens/api_sample_request_proxy.token'),
+  '@apiSchema': require('./tokens/api_schema.token'),
   '@apiSubgroup': require('./tokens/api_sub_group.token'),
   '@apiSuccess': require('./tokens/api_param.token').construct('success'),
   '@apiSuccessExample': require('./tokens/api_param_example.token').construct('success', '@successExample'),
