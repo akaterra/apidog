@@ -11,11 +11,11 @@ Table of contents:
       {{#ifCond this.title '!=' '$'}}
   * {{../this.title}}
         {{#each ../this.names}}
-    * [{{this.0.title}}](#{{mdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
+    * [{{this.0.title}}](#{{toMdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
         {{/each}}
       {{else}}
         {{#each ../this.names}}
-  * [{{this.0.title}}](#{{mdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
+  * [{{this.0.title}}](#{{toMdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
         {{/each}}
       {{/ifCond}}
     {{/each}}
@@ -48,12 +48,12 @@ Table of contents:
 {{join this.description}}
 
 {{#ifCond this.api.transport.name '==' 'http'}}
-**{{upper ../this.api.transport.name}}**
+**{{toUpperCase ../this.api.transport.name}}**
 ```
-{{upper ../this.api.transport.method}} {{../this.api.endpoint}}
+{{toUpperCase ../this.api.transport.method}} {{../this.api.endpoint}}
 ```
 {{else}}
-**{{upper ../this.api.transport.name}}**
+**{{toUpperCase ../this.api.transport.name}}**
 ```
 {{../this.api.endpoint}}
 ```
@@ -82,7 +82,7 @@ Table of contents:
 | Field | Type | Description |
 | ----- | ---- | ----------- |
     {{#each params}}
-| {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
+| {{this.field.name}}{{#if this.field.isOptional}}<sup>optional</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}} |
     {{/each}}
   {{/each}}
 {{/if}}
@@ -93,7 +93,7 @@ Table of contents:
 **{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:**
 
 ```{{this.type}}
-{{html (join this.description)}}
+{{toHtml (join this.description)}}
 ```
   {{/each}}
 {{/if}}

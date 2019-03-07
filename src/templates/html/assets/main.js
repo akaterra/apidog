@@ -287,7 +287,7 @@ bySelector('[data-block]').forEach((el) => {
         blockDescriptor.api.transport.method || 'post',
         params,
         blockHeaders,
-        blockDescriptor.contentType[0] || 'form',
+        bySelector('[data-block-element="contentType"]', el)[0].value,
         {
           options: blockDescriptor.option
         }
