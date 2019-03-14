@@ -106,7 +106,7 @@ function parseBlockLines(lines, embeddedLines) {
     const line = lines[index];
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
-    if (tokens[0] in cmdParsers) {
+    if (cmdParsers.hasOwnProperty(tokens[0])) {
       lastCmdParser = cmdParsers[tokens[0]];
 
       Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, embeddedLines));

@@ -126,33 +126,45 @@ function request(transport, url, method, params, headers, contentType, config) {
 
       del(params, key.substr(1));
 
-      return value;
+      return encodeURIComponent(value);
     } else {
       return key;
     }
   });
 
+  if (method === 'get') {
+    if (url.indexOf('?') === - 1) {
+      url += '?';
+    } else if (url.slice(- 1) !== '&') {
+      url += '&';
+    }
+
+    url += compileBodyForm(params);
+  }
+
   if (! headers) {
     headers = {};
   }
 
-  if (params) {
-    switch (contentType) {
-      case 'form':
-        params = compileBodyForm(params);
-        headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  if (method !== 'get') {
+    if (params) {
+      switch (contentType) {
+        case 'form':
+          params = compileBodyForm(params);
+          headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-        break;
+          break;
 
-      case 'json':
-        params = JSON.stringify(params);
-        headers['Content-Type'] = 'application/json';
+        case 'json':
+          params = JSON.stringify(params);
+          headers['Content-Type'] = 'application/json';
 
-        break;
+          break;
 
-      case 'xml':
-        params = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
-        headers['Content-Type'] = 'text/xml';
+        case 'xml':
+          params = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
+          headers['Content-Type'] = 'text/xml';
+      }
     }
   }
 

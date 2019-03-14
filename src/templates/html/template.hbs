@@ -383,6 +383,11 @@
       position: absolute;
       right: 0;
     }
+
+    .optional {
+      padding: 0 0.25rem;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -493,17 +498,17 @@
                   <div class="response big-badge bg-color-black color-white font-size-1 mono">{{this.api.endpoint}}</div>
                 </div>
 
-                {{#if this.example}}
-                  {{#each this.example}}
-                    <div class="section">
-                      <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
-                      <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
-                              (join this.description)}}</pre>
-                    </div>
-                  {{/each}}
-                {{/if}}
-
                 <div data-block-hint="{{block.familyId}}">
+                  {{#if this.example}}
+                    {{#each this.example}}
+                      <div class="section">
+                        <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
+                        <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
+                                (join this.description)}}</pre>
+                      </div>
+                    {{/each}}
+                  {{/if}}
+
                   {{#if this.headers.length}}
                     {{#each this.headersGroups as |params key|}}
                       <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:</div>
@@ -548,8 +553,33 @@
                         {{#each params}}
                           <div class="table">
                             <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                            <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                            <div class="flex-1">{{toHtml (join this.description)}}</div>
+                            <div class="width-15 color-2 mono">
+                              {{this.type.name}}
+                              {{#if this.field}}
+                                {{#if this.field.isOptional}} <span class="small sup mono color-3 optional">opt</span>{{else}}{{/if}}
+                              {{/if}}
+                            </div>
+                            <div class="flex-1">
+                              {{toHtml (join this.description)}}
+                              {{#if this.type}}
+                                {{#if this.type.allowedValues}}
+                                  <div class="{{#if this.description.length}}top-padded{{/if}}">
+                                    <div class="smaller color-3">Allowed values:</div>
+                                    {{#each this.type.allowedValues}}
+                                      <div class="smaller color-blue">{{this}}</div>
+                                    {{/each}}
+                                  </div>
+                                {{/if}}
+                              {{/if}}
+                              {{#if this.field}}
+                                {{#if this.field.defaultValue}}
+                                  <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
+                                    <div class="smaller color-3">Default value:</div>
+                                    <div class="smaller color-blue">{{this.field.defaultValue}}</div>
+                                  </div>
+                                {{/if}}
+                              {{/if}}
+                            </div>
                           </div>
                         {{/each}}
                       </div>

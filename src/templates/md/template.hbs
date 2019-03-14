@@ -48,15 +48,9 @@ Table of contents:
 {{join this.description}}
 
 {{#ifCond this.api.transport.name '==' 'http'}}
-**{{toUpperCase ../this.api.transport.name}}**
-```
-{{toUpperCase ../this.api.transport.method}} {{../this.api.endpoint}}
-```
+**{{toUpperCase ../this.api.transport.name}}** `{{toUpperCase ../this.api.transport.method}} {{../this.api.endpoint}}`
 {{else}}
-**{{toUpperCase ../this.api.transport.name}}**
-```
-{{../this.api.endpoint}}
-```
+**{{toUpperCase ../this.api.transport.name}}** `{{../this.api.endpoint}}`
 
 {{/ifCond}}
 
@@ -82,7 +76,7 @@ Table of contents:
 | Field | Type | Description |
 | ----- | ---- | ----------- |
     {{#each params}}
-| {{this.field.name}}{{#if this.field.isOptional}}<sup>optional</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}} |
+| {{this.field.name}}{{#if this.field.isOptional}}<sup>opt</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}}{{#if this.type}}{{#if this.type.allowedValues}}{{#if this.description.length}}<br><br>{{/if}}**Allowed values:**{{#each this.type.allowedValues}}<br>{{this}}{{/each}}{{/if}}{{/if}}{{#if this.field}}{{#if this.field.defaultValue}}{{#if this.description.length}}<br><br>{{else}}{{#if this.type}}{{#if this.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{this.field.defaultValue}}{{/if}}{{/if}} |
     {{/each}}
   {{/each}}
 {{/if}}
@@ -93,7 +87,7 @@ Table of contents:
 **{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:**
 
 ```{{this.type}}
-{{toHtml (join this.description)}}
+{{join this.description}}
 ```
   {{/each}}
 {{/if}}
