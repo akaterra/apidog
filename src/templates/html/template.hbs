@@ -498,6 +498,17 @@
                   <div class="response big-badge bg-color-black color-white font-size-1 mono">{{this.api.endpoint}}</div>
                 </div>
 
+                {{#if this.permission}}
+                  <div class="section">
+                    <span class="padded">
+                      Permission:
+                      {{#each this.permission}}
+                        <span class="badge bg-color-dark-cyan color-white">{{this}}</span>
+                      {{/each}}
+                    </span>
+                  </div>
+                {{/if}}
+
                 <div data-block-hint="{{block.familyId}}">
                   {{#if this.example}}
                     {{#each this.example}}
@@ -552,13 +563,13 @@
                         </div>
                         {{#each params}}
                           <div class="table">
-                            <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                            <div class="width-15 color-2 mono">
-                              {{this.type.name}}
+                            <div class="width-25 color-2 mono">
+                              {{pathLastKeyIndented this.field.name}}
                               {{#if this.field}}
                                 {{#if this.field.isOptional}} <span class="small sup mono color-3 optional">opt</span>{{else}}{{/if}}
                               {{/if}}
                             </div>
+                            <div class="width-15 color-2 mono">{{this.type.name}}</div>
                             <div class="flex-1">
                               {{toHtml (join this.description)}}
                               {{#if this.type}}

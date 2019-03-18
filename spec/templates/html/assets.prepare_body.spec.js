@@ -11,6 +11,8 @@ describe('template html assets, prepareBody', () => {
       'd[0].e': 6,
       'e[0][1].f[0]': 7,
       'f[]': 8,
+      'g[].a': 9,
+      'g[].b': 10,
     });
 
     expect(body).toEqual({
@@ -20,6 +22,7 @@ describe('template html assets, prepareBody', () => {
       d: [ {e: 6} ],
       e: [ [ void 0, {f: [ 7 ]} ] ],
       f: [ 8 ],
+      g: [ {a: 9, b: 10} ],
     });
   });
 

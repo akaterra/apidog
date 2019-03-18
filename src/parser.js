@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
 
-const cmdParsers = {
+const tokenParsers = {
   '@api': require('./tokens/api.token'),
   '@apiChapter': require('./tokens/api_chapter.token'),
   '@apiContentType': require('./tokens/api_content_type.token'),
@@ -21,6 +21,7 @@ const cmdParsers = {
   '@apiParam': require('./tokens/api_param.token'),
   '@apiParamExample': require('./tokens/api_param_example.token'),
   '@apiParamPrefix': require('./tokens/api_param_prefix.token'),
+  '@apiPermission': require('./tokens/api_permission.token'),
   '@apiPrivate': require('./tokens/api_private.token'),
   '@apiSampleRequest': require('./tokens/api_sample_request.token'),
   '@apiSampleRequestHook': require('./tokens/api_sample_request_hook.token'),
@@ -106,8 +107,8 @@ function parseBlockLines(lines, embeddedLines) {
     const line = lines[index];
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
-    if (cmdParsers.hasOwnProperty(tokens[0])) {
-      lastCmdParser = cmdParsers[tokens[0]];
+    if (tokenParsers.hasOwnProperty(tokens[0])) {
+      lastCmdParser = tokenParsers[tokens[0]];
 
       Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, embeddedLines));
     } else {

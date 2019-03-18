@@ -89,25 +89,34 @@ const prepareBody = (params, paramsDescriptors) => {
       let bodyNode = body;
 
       pathKeyTypes.forEach((type, typeIndex) => {
-        const key = pathKeys[typeIndex];
+        let key = pathKeys[typeIndex];
 
         if (typeIndex === pathKeys.length - 1) {
           if (Array.isArray(bodyNode)) {
-            let ind = key === '' ? 0 : parseInt(key);
+            let ind = key === '' ? - 1 : parseInt(key);
+
+            if (ind === - 1) {
+              if (! bodyNode.length) {
+                bodyNode.push(void 0);
+              }
+
+              ind = bodyNode.length - 1;
+              key = String(ind);
+            }
 
             if (ind < 0) {
               throw new Error(`Invalid array index ${key}`);
             }
 
-            const bodyNodeLength = bodyNode.length;
+            let fillCount = ind - bodyNode.length;
 
-            while (ind >= bodyNodeLength) {
+            while (fillCount > 0) {
               bodyNode.push(void 0);
 
-              ind -= 1;
+              fillCount -= 1;
             }
 
-            bodyNode[key === '' ? 0 : parseInt(key)] = value;
+            bodyNode[key] = value;
           } else {
             bodyNode[key] = value;
           }
@@ -121,18 +130,27 @@ const prepareBody = (params, paramsDescriptors) => {
               break;
 
             case 'i':
-              let ind = key === '' ? 0 : parseInt(key);
+              let ind = key === '' ? - 1 : parseInt(key);
+
+              if (ind === - 1) {
+                if (! bodyNode.length) {
+                  bodyNode.push(void 0);
+                }
+
+                ind = bodyNode.length - 1;
+                key = String(ind);
+              }
 
               if (ind < 0) {
                 throw new Error(`Invalid array index ${key}`);
               }
 
-              const bodyNodeLength = bodyNode.length;
+              let fillCount = ind - bodyNode.length;
 
-              while (ind >= bodyNodeLength) {
+              while (fillCount > 0) {
                 bodyNode.push(void 0);
 
-                ind -= 1;
+                fillCount -= 1;
               }
 
               if (! (key in bodyNode) || bodyNode[key] === void 0) {
