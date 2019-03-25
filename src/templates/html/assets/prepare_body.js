@@ -36,14 +36,14 @@ const prepareBody = (params, paramsDescriptors) => {
       }
     }
 
-    const type = paramsDescriptor && paramsDescriptor.type.name.split(':')[0].toLowerCase();
+    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.name.split(':')[0].toLowerCase();
 
     let value = params[key];
 
     if (paramsDescriptor) {
-      if (paramsDescriptor.type.modifiers.none || paramsDescriptor.field.isOptional) {
+      if ((paramsDescriptor.type && paramsDescriptor.type.modifiers.none) || (paramsDescriptor.field && paramsDescriptor.field.isOptional)) {
         value = params[key] === '' ? void 0 : params[key];
-      } else if (paramsDescriptor && paramsDescriptor.type.modifiers.null) {
+      } else if (paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.null) {
         value = params[key] === '' ? null : params[key];
       }
     }

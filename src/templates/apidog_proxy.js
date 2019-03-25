@@ -161,51 +161,59 @@ function createApp(env) {
   let amqpChannels = {};
 
   async function getAmqpConnection(uri) {
-    let uriSelected = uri;
-
     if (uri.substr(0, 7) !== 'amqp://') {
-      if (uri.lastIndexOf('/') !== - 1) {
-        uriSelected = uri.substr(0, uri.lastIndexOf('/'));
-      } else {
-        uriSelected = 'default';
-      }
+      uri = `amqp://default`;
     }
 
-    if (amqpConnections[uriSelected]) {
-      return amqpConnections[uriSelected];
+    uri = new URL(uri);
+
+    if (config.amqp && config.amqp[uri.hostname]) {
+      const configEntry = new URL(config.amqp[uri.hostname]);
+
+      uri.hostname = configEntry.hostname;
+      uri.pathname = configEntry.pathname;
+      uri.port = configEntry.port;
+      uri.password = configEntry.password;
+      uri.username = configEntry.username;
     }
 
-    if (config.amqp && config.amqp[uriSelected]) {
-      uriSelected = config.amqp[uriSelected];
+    uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
+
+    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+    if (! amqpConnections[key]) {
+      amqpConnections[key] = await (env && env.amqplib || require('amqplib')).connect(uri.toString());
     }
 
-    amqpConnections[uriSelected] = await (env && env.amqplib || require('amqplib')).connect(uriSelected);
-
-    return amqpConnections[uriSelected];
+    return amqpConnections[key];
   }
 
   async function getAmqpChannel(uri) {
-    let uriSelected = uri;
-
     if (uri.substr(0, 7) !== 'amqp://') {
-      if (uri.lastIndexOf('/') !== - 1) {
-        uriSelected = uri.substr(0, uri.lastIndexOf('/'));
-      } else {
-        uriSelected = 'default';
-      }
+      uri = `amqp://default`;
     }
 
-    if (amqpChannels[uriSelected]) {
-      return amqpChannels[uriSelected];
+    uri = new URL(uri);
+
+    if (config.amqp && config.amqp[uri.hostname]) {
+      const configEntry = new URL(config.amqp[uri.hostname]);
+
+      uri.hostname = configEntry.hostname;
+      uri.pathname = configEntry.pathname;
+      uri.port = configEntry.port;
+      uri.password = configEntry.password;
+      uri.username = configEntry.username;
     }
 
-    if (config.amqp && config.amqp[uriSelected]) {
-      uri = config.amqp[uriSelected];
-    }
+    uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
 
-    amqpChannels[uriSelected] = await (await getAmqpConnection(uri)).createChannel();
+    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
 
-    return amqpChannels[uriSelected];
+    const connection = await getAmqpConnection(uri.toString());
+
+    amqpChannels[key] = await connection.createChannel();
+
+    return amqpChannels[key];
   }
 
   async function amqpSend(queue, data, headers, opts) {
@@ -237,11 +245,17 @@ function createApp(env) {
   return app;
 }
 
-if (process.env.NODE_ENV !== 'test') {
-  const config = require('./apidog_proxy_config.js');
+(async () => {
+  if (process.env.NODE_ENV !== 'test') {
+    const config = require('./apidog_proxy_config.js');
 
-  createApp({}).listen(config.port || 8088, () => console.log(`ApiDog proxy started on ${config.port || 8088}`));
-}
+    if (typeof config === 'function') {
+      config = await config();
+    }
+
+    createApp({}).listen(config.port || 8088, () => console.log(`ApiDog proxy started on ${config.port || 8088}`));
+  }
+})();
 
 module.exports = {
   createApp,

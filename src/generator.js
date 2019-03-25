@@ -65,9 +65,11 @@ function generate(blocks, template, config, hbs) {
 
     switch (op) {
       case 'isNotContainerType':
-        return args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
+        return args[0] && args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
           ? options.fn(this)
-          : options.inverse(this);
+          : args[0]
+            ? options.inverse(this)
+            : options.fn(this);
 
       default:
         return options.fn(this);

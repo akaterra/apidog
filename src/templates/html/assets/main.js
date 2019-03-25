@@ -94,22 +94,88 @@ function has(obj, path) {
 }
 
 function hideResponse(el) {
-  addClass(
-    bySelector('[data-block-element="response"]', el)[0],
-    'hidden'
-  );
+  addClass(bySelector('[data-block-element="response"]', el)[0], 'hidden');
   bySelector('[data-block-element="response"]>pre', el)[0].textContent = '';
 }
 
 function showResponse(el, text) {
-  removeClass(
-    bySelector('[data-block-element="response"]', el)[0],
-    'hidden'
-  );
+  removeClass(bySelector('[data-block-element="response"]', el)[0], 'hidden');
   bySelector('[data-block-element="response"]>pre', el)[0].textContent = text;
 }
 
+function hideWsConnect(el) {
+  addClass(bySelector('[data-block-element="wsConnect"]', el)[0], 'hidden');
+  removeClass(bySelector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
+}
+
+function showWsConnect(el) {
+  removeClass(bySelector('[data-block-element="wsConnect"]', el)[0], 'hidden');
+  addClass(bySelector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
+}
+
 const wsConnections = {};
+
+function wsConnect(url, config) {
+  if (! (url in wsConnections) || ! wsIsConnected(url)) {
+    wsConnections[url] = new WebSocket(url);
+
+    if (config) {
+      if (config.onConnect) {
+        wsConnections[url].onopen = () => {
+          config.onConnect(wsConnections[url]);
+
+          if (config.onReady) {
+            config.onReady(wsConnections[url]);
+          }
+        };
+      }
+
+      if (config.onData) {
+        wsConnections[url].onmessage = (msg) => {
+          config.onData(wsConnections[url], msg.data);
+        };
+      }
+
+      if (config.onDisconnect) {
+        wsConnections[url].onclose = () => {
+          config.onDisconnect(wsConnections[url]);
+        };
+      }
+
+      if (config.onError) {
+        wsConnections[url].onerror = (err) => {
+          config.onError(wsConnections[url], err);
+        };
+      }
+    }
+  } else {
+    if (config) {
+      if (config.onReady) {
+        config.onReady(wsConnections[url]);
+      }
+    }
+  }
+
+  return wsConnections[url];
+}
+
+function wsDisconnect(url) {
+  if (url in wsConnections && wsIsConnected(url)) {
+    wsConnections[url].close();
+  }
+}
+
+function wsIsConnected(url) {
+  return url in wsConnections && (
+    wsConnections[url].readyState === WebSocket.CONNECTING || wsConnections[url].readyState === WebSocket.OPEN
+  );
+}
+
+function wsSend(url, data) {
+  if (url in wsConnections && wsIsConnected(url)) {
+    wsConnections[url].send(data);
+  }
+}
 
 function request(transport, url, method, params, headers, contentType, config) {
   if (! config) {
@@ -192,23 +258,19 @@ function request(transport, url, method, params, headers, contentType, config) {
         });
 
     case 'ws':
-      if (! (url in wsConnections)) {
-        wsConnections[url] = new WebSocket(url);
-
-        wsConnections[url].onmessage = (msg) => {
-          if (config.cb) {
-            config.cb(null, msg);
+      wsConnect(url, {
+        onConnect: config && config.onConnect,
+        onData: config && config.onData,
+        onDisconnect: config && config.onDisconnect,
+        onError: config && config.onError,
+        onReady: (ws) => {
+          if (config && config.onReady) {
+            config.onReady(ws);
           }
-        };
-      }
 
-      try {
-        wsConnections[url].send(params);
-      } catch (err) {
-        if (config.cb) {
-          config.cb(err);
-        }
-      }
+          ws.send(params);
+        },
+      });
 
       return wsConnections[url];
   }
@@ -263,9 +325,10 @@ bySelector('[data-block]').forEach((el) => {
     return;
   }
 
-  onClick(blockElementSend, () => {
-    hideResponse(el);
+  const contentType = bySelector('[data-block-element="contentType"]', el)[0].value;
+  const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
 
+  onClick(blockElementSend, () => {
     const blockDescriptor = sections[el.dataset.block];
     const blockHeaders = {};
     const blockParams = {};
@@ -293,13 +356,15 @@ bySelector('[data-block]').forEach((el) => {
     }
 
     if (blockDescriptor.proxy) {
+      hideResponse(el);
+
       request(
         'http',
-        `${blockDescriptor.proxy}/${blockDescriptor.api.transport.name}/${bySelector('[data-block-element="endpoint"]', el)[0].value}`,
+        `${blockDescriptor.proxy}/${blockDescriptor.api.transport.name}/${url}`,
         blockDescriptor.api.transport.method || 'post',
         params,
         blockHeaders,
-        bySelector('[data-block-element="contentType"]', el)[0].value,
+        contentType,
         {
           options: blockDescriptor.option
         }
@@ -316,13 +381,15 @@ bySelector('[data-block]').forEach((el) => {
 
         case 'http':
         case 'https':
+          hideResponse(el);
+
           request(
             'http',
-            bySelector('[data-block-element="endpoint"]', el)[0].value,
+            url,
             blockDescriptor.api.transport.method || 'get',
             params,
             blockHeaders,
-            bySelector('[data-block-element="contentType"]', el)[0].value,
+            contentType,
             {
               options: blockDescriptor.option
             }
@@ -334,15 +401,20 @@ bySelector('[data-block]').forEach((el) => {
 
         case 'websocket':
         case 'ws':
+          // hideResponse(el);
+
           request(
             'ws',
-            bySelector('[data-block-element="endpoint"]', el)[0].value,
-            blockDescriptor.api.transport.method || 'get',
+            url,
+            'ws',
             params,
             blockHeaders,
-            bySelector('[data-block-element="contentType"]', el)[0].value,
+            contentType,
             {
-              cb: (err, msg) => showResponse(el, err || msg),
+              onConnect: () => hideWsConnect(el),
+              onData: (ws, msg) => showResponse(el, msg),
+              onDisconnect: () => showWsConnect(el),
+              onError: (ws, err) => showResponse(el, err),
               options: blockDescriptor.option
             }
           );
@@ -354,6 +426,28 @@ bySelector('[data-block]').forEach((el) => {
       }
     }
   });
+
+  const blockElementWsConnect = bySelector('[data-block-element="wsConnect"]', el)[0];
+
+  if (blockElementWsConnect) {
+    onClick(blockElementWsConnect, () => {
+      wsConnect(url, {
+        onConnect: () => hideWsConnect(el),
+        onData: (ws, data) => showResponse(el, data),
+        onDisconnect: () => showWsConnect(el),
+        onError: (ws, err) => showResponse(el, err),
+      });
+    });
+  }
+
+  const blockElementWsDisconnect = bySelector('[data-block-element="wsDisconnect"]', el)[0];
+
+  if (blockElementWsDisconnect) {
+    onClick(blockElementWsDisconnect, () => {
+      wsDisconnect(url);
+      showWsConnect(el);
+    });
+  }
 });
 
 bySelector('[data-block-control-panel]').forEach((el) => {

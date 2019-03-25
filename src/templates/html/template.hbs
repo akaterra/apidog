@@ -35,6 +35,10 @@
       padding-top: 0.5rem;
     }
 
+    .margin-left-25 {
+      margin-left: 25%;
+    }
+
     .bold {
       font-weight: bold;
     }
@@ -301,14 +305,13 @@
       border-right-width: 0;
     }
 
-    .send-button {
+    .button {
       border: 1px solid #e0e0e0;
       color: #383838;
       cursor: pointer;
       font-size: 1rem;
       height: 2rem;
       padding: 0 1rem;
-      margin-left: 25%;
     }
 
     .inner-label {
@@ -771,7 +774,11 @@
                   {{/if}}
 
                   <div class="section">
-                    <button class="send-button" data-block-element="send">Send</button>
+                    <button class="button margin-left-25" data-block-element="send">Send</button>
+                    {{#ifCond ../this.api.transport.name '==' 'websocket'}}
+                      <button class="button" data-block-element="wsConnect">Connect</button>
+                      <button class="button hidden" data-block-element="wsDisconnect">Disconnect</button>
+                    {{/ifCond}}
                   </div>
 
                   <div class="section hidden" data-block-element="response">

@@ -1,10 +1,26 @@
-# ApiDog
+ApiDog
+------
 
 ApiDog is a API documentation generator alternative to the ApiDoc.
 
-* Single html file with no external dependencies
+* Templates for:
+  * Single html file with no external dependencies
+  * Mark down file
+* Minimalistic embedded proxy
+* Sample requests support for html template:
+    * HTTP
+    * HTTPS
+    * AMQP (via ApiDog proxy)
+    * AMQP RPC (via ApiDog proxy)
+    * Nats (via ApiDog proxy)
+    * WebSocket
 
-* AMQP (via proxy.js), AMQP RPC (via proxy.js), WebSocket support
+Table of contents
+=================
+
+* Installation
+* CLI
+* Tokens
 
 ### Installation
 
@@ -15,7 +31,7 @@ npm i apidog -g
 ### CLI
 
 ```sh
-apidog.js -h
+apidog -h
 ```
 
 Parameters:
