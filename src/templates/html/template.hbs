@@ -756,14 +756,25 @@
                                   {{/each}}
                                 </select>
                               {{else}}
-                                <input
-                                        class="input flex-1"
-                                        id="{{../../../../this.id}}_h_{{../this.field.name}}"
-                                        name="{{../this.field.name}}"
-                                        type="text"
-                                        data-block-element="param"
-                                        value="{{../this.field.defaultValue}}"
-                                />
+                                {{#ifCond ../this.type.name '==' 'File'}}
+                                    <input
+                                            class="input flex-1"
+                                            id="{{../../../../../this.id}}_h_{{../../this.field.name}}"
+                                            name="{{../../this.field.name}}"
+                                            type="file"
+                                            data-block-element="param"
+                                            value="{{../../this.field.defaultValue}}"
+                                    />
+                                {{else}}
+                                    <input
+                                            class="input flex-1"
+                                            id="{{../../../../../this.id}}_h_{{../../this.field.name}}"
+                                            name="{{../../this.field.name}}"
+                                            type="text"
+                                            data-block-element="param"
+                                            value="{{../../this.field.defaultValue}}"
+                                    />
+                                {{/ifCond}}
                               {{/if}}
                               <span class="input-placeholder mono">{{../this.type.name}}</span>
                             </div>

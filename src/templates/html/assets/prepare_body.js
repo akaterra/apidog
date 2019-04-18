@@ -1,7 +1,10 @@
 const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
 
 const prepareBody = (params, paramsDescriptors) => {
-  const body = {};
+  const body = {
+    data: {},
+    extra: [],
+  };
 
   Object.keys(params).forEach((key) => {
     const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key);
@@ -67,6 +70,13 @@ const prepareBody = (params, paramsDescriptors) => {
 
             break;
 
+          case 'file':
+            body.extra.push(value);
+
+            value = void 0;
+
+            break;
+
           case 'isodate':
             value = value === '' ? void 0 : new Date(params[key]).toISOString();
 
@@ -86,7 +96,7 @@ const prepareBody = (params, paramsDescriptors) => {
     }
 
     if (value !== void 0) {
-      let bodyNode = body;
+      let bodyNode = body.data;
 
       pathKeyTypes.forEach((type, typeIndex) => {
         let key = pathKeys[typeIndex];

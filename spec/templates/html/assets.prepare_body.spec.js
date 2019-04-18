@@ -15,7 +15,7 @@ describe('template html assets, prepareBody', () => {
       'g[].b': 10,
     });
 
-    expect(body).toEqual({
+    expect(body.data).toEqual({
       a: 1,
       b: {c: 2, d: 3},
       c: {d: 5},
@@ -43,7 +43,7 @@ describe('template html assets, prepareBody', () => {
       { field: { name: 'x[0].f' }, type: { modifiers: {}, name: 'isodate' } },
     ]);
 
-    expect(body).toEqual({
+    expect(body.data).toEqual({
       x: [
         {
           a: '1',

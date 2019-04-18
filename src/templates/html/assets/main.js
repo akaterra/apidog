@@ -177,7 +177,8 @@ function wsSend(url, data) {
   }
 }
 
-function request(transport, url, method, params, headers, contentType, config) {
+function request(transport, url, method, data, headers, contentType, config) {
+console.log(method, data);
   if (! config) {
     config = {};
   }
@@ -187,10 +188,10 @@ function request(transport, url, method, params, headers, contentType, config) {
   }
 
   url = url.replace(/:\w+/g, (key) => {
-    if (has(params, key.substr(1))) {
-      const value = get(params, key.substr(1));
+    if (has(data, key.substr(1))) {
+      const value = get(data, key.substr(1));
 
-      del(params, key.substr(1));
+      del(data, key.substr(1));
 
       return encodeURIComponent(value);
     } else {
@@ -205,7 +206,7 @@ function request(transport, url, method, params, headers, contentType, config) {
       url += '&';
     }
 
-    url += compileBodyForm(params);
+    url += compileBodyForm(data);
   }
 
   if (! headers) {
@@ -213,23 +214,25 @@ function request(transport, url, method, params, headers, contentType, config) {
   }
 
   if (method !== 'get') {
-    if (params) {
+    if (data) {
       switch (contentType) {
         case 'form':
-          params = compileBodyForm(params);
+          data = compileBodyForm(data);
           headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
           break;
 
         case 'json':
-          params = JSON.stringify(params);
+          data = JSON.stringify(data);
           headers['Content-Type'] = 'application/json';
 
           break;
 
         case 'xml':
-          params = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
+          data = compileBodyXml(data, {root: config.options.sampleRequestXmlRoot});
           headers['Content-Type'] = 'text/xml';
+
+          break;
       }
     }
   }
@@ -238,7 +241,7 @@ function request(transport, url, method, params, headers, contentType, config) {
     case 'http':
     case 'https':
       return fetch(url, {
-        body: method !== 'get' ? params : void 0,
+        body: method !== 'get' ? data : void 0,
         headers,
         method,
       })
@@ -268,7 +271,7 @@ function request(transport, url, method, params, headers, contentType, config) {
             config.onReady(ws);
           }
 
-          ws.send(params);
+          ws.send(data);
         },
       });
 
@@ -325,13 +328,12 @@ bySelector('[data-block]').forEach((el) => {
     return;
   }
 
-  const contentType = bySelector('[data-block-element="contentType"]', el)[0].value;
-  const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
-
   onClick(blockElementSend, () => {
     const blockDescriptor = sections[el.dataset.block];
     const blockHeaders = {};
     const blockParams = {};
+    const contentType = bySelector('[data-block-element="contentType"]', el)[0].value;
+    const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
 
     bySelector('[data-block-element]', el).forEach((blockEl) => {
       switch (blockEl.dataset.blockElement) {
@@ -347,11 +349,11 @@ bySelector('[data-block]').forEach((el) => {
       }
     });
 
-    let params = prepareBody(blockParams, blockDescriptor.params);
+    let {data, extra} = prepareBody(blockParams, blockDescriptor.params);
 
     if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
       for (const sampleRequestHook of blockDescriptor.sampleRequestHooks) {
-        params = sampleRequestHooks[sampleRequestHook](params);
+        data = sampleRequestHooks[sampleRequestHook](data);
       }
     }
 
@@ -362,7 +364,7 @@ bySelector('[data-block]').forEach((el) => {
         'http',
         `${blockDescriptor.proxy}/${blockDescriptor.api.transport.name}/${url}`,
         blockDescriptor.api.transport.method || 'post',
-        params,
+        data,
         blockHeaders,
         contentType,
         {
@@ -387,7 +389,7 @@ bySelector('[data-block]').forEach((el) => {
             'http',
             url,
             blockDescriptor.api.transport.method || 'get',
-            params,
+            data,
             blockHeaders,
             contentType,
             {
@@ -407,7 +409,7 @@ bySelector('[data-block]').forEach((el) => {
             'ws',
             url,
             'ws',
-            params,
+            data,
             blockHeaders,
             contentType,
             {

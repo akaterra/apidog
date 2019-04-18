@@ -73,4 +73,4 @@ module.exports = {
   strSplitByComma: strSplitByComma,
   strSplitByQuotedTokens: strSplitByQuotedTokens,
   strSplitBySpace: strSplitBySpace,
-}
+};
