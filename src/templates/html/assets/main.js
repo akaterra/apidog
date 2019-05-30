@@ -178,7 +178,6 @@ function wsSend(url, data) {
 }
 
 function request(transport, url, method, data, headers, contentType, config) {
-console.log(method, data);
   if (! config) {
     config = {};
   }
@@ -433,6 +432,8 @@ bySelector('[data-block]').forEach((el) => {
 
   if (blockElementWsConnect) {
     onClick(blockElementWsConnect, () => {
+      const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
+
       wsConnect(url, {
         onConnect: () => hideWsConnect(el),
         onData: (ws, data) => showResponse(el, data),
@@ -446,6 +447,8 @@ bySelector('[data-block]').forEach((el) => {
 
   if (blockElementWsDisconnect) {
     onClick(blockElementWsDisconnect, () => {
+      const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
+
       wsDisconnect(url);
       showWsConnect(el);
     });
