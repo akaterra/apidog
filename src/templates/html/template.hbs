@@ -569,7 +569,7 @@
                             <div class="width-25 color-2 mono">
                               {{pathLastKeyIndented this.field.name}}
                               {{#if this.field}}
-                                {{#if this.field.isOptional}} <span class="small sup mono color-3 optional">opt</span>{{else}}{{/if}}
+                                {{#if this.field.isOptional}} <span class="small sup mono color-3 optional">optional</span>{{else}}{{/if}}
                               {{/if}}
                             </div>
                             <div class="width-15 color-2 mono">{{this.type.name}}</div>
@@ -681,6 +681,30 @@
                 </div>
 
                 {{#ifCond this.sampleRequest.[0] '!=' false}}
+                  {{#if ../this.sampleRequestProxy}}
+                    <div class="label">Sample request preset:</div>
+
+                    <div class="section flex">
+                      <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
+                      <input
+                              class="input flex-1 color-blue"
+                              id="{{../this.id}}_presetName"
+                              name="presetName"
+                              type="text"
+                              data-block-element="presetName"
+                              value=""
+                      />
+                      <select class="input flex-1 color-blue" data-block-element="presetSelect">
+                        <option value="new">New</option>
+                      </select>
+                    </div>
+
+                    <div class="section">
+                      <button class="button margin-left-25" data-block-element="presetSave">Save</button>
+                      <button class="button" data-block-element="presetRefreshList">Refresh list</button>
+                    </div>
+                  {{/if}}
+
                   <div class="label">Sample request:</div>
 
                   <div class="section flex">
@@ -702,7 +726,7 @@
                         {{#each params}}
                           <div class="section flex">
                             <label class="input-label width-25"
-                                   for="{{../../../this.id}}_h_{{this.field.name}}">{{this.field.name}}</label>
+                                   for="{{../../../this.id}}_h_{{this.field.name}}" title="{{this.field.name}}">{{this.field.name}}</label>
                             {{#if this.type.modifiers.enum}}
                               <select
                                       class="input flex-1"
@@ -741,11 +765,11 @@
                           {{#hook 'isNotContainerType' this.type.name}}
                             <div class="section flex">
                               <label class="input-label width-25"
-                                     for="{{../../../../this.id}}_h_{{../this.field.name}}">{{../this.field.name}}</label>
+                                     for="{{../../../../this.id}}_p_{{../this.field.name}}" title="{{../this.field.name}}">{{../this.field.name}}</label>
                               {{#if ../this.type.modifiers.enum}}
                                 <select
                                         class="input flex-1"
-                                        id="{{../../../../this.id}}_h_{{../this.field.name}}"
+                                        id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                         name="{{../this.field.name}}"
                                         type="text"
                                         data-block-element="param"
@@ -759,7 +783,7 @@
                                 {{#ifCond ../this.type.name '==' 'File'}}
                                     <input
                                             class="input flex-1"
-                                            id="{{../../../../../this.id}}_h_{{../../this.field.name}}"
+                                            id="{{../../../../../this.id}}_p_{{../../this.field.name}}"
                                             name="{{../../this.field.name}}"
                                             type="file"
                                             data-block-element="param"
@@ -768,7 +792,7 @@
                                 {{else}}
                                     <input
                                             class="input flex-1"
-                                            id="{{../../../../../this.id}}_h_{{../../this.field.name}}"
+                                            id="{{../../../../../this.id}}_p_{{../../this.field.name}}"
                                             name="{{../../this.field.name}}"
                                             type="text"
                                             data-block-element="param"
@@ -813,10 +837,10 @@
   const config = {{toJson this.config}};
   const sections = {{toJson this.sections}};
 
-    {{> compile_body_form.js }}
-    {{> compile_body_xml.js }}
-    {{> prepare_body.js }}
-    {{> main.js }}
-    {{> sample_request_hooks.js }}
+  {{> compile_body_form.js }}
+  {{> compile_body_xml.js }}
+  {{> prepare_body.js }}
+  {{> main.js }}
+  {{> sample_request_hooks.js }}
 </script>
 </html>

@@ -93,11 +93,15 @@ function parse(block, text) {
 }
 
 function blockValidate(block, config) {
+  if (! block.sampleRequestProxy) {
+    block.sampleRequestProxy = config.sampleRequestProxy;
+  }
+
   switch (block.api.transport.name) {
     case 'nats':
     case 'rabbitmq':
     case 'rabbitmqRpc':
-      if (! block.proxy) {
+      if (! block.sampleRequestProxy) {
         throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()}`);
       }
 

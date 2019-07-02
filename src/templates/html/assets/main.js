@@ -43,7 +43,7 @@ function replaceClass(el, clsOld, clsNew) {
 
 function onChange(el, fn) {
   el.onchange = (event) => {
-    fn(getValue(event.srcElement));
+    fn(getValue(event.srcElement), event.srcElement);
   };
 }
 
@@ -53,8 +53,58 @@ function onClick(el, fn) {
   };
 }
 
+function selectorReplaceOptions(el, options) {
+  const selectedValue = getValue(el);
+
+  el.options.length = 0;
+
+  Object.entries(options).forEach(([key, val]) => {
+    const option = document.createElement('option');
+
+    option.value = key;
+    option.text = val;
+
+    el.appendChild(option);
+
+    Array.prototype.some.call(el, (option, i) => {
+      if (getValue(option) === selectedValue) {
+        el.selectedIndex = i;
+
+        return true;
+      }
+
+      return false;
+    });
+  });
+}
+
+function selectorAppendOptionUniq(el, value, text) {
+  const optionIndex = Array.prototype.findIndex.call(el.options, (option) => getValue(option) === value);
+
+  if (optionIndex === -1) {
+    const option = document.createElement('option');
+
+    option.value = value;
+    option.text = text;
+
+    el.appendChild(option);
+
+    el.selectedIndex = el.options.length - 1;
+  } else {
+    el.selectedIndex = optionIndex;
+  }
+}
+
 function getValue(el) {
   return el.options ? el.options[el.selectedIndex].value : el.value;
+}
+
+function setValue(el, value) {
+  if (el.options) {
+
+  } else {
+    el.value = value;
+  }
 }
 
 function del(obj, path) {
@@ -281,6 +331,7 @@ function request(transport, url, method, data, headers, contentType, config) {
 const lastHintsStatus = {};
 const lastSelectedContentType = {};
 const lastSelectedVersions = {};
+const presets = {};
 
 bySelector('[data-control-panel]').forEach((el) => {
   const family = el.dataset.controlPanel;
@@ -321,6 +372,10 @@ bySelector('[data-control-panel]').forEach((el) => {
 });
 
 bySelector('[data-block]').forEach((el) => {
+  const blockId = el.dataset.block;
+
+  // sample request
+
   const blockElementSend = bySelector('[data-block-element="send"]', el)[0];
 
   if (! blockElementSend) {
@@ -356,12 +411,12 @@ bySelector('[data-block]').forEach((el) => {
       }
     }
 
-    if (blockDescriptor.proxy) {
+    if (blockDescriptor.sampleRequestProxy) {
       hideResponse(el);
 
       request(
         'http',
-        `${blockDescriptor.proxy}/${blockDescriptor.api.transport.name}/${url}`,
+        `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${url}`,
         blockDescriptor.api.transport.method || 'post',
         data,
         blockHeaders,
@@ -451,6 +506,119 @@ bySelector('[data-block]').forEach((el) => {
 
       wsDisconnect(url);
       showWsConnect(el);
+    });
+  }
+
+  // sample request preset
+
+  const blockElementPresetSelect = bySelector('[data-block-element="presetSelect"]', el)[0];
+
+  if (blockElementPresetSelect) {
+    onChange(blockElementPresetSelect, (value) => {
+      if (value === 'new') {
+        setValue(bySelector('[data-block-element="presetName"]', el)[0], '');
+
+        return;
+      }
+
+      setValue(bySelector('[data-block-element="presetName"]', el)[0], value);
+
+      if (blockId in presets && value in presets[blockId]) {
+        const preset = presets[blockId][value];
+
+        if (preset.endpoint) {
+          setValue(bySelector('[data-block-element="endpoint"]', el)[0], preset.endpoint);
+        }
+
+        if (preset.headers) {
+          Object.entries(preset.headers).forEach(([key, val]) => {
+            const el = bySelector(`#${blockId}_h_${key}`.replace(/\./g, '\\.'))[0];
+
+            if (el) {
+              setValue(el, val);
+            }
+          });
+        }
+
+        if (preset.params) {
+          Object.entries(preset.params).forEach(([key, val]) => {
+            const el = bySelector(`#${blockId}_p_${key}`.replace(/\./g, '\\.'))[0];
+
+            if (el) {
+              setValue(el, val);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  const blockElementPresetSave = bySelector('[data-block-element="presetSave"]', el)[0];
+
+  if (blockElementPresetSave) {
+    onClick(blockElementPresetSave, () => {
+      const presetName = getValue(bySelector('[data-block-element="presetName"]', el)[0]);
+
+      if (!presetName) {
+        return;
+      }
+
+      const blockHeaders = {};
+      const blockParams = {};
+      const blockEndpoint = bySelector('[data-block-element="endpoint"]', el)[0].value;
+
+      bySelector('[data-block-element]', el).forEach((blockEl) => {
+        switch (blockEl.dataset.blockElement) {
+          case 'header':
+            blockHeaders[blockEl.name] = getValue(blockEl);
+
+            break;
+
+          case 'param':
+            blockParams[blockEl.name] = getValue(blockEl);
+
+            break;
+        }
+      });
+
+      const blockDescriptor = sections[el.dataset.block];
+
+      request(
+        'http',
+        `${blockDescriptor.sampleRequestProxy}/preset/${blockId}/${presetName}`,
+        'PATCH',
+        {
+          endpoint: blockEndpoint,
+          headers: blockHeaders,
+          params: blockParams,
+        },
+        undefined,
+        'json'
+      ).then(() => {
+        selectorAppendOptionUniq(blockElementPresetSelect, presetName, presetName);
+      });
+    });
+  }
+
+  const blockElementPresetRefreshList = bySelector('[data-block-element="presetRefreshList"]', el)[0];
+
+  if (blockElementPresetRefreshList && blockElementPresetSelect) {
+    onClick(blockElementPresetRefreshList, () => {
+      const blockDescriptor = sections[el.dataset.block];
+
+      request(
+        'http',
+        `${blockDescriptor.sampleRequestProxy}/preset/${blockId}`,
+        'GET'
+      ).then(({text}) => {
+        Object.assign(presets, JSON.parse(text));
+
+        selectorReplaceOptions(blockElementPresetSelect, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
+          acc[key] = key;
+
+          return acc;
+        }, {'new': 'New'}));
+      });
     });
   }
 });

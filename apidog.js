@@ -34,9 +34,15 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '-s', '--sampleUrl' ],
+  [ '-s', '--sampleRequestUrl', '--sampleUrl' ],
   {
     help: 'base url that will be used as a prefix for all relative api paths in sample requests',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy' ],
+  {
+    help: 'proxy that will be used for requests',
   },
 );
 argumentParser.addArgument(
@@ -144,7 +150,8 @@ const content = generate.generate(
   {
     description: args.description || config.description,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
-    sampleUrl: args.s || args.sampleUrl || config.sampleUrl,
+    sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
+    sampleUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,
     transports: {
       http: {

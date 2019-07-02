@@ -145,7 +145,7 @@ function generateSections(blocks, config) {
     }
 
     if (! block.name) {
-      block.name = `${block.api.endpoint}:${Object.values(block.api.transport || {}).join('_')}`;
+      block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
     if (! groups[block.group][block.subgroup][block.name]) {

@@ -7,7 +7,7 @@ describe('parser for @apiSampleRequestProxy token by parseBlockLines', () => {
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      proxy: '0.0.0.0',
+      sampleRequestProxy: '0.0.0.0',
     })
   });
 

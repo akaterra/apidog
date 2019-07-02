@@ -13,7 +13,7 @@ function parse(block, text) {
     throw new Error('@apiSampleRequestProxy malformed');
   }
 
-  block.proxy = text;
+  block.sampleRequestProxy = text;
 
   return block;
 }

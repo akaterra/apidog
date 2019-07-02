@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const qs = require('qs');
@@ -36,6 +37,32 @@ function createApp(env) {
 
     res.status(200).send();
   });
+
+  app.get('/preset/:presetBlockId', async (req, res) => {
+    if (config.presetDir) {
+
+    } else {
+      res.status(501).send('Preset directory is not configured');
+    }
+  });
+
+  app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
+    if (config.presetDir) {
+      fs.writeFile(`${config.presetDir}/${req.params.presetBlockId}_${req.params.presetName}.json`, req.rawBody, (err) => {
+        if (err) {
+          res.status(500).send(err.message);
+        } else {
+          res.status(200).send();
+        }
+      });
+    } else {
+      res.status(501).send('Preset directory is not configured');
+    }
+  });
+
+  function safeName(name) {
+    return name;
+  }
 
   app.all('/:transport/*', async (req, res) => {
     res.header(
