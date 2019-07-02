@@ -39,24 +39,58 @@ function createApp(env) {
   });
 
   app.get('/preset/:presetBlockId', async (req, res) => {
-    if (config.presetDir) {
+    res.header('Access-Control-Allow-Origin', '*');
 
-    } else {
-      res.status(501).send('Preset directory is not configured');
-    }
-  });
-
-  app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
     if (config.presetDir) {
-      fs.writeFile(`${config.presetDir}/${req.params.presetBlockId}_${req.params.presetName}.json`, req.rawBody, (err) => {
+      fs.readdir(config.presetDir, async (err, files) => {
         if (err) {
-          res.status(500).send(err.message);
-        } else {
-          res.status(200).send();
+          return res.status(500).json(err.message);
+        }
+
+        const presets = {
+          [req.params.presetBlockId]: {},
+        };
+
+        try {
+          for (const file of files) {
+            const filenameOnly = file.slice(0, -5);
+
+            if (filenameOnly.substr(0, req.params.presetBlockId.length) === req.params.presetBlockId) {
+              presets[req.params.presetBlockId][filenameOnly.substr(req.params.presetBlockId.length + 2)] = await new Promise(
+                (resolve, reject) => fs.readFile(`${config.presetDir}/${file}`, (err, data) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(JSON.parse(data));
+                  }
+                })
+              );
+            }
+          }
+
+          res.status(200).json(presets);
+        } catch (e) {
+          res.status(501).json(err.message);
         }
       });
     } else {
-      res.status(501).send('Preset directory is not configured');
+      res.status(501).json('Preset directory is not configured');
+    }
+  });
+
+  app.patch('/preset/:presetBlockId/:presetName', async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+
+    if (config.presetDir) {
+      fs.writeFile(`${config.presetDir}/${req.params.presetBlockId}__${req.params.presetName}.json`, req.rawBody, (err) => {
+        if (err) {
+          res.status(500).json(err.message);
+        } else {
+          res.status(204).send();
+        }
+      });
+    } else {
+      res.status(501).json('Preset directory is not configured');
     }
   });
 
@@ -180,7 +214,7 @@ function createApp(env) {
     } catch (err) {
       console.error(err);
 
-      res.status(500).send(String(err));
+      res.status(500).json(err.message);
     }
   });
 
