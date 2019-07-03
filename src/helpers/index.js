@@ -1,5 +1,6 @@
 module.exports = {
   first: require('./first'),
+  hook: require('./hook'),
   ifCond: require('./if_cond'),
   join: require('./join'),
   pathLastKeyIndented: require('./path_last_key_indented'),

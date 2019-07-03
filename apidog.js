@@ -112,21 +112,29 @@ function loadGitIgnore(dir) {
 }
 
 function loadTemplate(path, hbs) {
-  if (path[0] === '@') { // embedded templates (./src/templates)
-    path = `${__dirname}/src/templates/${path.substr(1)}`;
+  const customNameIndex = path.lastIndexOf('.');
+
+  let [realPath, customName] = customNameIndex !== - 1
+    ? [path.substr(0, customNameIndex), path.substr(customNameIndex)]
+    : [path, ''];
+
+  if (realPath[0] === '@') { // embedded templates (./src/templates)
+    realPath = `${__dirname}/src/templates/${realPath.substr(1)}`;
   }
 
-  const assetsDir = fs.readdirSync(`${path}/assets/`);
+  for (const dirName of [`${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
+    const dir = fs.readdirSync(dirName);
 
-  assetsDir.forEach((dirEntry) => {
-    const fsStat = fs.statSync(`${path}/assets/${dirEntry}`);
+    dir.forEach((dirEntry) => {
+      const fsStat = fs.statSync(`${dirName}/${dirEntry}`);
 
-    if (fsStat.isFile()) {
-      hbs.registerPartial(dirEntry, fs.readFileSync(`${path}/assets/${dirEntry}`, {encoding: 'utf8'}));
-    }
-  });
+      if (fsStat.isFile() && dirEntry !== 'index.js') {
+        hbs.registerPartial(dirEntry, fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'}));
+      }
+    });
+  }
 
-  for (const helpersDir of [`${path}/helpers`, './src/helpers']) {
+  for (const helpersDir of [`${realPath}/helpers`, './src/helpers']) {
     if (fs.existsSync(`${helpersDir}/index.js`)) {
       for (const [key, val] of Object.entries(require(`${helpersDir}/index.js`))) {
         hbs.registerHelper(key, val);
@@ -134,16 +142,21 @@ function loadTemplate(path, hbs) {
     }
   }
 
+  const templateProcessor = fs.existsSync(`${realPath}/template${customName}.js`)
+    ? require(`${realPath}/template${customName}.js`)
+    : null;
+
   return {
-    config: JSON.parse(fs.readFileSync(`${path}/config.json`, { encoding: 'utf8' })),
-    template: fs.readFileSync(`${path}/template.hbs`, { encoding: 'utf8' }),
+    config: JSON.parse(fs.readFileSync(`${realPath}/config.json`, { encoding: 'utf8' })),
+    template: fs.readFileSync(`${realPath}/template${customName}.hbs`, { encoding: 'utf8' }),
+    templateProcessor,
   };
 }
 
 const config = loadConfig(args.i || args.input);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
-
+const outputDir = args.o || args.output || args.i || args.input;
 const content = generate.generate(
   parse.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input)),
   template.template,
@@ -163,12 +176,13 @@ const content = generate.generate(
       }
     }
   },
+  template.templateProcessor && template.templateProcessor(outputDir),
   hbs,
 );
 
-const outputDir = args.o || args.output || args.i || args.input;
-
-fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
+if (!template.templateProcessor) {
+  fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
+}
 
 if (args['withProxy'] || args['withProxyUpdate']) {
   for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {

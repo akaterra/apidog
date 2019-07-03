@@ -1,3 +1,5 @@
-const handlebars = require('handlebars');
+module.exports = (inputData) => {
+  const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
 
-module.exports = (inputData) => new handlebars.SafeString(JSON.stringify(inputData, void 0, 2));
+  return new handlebars.SafeString(JSON.stringify(inputData, void 0, 2));
+};

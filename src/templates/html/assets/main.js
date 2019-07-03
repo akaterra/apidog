@@ -608,10 +608,10 @@ bySelector('[data-block]').forEach((el) => {
     });
   }
 
-  const blockElementPresetRefreshList = bySelector('[data-block-element="presetRefreshList"]', el)[0];
+  const blockElementPresetLoadList = bySelector('[data-block-element="presetLoadList"]', el)[0];
 
-  if (blockElementPresetRefreshList && blockElementPresetSelect) {
-    onClick(blockElementPresetRefreshList, () => {
+  if (blockElementPresetLoadList && blockElementPresetSelect) {
+    onClick(blockElementPresetLoadList, () => {
       const blockDescriptor = sections[el.dataset.block];
 
       request(

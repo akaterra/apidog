@@ -1,0 +1,78 @@
+const config = {{toJson this.config}};
+const groups = {{toJson this.groups}};
+const sections = {{toJson this.sections}};
+
+{{> compile_body_form.js }}
+{{> compile_body_xml.js }}
+{{> prepare_body.js }}
+{{> sample_request_hooks.js }}
+
+window.onload = () => {
+  window.module = {};
+
+  {{> first.js }}
+  Handlebars.registerHelper('first', module.exports);
+
+  {{> hook.js }}
+  Handlebars.registerHelper('hook', module.exports);
+
+  {{> if_cond.js }}
+  Handlebars.registerHelper('ifCond', module.exports);
+
+  {{> join.js }}
+  Handlebars.registerHelper('join', module.exports);
+
+  {{> path_last_key_indented.js }}
+  Handlebars.registerHelper('pathLastKeyIndented', module.exports);
+
+  {{> to_html.js }}
+  Handlebars.registerHelper('toHtml', module.exports);
+
+  {{> to_json.js }}
+  Handlebars.registerHelper('toJson', module.exports);
+
+  {{> to_lower_case.js }}
+  Handlebars.registerHelper('toLowerCase', module.exports);
+
+  {{> to_upper_case.js }}
+  Handlebars.registerHelper('toUpperCase', module.exports);
+
+  const template = Handlebars.compile(templateContent);
+  const html = template({
+    //blocks,
+    config: config || {},
+    description: config && config.description || 'No description',
+    groups: groups,
+    groupsAsLists: Object.keys(groups).map((group) => {
+      return {
+        subgroups: Object.keys(groups[group]).map((subgroup) => {
+          return {
+            names: Object.keys(groups[group][subgroup]).map((name) => {
+              return Object.keys(groups[group][subgroup][name]).sort().map((version) => {
+                return groups[group][subgroup][name][version];
+              });
+            }),
+            title: subgroup,
+          };
+        }),
+        title: group,
+      }
+    }),
+    sections: Object.keys(groups).reduce((acc, group) => {
+      Object.keys(groups[group]).forEach((subgroup) => {
+        Object.keys(groups[group][subgroup]).map((name) => {
+          Object.keys(groups[group][subgroup][name]).forEach((version) => {
+            acc[groups[group][subgroup][name][version].id] = groups[group][subgroup][name][version];
+          });
+        });
+      });
+
+      return acc;
+    }, {}),
+    title: config && config.title || 'No title',
+  });
+
+  document.body.innerHTML = html;
+
+  {{> main.js }}
+};

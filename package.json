@@ -5,7 +5,8 @@
   "main": "start.js",
   "dependencies": {
     "argparse": "1.0.10",
-    "handlebars": "4.0.12"
+    "handlebars": "4.0.12",
+    "uglify-es": "3.3.9"
   },
   "devDependencies": {
     "amqplib": "0.5.2",

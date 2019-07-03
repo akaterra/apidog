@@ -37,7 +37,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {}, handlebars);
+    generator.generate(blocks, '', {}, null, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([1, 4]);
   });
@@ -62,7 +62,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {private: true}, handlebars);
+    generator.generate(blocks, '', {private: true}, null, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2, 3]);
   });

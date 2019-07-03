@@ -1,9 +1,10 @@
 ApiDog
-------
+======
 
 ApiDog is a API documentation generator alternative to the ApiDoc.
 
 * Templates for:
+  * Minimalistic html file with dynamic loading of template and bootstrap
   * Single html file with no external dependencies
   * Mark down file
 * Minimalistic embedded proxy
@@ -22,11 +23,12 @@ ApiDog is a API documentation generator alternative to the ApiDoc.
     * Presets (saved requests)
 
 Table of contents
-=================
+-----------------
 
 * Installation
 * CLI
 * Tokens
+* Embedded templates
 
 ### Installation
 
@@ -152,3 +154,35 @@ Format:
 Defines the sample request proxy that will be used to proxy all sample requests.
 
 Mandatory in case of sample requests embedding for **rabbitmq** and **rabbitmqRpc** transports.
+
+### Embedded templates
+
+##### @html template (default)
+
+Complies to:
+
+* apidoc.html - main index file
+* apidoc.min.js - bootstrap
+* apidoc.template.min.js - handlebars template
+
+Requires handlebars from CDN.
+
+```sh
+apidoc -t @html
+```
+
+##### @html.standalone
+
+Compiles to standalone html file without external dependencies.
+
+```sh
+apidoc -t @html.standalone
+```
+
+##### @md
+
+Compiles to mark down file.
+
+```sh
+apidoc -t @md
+```

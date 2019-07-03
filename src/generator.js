@@ -1,7 +1,7 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
 
-function generate(blocks, template, config, hbs) {
+function generate(blocks, template, config, templateProcessor, hbs) {
   blocks = blocks.filter((block) => {
     if (block.private) {
       if (config) {
@@ -27,7 +27,7 @@ function generate(blocks, template, config, hbs) {
   const sections = generateSections(blocks, config);
 
   const templateParams = {
-    blocks,
+    //blocks,
     config: config || {},
     description: config && config.description || 'No description',
     groups: sections,
@@ -60,21 +60,25 @@ function generate(blocks, template, config, hbs) {
     title: config && config.title || 'No title',
   };
 
-  handlebars.registerHelper('hook', (op, ...args) => {
-    const options = args.pop();
+  // handlebars.registerHelper('hook', (op, ...args) => {
+  //   const options = args.pop();
+  //
+  //   switch (op) {
+  //     case 'isNotContainerType':
+  //       return args[0] && args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
+  //         ? options.fn(this)
+  //         : args[0]
+  //           ? options.inverse(this)
+  //           : options.fn(this);
+  //
+  //     default:
+  //       return options.fn(this);
+  //   }
+  // });
 
-    switch (op) {
-      case 'isNotContainerType':
-        return args[0] && args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
-          ? options.fn(this)
-          : args[0]
-            ? options.inverse(this)
-            : options.fn(this);
-
-      default:
-        return options.fn(this);
-    }
-  });
+  if (templateProcessor) {
+    return templateProcessor(hbs || handlebars, config, templateParams);
+  }
 
   return (hbs || handlebars).compile(template)(templateParams);
 }
