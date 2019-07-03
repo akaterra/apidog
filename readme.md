@@ -7,13 +7,19 @@ ApiDog is a API documentation generator alternative to the ApiDoc.
   * Single html file with no external dependencies
   * Mark down file
 * Minimalistic embedded proxy
-* Sample requests support for html template:
-    * HTTP
-    * HTTPS
-    * AMQP (via ApiDog proxy)
-    * AMQP RPC (via ApiDog proxy)
-    * Nats (via ApiDog proxy)
-    * WebSocket
+* Sample request plugin for html template:
+    * Support of transports:
+        * HTTP
+        * HTTPS
+        * AMQP (via ApiDog proxy)
+        * AMQP RPC (via ApiDog proxy)
+        * Nats (via ApiDog proxy)
+        * WebSocket
+    * Support of content types:
+        * Form
+        * JSON
+        * XML
+    * Presets (saved requests)
 
 Table of contents
 =================

@@ -150,6 +150,7 @@ const content = generate.generate(
   {
     description: args.description || config.description,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
+    sampleRequestPresetProxy: args.sampleRequestPresetProxy || config.sampleRequestPresetProxy,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
     sampleUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,

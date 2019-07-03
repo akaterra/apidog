@@ -681,8 +681,10 @@
                 </div>
 
                 {{#ifCond this.sampleRequest.[0] '!=' false}}
+                  <div class="label">Sample request:</div>
+
                   {{#if ../this.sampleRequestProxy}}
-                    <div class="label">Sample request preset:</div>
+                    <div class="inner-label">Preset:</div>
 
                     <div class="section flex">
                       <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
@@ -703,12 +705,12 @@
                       <button class="button margin-left-25" data-block-element="presetSave">Save</button>
                       <button class="button" data-block-element="presetRefreshList">Refresh list</button>
                     </div>
+
+                    <div class="inner-label"></div>
                   {{/if}}
 
-                  <div class="label">Sample request:</div>
-
                   <div class="section flex">
-                    <label class="input-label width-25" for="{{this.id}}">Endpoint</label>
+                    <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
                     <input
                             class="input flex-1"
                             id="{{../this.id}}"

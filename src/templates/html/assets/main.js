@@ -101,7 +101,15 @@ function getValue(el) {
 
 function setValue(el, value) {
   if (el.options) {
+    Array.prototype.some.call(el.options, (option, i) => {
+      if (getValue(option) === value) {
+        el.selectedIndex = i;
 
+        return true;
+      }
+
+      return false;
+    });
   } else {
     el.value = value;
   }
@@ -532,7 +540,7 @@ bySelector('[data-block]').forEach((el) => {
 
         if (preset.headers) {
           Object.entries(preset.headers).forEach(([key, val]) => {
-            const el = bySelector(`#${blockId}_h_${key}`.replace(/\./g, '\\.'))[0];
+            const el = bySelector(`#${blockId}_h_${key}`.replace(/\./g, '\\.').replace(/\[/g, '\\[').replace(/\]/g, '\\]'))[0];
 
             if (el) {
               setValue(el, val);
@@ -542,7 +550,7 @@ bySelector('[data-block]').forEach((el) => {
 
         if (preset.params) {
           Object.entries(preset.params).forEach(([key, val]) => {
-            const el = bySelector(`#${blockId}_p_${key}`.replace(/\./g, '\\.'))[0];
+            const el = bySelector(`#${blockId}_p_${key}`.replace(/\./g, '\\.').replace(/\[/g, '\\[').replace(/\]/g, '\\]'))[0];
 
             if (el) {
               setValue(el, val);
