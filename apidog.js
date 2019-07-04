@@ -174,7 +174,8 @@ const content = generate.generate(
       https: {
         sampleRequestUrl: null,
       }
-    }
+    },
+    version: config.version,
   },
   template.templateProcessor && template.templateProcessor(outputDir),
   hbs,

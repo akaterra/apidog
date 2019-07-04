@@ -58,6 +58,7 @@ function generate(blocks, template, config, templateProcessor, hbs) {
       return acc;
     }, {}),
     title: config && config.title || 'No title',
+    version: config && config.version || '0.0.1',
   };
 
   // handlebars.registerHelper('hook', (op, ...args) => {
