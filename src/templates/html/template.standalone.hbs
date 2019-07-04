@@ -1,12 +1,16 @@
 <html>
 <head>
-  <title>|{{title}}| {{description}} {{version}}</title>
+  <meta charset="UTF-8">
+  <meta name="author" content="{{author}}">
+  <meta name="description" content="{{description}}">
+  <meta name="keywords" content="{{joinWithComma keywords}}">
+  <title>"{{title}}" {{description}} {{version}}</title>
   <style>
-    {{> file.style.css.hbs }}
+    {{> part.style.css.hbs }}
   </style>
 </head>
 <body>
-  {{> file.template.hbs }}
+  {{> part.template.hbs }}
 </body>
 <script>
   const config = {{toJson this.config}};

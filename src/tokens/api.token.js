@@ -101,11 +101,15 @@ function blockValidate(block, config) {
     case 'nats':
     case 'rabbitmq':
     case 'rabbitmqRpc':
-      if (! block.sampleRequestProxy) {
-        throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()}`);
-      }
-
       if (block.sampleRequest) {
+        if (! block.sampleRequestProxy) {
+          if (config.sampleRequestProxy) {
+            block.sampleRequestProxy = config.sampleRequestProxy;
+          } else {
+            throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+          }
+        }
+
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
           if (typeof sampleRequest === 'string') {
             return sampleRequest;
@@ -123,6 +127,12 @@ function blockValidate(block, config) {
 
     default:
       if (block.sampleRequest) {
+        if (! block.sampleRequestProxy) {
+          if (config.sampleRequestProxy) {
+            block.sampleRequestProxy = config.sampleRequestProxy;
+          }
+        }
+
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
           if (typeof sampleRequest === 'string' && sampleRequest[0] !== '/') {
             return sampleRequest;

@@ -144,17 +144,6 @@ This allows also to reuse lists of **apiParams** between different blocks.
  */
 ```
 
-##### @apiSampleRequestProxy
-
-Format:
-```
-@apiSampleRequestProxy address
-```
-
-Defines the sample request proxy that will be used to proxy all sample requests.
-
-Mandatory in case of sample requests embedding for **rabbitmq** and **rabbitmqRpc** transports.
-
 ### Embedded templates
 
 ##### @html template (default)

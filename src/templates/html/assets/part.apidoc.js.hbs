@@ -39,7 +39,6 @@ window.onload = () => {
 
   const template = Handlebars.compile(templateContent);
   const html = template({
-    //blocks,
     config: config || {},
     description: config && config.description || 'No description',
     groups: groups,

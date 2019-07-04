@@ -1,4 +1,3 @@
-const fs = require('fs');
 const handlebars = require('handlebars');
 
 function generate(blocks, template, config, templateProcessor, hbs) {
@@ -27,7 +26,7 @@ function generate(blocks, template, config, templateProcessor, hbs) {
   const sections = generateSections(blocks, config);
 
   const templateParams = {
-    //blocks,
+    author: config && config.author,
     config: config || {},
     description: config && config.description || 'No description',
     groups: sections,
@@ -46,6 +45,7 @@ function generate(blocks, template, config, templateProcessor, hbs) {
         title: group,
       }
     }),
+    keywords: config && config.keywords || [],
     sections: Object.keys(sections).reduce((acc, group) => {
       Object.keys(sections[group]).forEach((subgroup) => {
         Object.keys(sections[group][subgroup]).map((name) => {
@@ -60,22 +60,6 @@ function generate(blocks, template, config, templateProcessor, hbs) {
     title: config && config.title || 'No title',
     version: config && config.version || '0.0.1',
   };
-
-  // handlebars.registerHelper('hook', (op, ...args) => {
-  //   const options = args.pop();
-  //
-  //   switch (op) {
-  //     case 'isNotContainerType':
-  //       return args[0] && args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
-  //         ? options.fn(this)
-  //         : args[0]
-  //           ? options.inverse(this)
-  //           : options.fn(this);
-  //
-  //     default:
-  //       return options.fn(this);
-  //   }
-  // });
 
   if (templateProcessor) {
     return templateProcessor(hbs || handlebars, config, templateParams);

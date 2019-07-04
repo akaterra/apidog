@@ -91,12 +91,14 @@ function loadConfig(dir) {
     configPackage = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`, 'utf8')) || {};
   }
 
-  if (! configPackage.apidoc) {
+  if (!configPackage.apidoc) {
     configPackage.apidoc = {};
   }
 
   return {
+    author: configApidoc.author || configPackage.apidoc.author || configPackage.author,
     description: configApidoc.description || configPackage.apidoc.description || configPackage.description,
+    keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
@@ -161,7 +163,9 @@ const content = generate.generate(
   parse.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input)),
   template.template,
   {
+    author: config.author,
     description: args.description || config.description,
+    keywords: config.keywords,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
     sampleRequestPresetProxy: args.sampleRequestPresetProxy || config.sampleRequestPresetProxy,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
@@ -185,9 +189,9 @@ if (!template.templateProcessor) {
   fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
-if (args['withProxy'] || args['withProxyUpdate']) {
+if (args.withProxy || args.withProxyUpdate) {
   for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {
-    if (! fs.existsSync(`${outputDir}/${file}`) || args['withProxyUpdate']) {
+    if (!fs.existsSync(`${outputDir}/${file}`) || args.withProxyUpdate) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }
   }

@@ -3,6 +3,7 @@ module.exports = {
   hook: require('./hook'),
   ifCond: require('./if_cond'),
   join: require('./join'),
+  joinWithComma: require('./join_with_comma'),
   pathLastKeyIndented: require('./path_last_key_indented'),
   toHtml: require('./to_html'),
   toJson: require('./to_json'),

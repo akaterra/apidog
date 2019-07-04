@@ -1,10 +1,24 @@
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="author" content="{{author}}">
+  <meta name="description" content="{{description}}">
+  <meta name="keywords" content="{{joinWithComma keywords}}">
   <title>"{{title}}" {{description}} {{version}}</title>
   <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  <style>
+    .splash {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      font-weight: bold;
+      height: 100%;
+    }
+  </style>
 </head>
 <body>
-<b>"{{title}}" {{description}} {{version}} ApiDoc is loading ...</b>
+<div class="splash">"{{title}}" {{description}} {{version}} ApiDoc is loading ...</div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js"></script>
 <script src="apidoc.template.min.js"></script>
