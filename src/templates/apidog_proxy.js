@@ -308,7 +308,7 @@ function createApp(env) {
 
 (async () => {
   if (process.env.NODE_ENV !== 'test') {
-    const config = require('./apidog_proxy_config.js');
+    let config = require('./apidog_proxy_config.js');
 
     if (typeof config === 'function') {
       config = await config();

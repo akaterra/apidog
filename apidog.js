@@ -42,7 +42,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--sampleRequestProxy' ],
   {
-    help: 'proxy that will be used for requests',
+    help: 'url of ApiDog proxy to be used for requests',
   },
 );
 argumentParser.addArgument(
@@ -58,15 +58,15 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '--withProxy' ],
+  [ '-sr', '--withSampleRequest' ],
   {
     help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
   },
 );
 argumentParser.addArgument(
-  [ '--withProxyUpdate' ],
+  [ '-srp', '--withSampleRequestProxy' ],
   {
-    help: 'updates also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
+    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
   },
 );
 
@@ -167,9 +167,8 @@ const content = generate.generate(
     description: args.description || config.description,
     keywords: config.keywords,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
-    sampleRequestPresetProxy: args.sampleRequestPresetProxy || config.sampleRequestPresetProxy,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
-    sampleUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
+    sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,
     transports: {
       http: {
@@ -189,9 +188,9 @@ if (!template.templateProcessor) {
   fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
-if (args.withProxy || args.withProxyUpdate) {
+if (args.withSampleRequestProxy) {
   for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {
-    if (!fs.existsSync(`${outputDir}/${file}`) || args.withProxyUpdate) {
+    if (!fs.existsSync(`${outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }
   }

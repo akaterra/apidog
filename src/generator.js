@@ -27,6 +27,7 @@ function generate(blocks, template, config, templateProcessor, hbs) {
 
   const templateParams = {
     author: config && config.author,
+    blocks,
     config: config || {},
     description: config && config.description || 'No description',
     groups: sections,

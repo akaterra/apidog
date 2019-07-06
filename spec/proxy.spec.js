@@ -4,7 +4,7 @@ describe('proxy', () => {
   let app;
   let env;
 
-  function initAmqpEnv(response) {
+  function initAmqpEnv(response, config) {
     env = {
       amqplib: {
         connect: (uri) => {
@@ -29,7 +29,7 @@ describe('proxy', () => {
           return response;
         }
       },
-      config: {},
+      config: config || {},
     };
 
     app = require('../src/templates/apidog_proxy').createApp(env);
@@ -70,7 +70,7 @@ describe('proxy', () => {
   });
 
   it('should process rabbitmq request with alias of uri', async () => {
-    initAmqpEnv({amqp: {alias: 'amqp://a:b@c:1/e'}});
+    initAmqpEnv(undefined, {amqp: {alias: 'amqp://a:b@c:1/e'}});
 
     return request(app)
       .post('/rabbitmq/amqp://alias/queue')
@@ -81,8 +81,8 @@ describe('proxy', () => {
       .expect(200)
       .expect(res => {
         expect(env.amqplibQueue).toBe('queue');
-        expect(env.amqplibConnection.uri).toBe('amqp://username:password@host:9999/vhost');
-        expect(res.text).toBe('Message has been sent to "amqp://username:password@host:9999/vhost/queue" queue by ApiDog proxy');
+        expect(env.amqplibConnection.uri).toBe('amqp://a:b@c:1/e');
+        expect(res.text).toBe('Message has been sent to "amqp://alias/queue" queue by ApiDog proxy');
       });
   });
 

@@ -46,35 +46,37 @@ Parameters:
 
 * **--description "description"** - custom description that will be used as description of the generated documentation
 
-  Default is \[ package.json in input directory \].description or null by default
+  Default is \[ package.json in input directory \].description or null by default.
 
 * **-i, --input "input directory"** - input directory to be scanned for blocks
 
-  CWD by default
+  Current directory by default.
 
 * **-o, --output "output directory"** - output directory where **apidoc.html** and additional files will be saved
 
-  Same as **input directory** by default
+  Same as **input directory** by default.
 
 * **-p, --private \["tag1, tag2,.."\]** -- filters blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
 
-  By default takes all the blocks
+  By default takes all the blocks.
 
-* **-s, --sampleUrl** - base url that will be used as prefix for all relative api paths in sample requests
+* **-s, --sampleRequestUrl, --sampleUrl** - base url that will be used as prefix for all relative api paths in sample requests
 
   Default is \[ config.json in input directory \].sampleUrl
 
+* **--sampleRequestProxy** - url of ApiDog proxy to be used for requests
+
 * **-t, --template** - alias of embedded template or directory where the custom template be load from
 
-  @html by default
+  "@html" by default.
 
 * **--title** - custom title that will be used as title of the generated documentation
 
   Default is \[ package.json in input directory \].name, \[ config.json in input directory \].title or "Untitled" by default
 
-* **--withProxy** - creates also **apidog_proxy.js**, **apidog_proxy_config.js** and **package.json** in the output directory
+* **-srp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy_config.js** and **package.json** in the output directory
 
-  If the above files already exist, they will not be rewritten
+  If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
 ### Tokens
 
@@ -146,7 +148,11 @@ This allows also to reuse lists of **apiParams** between different blocks.
 
 ### Embedded templates
 
-##### @html template (default)
+##### @html (default)
+
+```sh
+apidoc -t @html
+```
 
 Complies to:
 
@@ -156,22 +162,18 @@ Complies to:
 
 Requires handlebars from CDN.
 
-```sh
-apidoc -t @html
-```
-
 ##### @html.standalone
-
-Compiles to standalone html file without external dependencies.
 
 ```sh
 apidoc -t @html.standalone
 ```
 
-##### @md
+Compiles to standalone html file without external dependencies.
 
-Compiles to mark down file.
+##### @md
 
 ```sh
 apidoc -t @md
 ```
+
+Compiles to mark down file.
