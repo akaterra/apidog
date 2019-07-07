@@ -2,38 +2,77 @@ function byId(id) {
   return document.getElementById(id);
 }
 
-function bySelector(selector, el) {
-  return Array.prototype.slice.call((el || document).querySelectorAll(selector));
+function bySelector(selector, el, sanitize) {
+  return Array.prototype.slice.call((el || document).querySelectorAll(sanitize
+    ? selector
+      .replace(/\./g, '\\.')
+      .replace(/\[/g, '\\[')
+      .replace(/\]/g, '\\]')
+      .replace(/\$/g, '\\$')
+    : selector
+  ));
+}
+
+function bySanitizedSelector(selector, el) {
+  return bySelector(selector, el, true);
 }
 
 function addClass(el, cls) {
-  const className = el.className.split(' ');
-  const index = className.findIndex(function (e) {
-    return e === cls;
-  });
-
-  if (index !== - 1) {
-      return;
+  if (! Array.isArray(el)) {
+    el = [el];
   }
 
-  className.push(cls);
+  el.forEach((el) => {
+    if (typeof el === 'string') {
+      el = bySelector(el)[0];
 
-  el.className = className.join(' ').trim();
+      if (! el) {
+        return;
+      }
+    }
+
+    const className = el.className.split(' ');
+    const index = className.findIndex(function (e) {
+      return e === cls;
+    });
+
+    if (index !== -1) {
+      return;
+    }
+
+    className.push(cls);
+
+    el.className = className.join(' ').trim();
+  });
 }
 
 function removeClass(el, cls) {
-  const className = el.className.split(' ');
-  const index = className.findIndex(function (e) {
-    return e === cls;
-  });
-
-  if (index === - 1) {
-      return;
+  if (! Array.isArray(el)) {
+    el = [el];
   }
 
-  className.splice(index, 1);
+  el.forEach((el) => {
+    if (typeof el === 'string') {
+      el = bySelector(el)[0];
 
-  el.className = className.join(' ').trim();
+      if (! el) {
+        return;
+      }
+    }
+
+    const className = el.className.split(' ');
+    const index = className.findIndex(function (e) {
+      return e === cls;
+    });
+
+    if (index === - 1) {
+      return;
+    }
+
+    className.splice(index, 1);
+
+    el.className = className.join(' ').trim();
+  });
 }
 
 function replaceClass(el, clsOld, clsNew) {
@@ -336,10 +375,22 @@ function request(transport, url, method, data, headers, contentType, config) {
   }
 }
 
-const lastHintsStatus = {};
-const lastSelectedContentType = {};
-const lastSelectedVersions = {};
-const presets = {};
+let lastHintsStatus = {};
+let lastSelectedChapter = getValue(bySelector('[data-element="chapterSelector"]')[0]);
+let lastSelectedContentType = {};
+let lastSelectedVersions = {};
+let presets = {};
+
+onChange(bySelector('[data-element="chapterSelector"]')[0], (value) => {
+  console.log(bySelector(`[data-element="chapter_${lastSelectedChapter}"]`), lastSelectedChapter);
+  if (lastSelectedChapter) {
+    addClass(bySelector(`[data-element="chapter_${lastSelectedChapter}"]`), 'hidden');
+  }
+
+  lastSelectedChapter = value;
+
+  removeClass(bySelector(`[data-element="chapter_${lastSelectedChapter}"]`), 'hidden');
+});
 
 bySelector('[data-control-panel]').forEach((el) => {
   const family = el.dataset.controlPanel;
@@ -540,7 +591,7 @@ bySelector('[data-block]').forEach((el) => {
 
         if (preset.headers) {
           Object.entries(preset.headers).forEach(([key, val]) => {
-            const el = bySelector(`#${blockId}_h_${key}`.replace(/\./g, '\\.').replace(/\[/g, '\\[').replace(/\]/g, '\\]'))[0];
+            const el = bySanitizedSelector(`#${blockId}_h_${key}`)[0];
 
             if (el) {
               setValue(el, val);
@@ -550,7 +601,7 @@ bySelector('[data-block]').forEach((el) => {
 
         if (preset.params) {
           Object.entries(preset.params).forEach(([key, val]) => {
-            const el = bySelector(`#${blockId}_p_${key}`.replace(/\./g, '\\.').replace(/\[/g, '\\[').replace(/\]/g, '\\]'))[0];
+            const el = bySanitizedSelector(`#${blockId}_p_${key}`)[0];
 
             if (el) {
               setValue(el, val);

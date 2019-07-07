@@ -5,7 +5,7 @@ const parse = require('./src/parser');
 
 const argumentParser = new ArgumentParser({
   addHelp: true,
-  description: 'ApiDog',
+  description: 'ApiDog - API documentation generator',
   version: JSON.parse(fs.readFileSync(`${__dirname}/package.json`)).version,
 });
 
@@ -55,12 +55,6 @@ argumentParser.addArgument(
   [ '--title' ],
   {
     help: 'custom title that will be used as a title of the generated documentation',
-  },
-);
-argumentParser.addArgument(
-  [ '-sr', '--withSampleRequest' ],
-  {
-    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
   },
 );
 argumentParser.addArgument(

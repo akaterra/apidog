@@ -1,5 +1,5 @@
+const chapters = {{toJson this.chapters}};
 const config = {{toJson this.config}};
-const groups = {{toJson this.groups}};
 const sections = {{toJson this.sections}};
 
 {{> compile_body_form.js }}
@@ -39,29 +39,34 @@ window.onload = () => {
 
   const template = Handlebars.compile(templateContent);
   const html = template({
-    config: config || {},
-    description: config && config.description || 'No description',
-    groups: groups,
-    groupsAsLists: Object.keys(groups).map((group) => {
+    chapters: chapters,
+    chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
-        subgroups: Object.keys(groups[group]).map((subgroup) => {
+        groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
-            names: Object.keys(groups[group][subgroup]).map((name) => {
-              return Object.keys(groups[group][subgroup][name]).sort().map((version) => {
-                return groups[group][subgroup][name][version];
-              });
+            subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
+              return {
+                names: Object.values(subgroup).map((name) => {
+                  return Object.keys(name).sort().map((version) => name[version]);
+                }),
+                title: subgroupName,
+              }
             }),
-            title: subgroup,
-          };
+            title: groupName,
+          }
         }),
-        title: group,
+        title: chapterName,
       }
     }),
-    sections: Object.keys(groups).reduce((acc, group) => {
-      Object.keys(groups[group]).forEach((subgroup) => {
-        Object.keys(groups[group][subgroup]).map((name) => {
-          Object.keys(groups[group][subgroup][name]).forEach((version) => {
-            acc[groups[group][subgroup][name][version].id] = groups[group][subgroup][name][version];
+    config: config || {},
+    description: config && config.description || 'No description',
+    sections: Object.values(chapters).reduce((acc, chapter) => {
+      Object.values(chapter).forEach((group) => {
+        Object.values(group).forEach((subgroup) => {
+          Object.values(subgroup).map((name) => {
+            Object.values(name).forEach((version) => {
+              acc[version.id] = version;
+            });
           });
         });
       });
