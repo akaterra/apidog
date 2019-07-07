@@ -141,12 +141,12 @@ function blockValidate(block, config) {
           }
 
           if (sampleRequest === true) {
-            if (config && config.sampleUrl) {
-              return config.sampleUrl + block.api.endpoint;
+            if (config && config.sampleRequestUrl) {
+              return config.sampleRequestUrl + block.api.endpoint;
             }
           } else if (sampleRequest !== false) {
-            if (config && config.sampleUrl) {
-              return config.sampleUrl + sampleRequest;
+            if (config && config.sampleRequestUrl) {
+              return config.sampleRequestUrl + sampleRequest;
             }
           }
 
