@@ -1,5 +1,4 @@
 <div class="container flex">
-
   <div class="width-100">
     <div class="sub-container">
       <div class="control-panel">
@@ -91,8 +90,8 @@
                       <span class="{{#if this.deprecated}}line-through{{/if}}">
                         {{this.title}}
                         <span class="color-3">
-                          {{#ifCond this.group '!=' '$'}}
-                            {{../this.group}} /
+                          {{#ifCond this.group.name '!=' '$'}}
+                            {{first ../this.group.title ../this.group.name}} /
                           {{/ifCond}}
                           {{#ifCond this.subgroup '!=' '$'}}
                             {{../this.subgroup}} /
@@ -132,7 +131,7 @@
                       <span class="padded">
                         Permission:
                         {{#each this.permission}}
-                          <span class="badge bg-color-dark-cyan color-white">{{this}}</span>
+                          <span class="badge bg-color-dark-cyan color-white">{{this.name}}</span>
                         {{/each}}
                       </span>
                     </div>
@@ -151,7 +150,12 @@
 
                     {{#if this.headers.length}}
                       {{#each this.headersGroups as |params key|}}
-                        <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:</div>
+                        {{#with (context 'definitions') as |definitions|}}
+                          <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                          {{#if (lookup definitions key 'description')}}
+                            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                          {{/if}}
+                        {{/with}}
                         <div class="section">
                           <div class="table">
                             <div class="width-25 bg-color-4 bold">Field</div>
@@ -183,7 +187,12 @@
 
                     {{#if this.params.length}}
                       {{#each this.paramsGroups as |params key|}}
-                        <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:</div>
+                        {{#with (context 'definitions') as |definitions|}}
+                          <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                          {{#if (lookup definitions key 'description')}}
+                            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                          {{/if}}
+                        {{/with}}
                         <div class="section">
                           <div class="table">
                             <div class="width-25 bg-color-4 bold">Field</div>
@@ -242,7 +251,12 @@
 
                     {{#if this.successs.length}}
                       {{#each this.successsGroups as |successes key|}}
-                        <div class="label color-green">{{#ifCond key '==' '$'}}Success 200{{else}}{{key}}{{/ifCond}}:
+                        {{#with (context 'definitions') as |definitions|}}
+                          <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                          {{#if (lookup definitions key 'description')}}
+                            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                          {{/if}}
+                        {{/with}}
                         </div>
                         <div class="section">
                           <div class="table">
@@ -277,7 +291,12 @@
 
                     {{#if this.errors.length}}
                       {{#each this.errorsGroups as |errors key|}}
-                        <div class="label color-red">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{key}}{{/ifCond}}:</div>
+                        {{#with (context 'definitions') as |definitions|}}
+                          <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                          {{#if (lookup definitions key 'description')}}
+                            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                          {{/if}}
+                        {{/with}}
                         <div class="section">
                           <div class="table">
                             <div class="width-25 bg-color-4 bold">Name</div>

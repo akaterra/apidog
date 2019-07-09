@@ -77,15 +77,29 @@ function parseDirInternal(dir, blocks, ignoreList) {
         const embeddedLines = {};
 
         switch (dirEntry.substr(extensionIndex + 1)) {
+          case 'cs':
+          case 'dart':
+          case 'go':
+          case 'java':
           case 'js':
           case 'php':
           case 'ts':
-            blocks = blocks.concat(parseJsPhpTs(source, embeddedLines));
+            blocks = blocks.concat(parseJavaDocStyle(source, embeddedLines));
+
+            break;
+
+          case 'lua':
+            blocks = blocks.concat(parseLua(source, embeddedLines));
 
             break;
 
           case 'py':
             blocks = blocks.concat(parsePy(source, embeddedLines));
+
+            break;
+
+          case 'rb':
+            blocks = blocks.concat(parseRuby(source, embeddedLines));
 
             break;
         }
@@ -121,7 +135,7 @@ function parseBlockLines(lines, embeddedLines) {
   return block;
 }
 
-function parseJsPhpTs(source, embeddedLines) {
+function parseJavaDocStyle(source, embeddedLines) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
@@ -130,6 +144,38 @@ function parseJsPhpTs(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.match(/\s*\*\s?(.*)/)[1];
+      }), embeddedLines);
+    });
+  }
+
+  return [];
+}
+
+function parseLua(source, embeddedLines) {
+  const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
+
+  if (blocks) {
+    return blocks.map(function (block) {
+      const lines = block.trim().split('\n');
+
+      return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
+        return line;
+      }), embeddedLines);
+    });
+  }
+
+  return [];
+}
+
+function parsePerl(source, embeddedLines) {
+  const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
+
+  if (blocks) {
+    return blocks.map(function (block) {
+      const lines = block.trim().split('\n');
+
+      return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
+        return line.match(/#\s?(.*)/)[1];
       }), embeddedLines);
     });
   }
@@ -153,9 +199,28 @@ function parsePy(source, embeddedLines) {
   return [];
 }
 
+function parseRuby(source, embeddedLines) {
+  const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
+
+  if (blocks) {
+    return blocks.map(function (block) {
+      const lines = block.trim().split('\n');
+
+      return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
+        return line;
+      }), embeddedLines);
+    });
+  }
+
+  return [];
+}
+
 module.exports = {
-  parseBlockLines: parseBlockLines,
-  parseDir: parseDir,
-  parseJsPhpTs: parseJsPhpTs,
-  parsePy: parsePy,
+  parseBlockLines,
+  parseDir,
+  parseJavaDocStyle,
+  parseLua,
+  parsePerl,
+  parsePy,
+  parseRuby,
 };

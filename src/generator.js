@@ -23,13 +23,13 @@ function generate(blocks, template, config, templateProcessor, hbs) {
     return config ? ! config.private : true;
   });
 
-  const sections = generateSections(blocks, config);
+  const [definitions, chapters] = generateSections(blocks, config);
 
   const templateParams = {
     author: config && config.author,
     blocks,
-    chapters: sections,
-    chaptersAsLists: Object.entries(sections).map(([chapterName, chapter]) => {
+    chapters,
+    chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
         groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
@@ -48,9 +48,10 @@ function generate(blocks, template, config, templateProcessor, hbs) {
       }
     }),
     config: config || {},
+    definitions,
     description: config && config.description || 'No description',
     keywords: config && config.keywords || [],
-    sections: Object.values(sections).reduce((acc, chapter) => {
+    sections: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
           Object.values(subgroup).map((name) => {
@@ -67,6 +68,8 @@ function generate(blocks, template, config, templateProcessor, hbs) {
     version: config && config.version || '0.0.1',
   };
 
+  hbs.registerHelper('context', (name) => templateParams[name]);
+
   if (templateProcessor) {
     return templateProcessor(hbs || handlebars, config, templateParams);
   }
@@ -79,11 +82,11 @@ function generateSections(blocks, config) {
 
   blocks.forEach((block) => {
     if (block.define) {
-      definitions[block.define.name] = block;
+      definitions[block.define.name] = block.define;
     }
   });
 
-  const groups = {};
+  const chapters = {};
 
   blocks.forEach((block, index) => {
     if (block.define || block.ignore) {
@@ -115,15 +118,15 @@ function generateSections(blocks, config) {
     }
 
     if (! block.group) {
-      block.group = '$';
+      block.group = {description: [], name: '$', title: null};
     }
 
-    if (! groups[block.chapter]) {
-      groups[block.chapter] = {}; // {section: [{}]>}
+    if (! chapters[block.chapter]) {
+      chapters[block.chapter] = {}; // {section: [{}]>}
     }
 
-    if (! groups[block.chapter][block.group]) {
-      groups[block.chapter][block.group] = {}; // {section: [{}]>}
+    if (! chapters[block.chapter][block.group.name]) {
+      chapters[block.chapter][block.group.name] = {}; // {section: [{}]>}
     }
 
     if (! block.sampleRequest) {
@@ -134,8 +137,8 @@ function generateSections(blocks, config) {
       block.subgroup = '$';
     }
 
-    if (! groups[block.chapter][block.group][block.subgroup]) {
-      groups[block.chapter][block.group][block.subgroup] = {}; // {section: [{}]>}
+    if (! chapters[block.chapter][block.group.name][block.subgroup]) {
+      chapters[block.chapter][block.group.name][block.subgroup] = {}; // {section: [{}]>}
     }
 
     if (! block.version) {
@@ -146,25 +149,25 @@ function generateSections(blocks, config) {
       block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
-    if (! groups[block.chapter][block.group][block.subgroup][block.name]) {
-      groups[block.chapter][block.group][block.subgroup][block.name] = {}; // {section: [{}]>}
+    if (! chapters[block.chapter][block.group.name][block.subgroup][block.name]) {
+      chapters[block.chapter][block.group.name][block.subgroup][block.name] = {}; // {section: [{}]>}
     }
 
     if (! block.title) {
       block.title = block.api.endpoint;
     }
 
-    block.familyId = `${block.chapter}_${block.group}_${block.subgroup}_${block.name}`;
-    block.id = `${block.chapter}_${block.group}_${block.subgroup}_${block.name}_${block.version}`;
+    block.familyId = `${block.chapter}_${block.group.name}_${block.subgroup}_${block.name}`;
+    block.id = `${block.chapter}_${block.group.name}_${block.subgroup}_${block.name}_${block.version}`;
 
     if (block.validate) {
       block = block.validate(block, config);
     }
 
-    groups[block.chapter][block.group][block.subgroup][block.name][block.version] = block;
+    chapters[block.chapter][block.group.name][block.subgroup][block.name][block.version] = block;
   });
 
-  return groups;
+  return [definitions, chapters];
 }
 
 module.exports = {

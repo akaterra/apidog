@@ -2,9 +2,10 @@
 ===
 {{description}}
 
-Table of contents:
+{{#each this.chaptersAsLists}}
+Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.title}}{{/ifCond}}):
 ---
-{{#each groupsAsLists}}
+{{#each this.groups}}
   {{#ifCond this.title '!=' '$'}}
 * {{../this.title}}
     {{#each ../this.subgroups}}
@@ -35,7 +36,7 @@ Table of contents:
   {{/ifCond}}
 {{/each}}
 
-{{#each groupsAsLists}}
+{{#each this.groups}}
   {{#ifCond this.title '!=' '$'}}
 {{../this.title}}
 ---
@@ -106,4 +107,5 @@ Table of contents:
       {{/each}}
     {{/each}}
   {{/each}}
+{{/each}}
 {{/each}}

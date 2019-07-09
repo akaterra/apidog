@@ -1,8 +1,8 @@
 const parser = require('../src/parser');
 
-describe('parse by parseJsPhpTs', () => {
+describe('parse by parseJavaDocStyle', () => {
   it('should parse', () => {
-    const blocks = parser.parseJsPhpTs('' +
+    const blocks = parser.parseJavaDocStyle('' +
       '/**\n' +
       ' * @api {test} url\n' +
       ' */'

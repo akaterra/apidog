@@ -8,12 +8,16 @@ function addDescription(block, text) {
   return block;
 }
 
-function parse(block, text) {
+function parse(block, text, line, index, lines, embeddedLines) {
   if (! text) {
     throw new Error('@apiGroup malformed');
   }
 
-  block.group = text;
+  block.group = {
+    description: embeddedLines[text] ? embeddedLines[text].description : [],
+    name: text,
+    title: embeddedLines[text] ? embeddedLines[text] .title : null,
+  };
 
   return block;
 }
