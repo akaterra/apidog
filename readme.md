@@ -9,14 +9,14 @@ ApiDog is a API documentation generator alternative to the ApiDoc.
   * Mark down file
 * Minimalistic embedded proxy
 * Sample request plugin for html template:
-    * Support of transports:
+    * Transports support:
         * HTTP
         * HTTPS
         * AMQP (via ApiDog proxy)
         * AMQP RPC (via ApiDog proxy)
         * Nats (via ApiDog proxy)
         * WebSocket
-    * Support of content types:
+    * Content types support:
         * Form
         * JSON
         * XML
@@ -151,7 +151,7 @@ This allows also to reuse lists of **apiParams** between different blocks.
 ##### @html (default)
 
 ```sh
-apidoc -t @html
+apidog -t @html
 ```
 
 Complies to:
@@ -165,7 +165,7 @@ Requires handlebars from CDN.
 ##### @html.standalone
 
 ```sh
-apidoc -t @html.standalone
+apidog -t @html.standalone
 ```
 
 Compiles to standalone html file without external dependencies.
@@ -173,7 +173,7 @@ Compiles to standalone html file without external dependencies.
 ##### @md
 
 ```sh
-apidoc -t @md
+apidog -t @md
 ```
 
 Compiles to mark down file.

@@ -7,8 +7,26 @@ describe('parser for @apiSubgroup token by parseBlockLines', () => {
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      subgroup: 'subgroup',
+      subgroup: {
+        description: [],
+        name: 'subgroup',
+        title: null,
+      },
     })
+  });
+
+  it('should parse with description and title of definition (declared by @apiDefine)', () => {
+    const lines = [
+      '@apiSubgroup subgroup',
+    ];
+
+    expect(parser.parseBlockLines(lines, {subgroup: {description: ['description'], title: 'title'}})).toEqual({
+      subgroup: {
+        description: ['description'],
+        name: 'subgroup',
+        title: 'title',
+      },
+    });
   });
 
   it('should raise error on malformed definition', () => {

@@ -8,7 +8,7 @@ function addDescription(block, text) {
   return block;
 }
 
-function parse(block, text, line, index, lines, embeddedLines) {
+function parse(block, text, line, index, lines, definitions) {
   if (! text) {
     throw new Error('@apiPermission malformed');
   }
@@ -18,9 +18,9 @@ function parse(block, text, line, index, lines, embeddedLines) {
   }
 
   block.permission.push({
-    description: embeddedLines[text] ? embeddedLines[text].description : [],
+    description: definitions[text] ? definitions[text].description : [],
     name: text,
-    title: embeddedLines[text] ? embeddedLines[text].title : null,
+    title: definitions[text] ? definitions[text].title : null,
   });
 
   return block;

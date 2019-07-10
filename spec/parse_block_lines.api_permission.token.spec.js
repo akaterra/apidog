@@ -1,6 +1,6 @@
 const parser = require('../src/parser');
 
-fdescribe('parser for @apiPermission token by parseBlockLines', () => {
+describe('parser for @apiPermission token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
       '@apiPermission permission1',

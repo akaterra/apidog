@@ -9,6 +9,7 @@ describe('parser for @apiDefine token by parseBlockLines', () => {
     expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: [],
+        embeddedLines: [],
         name: 'name',
         title: null,
       },
@@ -23,6 +24,7 @@ describe('parser for @apiDefine token by parseBlockLines', () => {
     expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: [],
+        embeddedLines: [],
         name: 'name',
         title: 'This is a title',
       },
@@ -37,6 +39,7 @@ describe('parser for @apiDefine token by parseBlockLines', () => {
     expect(parser.parseBlockLines(lines, {})).toEqual({
       define: {
         description: ['A', 'B'],
+        embeddedLines: ['A', 'B'],
         name: 'name',
         title: 'This is a title',
       },

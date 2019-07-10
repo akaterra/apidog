@@ -13,7 +13,7 @@ function addDescription(block, text) {
 
 const regex = /^(\S+)(\s+(.+))?/;
 
-function parse(block, text, line, index, lines, embeddedLines) {
+function parse(block, text, line, index, lines, definitions) {
   const tokens = regex.exec(text);
 
   if (! tokens) {
@@ -23,6 +23,7 @@ function parse(block, text, line, index, lines, embeddedLines) {
   const blockDefine = block.define = {};
 
   blockDefine.description = [];
+  blockDefine.embeddedLines = lines.filter((line) => line.trim().substr(0, 10) !== '@apiDefine');
   blockDefine.name = tokens[1];
   blockDefine.title = tokens[3] || null;
 
@@ -34,7 +35,7 @@ function parse(block, text, line, index, lines, embeddedLines) {
   //   block.title = blockDefine.title;
   // }
 
-  embeddedLines[blockDefine.name] = lines.filter((line) => line.trim().substr(0, 10) !== '@apiDefine');
+  definitions[tokens[1]] = blockDefine;
 
   return block;
 }

@@ -86,31 +86,15 @@ function generateSections(blocks, config) {
     }
   });
 
-  const chapters = {};
+  const sections = {};
 
   blocks.forEach((block, index) => {
     if (block.define || block.ignore) {
       return;
     }
 
-    // if (block.use) {
-    //   for (const use of block.use) {
-    //     if (! definitions[use]) {
-    //       throw new Error(`@apiUse refers to unknown @apiDefine: ${use}`);
-    //     }
-    //
-    //     Object.keys(definitions[use]).forEach((key) => {
-    //       if (key !== 'define') {
-    //         if (! block[key]) {
-    //           block[key] = definitions[use][key];
-    //         }
-    //       }
-    //     });
-    //   }
-    // }
-
     if (! block.chapter) {
-      block.chapter = '$';
+      block.chapter = {description: [], name: '$', title: null};
     }
 
     if (! block.contentType) {
@@ -121,12 +105,12 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (! chapters[block.chapter]) {
-      chapters[block.chapter] = {}; // {section: [{}]>}
+    if (! sections[block.chapter.name]) {
+      sections[block.chapter.name] = {}; // {section: [{}]>}
     }
 
-    if (! chapters[block.chapter][block.group.name]) {
-      chapters[block.chapter][block.group.name] = {}; // {section: [{}]>}
+    if (! sections[block.chapter.name][block.group.name]) {
+      sections[block.chapter.name][block.group.name] = {}; // {section: [{}]>}
     }
 
     if (! block.sampleRequest) {
@@ -134,11 +118,11 @@ function generateSections(blocks, config) {
     }
 
     if (! block.subgroup) {
-      block.subgroup = '$';
+      block.subgroup = {description: [], name: '$', title: null};
     }
 
-    if (! chapters[block.chapter][block.group.name][block.subgroup]) {
-      chapters[block.chapter][block.group.name][block.subgroup] = {}; // {section: [{}]>}
+    if (! sections[block.chapter.name][block.group.name][block.subgroup.name]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
     }
 
     if (! block.version) {
@@ -149,25 +133,25 @@ function generateSections(blocks, config) {
       block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
-    if (! chapters[block.chapter][block.group.name][block.subgroup][block.name]) {
-      chapters[block.chapter][block.group.name][block.subgroup][block.name] = {}; // {section: [{}]>}
+    if (! sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name][block.name] = {}; // {section: [{}]>}
     }
 
     if (! block.title) {
       block.title = block.api.endpoint;
     }
 
-    block.familyId = `${block.chapter}_${block.group.name}_${block.subgroup}_${block.name}`;
-    block.id = `${block.chapter}_${block.group.name}_${block.subgroup}_${block.name}_${block.version}`;
+    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}`;
+    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}_${block.version}`;
 
     if (block.validate) {
       block = block.validate(block, config);
     }
 
-    chapters[block.chapter][block.group.name][block.subgroup][block.name][block.version] = block;
+    sections[block.chapter.name][block.group.name][block.subgroup.name][block.name][block.version] = block;
   });
 
-  return [definitions, chapters];
+  return [definitions, sections];
 }
 
 module.exports = {

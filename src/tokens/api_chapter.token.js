@@ -8,12 +8,16 @@ function addDescription(block, text) {
   return block;
 }
 
-function parse(block, text) {
+function parse(block, text, line, index, lines, definitions) {
   if (! text) {
     throw new Error('@apiChapter malformed');
   }
 
-  block.chapter = text;
+  block.chapter = {
+    description: definitions[text] ? definitions[text].description : [],
+    name: text,
+    title: definitions[text] ? definitions[text].title : null,
+  };
 
   return block;
 }

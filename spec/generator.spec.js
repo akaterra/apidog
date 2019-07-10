@@ -1,19 +1,22 @@
 const generator = require('../src/generator');
 
 const hbs = () => {
-  const hbs = {
+  const hbsInstance = {
     compile: (template) => {
-      hbs.template = template;
+      hbsInstance.template = template;
 
       return (params) => {
-        hbs.params = params;
+        hbsInstance.params = params;
 
         return '';
       }
-    }
+    },
+    registerHelper(name, fn) {
+
+    },
   };
 
-  return hbs;
+  return hbsInstance;
 };
 
 describe('generator', () => {

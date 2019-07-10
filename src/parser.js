@@ -49,9 +49,13 @@ function parseDir(dir, blocks, ignoreList) {
   return parseDirInternal(dir, blocks, ignoreList);
 }
 
-function parseDirInternal(dir, blocks, ignoreList) {
+function parseDirInternal(dir, blocks, ignoreList, definitions) {
   if (! blocks) {
     blocks = [];
+  }
+
+  if (! definitions) {
+    definitions = {};
   }
 
   const dirList = fs.readdirSync(dir);
@@ -68,13 +72,12 @@ function parseDirInternal(dir, blocks, ignoreList) {
         }
       }
 
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList);
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions);
     } else if (fsStat.isFile()) {
       const extensionIndex = dirEntry.lastIndexOf('.');
 
       if (extensionIndex !== - 1) {
         const source = fs.readFileSync(dir + '/' + dirEntry, { encoding: 'utf8' });
-        const embeddedLines = {};
 
         switch (dirEntry.substr(extensionIndex + 1)) {
           case 'cs':
@@ -84,22 +87,22 @@ function parseDirInternal(dir, blocks, ignoreList) {
           case 'js':
           case 'php':
           case 'ts':
-            blocks = blocks.concat(parseJavaDocStyle(source, embeddedLines));
+            blocks = blocks.concat(parseJavaDocStyle(source, definitions));
 
             break;
 
           case 'lua':
-            blocks = blocks.concat(parseLua(source, embeddedLines));
+            blocks = blocks.concat(parseLua(source, definitions));
 
             break;
 
           case 'py':
-            blocks = blocks.concat(parsePy(source, embeddedLines));
+            blocks = blocks.concat(parsePy(source, definitions));
 
             break;
 
           case 'rb':
-            blocks = blocks.concat(parseRuby(source, embeddedLines));
+            blocks = blocks.concat(parseRuby(source, definitions));
 
             break;
         }
@@ -112,19 +115,23 @@ function parseDirInternal(dir, blocks, ignoreList) {
   return blocks;
 }
 
-function parseBlockLines(lines, embeddedLines) {
+function parseBlockLines(lines, definitions) {
+  if (! definitions) {
+    definitions = {};
+  }
+
   const block = {};
 
   let lastCmdParser;
 
-  for (let index = 0; index < lines.length; index ++) {
+  for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
     if (tokenParsers.hasOwnProperty(tokens[0])) {
       lastCmdParser = tokenParsers[tokens[0]];
 
-      Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, embeddedLines));
+      Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, definitions));
     } else {
       if (lastCmdParser) {
         Object.assign(block, lastCmdParser.addDescription(block, line));
@@ -135,7 +142,7 @@ function parseBlockLines(lines, embeddedLines) {
   return block;
 }
 
-function parseJavaDocStyle(source, embeddedLines) {
+function parseJavaDocStyle(source, definitions) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
@@ -144,14 +151,14 @@ function parseJavaDocStyle(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.match(/\s*\*\s?(.*)/)[1];
-      }), embeddedLines);
+      }), definitions);
     });
   }
 
   return [];
 }
 
-function parseLua(source, embeddedLines) {
+function parseLua(source, definitions) {
   const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
 
   if (blocks) {
@@ -160,14 +167,14 @@ function parseLua(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line;
-      }), embeddedLines);
+      }), definitions);
     });
   }
 
   return [];
 }
 
-function parsePerl(source, embeddedLines) {
+function parsePerl(source, definitions) {
   const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
 
   if (blocks) {
@@ -176,14 +183,14 @@ function parsePerl(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.match(/#\s?(.*)/)[1];
-      }), embeddedLines);
+      }), definitions);
     });
   }
 
   return [];
 }
 
-function parsePy(source, embeddedLines) {
+function parsePy(source, definitions) {
   const blocks = source.match(/^(\s*'{3}|\s*"{3})[^!][.\s\t\S\n\r]*?(\s*'{3}|\s*"{3})/gm);
 
   if (blocks) {
@@ -192,14 +199,14 @@ function parsePy(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.substr(lines[0].indexOf(lines[0].match(/\S/)[0]));
-      }), embeddedLines);
+      }), definitions);
     });
   }
 
   return [];
 }
 
-function parseRuby(source, embeddedLines) {
+function parseRuby(source, definitions) {
   const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
 
   if (blocks) {
@@ -208,7 +215,7 @@ function parseRuby(source, embeddedLines) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line;
-      }), embeddedLines);
+      }), definitions);
     });
   }
 

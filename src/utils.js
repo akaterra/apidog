@@ -1,9 +1,9 @@
 function strSplitBy(str, splitter, limit, trim) {
   if (str) {
-    var splitted = str.trim().split(splitter);
-    var splittedWithRest = [];
+    const splitted = str.trim().split(splitter);
+    const splittedWithRest = [];
 
-    for (var i = 0; i < splitted.length; i ++) {
+    for (let i = 0; i < splitted.length; i += 1) {
       if (splitted[i] !== '') {
         splittedWithRest.push(trim ? splitted[i].trim() : splitted[i]);
 

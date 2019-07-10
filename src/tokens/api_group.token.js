@@ -8,15 +8,15 @@ function addDescription(block, text) {
   return block;
 }
 
-function parse(block, text, line, index, lines, embeddedLines) {
+function parse(block, text, line, index, lines, definitions) {
   if (! text) {
     throw new Error('@apiGroup malformed');
   }
 
   block.group = {
-    description: embeddedLines[text] ? embeddedLines[text].description : [],
+    description: definitions[text] ? definitions[text].description : [],
     name: text,
-    title: embeddedLines[text] ? embeddedLines[text] .title : null,
+    title: definitions[text] ? definitions[text].title : null,
   };
 
   return block;

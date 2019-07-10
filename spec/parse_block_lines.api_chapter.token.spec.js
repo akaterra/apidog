@@ -6,8 +6,26 @@ describe('parser for @apiChapter token by parseBlockLines', () => {
       '@apiChapter chapter',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
-      chapter: 'chapter',
+    expect(parser.parseBlockLines(lines, {})).toEqual({
+      chapter: {
+        description: [],
+        name: 'chapter',
+        title: null,
+      },
+    });
+  });
+
+  it('should parse with description and title of definition (declared by @apiDefine)', () => {
+    const lines = [
+      '@apiChapter chapter',
+    ];
+
+    expect(parser.parseBlockLines(lines, {chapter: {description: ['description'], title: 'title'}})).toEqual({
+      chapter: {
+        description: ['description'],
+        name: 'chapter',
+        title: 'title',
+      },
     });
   });
 
