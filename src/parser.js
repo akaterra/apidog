@@ -74,6 +74,10 @@ function parseDirInternal(dir, blocks, ignoreList, definitions) {
 
       blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions);
     } else if (fsStat.isFile()) {
+      if (dirEntry.slice(-7) === '.min.js') {
+        return blocks;
+      }
+
       const extensionIndex = dirEntry.lastIndexOf('.');
 
       if (extensionIndex !== - 1) {
@@ -142,6 +146,8 @@ function parseBlockLines(lines, definitions) {
   return block;
 }
 
+const defaultCommentPrefixContent = [null, null];
+
 function parseJavaDocStyle(source, definitions) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
@@ -150,8 +156,8 @@ function parseJavaDocStyle(source, definitions) {
       const lines = block.trim().split('\n');
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return line.match(/\s*\*\s?(.*)/)[1];
-      }), definitions);
+        return (line.match(/\s*\*(.*)/) || defaultCommentPrefixContent)[1];
+      }).filter((line) => line), definitions);
     });
   }
 
@@ -166,7 +172,7 @@ function parseLua(source, definitions) {
       const lines = block.trim().split('\n');
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return line;
+        return line.replace(/~+$/, '');
       }), definitions);
     });
   }
@@ -182,8 +188,8 @@ function parsePerl(source, definitions) {
       const lines = block.trim().split('\n');
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return line.match(/#\s?(.*)/)[1];
-      }), definitions);
+        return (line.match(/#\s?(.*)/) || defaultCommentPrefixContent)[1];
+      }).filter((line) => line), definitions);
     });
   }
 
@@ -214,7 +220,7 @@ function parseRuby(source, definitions) {
       const lines = block.trim().split('\n');
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return line;
+        return line.replace(/~+$/, '');
       }), definitions);
     });
   }

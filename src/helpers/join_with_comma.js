@@ -1,9 +1,9 @@
-module.exports = (inputData) => {
+module.exports = (input) => {
   const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
 
   return new handlebars.SafeString(
-    (Array.isArray(inputData)
-      ? inputData
-      : [inputData]).map((line) => line || '').join(',')
+    (Array.isArray(input)
+      ? input
+      : [input]).map((line) => line || '').join(',')
   );
 };

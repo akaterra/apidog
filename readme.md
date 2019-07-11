@@ -159,8 +159,7 @@ Complies to:
 * apidoc.html - main index file
 * apidoc.min.js - bootstrap
 * apidoc.template.min.js - handlebars template
-
-Requires handlebars from CDN.
+* handlebars.min.js - handlebars bundle
 
 ##### @html.standalone
 

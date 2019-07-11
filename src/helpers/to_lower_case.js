@@ -1,1 +1,1 @@
-module.exports = (inputData) => inputData.toLowerCase();
+module.exports = (input) => input.toLowerCase();

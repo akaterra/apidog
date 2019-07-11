@@ -35,7 +35,7 @@
     {{#with (context 'definitions') as |definitions|}}
       {{#if (lookup definitions ../this.title 'description')}}
         <div class="sub-container">
-          <div class="section left-padded color-2">{{toHtml (join (lookup definitions ../this.title 'description'))}}</div>
+          <div class="section left-padded color-2">{{toHtml (join (lookup definitions ../this.title 'description') true)}}</div>
         </div>
       {{/if}}
     {{/with}}
@@ -119,7 +119,7 @@
                         {{/ifCond}}
                       {{/if}}
                     </div>
-                    <div class="section left-padded color-2">{{toHtml (join this.description)}}</div>
+                    <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
 
                     <div class="section flex">
                       <span class="padded font-size-1 uppercase mono bold">{{toUpperCase this.api.transport.name}}</span>
@@ -157,7 +157,7 @@
                           <div class="section">
                             <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
                             <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
-                                    (join this.description)}}</pre>
+                                    (join this.description true)}}</pre>
                           </div>
                         {{/each}}
                       {{/if}}
@@ -167,7 +167,7 @@
                           {{#with (context 'definitions') as |definitions|}}
                             <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
                             {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
                           {{/with}}
                           <div class="section">
@@ -180,7 +180,7 @@
                               <div class="table">
                                 <div class="width-25 color-2 mono">{{this.field.name}}</div>
                                 <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                                <div class="flex-1">{{toHtml (join this.description)}}</div>
+                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
                               </div>
                             {{/each}}
                           </div>
@@ -194,7 +194,7 @@
                                data-block-example="{{../this.id}}_{{this.type}}">
                             <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}:</div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description)}}</pre>
+                                    (join this.description true)}}</pre>
                           </div>
                         {{/each}}
                       {{/if}}
@@ -204,7 +204,7 @@
                           {{#with (context 'definitions') as |definitions|}}
                             <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
                             {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
                           {{/with}}
                           <div class="section">
@@ -224,7 +224,7 @@
                                 </div>
                                 <div class="width-15 color-2 mono">{{this.type.name}}</div>
                                 <div class="flex-1">
-                                  {{toHtml (join this.description)}}
+                                  {{toHtml (join this.description true)}}
                                   {{#if this.type}}
                                     {{#if this.type.allowedValues}}
                                       <div class="{{#if this.description.length}}top-padded{{/if}}">
@@ -258,7 +258,7 @@
                                data-block-example="{{../this.id}}_{{this.type}}">
                             <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}:</div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description)}}</pre>
+                                    (join this.description true)}}</pre>
                           </div>
                         {{/each}}
                       {{/if}}
@@ -268,7 +268,7 @@
                           {{#with (context 'definitions') as |definitions|}}
                             <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
                             {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
                           {{/with}}
                           <div class="section">
@@ -281,7 +281,7 @@
                               <div class="table">
                                 <div class="width-25 color-2 mono">{{this.field.name}}</div>
                                 <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                                <div class="flex-1">{{toHtml (join this.description)}}</div>
+                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
                               </div>
                             {{/each}}
                           </div>
@@ -297,7 +297,7 @@
                               Success example{{/if}}:
                             </div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description)}}</pre>
+                                    (join this.description true)}}</pre>
                           </div>
                         {{/each}}
                       {{/if}}
@@ -307,7 +307,7 @@
                           {{#with (context 'definitions') as |definitions|}}
                             <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
                             {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description'))}}</div>
+                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
                           {{/with}}
                           <div class="section">
@@ -320,7 +320,7 @@
                               <div class="table">
                                 <div class="width-25 color-2 mono">{{this.field.name}}</div>
                                 <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                <div class="flex-1">{{toHtml (join this.description)}}</div>
+                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
                               </div>
                             {{/each}}
                           </div>
@@ -335,7 +335,7 @@
                             <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}:
                             </div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description)}}</pre>
+                                    (join this.description true)}}</pre>
                           </div>
                         {{/each}}
                       {{/if}}

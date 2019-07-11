@@ -9,7 +9,7 @@ module.exports = (outputDir) => (hbs, config, params) => {
 
   const apidocJsTemplate = fs.readFileSync(`${__dirname}/assets/part.apidoc.js.hbs`, {encoding: 'utf8'});
 
-  fs.writeFileSync(`${outputDir}/apidoc.min.js`, uglify.minify(handlebars.compile(apidocJsTemplate)(params)).code);
+  fs.writeFileSync(`${outputDir}/apidoc.min.js`, handlebars.compile(apidocJsTemplate)(params));
 
   const template = fs.readFileSync(`${__dirname}/assets/part.template.hbs`, {encoding: 'utf8'});
 
@@ -18,4 +18,8 @@ module.exports = (outputDir) => (hbs, config, params) => {
   const apidocHtmlTemplate = fs.readFileSync(`${__dirname}/template.hbs`, {encoding: 'utf8'});
 
   fs.writeFileSync(`${outputDir}/apidoc.html`, handlebars.compile(apidocHtmlTemplate)(params));
+
+  const handlebarsJs = fs.readFileSync(`${__dirname}/../../../node_modules/handlebars/dist/handlebars.min.js`, {encoding: 'utf8'});
+
+  fs.writeFileSync(`${outputDir}/handlebars.min.js`, handlebarsJs);
 };
