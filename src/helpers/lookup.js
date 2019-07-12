@@ -4,7 +4,7 @@ module.exports = (obj, ...args) => {
   for (let i = 0; i < args.length - 1; i += 1) {
     obj = obj[args[i]];
 
-    if (! obj) {
+    if (!obj) {
       break;
     }
   }

@@ -18,7 +18,7 @@ function bySanitizedSelector(selector, el) {
 }
 
 function addClass(el, cls) {
-  if (! Array.isArray(el)) {
+  if (!Array.isArray(el)) {
     el = [el];
   }
 
@@ -26,7 +26,7 @@ function addClass(el, cls) {
     if (typeof el === 'string') {
       el = bySelector(el)[0];
 
-      if (! el) {
+      if (!el) {
         return;
       }
     }
@@ -47,7 +47,7 @@ function addClass(el, cls) {
 }
 
 function removeClass(el, cls) {
-  if (! Array.isArray(el)) {
+  if (!Array.isArray(el)) {
     el = [el];
   }
 
@@ -55,7 +55,7 @@ function removeClass(el, cls) {
     if (typeof el === 'string') {
       el = bySelector(el)[0];
 
-      if (! el) {
+      if (!el) {
         return;
       }
     }
@@ -213,7 +213,7 @@ function showWsConnect(el) {
 const wsConnections = {};
 
 function wsConnect(url, config) {
-  if (! (url in wsConnections) || ! wsIsConnected(url)) {
+  if (!(url in wsConnections) || !wsIsConnected(url)) {
     wsConnections[url] = new WebSocket(url);
 
     if (config) {
@@ -275,11 +275,11 @@ function wsSend(url, data) {
 }
 
 function request(transport, url, method, data, headers, contentType, config) {
-  if (! config) {
+  if (!config) {
     config = {};
   }
 
-  if (! config.options) {
+  if (!config.options) {
     config.options = {};
   }
 
@@ -305,7 +305,7 @@ function request(transport, url, method, data, headers, contentType, config) {
     url += compileBodyForm(data);
   }
 
-  if (! headers) {
+  if (!headers) {
     headers = {};
   }
 
@@ -414,7 +414,7 @@ bySelector('[data-control-panel]').forEach((el) => {
       showHintEl.textContent = 'Hide hints';
     }
 
-    lastHintsStatus[family] = ! lastHintsStatus[family];
+    lastHintsStatus[family] = !lastHintsStatus[family];
   });
 
   const versionSelectorEl = bySelector('select', el)[0];
@@ -423,10 +423,12 @@ bySelector('[data-control-panel]').forEach((el) => {
 
   onChange(versionSelectorEl, (value) => {
     addClass(bySelector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+    addClass(bySelector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
 
     lastSelectedVersions[family] = value;
 
     removeClass(bySelector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+    removeClass(bySelector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
   });
 });
 
@@ -437,7 +439,7 @@ bySelector('[data-block]').forEach((el) => {
 
   const blockElementSend = bySelector('[data-block-element="send"]', el)[0];
 
-  if (! blockElementSend) {
+  if (!blockElementSend) {
     return;
   }
 

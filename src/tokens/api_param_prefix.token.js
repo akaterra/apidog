@@ -4,10 +4,6 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 function parse(block, text) {
   block.paramPrefix = text;
 
@@ -15,6 +11,5 @@ function parse(block, text) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

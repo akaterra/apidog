@@ -242,7 +242,7 @@ function createApp(env) {
 
     const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
 
-    if (! amqpConnections[key]) {
+    if (!amqpConnections[key]) {
       amqpConnections[key] = await (env && env.amqplib || require('amqplib')).connect(uri.toString());
     }
 

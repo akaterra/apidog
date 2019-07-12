@@ -4,16 +4,12 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 const regex = /^\{\s*([\w:]+?)\s*}\s+(\S+)(\s+(.*))?/;
 
 function parse(block, text) {
   const tokens = regex.exec(text);
 
-  if (! tokens) {
+  if (!tokens) {
     throw new Error('@api malformed');
   }
 
@@ -93,7 +89,7 @@ function parse(block, text) {
 }
 
 function blockValidate(block, config) {
-  if (! block.sampleRequestProxy) {
+  if (!block.sampleRequestProxy) {
     block.sampleRequestProxy = config.sampleRequestProxy;
   }
 
@@ -106,7 +102,7 @@ function blockValidate(block, config) {
           block.sampleRequestProxy = config.sampleRequestProxy;
         }
 
-        if (! block.sampleRequestProxy) {
+        if (!block.sampleRequestProxy) {
           throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
         }
 
@@ -159,6 +155,5 @@ function blockValidate(block, config) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

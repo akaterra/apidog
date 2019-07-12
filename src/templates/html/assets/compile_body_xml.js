@@ -14,7 +14,7 @@ const compileBodyXml = (body, opts) => {
 
     if (e && typeof e === 'object') {
       const attr = Object.keys(e).reduce((acc, key) => {
-        if (! e[key] || typeof e[key] !== 'object') {
+        if (!e[key] || typeof e[key] !== 'object') {
           acc.push(`${key}="${e[key]}"`);
         }
 

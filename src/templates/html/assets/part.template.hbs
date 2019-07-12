@@ -31,7 +31,7 @@
 
 </div>
 {{#each chaptersAsLists as |chapter index|}}
-  <div class="container {{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-element="chapter_{{this.title}}">
+  <div class="container{{#ifCond index '!=' 0}} hidden{{/ifCond}}" data-element="chapter_{{this.title}}">
     {{#with (context 'definitions') as |definitions|}}
       {{#if (lookup definitions ../this.title 'description')}}
         <div class="sub-container">
@@ -56,7 +56,9 @@
                 {{/with}}
               {{/ifCond}}
               {{#each this.names}}
-                <a class="menu-item element-badge" href="#{{this.0.familyId}}">{{this.0.title}}</a>
+                {{#each this as |block index|}}
+                  <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.title}}</a>
+                {{/each}}
               {{/each}}
             {{/each}}
           {{/each}}
@@ -165,7 +167,7 @@
                       {{#if this.headers.length}}
                         {{#each this.headersGroups as |params key|}}
                           {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                            <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{#if (lookup definitions key 'description')}}
                               <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
@@ -192,7 +194,7 @@
                           <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                        'any'}} hidden{{/ifCond}}"
                                data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}:</div>
+                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                     (join this.description true)}}</pre>
                           </div>
@@ -202,7 +204,7 @@
                       {{#if this.params.length}}
                         {{#each this.paramsGroups as |params key|}}
                           {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                            <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{#if (lookup definitions key 'description')}}
                               <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
@@ -256,7 +258,7 @@
                           <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                        'any'}} hidden{{/ifCond}}"
                                data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}:</div>
+                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                     (join this.description true)}}</pre>
                           </div>
@@ -266,7 +268,7 @@
                       {{#if this.successs.length}}
                         {{#each this.successsGroups as |successes key|}}
                           {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                            <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{#if (lookup definitions key 'description')}}
                               <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
@@ -294,7 +296,7 @@
                                                        'any'}} hidden{{/ifCond}}"
                                data-block-example="{{../this.id}}_{{this.type}}">
                             <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
-                              Success example{{/if}}:
+                              Success example{{/if}}
                             </div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                     (join this.description true)}}</pre>
@@ -305,7 +307,7 @@
                       {{#if this.errors.length}}
                         {{#each this.errorsGroups as |errors key|}}
                           {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}:</div>
+                            <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{#if (lookup definitions key 'description')}}
                               <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                             {{/if}}
@@ -332,7 +334,7 @@
                           <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                        'any'}} hidden{{/ifCond}}"
                                data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}:
+                            <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}
                             </div>
                             <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
                                     (join this.description true)}}</pre>
@@ -342,10 +344,10 @@
                     </div>
 
                     {{#ifCond this.sampleRequest.[0] '!=' false}}
-                      <div class="label">Sample request:</div>
+                      <div class="label">Send sample request</div>
 
                       {{#if ../this.sampleRequestProxy}}
-                        <div class="inner-label color-blue">Preset:</div>
+                        <div class="inner-label color-blue">Preset</div>
 
                         <div class="section flex">
                           <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
@@ -384,7 +386,7 @@
 
                       {{#if ../this.headers.length}}
                         {{#each ../this.headersGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:</div>
+                          <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
                           <div class="section">
                             {{#each params}}
                               <div class="section flex">
@@ -423,7 +425,7 @@
 
                       {{#if ../this.params.length}}
                         {{#each ../this.paramsGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:</div>
+                          <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
                           <div class="section">
                             {{#each params}}
                               {{#hook 'isNotContainerType' this.type.name}}

@@ -4,12 +4,8 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 function parse(block, text, line, index, lines, definitions) {
-  if (! text) {
+  if (!text) {
     throw new Error('@apiGroup malformed');
   }
 
@@ -23,6 +19,5 @@ function parse(block, text, line, index, lines, definitions) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

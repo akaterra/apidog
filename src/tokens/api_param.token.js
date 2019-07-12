@@ -18,11 +18,11 @@ function construct(name, usePrefix) {
   const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+?)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
 
   function parse(block, text) {
-    if (! block[paramsName]) {
+    if (!block[paramsName]) {
       block[paramsName] = [];
     }
 
-    if (! block[paramsGroupsName]) {
+    if (!block[paramsGroupsName]) {
       block[paramsGroupsName] = {};
     }
 
@@ -32,7 +32,7 @@ function construct(name, usePrefix) {
 
     const tokens = regex.exec(text);
 
-    if (! tokens) {
+    if (!tokens) {
       throw new Error('Malformed @apiParam');
     }
 
@@ -46,7 +46,7 @@ function construct(name, usePrefix) {
 
       field = {
         defaultValue: fieldTokens[1] ? utils.strSplitByQuotedTokens(fieldTokens[1])[0] : null,
-        isOptional: !! tokens[6],
+        isOptional: !!tokens[6],
         name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldTokens[0] : fieldTokens[0],
       }
     }
@@ -70,7 +70,7 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (! block[paramsGroupsName][group || '$']) {
+    if (!block[paramsGroupsName][group || '$']) {
       block[paramsGroupsName][group || '$'] = [];
     }
 

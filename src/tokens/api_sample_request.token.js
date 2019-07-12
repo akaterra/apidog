@@ -4,20 +4,16 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 const regex = /^({(.+)}\s+)?(.+)/;
 
 function parse(block, text) {
   const tokens = regex.exec(text);
 
-  if (! tokens) {
+  if (!tokens) {
     throw new Error('@apiSampleRequest malformed');
   }
 
-  if (! block.sampleRequest) {
+  if (!block.sampleRequest) {
     block.sampleRequest = [];
   }
 
@@ -33,6 +29,5 @@ function parse(block, text) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

@@ -15,12 +15,12 @@ function generate(blocks, template, config, templateProcessor, hbs) {
 
           return false;
         } else {
-          return !! config.private;
+          return !!config.private;
         }
       }
     }
 
-    return config ? ! config.private : true;
+    return config ? !config.private : true;
   });
 
   const [definitions, chapters] = generateSections(blocks, config);
@@ -93,51 +93,51 @@ function generateSections(blocks, config) {
       return;
     }
 
-    if (! block.chapter) {
+    if (!block.chapter) {
       block.chapter = {description: [], name: '$', title: null};
     }
 
-    if (! block.contentType) {
+    if (!block.contentType) {
       block.contentType = ['form'];
     }
 
-    if (! block.group) {
+    if (!block.group) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (! sections[block.chapter.name]) {
+    if (!sections[block.chapter.name]) {
       sections[block.chapter.name] = {}; // {section: [{}]>}
     }
 
-    if (! sections[block.chapter.name][block.group.name]) {
+    if (!sections[block.chapter.name][block.group.name]) {
       sections[block.chapter.name][block.group.name] = {}; // {section: [{}]>}
     }
 
-    if (! block.sampleRequest) {
+    if (!block.sampleRequest) {
       block.sampleRequest = [block.api.endpoint];
     }
 
-    if (! block.subgroup) {
+    if (!block.subgroup) {
       block.subgroup = {description: [], name: '$', title: null};
     }
 
-    if (! sections[block.chapter.name][block.group.name][block.subgroup.name]) {
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name]) {
       sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
     }
 
-    if (! block.version) {
+    if (!block.version) {
       block.version = '0.0.1';
     }
 
-    if (! block.name) {
+    if (!block.name) {
       block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
-    if (! sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
       sections[block.chapter.name][block.group.name][block.subgroup.name][block.name] = {}; // {section: [{}]>}
     }
 
-    if (! block.title) {
+    if (!block.title) {
       block.title = block.api.endpoint;
     }
 

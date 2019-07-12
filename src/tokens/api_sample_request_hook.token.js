@@ -4,16 +4,12 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 function parse(block, text) {
-  if (! text) {
+  if (!text) {
     throw new Error('@apiSampleRequest malformed');
   }
 
-  if (! block.sampleRequestHook) {
+  if (!block.sampleRequestHook) {
     block.sampleRequestHook = [];
   }
 
@@ -23,6 +19,5 @@ function parse(block, text) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

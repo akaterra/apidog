@@ -65,12 +65,52 @@ function strExtractByRoundBrackets(str) {
   return strExtractByRegex(str, /^\[(.*)\]$/);
 }
 
+
+class Logger {
+  constructor() {
+    this.file = null;
+    this.line = null;
+    this.lineNum = null;
+  }
+
+  setFile(file) {
+    this.file = file;
+
+    return this;
+  }
+
+  setLine(line) {
+    this.line = line;
+
+    return this;
+  }
+
+  setLineNum(lineNum) {
+    this.lineNum = lineNum;
+
+    return this;
+  }
+
+  info(message) {
+    console.info(`${message} (${this.file}:${this.line})`);
+
+    return this;
+  }
+
+  warn(message) {
+    console.warn(`${message} (${this.file}:${this.line})`);
+
+    return this;
+  }
+}
+
 module.exports = {
-  strExtractByCurlyBrackets: strExtractByCurlyBrackets,
-  strExtractByBrackets: strExtractByBrackets,
-  strExtractByRoundBrackets: strExtractByRoundBrackets,
-  strSplitBy: strSplitBy,
-  strSplitByComma: strSplitByComma,
-  strSplitByQuotedTokens: strSplitByQuotedTokens,
-  strSplitBySpace: strSplitBySpace,
+  strExtractByCurlyBrackets,
+  strExtractByBrackets,
+  strExtractByRoundBrackets,
+  strSplitBy,
+  strSplitByComma,
+  strSplitByQuotedTokens,
+  strSplitBySpace,
+  Logger,
 };

@@ -34,7 +34,7 @@ const tokenParsers = {
   '@apiVersion': require('./tokens/api_version.token'),
 };
 
-function parseDir(dir, blocks, ignoreList) {
+function parseDir(dir, blocks, ignoreList, logger) {
   dir = path.resolve(dir);
 
   if (ignoreList) {
@@ -46,15 +46,19 @@ function parseDir(dir, blocks, ignoreList) {
       }`));
   }
 
-  return parseDirInternal(dir, blocks, ignoreList);
+  if (!logger) {
+    logger = new utils.Logger();
+  }
+
+  return parseDirInternal(dir, blocks, ignoreList, undefined, logger);
 }
 
-function parseDirInternal(dir, blocks, ignoreList, definitions) {
-  if (! blocks) {
+function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
+  if (!blocks) {
     blocks = [];
   }
 
-  if (! definitions) {
+  if (!definitions) {
     definitions = {};
   }
 
@@ -72,7 +76,7 @@ function parseDirInternal(dir, blocks, ignoreList, definitions) {
         }
       }
 
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions);
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions, logger);
     } else if (fsStat.isFile()) {
       if (dirEntry.slice(-7) === '.min.js') {
         return blocks;
@@ -81,7 +85,9 @@ function parseDirInternal(dir, blocks, ignoreList, definitions) {
       const extensionIndex = dirEntry.lastIndexOf('.');
 
       if (extensionIndex !== - 1) {
-        const source = fs.readFileSync(dir + '/' + dirEntry, { encoding: 'utf8' });
+        const source = fs.readFileSync(`${dir}/${dirEntry}`, { encoding: 'utf8' });
+
+        logger.setFile(`${dir}/${dirEntry}`);
 
         switch (dirEntry.substr(extensionIndex + 1)) {
           case 'cs':
@@ -91,27 +97,25 @@ function parseDirInternal(dir, blocks, ignoreList, definitions) {
           case 'js':
           case 'php':
           case 'ts':
-            blocks = blocks.concat(parseJavaDocStyle(source, definitions));
+            blocks = blocks.concat(parseJavaDocStyle(source, definitions, logger));
 
             break;
 
           case 'lua':
-            blocks = blocks.concat(parseLua(source, definitions));
+            blocks = blocks.concat(parseLua(source, definitions, logger));
 
             break;
 
           case 'py':
-            blocks = blocks.concat(parsePy(source, definitions));
+            blocks = blocks.concat(parsePy(source, definitions, logger));
 
             break;
 
           case 'rb':
-            blocks = blocks.concat(parseRuby(source, definitions));
+            blocks = blocks.concat(parseRuby(source, definitions, logger));
 
             break;
         }
-      } else {
-
       }
     }
   });
@@ -119,8 +123,8 @@ function parseDirInternal(dir, blocks, ignoreList, definitions) {
   return blocks;
 }
 
-function parseBlockLines(lines, definitions) {
-  if (! definitions) {
+function parseBlockLines(lines, definitions, logger) {
+  if (!definitions) {
     definitions = {};
   }
 
@@ -130,6 +134,9 @@ function parseBlockLines(lines, definitions) {
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
+
+    logger.setLine(line);
+
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
     if (tokenParsers.hasOwnProperty(tokens[0])) {
@@ -137,7 +144,11 @@ function parseBlockLines(lines, definitions) {
 
       Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, definitions));
     } else {
-      if (lastCmdParser) {
+      if (tokens[0].substr(0, 4) === '@api') {
+        logger.warn(`Possibly unknown token: ${tokens[0]}`);
+      }
+
+      if (lastCmdParser && lastCmdParser.addDescription) {
         Object.assign(block, lastCmdParser.addDescription(block, line));
       }
     }
@@ -148,7 +159,7 @@ function parseBlockLines(lines, definitions) {
 
 const defaultCommentPrefixContent = [null, null];
 
-function parseJavaDocStyle(source, definitions) {
+function parseJavaDocStyle(source, definitions, logger) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
@@ -157,14 +168,14 @@ function parseJavaDocStyle(source, definitions) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/\s*\*(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions);
+      }).filter((line) => line), definitions, logger);
     });
   }
 
   return [];
 }
 
-function parseLua(source, definitions) {
+function parseLua(source, definitions, logger) {
   const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
 
   if (blocks) {
@@ -173,14 +184,14 @@ function parseLua(source, definitions) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions);
+      }), definitions, logger);
     });
   }
 
   return [];
 }
 
-function parsePerl(source, definitions) {
+function parsePerl(source, definitions, logger) {
   const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
 
   if (blocks) {
@@ -189,14 +200,14 @@ function parsePerl(source, definitions) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/#\s?(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions);
+      }).filter((line) => line), definitions, logger);
     });
   }
 
   return [];
 }
 
-function parsePy(source, definitions) {
+function parsePy(source, definitions, logger) {
   const blocks = source.match(/^(\s*'{3}|\s*"{3})[^!][.\s\t\S\n\r]*?(\s*'{3}|\s*"{3})/gm);
 
   if (blocks) {
@@ -205,14 +216,14 @@ function parsePy(source, definitions) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.substr(lines[0].indexOf(lines[0].match(/\S/)[0]));
-      }), definitions);
+      }), definitions, logger);
     });
   }
 
   return [];
 }
 
-function parseRuby(source, definitions) {
+function parseRuby(source, definitions, logger) {
   const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
 
   if (blocks) {
@@ -221,7 +232,7 @@ function parseRuby(source, definitions) {
 
       return parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions);
+      }), definitions, logger);
     });
   }
 

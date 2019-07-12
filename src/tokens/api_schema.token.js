@@ -5,16 +5,12 @@
 const fs = require('fs');
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 const regex = /^(\((.+)\)\s+|){(.+)}\s+(.+)/;
 
 function parse(block, text, line, index, lines) {
   const tokens = regex.exec(text);
 
-  if (! tokens) {
+  if (!tokens) {
     throw new Error('@apiSchema malformed');
   }
 
@@ -102,6 +98,5 @@ function quote(val) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

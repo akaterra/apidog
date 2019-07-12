@@ -4,12 +4,8 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 function parse(block, text, line, index, lines, definitions) {
-  if (! definitions[text]) {
+  if (!definitions[text]) {
     throw new Error(`@apiUse refers to unknown @apiDefine: ${text}`);
   }
 
@@ -19,6 +15,5 @@ function parse(block, text, line, index, lines, definitions) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

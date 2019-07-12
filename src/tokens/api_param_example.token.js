@@ -19,11 +19,11 @@ function construct(name, fullName) {
   function parse(block, text, line, index, lines, embeddedLines) {
     const tokens = regex.exec(text);
 
-    if (! tokens) {
+    if (!tokens) {
       throw new Error(`${fullName} malformed`);
     }
 
-    if (! block[tokenName]) {
+    if (!block[tokenName]) {
       block[tokenName] = [];
     }
 

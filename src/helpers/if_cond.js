@@ -51,7 +51,7 @@ module.exports = (...args) => {
         pass = false;
     }
 
-    if (! pass) {
+    if (!pass) {
       break;
     }
   }

@@ -4,16 +4,12 @@
 
 const utils = require('../utils');
 
-function addDescription(block, text) {
-  return block;
-}
-
 function parse(block, text, line, index, lines, definitions) {
-  if (! text) {
+  if (!text) {
     throw new Error('@apiPermission malformed');
   }
 
-  if (! block.permission) {
+  if (!block.permission) {
     block.permission = [];
   }
 
@@ -27,6 +23,5 @@ function parse(block, text, line, index, lines, definitions) {
 }
 
 module.exports = {
-  addDescription: addDescription,
   parse: parse,
 };

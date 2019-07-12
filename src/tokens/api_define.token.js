@@ -16,7 +16,7 @@ const regex = /^(\S+)(\s+(.+))?/;
 function parse(block, text, line, index, lines, definitions) {
   const tokens = regex.exec(text);
 
-  if (! tokens) {
+  if (!tokens) {
     throw new Error('@apiDefine malformed');
   }
 
@@ -27,11 +27,11 @@ function parse(block, text, line, index, lines, definitions) {
   blockDefine.name = tokens[1];
   blockDefine.title = tokens[3] || null;
 
-  // if (! block.description) {
+  // if (!block.description) {
   //   block.description = blockDefine.description;
   // }
   //
-  // if (! block.title) {
+  // if (!block.title) {
   //   block.title = blockDefine.title;
   // }
 
