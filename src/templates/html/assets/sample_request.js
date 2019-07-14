@@ -1,22 +1,22 @@
 (function () {
   function hideResponse(el) {
-    addClass(bySelector('[data-block-element="response"]', el)[0], 'hidden');
-    bySelector('[data-block-element="response"]>pre', el)[0].textContent = '';
+    cls.add(by.selector('[data-block-element="response"]', el)[0], 'hidden');
+    by.selector('[data-block-element="response"]>pre', el)[0].textContent = '';
   }
 
   function showResponse(el, text) {
-    removeClass(bySelector('[data-block-element="response"]', el)[0], 'hidden');
-    bySelector('[data-block-element="response"]>pre', el)[0].textContent = text;
+    cls.remove(by.selector('[data-block-element="response"]', el)[0], 'hidden');
+    by.selector('[data-block-element="response"]>pre', el)[0].textContent = text;
   }
 
   function hideWsConnect(el) {
-    addClass(bySelector('[data-block-element="wsConnect"]', el)[0], 'hidden');
-    removeClass(bySelector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
+    cls.add(by.selector('[data-block-element="wsConnect"]', el)[0], 'hidden');
+    cls.remove(by.selector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
   }
 
   function showWsConnect(el) {
-    removeClass(bySelector('[data-block-element="wsConnect"]', el)[0], 'hidden');
-    addClass(bySelector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
+    cls.remove(by.selector('[data-block-element="wsConnect"]', el)[0], 'hidden');
+    cls.add(by.selector('[data-block-element="wsDisconnect"]', el)[0], 'hidden');
   }
 
   const wsConnections = {};
@@ -83,7 +83,17 @@
     }
   }
 
-  function request(transport, url, method, data, headers, contentType, config) {
+  window.request = function request(transport, url, method, data, headers, contentType, config) {
+    if (!method) {
+      method = 'GET';
+    } else {
+      method = method.toUpperCase();
+    }
+
+    if (!headers) {
+      headers = {};
+    }
+
     if (!config) {
       config = {};
     }
@@ -92,6 +102,7 @@
       config.options = {};
     }
 
+    // insert placeholders
     url = url.replace(/:\w+/g, (key) => {
       if (has(data, key.substr(1))) {
         const value = get(data, key.substr(1));
@@ -104,12 +115,7 @@
       }
     });
 
-    if (!method) {
-      method = 'GET';
-    } else {
-      method = method.toUpperCase();
-    }
-
+    // insert rest of data as query parameters in case of "get" method
     if (method.toLowerCase() === 'get') {
       if (url.indexOf('?') === - 1) {
         url += '?';
@@ -122,10 +128,7 @@
       }
     }
 
-    if (!headers) {
-      headers = {};
-    }
-
+    // prepare body based on content type in case of not "get" method
     if (method.toLowerCase() !== 'get') {
       if (data) {
         switch (contentType) {
@@ -190,27 +193,27 @@
 
         return wsConnections[url];
     }
-  }
+  };
 
-  bySelector('[data-block]').forEach((el) => {
+  by.selector('[data-block]').forEach((el) => {
     const blockId = el.dataset.block;
 
     // sample request
 
-    const blockElementSend = bySelector('[data-block-element="send"]', el)[0];
+    const blockElementSend = by.selector('[data-block-element="send"]', el)[0];
 
     if (!blockElementSend) {
       return;
     }
 
-    onClick(blockElementSend, () => {
+    on.click(blockElementSend, () => {
       const blockDescriptor = sections[el.dataset.block];
       const blockHeaders = {};
       const blockParams = {};
-      const contentType = bySelector('[data-block-element="contentType"]', el)[0].value;
-      const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
+      const contentType = by.selector('[data-block-element="contentType"]', el)[0].value;
+      const url = by.selector('[data-block-element="endpoint"]', el)[0].value;
 
-      bySelector('[data-block-element]', el).forEach((blockEl) => {
+      by.selector('[data-block-element]', el).forEach((blockEl) => {
         switch (blockEl.dataset.blockElement) {
           case 'header':
             blockHeaders[blockEl.name] = getValue(blockEl);
@@ -304,11 +307,11 @@
       }
     });
 
-    const blockElementWsConnect = bySelector('[data-block-element="wsConnect"]', el)[0];
+    const blockElementWsConnect = by.selector('[data-block-element="wsConnect"]', el)[0];
 
     if (blockElementWsConnect) {
-      onClick(blockElementWsConnect, () => {
-        const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
+      on.click(blockElementWsConnect, () => {
+        const url = by.selector('[data-block-element="endpoint"]', el)[0].value;
 
         wsConnect(url, {
           onConnect: () => hideWsConnect(el),
@@ -319,127 +322,14 @@
       });
     }
 
-    const blockElementWsDisconnect = bySelector('[data-block-element="wsDisconnect"]', el)[0];
+    const blockElementWsDisconnect = by.selector('[data-block-element="wsDisconnect"]', el)[0];
 
     if (blockElementWsDisconnect) {
-      onClick(blockElementWsDisconnect, () => {
-        const url = bySelector('[data-block-element="endpoint"]', el)[0].value;
+      on.click(blockElementWsDisconnect, () => {
+        const url = by.selector('[data-block-element="endpoint"]', el)[0].value;
 
         wsDisconnect(url);
         showWsConnect(el);
-      });
-    }
-
-    // sample request preset
-
-    const blockElementPresetSelect = bySelector('[data-block-element="presetSelect"]', el)[0];
-
-    if (blockElementPresetSelect) {
-      onChange(blockElementPresetSelect, (value) => {
-        if (value === 'new') {
-          setValue(bySelector('[data-block-element="presetName"]', el)[0], '');
-
-          return;
-        }
-
-        setValue(bySelector('[data-block-element="presetName"]', el)[0], value);
-
-        if (blockId in presets && value in presets[blockId]) {
-          const preset = presets[blockId][value];
-
-          if (preset.endpoint) {
-            setValue(bySelector('[data-block-element="endpoint"]', el)[0], preset.endpoint);
-          }
-
-          if (preset.headers) {
-            Object.entries(preset.headers).forEach(([key, val]) => {
-              const el = bySanitizedSelector(`#${blockId}_h_${key}`)[0];
-
-              if (el) {
-                setValue(el, val);
-              }
-            });
-          }
-
-          if (preset.params) {
-            Object.entries(preset.params).forEach(([key, val]) => {
-              const el = bySanitizedSelector(`#${blockId}_p_${key}`)[0];
-
-              if (el) {
-                setValue(el, val);
-              }
-            });
-          }
-        }
-      });
-    }
-
-    const blockElementPresetSave = bySelector('[data-block-element="presetSave"]', el)[0];
-
-    if (blockElementPresetSave) {
-      onClick(blockElementPresetSave, () => {
-        const presetName = getValue(bySelector('[data-block-element="presetName"]', el)[0]);
-
-        if (!presetName) {
-          return;
-        }
-
-        const blockHeaders = {};
-        const blockParams = {};
-        const blockEndpoint = bySelector('[data-block-element="endpoint"]', el)[0].value;
-
-        bySelector('[data-block-element]', el).forEach((blockEl) => {
-          switch (blockEl.dataset.blockElement) {
-            case 'header':
-              blockHeaders[blockEl.name] = getValue(blockEl);
-
-              break;
-
-            case 'param':
-              blockParams[blockEl.name] = getValue(blockEl);
-
-              break;
-          }
-        });
-
-        const blockDescriptor = sections[el.dataset.block];
-
-        request(
-          'http',
-          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}/${encodeURIComponent(presetName)}`,
-          'PATCH',
-          {
-            endpoint: blockEndpoint,
-            headers: blockHeaders,
-            params: blockParams,
-          },
-          undefined,
-          'json'
-        ).then(() => {
-          selectorAppendOptionUniq(blockElementPresetSelect, presetName, presetName);
-        });
-      });
-    }
-
-    const blockElementPresetLoadList = bySelector('[data-block-element="presetLoadList"]', el)[0];
-
-    if (blockElementPresetLoadList && blockElementPresetSelect) {
-      onClick(blockElementPresetLoadList, () => {
-        const blockDescriptor = sections[el.dataset.block];
-
-        request(
-          'http',
-          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}`,
-          'GET'
-        ).then(({text}) => {
-          Object.assign(presets, JSON.parse(text));
-
-          selectorReplaceOptions(blockElementPresetSelect, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
-            acc[key] = key;
-
-            return acc;
-          }, {'new': 'New'}));
-        });
       });
     }
   });

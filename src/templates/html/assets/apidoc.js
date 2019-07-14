@@ -6,7 +6,6 @@ const sections = {{toJson this.sections}};
 {{> compile_body_form.js }}
 {{> compile_body_xml.js }}
 {{> prepare_body.js }}
-{{> sample_request_hooks.js }}
 
 window.onload = () => {
   window.module = {};
@@ -86,6 +85,11 @@ window.onload = () => {
 
   document.body.innerHTML = html;
 
+  {{> main.element.js }}
+  {{> main.element.selector.js }}
+  {{> main.func.js }}
   {{> main.js }}
   {{> sample_request.js }}
+  {{> sample_request.hook.js }}
+  {{> sample_request.preset.js }}
 };
