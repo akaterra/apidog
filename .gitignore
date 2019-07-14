@@ -4,6 +4,9 @@ src/templates/config.js
 .idea/
 .vscode/
 dist/
+examples/*
+!examples/apidoc.json
+!examples/test.js
 ignore*
 coverage/
 node_modules/
