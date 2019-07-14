@@ -42,21 +42,23 @@ function createApp(env) {
     res.header('Access-Control-Allow-Origin', '*');
 
     if (config.presetDir) {
+      const presetBlockId = encodeURIComponent(req.params.presetBlockId);
+
       fs.readdir(config.presetDir, async (err, files) => {
         if (err) {
           return res.status(500).json(err.message);
         }
 
         const presets = {
-          [req.params.presetBlockId]: {},
+          [decodeURIComponent(presetBlockId)]: {},
         };
 
         try {
           for (const file of files) {
             const filenameOnly = file.slice(0, -5);
 
-            if (filenameOnly.substr(0, req.params.presetBlockId.length) === req.params.presetBlockId) {
-              presets[req.params.presetBlockId][filenameOnly.substr(req.params.presetBlockId.length + 2)] = await new Promise(
+            if (filenameOnly.substr(0, presetBlockId.length) === presetBlockId) {
+              presets[decodeURIComponent(presetBlockId)][decodeURIComponent(filenameOnly.substr(presetBlockId.length + 2))] = await new Promise(
                 (resolve, reject) => fs.readFile(`${config.presetDir}/${file}`, (err, data) => {
                   if (err) {
                     reject(err);
@@ -82,7 +84,10 @@ function createApp(env) {
     res.header('Access-Control-Allow-Origin', '*');
 
     if (config.presetDir) {
-      fs.writeFile(`${config.presetDir}/${req.params.presetBlockId}__${req.params.presetName}.json`, req.rawBody, (err) => {
+      const presetBlockId = encodeURIComponent(req.params.presetBlockId);
+      const presetName = encodeURIComponent(req.params.presetName);
+
+      fs.writeFile(`${config.presetDir}/${presetBlockId}__${presetName}.json`, req.rawBody, (err) => {
         if (err) {
           res.status(500).json(err.message);
         } else {

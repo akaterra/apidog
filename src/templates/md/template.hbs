@@ -1,29 +1,53 @@
 {{title}}
 ===
+
 {{description}}
 
 {{#each this.chaptersAsLists}}
-Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.title}}{{/ifCond}}):
+  {{#with (context 'definitions') as |definitions|}}
+    {{#ifCond ../this.title '==' '$'}}
+Main chapter
 ---
+
+    {{else}}
+{{first (lookup definitions ../../this.title 'title') ../../this.title}}
+---
+
+    {{/ifCond}}
+    {{#if (lookup definitions ../this.title 'description')}}
+{{join (lookup definitions ../this.title 'description') true}}
+
+    {{/if}}
+  {{/with}}
 {{#each this.groups}}
   {{#ifCond this.title '!=' '$'}}
-* {{../this.title}}
+    {{#with (context 'definitions') as |definitions|}}
+* {{first (lookup definitions ../../this.title 'title') ../../this.title}}
+    {{/with}}
     {{#each ../this.subgroups}}
       {{#ifCond this.title '!=' '$'}}
-  * {{../this.title}}
+        {{#with (context 'definitions') as |definitions|}}
+  * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
+        {{/with}}
         {{#each ../this.names}}
-    * [{{this.0.title}}](#{{toMdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
+          {{#with (context 'definitions') as |definitions|}}
+    * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
+          {{/with}}
         {{/each}}
       {{else}}
         {{#each ../this.names}}
-  * [{{this.0.title}}](#{{toMdLink ../../../../this.title ', ' this.0.title ' (' ../../this.title ')'}})
+          {{#with (context 'definitions') as |definitions|}}
+  * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
+          {{/with}}
         {{/each}}
       {{/ifCond}}
     {{/each}}
   {{else}}
     {{#each ../this.subgroups}}
       {{#ifCond this.title '!=' '$'}}
-* {{../this.title}}
+        {{#with (context 'definitions') as |definitions|}}
+* {{first (lookup definitions ../../this.title 'title') ../../this.title}}
+        {{/with}}
         {{#each ../this.names}}
   * {{this.0.title}}
         {{/each}}
@@ -36,6 +60,9 @@ Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.
   {{/ifCond}}
 {{/each}}
 
+{{/each}}
+
+{{#each this.chaptersAsLists}}
 {{#each this.groups}}
   {{#ifCond this.title '!=' '$'}}
 {{../this.title}}
@@ -45,8 +72,10 @@ Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.
     {{#each this.names}}
       {{#each this as |block index|}}
 
-### {{../../../this.title}}, {{this.title}} ({{../../this.title}})
-{{join this.description}}
+        {{#with (context 'definitions') as |definitions|}}
+### {{../this.title}} {{first (lookup definitions ../../../../this.title 'title') ../../../../this.title}} ({{first (lookup definitions ../../../this.title 'title') ../../../this.title}})
+        {{/with}}
+{{join this.description true}}
 
 {{#ifCond this.api.transport.name '==' 'http'}}
 **{{toUpperCase ../this.api.transport.name}}** `{{toUpperCase ../this.api.transport.method}} {{../this.api.endpoint}}`
@@ -88,7 +117,7 @@ Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.
 **{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:**
 
 ```{{this.type}}
-{{join this.description}}
+{{join this.description true}}
 ```
   {{/each}}
 {{/if}}
@@ -99,7 +128,7 @@ Table of contents ({{#ifCond this.title '==' '$'}}Main chapter{{else}}{{../this.
 **{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}:**
 
 ```{{this.type}}
-{{join this.description}}
+{{join this.description true}}
 ```
   {{/each}}
 {{/if}}

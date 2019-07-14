@@ -87,4 +87,5 @@ window.onload = () => {
   document.body.innerHTML = html;
 
   {{> main.js }}
+  {{> sample_request.js }}
 };

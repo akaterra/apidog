@@ -6,11 +6,11 @@
   <meta name="keywords" content="{{joinWithComma keywords}}">
   <title>"{{title}}" {{description}} {{version}}</title>
   <style>
-    {{> part.style.css.hbs }}
+    {{> style.css }}
   </style>
 </head>
 <body>
-  {{> part.template.hbs }}
+  {{> content.hbs }}
 </body>
 <script>
   const config = {{toJson this.config}};
@@ -20,6 +20,7 @@
   {{> compile_body_xml.js }}
   {{> prepare_body.js }}
   {{> main.js }}
+  {{> sample_request.js }}
   {{> sample_request_hooks.js }}
 </script>
 </html>
