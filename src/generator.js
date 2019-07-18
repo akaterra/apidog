@@ -1,3 +1,4 @@
+const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
 
 function generate(blocks, template, config, templateProcessor, hbs) {
@@ -35,8 +36,8 @@ function generate(blocks, template, config, templateProcessor, hbs) {
           return {
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                names: Object.values(subgroup).map((name) => {
-                  return Object.keys(name).sort().map((version) => name[version]);
+                names: Object.entries(subgroup).map(([name, version]) => {
+                  return Object.values(version);
                 }),
                 title: subgroupName,
               }
@@ -54,7 +55,7 @@ function generate(blocks, template, config, templateProcessor, hbs) {
     sections: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
-          Object.values(subgroup).map((name) => {
+          Object.values(subgroup).forEach((name) => {
             Object.values(name).forEach((version) => {
               acc[version.id] = version;
             });
@@ -80,13 +81,17 @@ function generate(blocks, template, config, templateProcessor, hbs) {
 function generateSections(blocks, config) {
   const definitions = {};
 
+  function getDef(name) {
+    return definitions[name]
+      ? definitions[name].title
+      : name;
+  }
+
   blocks.forEach((block) => {
     if (block.define) {
       definitions[block.define.name] = block.define;
     }
   });
-
-  const sections = {};
 
   blocks.forEach((block, index) => {
     if (block.define || block.ignore) {
@@ -105,24 +110,12 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (!sections[block.chapter.name]) {
-      sections[block.chapter.name] = {}; // {section: [{}]>}
-    }
-
-    if (!sections[block.chapter.name][block.group.name]) {
-      sections[block.chapter.name][block.group.name] = {}; // {section: [{}]>}
-    }
-
     if (!block.sampleRequest) {
       block.sampleRequest = [block.api.endpoint];
     }
 
     if (!block.subgroup) {
       block.subgroup = {description: [], name: '$', title: null};
-    }
-
-    if (!sections[block.chapter.name][block.group.name][block.subgroup.name]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
     }
 
     if (!block.version) {
@@ -133,23 +126,44 @@ function generateSections(blocks, config) {
       block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
-    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name][block.name] = {}; // {section: [{}]>}
-    }
-
     if (!block.title) {
       block.title = block.api.endpoint;
     }
 
     block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}`;
     block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}_${block.version}`;
+    block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
 
     if (block.validate) {
-      block = block.validate(block, config);
+      blocks[index] = block.validate(block, config);
+    }
+  });
+
+  const sections = fastSort(blocks).asc((block) => block.visualId).reduce((sections, block) => {
+    if (block.define || block.ignore) {
+      return sections;
+    }
+
+    if (!sections[block.chapter.name]) {
+      sections[block.chapter.name] = {}; // {section: [{}]>}
+    }
+
+    if (!sections[block.chapter.name][block.group.name]) {
+      sections[block.chapter.name][block.group.name] = {}; // {section: [{}]>}
+    }
+
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
+    }
+
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name][block.name] = {}; // {section: [{}]>}
     }
 
     sections[block.chapter.name][block.group.name][block.subgroup.name][block.name][block.version] = block;
-  });
+
+    return sections;
+  }, {});
 
   return [definitions, sections];
 }

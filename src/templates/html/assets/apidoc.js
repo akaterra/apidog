@@ -48,8 +48,8 @@ window.onload = () => {
           return {
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                names: Object.values(subgroup).map((name) => {
-                  return Object.keys(name).sort().map((version) => name[version]);
+                names: Object.entries(subgroup).map(([name, version]) => {
+                  return Object.values(version);
                 }),
                 title: subgroupName,
               }

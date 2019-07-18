@@ -135,7 +135,9 @@ function parseBlockLines(lines, definitions, logger) {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
 
-    logger.setLine(line);
+    if (logger) {
+      logger.setLine(line);
+    }
 
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
@@ -144,7 +146,7 @@ function parseBlockLines(lines, definitions, logger) {
 
       Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, definitions));
     } else {
-      if (tokens[0].substr(0, 4) === '@api') {
+      if (logger && tokens[0].substr(0, 4) === '@api') {
         logger.warn(`Possibly unknown token: ${tokens[0]}`);
       }
 

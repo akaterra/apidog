@@ -236,21 +236,54 @@
       }
 
       if (blockDescriptor.sampleRequestProxy) {
-        hideResponse(el);
+        switch (blockDescriptor.api.transport.name) {
+          case 'amqp':
+          case 'amqpRpc':
+          case 'http':
+          case 'https':
+            hideResponse(el);
 
-        request(
-          'http',
-          `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${url}`,
-          blockDescriptor.api.transport.method || 'post',
-          data,
-          blockHeaders,
-          contentType,
-          {
-            options: blockDescriptor.option
-          }
-        ).then(({text}) => {
-          showResponse(el, text);
-        });
+            request(
+              'http',
+              `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${url}`,
+              blockDescriptor.api.transport.method || 'post',
+              data,
+              blockHeaders,
+              contentType,
+              {
+                options: blockDescriptor.option
+              }
+            ).then(({text}) => {
+              showResponse(el, text);
+            });
+
+            break;
+
+          case 'websocket':
+          case 'ws':
+            // hideResponse(el);
+
+            request(
+              'ws',
+              `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${url}`,
+              'ws',
+              data,
+              blockHeaders,
+              contentType,
+              {
+                onConnect: () => hideWsConnect(el),
+                onData: (ws, msg) => showResponse(el, msg),
+                onDisconnect: () => showWsConnect(el),
+                onError: (ws, err) => showResponse(el, err),
+                options: blockDescriptor.option
+              }
+            );
+
+            break;
+
+          default:
+            showResponse(el, `Unknown transport: ${blockDescriptor.api.transport.name}`);
+        }
       } else {
         switch (blockDescriptor.api.transport.name) {
           case 'amqp':

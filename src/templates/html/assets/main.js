@@ -5,7 +5,6 @@
   let lastSelectedVersions = {};
 
   on.change(by.selector('[data-element="chapterSelector"]')[0], (value) => {
-    console.log(by.selector(`[data-element="chapter_${lastSelectedChapter}"]`), lastSelectedChapter);
     if (lastSelectedChapter) {
       cls.add(by.selector(`[data-element="chapter_${lastSelectedChapter}"]`), 'hidden');
     }

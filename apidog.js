@@ -46,6 +46,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--sampleRequestProxy:ws' ],
+  {
+    help: 'url of ApiDog WebSocket proxy to be used for requests',
+  },
+);
+argumentParser.addArgument(
   [ '-t', '--template' ],
   {
     help: 'alias of embedded template (@html or @md) or directory where the custom template be load from',
@@ -162,6 +168,7 @@ const content = generate.generate(
     keywords: config.keywords,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
+    sampleRequestProxyWs: args['sampleRequestProxy:ws'] || config['sampleRequestProxy:ws'],
     sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,
     transports: {

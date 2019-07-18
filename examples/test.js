@@ -1,27 +1,29 @@
 /**
  * @apiDefine chapter Sample chapter
- * This is a sample chapter with title and description
+ * This is a sample chapter with a title and description
  */
 
 /**
  * @apiDefine group Sample group
- * This is a sample group with title and description
+ * This is a sample group with a title and description
  */
 
 /**
  * @apiDefine subgroup Sample subgroup
- * This is a sample subgroup with title ans description
+ * This is a sample subgroup with a title ans description
  */
 
 /**
  * @apiDefine queryParameter Sample query parameter
- * This is a sample query parameter with title and description
+ * This is a sample query parameter with a title and description
  */
 
+// Sample chapter
+
 /**
- * @api {get} /test/:id?:param1 Test GET v0.0.1
+ * @api {get} /test/:id?:param1 GET v0.0.1
  * @apiChapter chapter
- * @apiDescription Test GET v0.0.1
+ * @apiDescription GET v0.0.1 description
  * @apiGroup group
  * @apiName testGet
  * @apiSubgroup subgroup
@@ -31,9 +33,9 @@
  */
 
 /**
- * @api {get} /test/:id?:param2 Test GET v0.0.2
+ * @api {get} /test/:id?:param2 GET v0.0.2
  * @apiChapter chapter
- * @apiDescription Test GET v0.0.2
+ * @apiDescription GET v0.0.2 description
  * @apiGroup group
  * @apiName testGet
  * @apiSubgroup subgroup
@@ -43,7 +45,7 @@
  */
 
 /**
- * @api {get} /test/with/no/group/:id?:param1 Test GET with no group
+ * @api {get} /test/with/no/group/:id?:param1 GET with no group
  * @apiChapter chapter
  * @apiSubgroup subgroup1
  * @apiParam {String} id Id
@@ -51,7 +53,7 @@
  */
 
 /**
- * @api {get} /test/with/no/group/:id?:param1 Test GET with no subgroup
+ * @api {get} /test/with/no/group/:id?:param1 GET with no subgroup
  * @apiChapter chapter
  * @apiGroup group1
  * @apiParam {String} id Id
@@ -59,15 +61,15 @@
  */
 
 /**
- * @api {get} /test/with/no/group/:id?:param1 Test GET with no group and subgroup
+ * @api {get} /test/with/no/group/:id?:param1 GET with no group and subgroup
  * @apiChapter chapter
  * @apiParam {String} id Id
  * @apiParam (queryParameter) {String} [param1=test] Query param 1
  */
 
 /**
- * @api {post} /test/:id Test POST
- * @apiChapter chapter1
+ * @api {post} /test/:id POST with multiple content types
+ * @apiChapter chapter
  * @apiContentType form
  * @apiContentType json
  * @apiContentType xml
@@ -86,4 +88,26 @@
  *
  * @apiParamExample {xml} Body example:
  * <xml><body param1="param1" /></xml>
+ */
+
+// RabbitMQ chapter
+
+/**
+ * @api {rabbitmq} publish Publish
+ * @apiChapter RabbitMQ
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+/**
+ * @api {rabbitmqRpc} rpc RPC
+ * @apiChapter RabbitMQ
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+// WebSocket chapter
+
+/**
+ * @api {websocket} publish Publish
+ * @apiChapter WebSocket
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */

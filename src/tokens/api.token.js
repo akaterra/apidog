@@ -89,14 +89,14 @@ function parse(block, text) {
 }
 
 function blockValidate(block, config) {
-  if (!block.sampleRequestProxy) {
-    block.sampleRequestProxy = config.sampleRequestProxy;
-  }
-
   switch (block.api.transport.name) {
     case 'nats':
     case 'rabbitmq':
     case 'rabbitmqRpc':
+      if (!block.sampleRequestProxy) {
+        block.sampleRequestProxy = config.sampleRequestProxy;
+      }
+
       if (block.sampleRequest) {
         if (config.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxy;
@@ -121,7 +121,41 @@ function blockValidate(block, config) {
 
       break;
 
+    case 'websocket':
+    case 'ws':
+      if (!block.sampleRequestProxy) {
+        block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
+      }
+
+      if (block.sampleRequest) {
+        if (config.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
+        }
+
+        if (!block.sampleRequestProxy) {
+          throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        }
+
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          if (typeof sampleRequest === 'string') {
+            return sampleRequest;
+          }
+
+          if (sampleRequest === true) {
+            return block.api.endpoint;
+          }
+
+          return false;
+        });
+      }
+
+      break;
+
     default:
+      if (!block.sampleRequestProxy) {
+        block.sampleRequestProxy = config.sampleRequestProxy;
+      }
+
       if (block.sampleRequest) {
         if (config.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxy;

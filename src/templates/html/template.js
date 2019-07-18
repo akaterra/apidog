@@ -9,7 +9,7 @@ module.exports = (outputDir) => (hbs, config, params) => {
 
   const apidocJsTemplate = fs.readFileSync(`${__dirname}/assets/apidoc.js`, {encoding: 'utf8'});
 
-  fs.writeFileSync(`${outputDir}/apidoc.min.js`, handlebars.compile(apidocJsTemplate)(params));
+  fs.writeFileSync(`${outputDir}/apidoc.min.js`, uglify.minify(handlebars.compile(apidocJsTemplate)(params)).code);
 
   const template = fs.readFileSync(`${__dirname}/assets/content.hbs`, {encoding: 'utf8'});
 
