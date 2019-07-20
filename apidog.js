@@ -131,7 +131,13 @@ function loadTemplate(path, hbs) {
       const fsStat = fs.statSync(`${dirName}/${dirEntry}`);
 
       if (fsStat.isFile() && dirEntry !== 'index.js') {
-        hbs.registerPartial(dirEntry, fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'}));
+        let content = fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'});
+
+        if (content.substr(0, 4) === 'ref:') {
+          content = fs.readFileSync(content.substr(4), {encoding: 'utf8'});
+        }
+
+        hbs.registerPartial(dirEntry, content);
       }
     });
   }

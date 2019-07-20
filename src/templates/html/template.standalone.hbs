@@ -16,6 +16,14 @@
   const config = {{toJson this.config}};
   const sections = {{toJson this.sections}};
 
+  const HtmlDiff = (function () {
+    const module = {};
+
+    {{> htmldiff.js }}
+
+    return module.exports.default;
+  })();
+
   {{> compile_body_form.js }}
   {{> compile_body_xml.js }}
   {{> prepare_body.js }}

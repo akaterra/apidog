@@ -5,7 +5,7 @@ ApiDog is a API documentation generator alternative to the ApiDoc.
 
 * Templates for:
   * Minimalistic html file with dynamic loading of template and bootstrap
-  * Single html file with no external dependencies
+  * Single pre-compiled html file with no external dependencies
   * Mark down file
 * Minimalistic embedded proxy
 * Sample request plugin for html template:

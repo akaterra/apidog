@@ -72,16 +72,24 @@
               {{#each this.names}}
                 <div class="block">
                   <div class="control-panel">
-                    <div class="width-30 flex" data-control-panel="{{this.0.familyId}}">
+                    <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
                       <div class="flex-1">
-                        <button class="width-100 control flex-1 color-blue">Hide hints</button>
-                      </div>
-                      <div class="flex-1">
-                        <select class="width-100 input flex-1 right color-blue">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-selector>
                           {{#each this}}
                             <option value="{{this.version}}">{{this.version}}</option>
                           {{/each}}
                         </select>
+                      </div>
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
+                          <option value="null">Compare to</option>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <button class="width-100 control flex-1 color-blue">Hide hints</button>
                       </div>
                       <div class="flex-1"></div>
                     </div>
@@ -102,245 +110,248 @@
                         </div>
                       </div>
                     </div>
-                    <div class="section left-padded color-1 font-size-1 bold">
-                        <span class="{{#if this.deprecated}}line-through{{/if}}">
-                          {{this.title}}
-                          <span class="color-3">
-                            {{#ifCond this.group.name '!=' '$'}}
-                              {{first ../this.group.title ../this.group.name}} /
-                            {{/ifCond}}
-                            {{#ifCond this.subgroup.name '!=' '$'}}
-                              {{first ../this.subgroup.title ../this.subgroup.name}} /
-                            {{/ifCond}}
-                            {{this.version}}
+                    <div class="hidden" data-block-compare-to-diff-content></div>
+                    <div data-block-compare-to-content>
+                      <div class="section left-padded color-1 font-size-1 bold">
+                          <span class="{{#if this.deprecated}}line-through{{/if}}">
+                            {{this.title}}
+                            <span class="color-3">
+                              {{#ifCond this.group.name '!=' '$'}}
+                                {{first ../this.group.title ../this.group.name}} /
+                              {{/ifCond}}
+                              {{#ifCond this.subgroup.name '!=' '$'}}
+                                {{first ../this.subgroup.title ../this.subgroup.name}} /
+                              {{/ifCond}}
+                              {{this.version}}
+                            </span>
                           </span>
-                        </span>
-                      {{#if this.deprecated}}
-                        {{#ifCond this.deprecated '!=' true}}
-                          <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
-                        {{/ifCond}}
-                      {{/if}}
-                    </div>
-                    <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
-
-                    <div class="section flex">
-                      <span class="padded font-size-1 uppercase mono bold">{{toUpperCase this.api.transport.name}}</span>
-                      {{#ifCond this.api.transport.name '==' 'http'}}
-                        {{#ifCond ../this.api.transport.method '==' 'delete'}}
-                          <span class="badge bg-color-red color-white font-size-1 uppercase mono bold">DELETE</span>
-                        {{else ifCond ../this.api.transport.method '==' 'get'}}
-                          <span class="badge bg-color-green color-white font-size-1 uppercase mono bold">GET</span>
-                        {{else ifCond ../this.api.transport.method '==' 'put'}}
-                          <span class="badge bg-color-orange color-white font-size-1 uppercase mono bold">PUT</span>
-                        {{else}}
-                          <span class="badge bg-color-blue color-white font-size-1 uppercase mono bold">{{../this.api.transport.method}}</span>
-                        {{/ifCond}}
-                      {{/ifCond}}
-                    </div>
-
-                    <div class="section">
-                      <div class="response big-badge bg-color-black color-white font-size-1 mono">{{this.api.endpoint}}</div>
-                    </div>
-
-                    {{#if this.permission}}
-                      <div class="section">
-                        <span class="padded">
-                          Permission:
-                          {{#each this.permission}}
-                            <span class="badge bg-color-dark-cyan color-white">{{this.name}}</span>
-                          {{/each}}
-                        </span>
+                        {{#if this.deprecated}}
+                          {{#ifCond this.deprecated '!=' true}}
+                            <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                          {{/ifCond}}
+                        {{/if}}
                       </div>
-                    {{/if}}
+                      <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
 
-                    <div data-block-hint="{{block.familyId}}">
-                      {{#if this.example}}
-                        {{#each this.example}}
-                          <div class="section">
-                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
-                            <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
-                                    (join this.description true)}}</pre>
-                          </div>
-                        {{/each}}
-                      {{/if}}
+                      <div class="section flex">
+                        <span class="padded font-size-1 uppercase mono bold">{{toUpperCase this.api.transport.name}}</span>
+                        {{#ifCond this.api.transport.name '==' 'http'}}
+                          {{#ifCond ../this.api.transport.method '==' 'delete'}}
+                            <span class="badge bg-color-red color-white font-size-1 uppercase mono bold">DELETE</span>
+                          {{else ifCond ../this.api.transport.method '==' 'get'}}
+                            <span class="badge bg-color-green color-white font-size-1 uppercase mono bold">GET</span>
+                          {{else ifCond ../this.api.transport.method '==' 'put'}}
+                            <span class="badge bg-color-orange color-white font-size-1 uppercase mono bold">PUT</span>
+                          {{else}}
+                            <span class="badge bg-color-blue color-white font-size-1 uppercase mono bold">{{../this.api.transport.method}}</span>
+                          {{/ifCond}}
+                        {{/ifCond}}
+                      </div>
 
-                      {{#if this.headers.length}}
-                        {{#each this.headersGroups as |params key|}}
-                          {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                            {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                            {{/if}}
-                          {{/with}}
-                          <div class="section">
-                            <div class="table">
-                              <div class="width-25 bg-color-4 bold">Field</div>
-                              <div class="width-15 bg-color-4 bold">Type</div>
-                              <div class="flex-1 bg-color-4 bold">Description</div>
-                            </div>
-                            {{#each params}}
-                              <div class="table">
-                                <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                              </div>
+                      <div class="section">
+                        <div class="response big-badge bg-color-black color-white font-size-1 mono">{{this.api.endpoint}}</div>
+                      </div>
+
+                      {{#if this.permission}}
+                        <div class="section">
+                          <span class="padded">
+                            Permission:
+                            {{#each this.permission}}
+                              <span class="badge bg-color-dark-cyan color-white">{{this.name}}</span>
                             {{/each}}
-                          </div>
-                        {{/each}}
+                          </span>
+                        </div>
                       {{/if}}
 
-                      {{#if this.headerExample}}
-                        {{#each this.headerExample}}
-                          <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                       'any'}} hidden{{/ifCond}}"
-                               data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
-                            <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description true)}}</pre>
-                          </div>
-                        {{/each}}
-                      {{/if}}
-
-                      {{#if this.params.length}}
-                        {{#each this.paramsGroups as |params key|}}
-                          {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                            {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                            {{/if}}
-                          {{/with}}
-                          <div class="section">
-                            <div class="table">
-                              <div class="width-25 bg-color-4 bold">Field</div>
-                              <div class="width-15 bg-color-4 bold">Type</div>
-                              <div class="flex-1 bg-color-4 bold">Description</div>
+                      <div data-block-hint="{{block.familyId}}">
+                        {{#if this.example}}
+                          {{#each this.example}}
+                            <div class="section">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
+                              <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
                             </div>
-                            {{#each params}}
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.headers.length}}
+                          {{#each this.headersGroups as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
                               <div class="table">
-                                <div class="width-25 color-2 mono">
-                                  {{pathLastKeyIndented this.field.name}}
-                                  {{#if this.field}}
-                                    {{#if this.field.isOptional}}
-                                      <span class="small sup mono color-3 optional">optional</span>{{else}}{{/if}}
-                                  {{/if}}
+                                <div class="width-25 bg-color-4 bold">Field</div>
+                                <div class="width-15 bg-color-4 bold">Type</div>
+                                <div class="flex-1 bg-color-4 bold">Description</div>
+                              </div>
+                              {{#each params}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
-                                <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                                <div class="flex-1">
-                                  {{toHtml (join this.description true)}}
-                                  {{#if this.type}}
-                                    {{#if this.type.allowedValues}}
-                                      <div class="{{#if this.description.length}}top-padded{{/if}}">
-                                        <div class="smaller color-3">Allowed values:</div>
-                                        {{#each this.type.allowedValues}}
-                                          <div class="smaller color-blue">{{this}}</div>
-                                        {{/each}}
-                                      </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.headerExample}}
+                          {{#each this.headerExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.params.length}}
+                          {{#each this.paramsGroups as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">Field</div>
+                                <div class="width-15 bg-color-4 bold">Type</div>
+                                <div class="flex-1 bg-color-4 bold">Description</div>
+                              </div>
+                              {{#each params}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">
+                                    {{pathLastKeyIndented this.field.name}}
+                                    {{#if this.field}}
+                                      {{#if this.field.isOptional}}
+                                        <span class="small sup mono color-3 optional">optional</span>{{else}}{{/if}}
                                     {{/if}}
-                                  {{/if}}
-                                  {{#if this.field}}
-                                    {{#if this.field.defaultValue}}
-                                      <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if
-                                              this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
-                                        <div class="smaller color-3">Default value:</div>
-                                        <div class="smaller color-blue">{{this.field.defaultValue}}</div>
-                                      </div>
+                                  </div>
+                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  <div class="flex-1">
+                                    {{toHtml (join this.description true)}}
+                                    {{#if this.type}}
+                                      {{#if this.type.allowedValues}}
+                                        <div class="{{#if this.description.length}}top-padded{{/if}}">
+                                          <div class="smaller color-3">Allowed values:</div>
+                                          {{#each this.type.allowedValues}}
+                                            <div class="smaller color-blue">{{this}}</div>
+                                          {{/each}}
+                                        </div>
+                                      {{/if}}
                                     {{/if}}
-                                  {{/if}}
+                                    {{#if this.field}}
+                                      {{#if this.field.defaultValue}}
+                                        <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if
+                                                this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
+                                          <div class="smaller color-3">Default value:</div>
+                                          <div class="smaller color-blue">{{this.field.defaultValue}}</div>
+                                        </div>
+                                      {{/if}}
+                                    {{/if}}
+                                  </div>
                                 </div>
-                              </div>
-                            {{/each}}
-                          </div>
-                        {{/each}}
-                      {{/if}}
-
-                      {{#if this.paramExample}}
-                        {{#each this.paramExample}}
-                          <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                       'any'}} hidden{{/ifCond}}"
-                               data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
-                            <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description true)}}</pre>
-                          </div>
-                        {{/each}}
-                      {{/if}}
-
-                      {{#if this.successs.length}}
-                        {{#each this.successsGroups as |successes key|}}
-                          {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                            {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                            {{/if}}
-                          {{/with}}
-                          <div class="section">
-                            <div class="table">
-                              <div class="width-25 bg-color-4 bold">Field</div>
-                              <div class="width-15 bg-color-4 bold">Type</div>
-                              <div class="flex-1 bg-color-4 bold">Description</div>
+                              {{/each}}
                             </div>
-                            {{#each successes}}
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.paramExample}}
+                          {{#each this.paramExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.successs.length}}
+                          {{#each this.successsGroups as |successes key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
                               <div class="table">
-                                <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                <div class="width-15 color-2 mono">{{this.type.name}}</div>
-                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                <div class="width-25 bg-color-4 bold">Field</div>
+                                <div class="width-15 bg-color-4 bold">Type</div>
+                                <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                            {{/each}}
-                          </div>
-                        {{/each}}
-                      {{/if}}
-
-                      {{#if this.successExample}}
-                        {{#each this.successExample}}
-                          <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                       'any'}} hidden{{/ifCond}}"
-                               data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
-                              Success example{{/if}}
+                              {{#each successes}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
                             </div>
-                            <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description true)}}</pre>
-                          </div>
-                        {{/each}}
-                      {{/if}}
+                          {{/each}}
+                        {{/if}}
 
-                      {{#if this.errors.length}}
-                        {{#each this.errorsGroups as |errors key|}}
-                          {{#with (context 'definitions') as |definitions|}}
-                            <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                            {{#if (lookup definitions key 'description')}}
-                              <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                            {{/if}}
-                          {{/with}}
-                          <div class="section">
-                            <div class="table">
-                              <div class="width-25 bg-color-4 bold">Name</div>
-                              <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                              <div class="flex-1 bg-color-4 bold">Description</div>
+                        {{#if this.successExample}}
+                          {{#each this.successExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
+                                Success example{{/if}}
+                              </div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
                             </div>
-                            {{#each errors}}
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errors.length}}
+                          {{#each this.errorsGroups as |errors key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
                               <div class="table">
-                                <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                <div class="width-25 bg-color-4 bold">Name</div>
+                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                                <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                            {{/each}}
-                          </div>
-                        {{/each}}
-                      {{/if}}
-
-                      {{#if this.errorExample}}
-                        {{#each this.errorExample}}
-                          <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                       'any'}} hidden{{/ifCond}}"
-                               data-block-example="{{../this.id}}_{{this.type}}">
-                            <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}
+                              {{#each errors}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
                             </div>
-                            <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                    (join this.description true)}}</pre>
-                          </div>
-                        {{/each}}
-                      {{/if}}
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errorExample}}
+                          {{#each this.errorExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}
+                              </div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+                      </div>
                     </div>
 
                     {{#ifCond this.sampleRequest.[0] '!=' false}}

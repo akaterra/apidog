@@ -3,6 +3,7 @@
   let lastSelectedChapter = getValue(by.selector('[data-chapter-selector]')[0]);
   let lastSelectedContentType = {};
   let lastSelectedVersions = {};
+  let lastSelectedVersionsCompareTo = {};
 
   on.change(by.selector('[data-chapter-selector]')[0], (value) => {
     if (lastSelectedChapter) {
@@ -39,11 +40,11 @@
       lastHintsStatus[family] = !lastHintsStatus[family];
     });
 
-    const versionSelectorEl = by.selector('select', el)[0];
+    const blockControlPanelVersionSelector = by.selector('[data-control-panel-version-selector]', el)[0];
 
-    lastSelectedVersions[family] = getValue(versionSelectorEl);
+    lastSelectedVersions[family] = getValue(blockControlPanelVersionSelector);
 
-    on.change(versionSelectorEl, (value) => {
+    on.change(blockControlPanelVersionSelector, (value) => {
       cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
       cls.add(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
 
@@ -52,12 +53,31 @@
       cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
       cls.remove(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
     });
+
+    const blockControlPanelVersionCompareToSelector = by.selector('[data-control-panel-version-compare-to-selector]', el)[0];
+
+    lastSelectedVersionsCompareTo[family] = getValue(blockControlPanelVersionCompareToSelector);
+
+    on.change(blockControlPanelVersionCompareToSelector, (value) => {
+      if (value !== 'null') {
+        cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0], 'hidden');
+        cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+
+        by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
+          by.selector(`[data-block="${family}_${value}"] [data-block-compare-to-content]`)[0].innerHTML,
+          by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0].innerHTML
+        );
+      } else {
+        cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0], 'hidden');
+        cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+      }
+    });
   });
 
   by.selector('[data-block-control-panel]').forEach((el) => {
     const id = el.dataset.blockControlPanel;
 
-    const contentTypeSelectorEl = by.selector('select', el)[0];
+    const contentTypeSelectorEl = by.selector('[data-block-content-type]', el)[0];
 
     lastSelectedContentType[id] = getValue(contentTypeSelectorEl);
 

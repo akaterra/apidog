@@ -10,6 +10,14 @@ const sections = {{toJson this.sections}};
 window.onload = () => {
   window.module = {};
 
+  const HtmlDiff = (function () {
+    const module = {};
+
+    {{> htmldiff.js }}
+
+    return module.exports.default;
+  })();
+
   {{> first.js }}
   Handlebars.registerHelper('first', module.exports);
 
