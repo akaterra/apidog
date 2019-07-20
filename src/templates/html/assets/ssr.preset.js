@@ -1,25 +1,28 @@
+/**
+ * Send sample request preset
+ */
 (function () {
   let presets = {};
 
   by.selector('[data-block]').forEach((el) => {
     const blockId = el.dataset.block;
-    const blockElementPresetSelect = by.selector('[data-block-element="presetSelect"]', el)[0];
+    const blockSsrPresetSelector = by.selector('[data-block-ssr-preset-selector]', el)[0];
 
-    if (blockElementPresetSelect) {
-      on.change(blockElementPresetSelect, (value) => {
+    if (blockSsrPresetSelector) {
+      on.change(blockSsrPresetSelector, (value) => {
         if (value === 'new') {
-          setValue(by.selector('[data-block-element="presetName"]', el)[0], '');
+          setValue(by.selector('[data-block-ssr-preset-name]', el)[0], '');
 
           return;
         }
 
-        setValue(by.selector('[data-block-element="presetName"]', el)[0], value);
+        setValue(by.selector('[data-block-ssr-preset-name]', el)[0], value);
 
         if (blockId in presets && value in presets[blockId]) {
           const preset = presets[blockId][value];
 
           if (preset.endpoint) {
-            setValue(by.selector('[data-block-element="endpoint"]', el)[0], preset.endpoint);
+            setValue(by.selector('[data-block-ssr-endpoint]', el)[0], preset.endpoint);
           }
 
           if (preset.headers) {
@@ -45,29 +48,29 @@
       });
     }
 
-    const blockElementPresetSave = by.selector('[data-block-element="presetSave"]', el)[0];
+    const blockSsrPresetSave = by.selector('[data-block-ssr-preset-save]', el)[0];
 
-    if (blockElementPresetSave) {
-      on.click(blockElementPresetSave, () => {
-        const presetName = getValue(by.selector('[data-block-element="presetName"]', el)[0]);
+    if (blockSsrPresetSave) {
+      on.click(blockSsrPresetSave, () => {
+        const presetName = getValue(by.selector('[data-block-preset-name]', el)[0]);
 
         if (!presetName) {
           return;
         }
 
-        const blockHeaders = {};
-        const blockParams = {};
-        const blockEndpoint = by.selector('[data-block-element="endpoint"]', el)[0].value;
+        const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
+        const headers = {};
+        const params = {};
 
-        by.selector('[data-block-element]', el).forEach((blockEl) => {
-          switch (blockEl.dataset.blockElement) {
+        by.selector('[data-block-ssr-input]', el).forEach((blockSsrInputEl) => {
+          switch (blockSsrInputEl.dataset.blockElement) {
             case 'header':
-              blockHeaders[blockEl.name] = getValue(blockEl);
+              headers[blockSsrInputEl.name] = getValue(blockSsrInputEl);
 
               break;
 
             case 'param':
-              blockParams[blockEl.name] = getValue(blockEl);
+              params[blockSsrInputEl.name] = getValue(blockSsrInputEl);
 
               break;
           }
@@ -80,22 +83,22 @@
           `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}/${encodeURIComponent(presetName)}`,
           'PATCH',
           {
-            endpoint: blockEndpoint,
-            headers: blockHeaders,
-            params: blockParams,
+            endpoint,
+            headers,
+            params,
           },
           undefined,
           'json'
         ).then(() => {
-          selector.option.appendUniq(blockElementPresetSelect, presetName, presetName);
+          selector.option.appendUniq(blockSsrPresetSelector, presetName, presetName);
         });
       });
     }
 
-    const blockElementPresetLoadList = by.selector('[data-block-element="presetLoadList"]', el)[0];
+    const blockSsrPresetLoadList = by.selector('[data-block-ssr-preset-load-list]', el)[0];
 
-    if (blockElementPresetLoadList && blockElementPresetSelect) {
-      on.click(blockElementPresetLoadList, () => {
+    if (blockSsrPresetLoadList && blockSsrPresetSelector) {
+      on.click(blockSsrPresetLoadList, () => {
         const blockDescriptor = sections[el.dataset.block];
 
         request(
@@ -105,7 +108,7 @@
         ).then(({text}) => {
           Object.assign(presets, JSON.parse(text));
 
-          selector.option.replace(blockElementPresetSelect, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
+          selector.option.replace(blockSsrPresetSelector, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
             acc[key] = key;
 
             return acc;

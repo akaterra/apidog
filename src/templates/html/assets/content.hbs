@@ -8,7 +8,7 @@
             <div class="width-70"></div>
             <div class="width-30 flex">
               <div class="flex-1">
-                <select class="width-100 input right color-blue" data-element="chapterSelector">
+                <select class="width-100 input right color-blue" data-chapter-selector>
                   {{#each chaptersAsLists}}
                     {{#ifCond this.title '==' '$'}}
                       <option value="{{../this.title}}">Main chapter</option>
@@ -31,7 +31,7 @@
 
 </div>
 {{#each chaptersAsLists as |chapter index|}}
-  <div class="container{{#ifCond index '!=' 0}} hidden{{/ifCond}}" data-element="chapter_{{this.title}}">
+  <div class="container{{#ifCond index '!=' 0}} hidden{{/ifCond}}" data-chapter="{{this.title}}">
     {{#with (context 'definitions') as |definitions|}}
       {{#if (lookup definitions ../this.title 'description')}}
         <div class="sub-container">
@@ -94,7 +94,7 @@
                     <div class="control-panel">
                       <div class="width-10 flex" data-block-control-panel="{{block.id}}">
                         <div class="flex-1">
-                          <select class="width-100 input right color-blue" data-block-element="contentType">
+                          <select class="width-100 input right color-blue" data-block-content-type>
                             {{#each block.contentType}}
                               <option value="{{this}}">{{this}}</option>
                             {{/each}}
@@ -356,17 +356,17 @@
                                   id="{{../this.id}}_presetName"
                                   name="presetName"
                                   type="text"
-                                  data-block-element="presetName"
+                                  data-block-ssr-preset-name
                                   value=""
                           />
-                          <select class="input flex-1 color-blue" data-block-element="presetSelect">
+                          <select class="input flex-1 color-blue" data-block-ssr-preset-selector>
                             <option value="new">New</option>
                           </select>
                         </div>
 
                         <div class="section">
-                          <button class="button margin-left-25 color-blue" data-block-element="presetSave">Save</button>
-                          <button class="button color-blue" data-block-element="presetLoadList">Load list</button>
+                          <button class="button margin-left-25 color-blue" data-block-ssr-preset-save>Save</button>
+                          <button class="button color-blue" data-block-ssr-preset-load-list>Load list</button>
                         </div>
 
                         <div class="inner-label"></div>
@@ -379,7 +379,7 @@
                                 id="{{../this.id}}"
                                 name="endpoint"
                                 type="text"
-                                data-block-element="endpoint"
+                                data-block-ssr-endpoint
                                 value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
                         />
                       </div>
@@ -399,7 +399,7 @@
                                           id="{{../../../this.id}}_h_{{this.field.name}}"
                                           name="{{this.field.name}}"
                                           type="text"
-                                          data-block-element="header"
+                                          data-block-ssr-input="header"
                                           value="{{this.field.defaultValue}}"
                                   >
                                     {{#each ../this.type.allowedValues}}
@@ -412,7 +412,7 @@
                                           id="{{../../../this.id}}_h_{{this.field.name}}"
                                           name="{{this.field.name}}"
                                           type="text"
-                                          data-block-element="header"
+                                          data-block-ssr-input="header"
                                           value="{{this.field.defaultValue}}"
                                   />
                                 {{/if}}
@@ -439,7 +439,7 @@
                                             id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                             name="{{../this.field.name}}"
                                             type="text"
-                                            data-block-element="param"
+                                            data-block-ssr-input="param"
                                             value="{{../this.field.defaultValue}}"
                                     >
                                       {{#each ../this.type.allowedValues}}
@@ -452,7 +452,7 @@
                                             id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                             name="{{../this.field.name}}"
                                             type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"
-                                            data-block-element="param"
+                                            data-block-ssr-input="param"
                                             value="{{../this.field.defaultValue}}"
                                     />
                                   {{/if}}
@@ -465,14 +465,14 @@
                       {{/if}}
 
                       <div class="section">
-                        <button class="button margin-left-25" data-block-element="send">Send</button>
+                        <button class="button margin-left-25" data-block-ssr-send>Send</button>
                         {{#ifCond ../this.api.transport.name '==' 'websocket'}}
-                          <button class="button" data-block-element="wsConnect">Connect</button>
-                          <button class="button hidden" data-block-element="wsDisconnect">Disconnect</button>
+                          <button class="button" data-block-ssr-ws-connect>Connect</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
                         {{/ifCond}}
                       </div>
 
-                      <div class="section hidden" data-block-element="response">
+                      <div class="section hidden" data-block-ssr-response>
                         <div class="label">Response:</div>
                         <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
                       </div>

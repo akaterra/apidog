@@ -1,17 +1,17 @@
 (function () {
   let lastHintsStatus = {};
-  let lastSelectedChapter = getValue(by.selector('[data-element="chapterSelector"]')[0]);
+  let lastSelectedChapter = getValue(by.selector('[data-chapter-selector]')[0]);
   let lastSelectedContentType = {};
   let lastSelectedVersions = {};
 
-  on.change(by.selector('[data-element="chapterSelector"]')[0], (value) => {
+  on.change(by.selector('[data-chapter-selector]')[0], (value) => {
     if (lastSelectedChapter) {
-      cls.add(by.selector(`[data-element="chapter_${lastSelectedChapter}"]`), 'hidden');
+      cls.add(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
     }
 
     lastSelectedChapter = value;
 
-    cls.remove(by.selector(`[data-element="chapter_${lastSelectedChapter}"]`), 'hidden');
+    cls.remove(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
   });
 
   by.selector('[data-control-panel]').forEach((el) => {

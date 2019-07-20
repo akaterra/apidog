@@ -89,7 +89,8 @@ window.onload = () => {
   {{> main.element.selector.js }}
   {{> main.func.js }}
   {{> main.js }}
-  {{> sample_request.js }}
-  {{> sample_request.hook.js }}
-  {{> sample_request.preset.js }}
+  {{> main.request.js }}
+  {{> ssr.js }}
+  {{> ssr.hook.js }}
+  {{> ssr.preset.js }}
 };

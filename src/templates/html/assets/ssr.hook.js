@@ -1,3 +1,6 @@
+/**
+ * Send sample request hook
+ */
 const sampleRequestHooks = {};
 
 if (typeof module !== 'undefined') {
