@@ -1,7 +1,7 @@
+![alt ApiDog](https://github.com/akaterra/apidog/blob/master/apidog.png?raw=true)
+
 ApiDog
 ======
-
-![alt ApiDog](https://github.com/akaterra/apidog/blob/master/apidog.png?raw=true)
 
 ApiDog is a API documentation generator alternative to the ApiDoc.
 
