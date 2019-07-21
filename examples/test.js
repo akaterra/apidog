@@ -18,6 +18,11 @@
  * This is a sample query parameter with a title and description
  */
 
+/**
+ * @apiDefine queryParameter2 Sample query parameter 2
+ * This is a sample query parameter 2 with a title and description
+ */
+
 // Sample chapter
 
 /**
@@ -41,7 +46,9 @@
  * @apiSubgroup subgroup
  * @apiVersion 0.0.2
  * @apiParam {String} id Id
- * @apiParam (queryParameter) {String} [param2=test] Query param 2
+ * @apiParam (queryParameter2) {String} [param2=test] Query param 2
+ * @apiParam (queryParameter2) {String} [param3=test] Query param 3
+ * @apiParam (queryParameter2) {String} [param4=test] Query param 4
  */
 
 /**

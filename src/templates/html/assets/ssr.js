@@ -171,7 +171,7 @@
       on.click(blockSsrWsConnect, () => {
         const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
 
-        wsConnect(endpoint, {
+        request.ws.connect(endpoint, {
           onConnect: () => hideWsConnect(el),
           onData: (ws, data) => showResponse(el, data),
           onDisconnect: () => showWsConnect(el),
@@ -186,7 +186,7 @@
       on.click(blockSsrWsDisconnect, () => {
         const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
 
-        wsDisconnect(endpoint);
+        request.ws.disconnect(endpoint);
         showWsConnect(el);
       });
     }

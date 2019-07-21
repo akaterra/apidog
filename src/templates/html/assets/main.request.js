@@ -63,7 +63,7 @@ const request = (function () {
     }
   }
 
-  return function request(transport, url, method, data, headers, contentType, config) {
+  const request = function(transport, url, method, data, headers, contentType, config) {
     if (!method) {
       method = 'GET';
     } else {
@@ -177,4 +177,13 @@ const request = (function () {
         throw new Error(`Unknown transport: ${transport}`);
     }
   };
+
+  request.ws = {
+    disconnect: wsDisconnect,
+    connect: wsConnect,
+    isConnected: wsIsConnected,
+    request: wsRequest,
+  };
+
+  return request;
 })();

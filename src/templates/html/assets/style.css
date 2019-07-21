@@ -3,6 +3,16 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+del.diffmod, .diffdel {
+    color: red !important;
+    font-weight: bold !important;
+}
+
+ins.diffmod, .diffins {
+    color: green !important;
+    font-weight: bold !important;
+}
+
 .container {
     margin: 0 auto;
     max-width: 1200px;
@@ -36,11 +46,11 @@
     margin-left: 25%;
 }
 
-.bold {
+.bold, .bold .diffmod {
     font-weight: bold;
 }
 
-.mono {
+.mono, .mono .diffmod {
     font-family: monospace;
 }
 
@@ -298,7 +308,7 @@
     display: flex;
 }
 
-.table > * {
+.table > *:not(.diffmod) {
     box-sizing: border-box;
     border: #e0e0e0 solid;
     border-width: 0 1px 1px 0;
@@ -306,7 +316,7 @@
     padding: 0.25rem 0.5rem;
 }
 
-.table > *:last-child {
+.table > *:not(.diffmod):last-child {
     border-right-width: 0;
 }
 

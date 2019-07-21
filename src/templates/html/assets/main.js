@@ -40,20 +40,6 @@
       lastHintsStatus[family] = !lastHintsStatus[family];
     });
 
-    const blockControlPanelVersionSelector = by.selector('[data-control-panel-version-selector]', el)[0];
-
-    lastSelectedVersions[family] = getValue(blockControlPanelVersionSelector);
-
-    on.change(blockControlPanelVersionSelector, (value) => {
-      cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-      cls.add(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-
-      lastSelectedVersions[family] = value;
-
-      cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-      cls.remove(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-    });
-
     const blockControlPanelVersionCompareToSelector = by.selector('[data-control-panel-version-compare-to-selector]', el)[0];
 
     lastSelectedVersionsCompareTo[family] = getValue(blockControlPanelVersionCompareToSelector);
@@ -71,6 +57,23 @@
         cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0], 'hidden');
         cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
       }
+
+      lastSelectedVersionsCompareTo[family] = value;
+    });
+
+    const blockControlPanelVersionSelector = by.selector('[data-control-panel-version-selector]', el)[0];
+
+    lastSelectedVersions[family] = getValue(blockControlPanelVersionSelector);
+
+    on.change(blockControlPanelVersionSelector, (value) => {
+      cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+      cls.add(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
+      cls.remove(by.selector(`[data-block="${family}_${value}"]`)[0], 'hidden');
+      cls.remove(by.selector(`[data-element-menu-item="${family}_${value}"]`)[0], 'hidden');
+
+      lastSelectedVersions[family] = value;
+
+      blockControlPanelVersionCompareToSelector.onchange({srcElement: blockControlPanelVersionCompareToSelector});
     });
   });
 
