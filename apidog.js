@@ -46,6 +46,18 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--sampleRequestProxy:http' ],
+  {
+    help: 'url of ApiDog HTTP proxy to be used for requests',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:rabbitmq' ],
+  {
+    help: 'url of ApiDog RabbitMQ proxy to be used for requests',
+  },
+);
+argumentParser.addArgument(
   [ '--sampleRequestProxy:ws' ],
   {
     help: 'url of ApiDog WebSocket proxy to be used for requests',
@@ -174,6 +186,8 @@ const content = generate.generate(
     keywords: config.keywords,
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
+    sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
+    sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
     sampleRequestProxyWs: args['sampleRequestProxy:ws'] || config['sampleRequestProxy:ws'],
     sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,

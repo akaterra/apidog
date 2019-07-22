@@ -189,7 +189,7 @@ function createApp(env) {
 
           break;
 
-        case 'rabbitmqRpc':
+        case 'rabbitmqrpc':
           response = await amqpRpcSend(
             req.params['0'],
             req.rawBody,

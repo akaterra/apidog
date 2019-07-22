@@ -25,7 +25,7 @@ function parse(block, text) {
   // transport {name(:...)}
   const transportTokens = utils.strSplitBy(tokens[1], ':');
 
-  switch (transportTokens[0]) {
+  switch (transportTokens[0].toLowerCase()) {
     case 'http':
     case 'https':
       switch (transportTokens[1]) {
@@ -63,8 +63,8 @@ function parse(block, text) {
 
       break;
 
-    case 'rabbitmqRpc':
-      blockApi.transport = { name: 'rabbitmqRpc', exchange: transportTokens[1] };
+    case 'rabbitmqrpc':
+      blockApi.transport = { name: 'rabbitmqrpc', exchange: transportTokens[1] };
 
       break;
 
@@ -92,14 +92,14 @@ function blockValidate(block, config) {
   switch (block.api.transport.name) {
     case 'nats':
     case 'rabbitmq':
-    case 'rabbitmqRpc':
+    case 'rabbitmqrpc':
       if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxy;
+        block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
       }
 
       if (block.sampleRequest) {
-        if (config.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxy;
+        if (config.sampleRequestProxyRabbitmq || config.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
@@ -128,7 +128,7 @@ function blockValidate(block, config) {
       }
 
       if (block.sampleRequest) {
-        if (config.sampleRequestProxy) {
+        if (config.sampleRequestProxyWs || config.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
         }
 
@@ -153,12 +153,12 @@ function blockValidate(block, config) {
 
     default:
       if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxy;
+        block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
       }
 
       if (block.sampleRequest) {
-        if (config.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxy;
+        if (config.sampleRequestProxyHttp || config.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
         }
 
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
