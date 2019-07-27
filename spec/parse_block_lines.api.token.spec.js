@@ -39,7 +39,7 @@ describe('parser for @api token by parseBlockLines', () => {
 
   it('should parse for rabbitmq rpc transport with exchange', () => {
     const lines = [
-      '@api {rabbitmqRpc:exchange} url This is a title',
+      '@api {rabbitmqrpc:exchange} url This is a title',
     ];
 
     const block = parser.parseBlockLines(lines);
@@ -48,7 +48,7 @@ describe('parser for @api token by parseBlockLines', () => {
       api: {
         endpoint: 'url',
         title: 'This is a title',
-        transport: {name: 'rabbitmqRpc', exchange: 'exchange'},
+        transport: {name: 'rabbitmqrpc', exchange: 'exchange'},
       },
       title: 'This is a title',
       validate: block.validate,

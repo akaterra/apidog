@@ -66,7 +66,7 @@ Parameters:
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestProxy** - url of ApiDog proxy to be used for requests
+* **--sampleRequestProxy\[:http | :rabbitmq | :ws\]** - url of ApiDog proxy to be used for requests. "http", "rabbitmq" or "ws" specifier provides proxy for specified transport
 
 * **-t, --template** - alias of embedded template or directory where the custom template be load from
 
