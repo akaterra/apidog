@@ -6,7 +6,7 @@ describe('parser for @apiUse token by parseBlockLines', () => {
       '@apiUse test',
     ];
 
-    parser.parseBlockLines(lines, {test: ['A', 'B', 'C']});
+    parser.parseBlockLines(lines, {test: {embeddedLines: ['A', 'B', 'C']}});
 
     expect(lines).toEqual(['', 'A', 'B', 'C']);
   });

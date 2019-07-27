@@ -78,16 +78,13 @@
 
         const blockDescriptor = sections[el.dataset.block];
 
-        request(
-          'http',
+        request.http.put(
           `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}/${encodeURIComponent(presetName)}`,
-          'PATCH',
           {
             endpoint,
             headers,
             params,
           },
-          undefined,
           'json'
         ).then(() => {
           selector.option.appendUniq(blockSsrPresetSelector, presetName, presetName);
@@ -101,10 +98,8 @@
       on.click(blockSsrPresetLoadList, () => {
         const blockDescriptor = sections[el.dataset.block];
 
-        request(
-          'http',
-          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}`,
-          'GET'
+        request.http.get(
+          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}`
         ).then(({text}) => {
           Object.assign(presets, JSON.parse(text));
 

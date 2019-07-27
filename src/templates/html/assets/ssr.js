@@ -12,14 +12,14 @@
     by.selector('[data-block-ssr-response]>pre', el)[0].textContent = text;
   }
 
-  function hideWsConnect(el) {
-    cls.add(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
-    cls.remove(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
-  }
-
   function showWsConnect(el) {
     cls.remove(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
     cls.add(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
+  }
+
+  function showWsDisconnect(el) {
+    cls.add(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
+    cls.remove(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
   }
 
   by.selector('[data-block]').forEach((el) => {
@@ -63,7 +63,7 @@
       if (blockDescriptor.sampleRequestProxy) {
         switch (blockDescriptor.api.transport.name) {
           case 'amqp':
-          case 'amqpRpc':
+          case 'amqprpc':
           case 'http':
           case 'https':
             hideResponse(el);
@@ -96,7 +96,7 @@
               headers,
               contentType,
               {
-                onConnect: () => hideWsConnect(el),
+                onConnect: () => showWsDisconnect(el),
                 onData: (ws, msg) => showResponse(el, msg),
                 onDisconnect: () => showWsConnect(el),
                 onError: (ws, err) => showResponse(el, err),
@@ -112,7 +112,7 @@
       } else {
         switch (blockDescriptor.api.transport.name) {
           case 'amqp':
-          case 'amqpRpc':
+          case 'amqprpc':
             showResponse(el, 'ApiDog proxy must be used for AMQP requests');
 
             break;
@@ -149,7 +149,7 @@
               headers,
               contentType,
               {
-                onConnect: () => hideWsConnect(el),
+                onConnect: () => showWsDisconnect(el),
                 onData: (ws, msg) => showResponse(el, msg),
                 onDisconnect: () => showWsConnect(el),
                 onError: (ws, err) => showResponse(el, err),
@@ -172,7 +172,7 @@
         const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
 
         request.ws.connect(endpoint, {
-          onConnect: () => hideWsConnect(el),
+          onConnect: () => showWsDisconnect(el),
           onData: (ws, data) => showResponse(el, data),
           onDisconnect: () => showWsConnect(el),
           onError: (ws, err) => showResponse(el, err),
@@ -191,6 +191,4 @@
       });
     }
   });
-
-  return request;
 })();

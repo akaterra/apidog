@@ -1,4 +1,12 @@
 const request = (function () {
+  function httpRequest(url, method, data, headers, config) {
+    return fetch(url, {
+      body: method !== 'GET' ? data : void 0,
+      headers,
+      method,
+    });
+  }
+
   const wsConnections = {};
 
   function wsConnect(url, config) {
@@ -57,7 +65,7 @@ const request = (function () {
     );
   }
 
-  function wsRequest(url, data) {
+  function wsPublish(url, data) {
     if (url in wsConnections && wsIsConnected(url)) {
       wsConnections[url].send(data);
     }
@@ -96,7 +104,7 @@ const request = (function () {
     });
 
     // insert rest of data as query parameters in case of http "get" method
-    if (method.toLowerCase() === 'get') {
+    if (method === 'GET') {
       if (url.indexOf('?') === - 1) {
         url += '?';
       } else if (url.slice(- 1) !== '&') {
@@ -109,7 +117,7 @@ const request = (function () {
     }
 
     // prepare body based on content type in case of not http "get" method
-    if (method.toLowerCase() !== 'get') {
+    if (method !== 'GET') {
       if (data) {
         switch (contentType) {
           case 'form':
@@ -136,25 +144,19 @@ const request = (function () {
     switch (transport) {
       case 'http':
       case 'https':
-        return fetch(url, {
-          body: method.toLowerCase() !== 'get' ? data : void 0,
-          headers,
-          method,
-        })
-          .then((response) => {
-            return response.text().then((text) => ({status: response.status, text, response}))
-          })
-          .catch((error) => {
-            if (error instanceof TypeError) {
-              return {status: 0, text: 'Network error'};
-            }
+        return httpRequest(url, method, data, headers).then((response) => {
+          return response.text().then((text) => ({status: response.status, text, response}))
+        }).catch((error) => {
+          if (error instanceof TypeError) {
+            return {status: 0, text: 'Network error'};
+          }
 
-            if (error.text) {
-              return error.text().then((text) => ({status: 0, text: error.text()}));
-            }
+          if (error.text) {
+            return error.text().then((text) => ({status: 0, text: error.text()}));
+          }
 
-            return {status: 0, text: error};
-          });
+          return {status: 0, text: error};
+        });
 
       case 'ws':
         wsConnect(url, {
@@ -167,22 +169,28 @@ const request = (function () {
               config.onReady(ws);
             }
 
-            ws.send(data);
+            wsPublish(url, data);
           },
         });
 
-        return wsConnections[url];
+        return Promise.resolve();
 
       default:
         throw new Error(`Unknown transport: ${transport}`);
     }
   };
 
+  request.http = {
+    delete: (url) => request('http', url, 'delete'),
+    get: (url) => request('http', url, 'get'),
+    post: (url, data, contentType) => request('http', url, 'post', data, undefined, contentType),
+    put: (url, data, contentType) => request('http', url, 'put', data, undefined, contentType),
+  }
   request.ws = {
     disconnect: wsDisconnect,
     connect: wsConnect,
     isConnected: wsIsConnected,
-    request: wsRequest,
+    publish: (url, data, contentType) => request('ws', url, 'ws', data, undefined, contentType),
   };
 
   return request;

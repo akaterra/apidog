@@ -81,7 +81,7 @@ function createApp(env) {
       }
     });
 
-    app.patch('/preset/:presetBlockId/:presetName', async (req, res) => {
+    app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
       if (config.presetDir) {
@@ -119,7 +119,7 @@ function createApp(env) {
     try {
       let response;
 
-      switch (req.params.transport) {
+      switch (req.params.transport.toLowerCase()) {
         case 'http':
         case 'https':
           delete req.headers.host;
