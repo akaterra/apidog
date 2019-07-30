@@ -62,10 +62,10 @@
 
       if (blockDescriptor.sampleRequestProxy) {
         switch (blockDescriptor.api.transport.name) {
-          case 'amqp':
-          case 'amqprpc':
           case 'http':
           case 'https':
+          case 'rabbitmq':
+          case 'rabbitmqrpc':
             hideResponse(el);
 
             request(
@@ -111,12 +111,6 @@
         }
       } else {
         switch (blockDescriptor.api.transport.name) {
-          case 'amqp':
-          case 'amqprpc':
-            showResponse(el, 'ApiDog proxy must be used for AMQP requests');
-
-            break;
-
           case 'http':
           case 'https':
             hideResponse(el);
@@ -134,6 +128,12 @@
             ).then(({text}) => {
               showResponse(el, text);
             });
+
+            break;
+
+          case 'rabbitmq':
+          case 'rabbitmqrpc':
+            showResponse(el, 'ApiDog proxy must be used for RabbitMQ requests');
 
             break;
 

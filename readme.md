@@ -1,4 +1,6 @@
-![alt ApiDog](https://github.com/akaterra/apidog/blob/master/apidog.png?raw=true)
+<p align="center">
+  <img src="./apidog.png" alt="ApiDog">
+</p>
 
 ApiDog
 ======
@@ -14,8 +16,8 @@ ApiDog is a API documentation generator alternative to the ApiDoc.
     * Transports support:
         * HTTP
         * HTTPS
-        * AMQP (via ApiDog proxy)
-        * AMQP RPC (via ApiDog proxy)
+        * RabbitMQ (via ApiDog proxy)
+        * RabbitMQ RPC (via ApiDog proxy)
         * Nats (via ApiDog proxy)
         * WebSocket
     * Content types support:

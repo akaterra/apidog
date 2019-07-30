@@ -52,7 +52,7 @@
 
     if (blockSsrPresetSave) {
       on.click(blockSsrPresetSave, () => {
-        const presetName = getValue(by.selector('[data-block-preset-name]', el)[0]);
+        const presetName = getValue(by.selector('[data-block-ssr-preset-name]', el)[0]);
 
         if (!presetName) {
           return;
@@ -63,7 +63,7 @@
         const params = {};
 
         by.selector('[data-block-ssr-input]', el).forEach((blockSsrInputEl) => {
-          switch (blockSsrInputEl.dataset.blockElement) {
+          switch (blockSsrInputEl.dataset.blockSsrInput) {
             case 'header':
               headers[blockSsrInputEl.name] = getValue(blockSsrInputEl);
 
