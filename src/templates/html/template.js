@@ -27,4 +27,7 @@ module.exports = (outputDir) => (hbs, config, params) => {
 
   const handlebarsJs = fs.readFileSync(`${__dirname}/../../../node_modules/handlebars/dist/handlebars.min.js`, {encoding: 'utf8'});
   fs.writeFileSync(`${outputDir}/handlebars.min.js`, handlebarsJs);
+
+  const favicon = fs.readFileSync(`${__dirname}/assets/favicon.ico`);
+  fs.writeFileSync(`${outputDir}/favicon.ico`, favicon);
 };

@@ -95,10 +95,12 @@ window.onload = () => {
 
   {{> main.element.js }}
   {{> main.element.selector.js }}
+  {{> main.event_emitter.js }}
   {{> main.func.js }}
   {{> main.js }}
   {{> main.request.js }}
   {{> ssr.js }}
   {{> ssr.hook.js }}
   {{> ssr.preset.js }}
+  {{> ssr.variable.js }}
 };

@@ -354,6 +354,10 @@
                       </div>
                     </div>
 
+                    <!--
+                    Send sample request
+                    -->
+
                     {{#ifCond this.sampleRequest.[0] '!=' false}}
                       <div class="label">Send sample request</div>
 
@@ -379,9 +383,30 @@
                           <button class="button margin-left-25 color-blue" data-block-ssr-preset-save>Save</button>
                           <button class="button color-blue" data-block-ssr-preset-load-list>Load list</button>
                         </div>
-
-                        <div class="inner-label"></div>
                       {{/if}}
+
+                      {{#if ../this.sampleRequestVariable.length}}
+                        <div class="inner-label color-green">Variable</div>
+
+                        <div class="section flex">
+                          {{#each ../this.sampleRequestVariable}}
+                            <label class="input-label width-25 color-green"
+                                   for="{{../../this.id}}_v_{{this.field.name}}"
+                                   title="{{this.field.name}}">{{this.field.name}}</label>
+                            <input
+                                    class="input flex-1 color-green"
+                                    id="{{../../this.id}}_v_{{this.field.name}}"
+                                    name="{{this.field.name}}"
+                                    type="text"
+                                    data-block-ssr-input-global-id="_v_{{this.field.name}}"
+                                    data-block-ssr-input="variable"
+                                    value="{{this.field.defaultValue}}"
+                            />
+                          {{/each}}
+                        </div>
+                      {{/if}}
+
+                      <div class="inner-label"></div>
 
                       <div class="section flex">
                         <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
@@ -411,6 +436,7 @@
                                           name="{{this.field.name}}"
                                           type="text"
                                           data-block-ssr-input="header"
+                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
                                           value="{{this.field.defaultValue}}"
                                   >
                                     {{#each ../this.type.allowedValues}}
@@ -424,6 +450,7 @@
                                           name="{{this.field.name}}"
                                           type="text"
                                           data-block-ssr-input="header"
+                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
                                           value="{{this.field.defaultValue}}"
                                   />
                                 {{/if}}
@@ -451,6 +478,7 @@
                                             name="{{../this.field.name}}"
                                             type="text"
                                             data-block-ssr-input="param"
+                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
                                             value="{{../this.field.defaultValue}}"
                                     >
                                       {{#each ../this.type.allowedValues}}
@@ -464,6 +492,7 @@
                                             name="{{../this.field.name}}"
                                             type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"
                                             data-block-ssr-input="param"
+                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
                                             value="{{../this.field.defaultValue}}"
                                     />
                                   {{/if}}

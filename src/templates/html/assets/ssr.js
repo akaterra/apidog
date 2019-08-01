@@ -1,7 +1,7 @@
 /**
  * Send sample request
  */
-(function () {
+const ssr = (function () {
   function hideResponse(el) {
     cls.add(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
     by.selector('[data-block-ssr-response]>pre', el)[0].textContent = '';
@@ -52,6 +52,8 @@
         }
       });
 
+      emitRequestPrepareParams(el, {headers, params});
+
       let {data, extra} = prepareBody(params, blockDescriptor.params);
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
@@ -79,6 +81,8 @@
                 options: blockDescriptor.option
               }
             ).then(({text}) => {
+              emitResponse(el, text, contentType);
+
               showResponse(el, text);
             });
 
@@ -126,6 +130,8 @@
                 options: blockDescriptor.option
               }
             ).then(({text}) => {
+              emitResponse(el, text, contentType);
+
               showResponse(el, text);
             });
 
@@ -191,4 +197,108 @@
       });
     }
   });
+
+  function emitRequestPrepareParams(...args) {
+    ee.emit('onSsrRequestPrepareParams', ...args);
+  }
+
+  function emitResponse(...args) {
+    ee.emit('onSsrResponse', ...args);
+  }
+
+  function getBlockEl(blockId) {
+    return by.selector(`[data-block="${blockId}"]`)[0];
+  }
+
+  function getBlockSsrEndpointEl(blockId) {
+    return by.selector(`[data-block="${blockId}"] [data-block-ssr-endpoint]`)[0];
+  }
+
+  const api = {
+    getEndpoint(blockId) {
+      const el = getBlockSsrEndpointEl(blockId);
+
+      if (el) {
+        return getValue(el);
+      }
+
+      return null;
+    },
+    setEndpoint(blockId, value) {
+      const el = getBlockSsrEndpointEl(blockId);
+
+      if (el) {
+        setValue(el, value);
+      }
+
+      return api;
+    },
+
+    getHeaders(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector('[data-block-ssr-input="header"]', el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
+    setHeaders(blockId, values) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        by.selector('[data-block-ssr-input="header"]', el).forEach((blockSsrInputEl) => {
+          if (blockSsrInputEl.name in values) {
+            setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
+          }
+        });
+      }
+
+      return api;
+    },
+
+    getParams(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector('[data-block-ssr-input="param"]', el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
+    setParams(blockId, values) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        by.selector('[data-block-ssr-input="param"]', el).forEach((blockSsrInputEl) => {
+          if (blockSsrInputEl.name in values) {
+            setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
+          }
+        });
+      }
+
+      return api;
+    },
+
+    onRequestPrepareParams(cb) {
+      ee.on('onSsrRequestPrepareParams', cb);
+
+      return api;
+    },
+    onResponse(cb) {
+      ee.on('onSsrResponse', cb);
+
+      return api;
+    },
+  };
+
+  return api;
 })();
