@@ -6,7 +6,8 @@ const ssrVariable = (function () {
 
   ssr.onRequestPrepareParams((el, {headers, params}) => {
     const blockId = el.dataset.block;
-    const blockDescriptor = sections[el.dataset.block];
+
+    const blockDescriptor = sections[blockId];
 
     api.set()
 
@@ -62,9 +63,7 @@ const ssrVariable = (function () {
 
           presets[blockDescriptorSsrVariable.ns][blockDescriptorSsrVariable.field.name] = val;
 
-          for (const el of by.selector(`[data-block-ssr-input-global-id="_v_${blockDescriptorSsrVariable.field.name}"]`)) {
-            setValue(el, val);
-          }
+          api.setGlobalValues(blockId, blockDescriptorSsrVariable.field.name, val);
         }
       }
     }
@@ -95,7 +94,7 @@ const ssrVariable = (function () {
         const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable
           .find((variable) => variable.field.name === blockSsrInputEl.name);
 
-        if (!(acc[blockDescriptorSsrVariable.ns in acc)) {
+        if (!(blockDescriptorSsrVariable.ns in acc)) {
           acc[blockDescriptorSsrVariable.ns] = {};
         }
 

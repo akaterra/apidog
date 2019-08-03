@@ -2,29 +2,30 @@
   <img src="./apidog.png" alt="ApiDog">
 </p>
 
-ApiDog
+apiDog
 ======
 
-ApiDog is a API documentation generator alternative to the ApiDoc.
+apiDog is a API documentation generator alternative to the ApiDoc.
 
 * Templates for:
-  * Minimalistic html file with dynamic loading of template and bootstrap
+  * Minimalistic html file with dynamic loading of assets
   * Single pre-compiled html file with no external dependencies
   * Mark down file
-* Minimalistic embedded proxy
+* Server-side proxy
 * Sample request plugin for html template:
     * Transports support:
         * HTTP
         * HTTPS
-        * RabbitMQ (via ApiDog proxy)
-        * RabbitMQ RPC (via ApiDog proxy)
-        * Nats (via ApiDog proxy)
+        * RabbitMQ (via server-side proxy)
+        * RabbitMQ RPC (via server-side proxy)
+        * Nats (via server-side proxy)
         * WebSocket
     * Content types support:
         * Form
         * JSON
         * XML
     * Presets (saved requests)
+    * Variables
 
 Table of contents
 -----------------

@@ -6,20 +6,21 @@ const ssrPreset = (function () {
 
   by.selector('[data-block]').forEach((el) => {
     const blockId = el.dataset.block;
-    const blockSsrPresetSelector = by.selector('[data-block-ssr-preset-selector]', el)[0];
 
-    if (blockSsrPresetSelector) {
-      on.change(blockSsrPresetSelector, (presetName) => {
+    const blockSsrPresetSelectEl = by.selector('[data-block-ssr-preset-selector]', el)[0];
+
+    if (blockSsrPresetSelectEl) {
+      on.change(blockSsrPresetSelectEl, (presetName) => {
         api
           .setName(blockId, presetName === 'new' ? '' : presetName)
           .setValues(blockId, api.get(blockId, presetName));
       });
     }
 
-    const blockSsrPresetSave = by.selector('[data-block-ssr-preset-save]', el)[0];
+    const blockSsrPresetSaveEl = by.selector('[data-block-ssr-preset-save]', el)[0];
 
-    if (blockSsrPresetSave) {
-      on.click(blockSsrPresetSave, () => {
+    if (blockSsrPresetSaveEl) {
+      on.click(blockSsrPresetSaveEl, () => {
         const presetName = api.getName(blockId);
 
         if (!presetName) {
@@ -35,15 +36,15 @@ const ssrPreset = (function () {
           api.get(blockId, presetName),
           'json'
         ).then(() => {
-          selector.option.appendUniq(blockSsrPresetSelector, presetName, presetName);
+          selector.option.appendUniq(blockSsrPresetSelectEl, presetName, presetName);
         });
       });
     }
 
-    const blockSsrPresetLoadList = by.selector('[data-block-ssr-preset-load-list]', el)[0];
+    const blockSsrPresetLoadListEl = by.selector('[data-block-ssr-preset-load-list]', el)[0];
 
-    if (blockSsrPresetLoadList && blockSsrPresetSelector) {
-      on.click(blockSsrPresetLoadList, () => {
+    if (blockSsrPresetLoadListEl && blockSsrPresetSelectEl) {
+      on.click(blockSsrPresetLoadListEl, () => {
         const blockDescriptor = sections[blockId];
 
         request.http.get(
@@ -51,7 +52,7 @@ const ssrPreset = (function () {
         ).then(({text}) => {
           Object.assign(presets, JSON.parse(text));
 
-          selector.option.replace(blockSsrPresetSelector, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
+          selector.option.replace(blockSsrPresetSelectEl, Object.entries(presets[blockId]).reduce((acc, [key, val]) => {
             acc[key] = key;
 
             return acc;

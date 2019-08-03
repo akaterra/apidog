@@ -288,7 +288,7 @@ function createApp(env) {
     });
 
     return {
-      body: `Message has been sent to "${queue}" queue by ApiDog proxy`,
+      body: `Message has been sent to "${queue}" queue by apiDog proxy`,
       headers: {},
     };
   }

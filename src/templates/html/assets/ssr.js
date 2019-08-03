@@ -25,13 +25,13 @@ const ssr = (function () {
   by.selector('[data-block]').forEach((el) => {
     const blockId = el.dataset.block;
 
-    const blockSsrSend = by.selector('[data-block-ssr-send]', el)[0];
+    const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
-    if (!blockSsrSend) {
+    if (!blockSsrSendEl) {
       return;
     }
 
-    on.click(blockSsrSend, () => {
+    on.click(blockSsrSendEl, () => {
       const blockDescriptor = sections[el.dataset.block];
       const contentType = by.selector('[data-block-content-type]', el)[0].value;
       const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
@@ -171,11 +171,11 @@ const ssr = (function () {
       }
     });
 
-    const blockSsrWsConnect = by.selector('[data-block-ssr-ws-connect]', el)[0];
+    const blockSsrWsConnectEl = by.selector('[data-block-ssr-ws-connect]', el)[0];
 
-    if (blockSsrWsConnect) {
-      on.click(blockSsrWsConnect, () => {
-        const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
+    if (blockSsrWsConnectEl) {
+      on.click(blockSsrWsConnectEl, () => {
+        const endpoint = api.getEndpoint(blockId);
 
         request.ws.connect(endpoint, {
           onConnect: () => showWsDisconnect(el),
@@ -186,11 +186,11 @@ const ssr = (function () {
       });
     }
 
-    const blockSsrWsDisconnect = by.selector('[data-block-ssr-ws-disconnect]', el)[0];
+    const blockSsrWsDisconnectEl = by.selector('[data-block-ssr-ws-disconnect]', el)[0];
 
-    if (blockSsrWsDisconnect) {
-      on.click(blockSsrWsDisconnect, () => {
-        const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
+    if (blockSsrWsDisconnectEl) {
+      on.click(blockSsrWsDisconnectEl, () => {
+        const endpoint = api.getEndpoint(blockId);
 
         request.ws.disconnect(endpoint);
         showWsConnect(el);
