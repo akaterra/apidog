@@ -26,25 +26,25 @@
 // Sample chapter
 
 /**
- * @api {get} /test/:id?:param1 GET v0.0.1
+ * @api {get} /v1/test/:id?:param1 GET v1
  * @apiChapter chapter
- * @apiDescription GET v0.0.1 description
+ * @apiDescription GET v1 description
  * @apiGroup group
- * @apiName testGet
+ * @apiKind testGet
  * @apiSubgroup subgroup
- * @apiVersion 0.0.1
+ * @apiVersion v1
  * @apiParam {String} id Id
  * @apiParam (queryParameter) {String} [param1=test] Query param 1
  */
 
 /**
- * @api {get} /test/:id?:param2 GET v0.0.2
+ * @api {get} /v2/test/:id?:param2 GET v2
  * @apiChapter chapter
- * @apiDescription GET v0.0.2 description
+ * @apiDescription GET v2 description
  * @apiGroup group
- * @apiName testGet
+ * @apiKind testGet
  * @apiSubgroup subgroup
- * @apiVersion 0.0.2
+ * @apiVersion v2
  * @apiParam {String} id Id
  * @apiParam (queryParameter2) {String} [param2=test] Query param 2
  * @apiParam (queryParameter2) {String} [param3=test] Query param 3

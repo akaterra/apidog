@@ -110,6 +110,10 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
+    if (!block.kind) {
+      block.kind = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+    }
+
     if (!block.sampleRequest) {
       block.sampleRequest = [block.api.endpoint];
     }
@@ -122,16 +126,16 @@ function generateSections(blocks, config) {
       block.version = '0.0.1';
     }
 
-    if (!block.name) {
-      block.name = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
-    }
-
     if (!block.title) {
       block.title = block.api.endpoint;
     }
 
-    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}`;
-    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.name}_${block.version}`;
+    if (!block.name) {
+      block.name = block.title;
+    }
+
+    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.kind}`;
+    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.kind}_${block.version}`;
     block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
 
     if (block.validate) {
@@ -156,11 +160,11 @@ function generateSections(blocks, config) {
       sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
     }
 
-    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.name]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name][block.name] = {}; // {section: [{}]>}
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind] = {}; // {section: [{}]>}
     }
 
-    sections[block.chapter.name][block.group.name][block.subgroup.name][block.name][block.version] = block;
+    sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind][block.version] = block;
 
     return sections;
   }, {});

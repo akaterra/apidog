@@ -16,6 +16,7 @@ const tokenParsers = {
   '@apiHeader': require('./tokens/api_param.token').construct('header'),
   '@apiHeaderExample': require('./tokens/api_param_example.token').construct('header', '@headerExample'),
   '@apiIgnore': require('./tokens/api_ignore.token'),
+  '@apiKind': require('./tokens/api_kind.token'),
   '@apiName': require('./tokens/api_name.token'),
   '@apiOption': require('./tokens/api_option.token'),
   '@apiParam': require('./tokens/api_param.token'),

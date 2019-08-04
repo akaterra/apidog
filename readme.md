@@ -33,6 +33,10 @@ Table of contents
 * Installation
 * CLI
 * Tokens
+  * [@apiChapter](#apichapter)
+  * [@apiContentType](#apicontenttype)
+  * [@apiKind](#apikind)
+  * [@apiParamPrefix](#apiparamprefix)
 * Embedded templates
 
 ### Installation
@@ -89,12 +93,13 @@ Parameters:
 
 Format:
 ```
-@apiChapter chapter
+@apiChapter name
 ```
 
 Defines chapter.
-
 Can be used to split blocks between multiple namespaces.
+
+If **@apiDefine** declares definition with the same name also includes its title and description.
 
 ##### @apiContentType
 
@@ -106,9 +111,53 @@ Format:
 Defines content type.
 Can be defined multiply.
 
-Content type will be used as filter the **@apiExample** token having corresponding {type}.
+Content type will be used as a filter of the **@apiExample** content having corresponding {type}.
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
+
+##### @apiKind
+
+Format:
+```
+@apiKind kind
+```
+
+Defines uniq id of the block within its chapter, group and subgroup.
+It can be used to distinguish between several blocks with the same descriptors and to show them separately or to combine the different under versioning.
+
+Example:
+```
+/**
+ * @api {post} /test
+ * @apiVersion v1
+ * @apiKind a
+ */
+
+/**
+ * @api {post} /test
+ * @apiVersion v1
+ * @apiKind b
+ */
+```
+
+The second one does not override the first and is shown separately.
+
+Example:
+```
+/**
+ * @api {post} /v1/test
+ * @apiVersion v1
+ * @apiKind a
+ */
+
+/**
+ * @api {post} /v2/test
+ * @apiVersion v2
+ * @apiKind a
+ */
+```
+
+The second one is combined with the first and is shown under version.
 
 ##### @apiOption
 
