@@ -17,9 +17,9 @@ module.exports = (outputDir) => (hbs, config, params) => {
   const template = fs.readFileSync(`${__dirname}/assets/content.hbs`, {encoding: 'utf8'});
 
   if (process.env.NODE_ENV === 'test') {
-    fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, `templateContent = \`${template}\``);
+    fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, `const templateContent = \`${template}\``);
   } else {
-    fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(`templateContent = \`${template}\``).code);
+    fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(`const templateContent = \`${template}\``).code);
   }
 
   const apidocHtmlTemplate = fs.readFileSync(`${__dirname}/template.hbs`, {encoding: 'utf8'});

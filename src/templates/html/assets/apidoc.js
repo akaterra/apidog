@@ -1,3 +1,11 @@
+const HtmlDiff = (function () {
+  const module = {};
+
+  {{> htmldiff.js }}
+
+  return module.exports.default;
+})();
+
 const chapters = {{toJson this.chapters}};
 const config = {{toJson this.config}};
 const definitions = {{toJson this.definitions}};
@@ -9,14 +17,6 @@ const sections = {{toJson this.sections}};
 
 window.onload = () => {
   window.module = {};
-
-  const HtmlDiff = (function () {
-    const module = {};
-
-    {{> htmldiff.js }}
-
-    return module.exports.default;
-  })();
 
   {{> first.js }}
   Handlebars.registerHelper('first', module.exports);

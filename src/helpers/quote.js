@@ -1,5 +1,5 @@
 module.exports = (input) => {
   const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
 
-  return new handlebars.SafeString(input.toString().replace(/\n/g, '<br>'));
+  return new handlebars.SafeString(input.toString().replace(/`/g, '\\`').replace(/\${/g, '\\${'));
 };

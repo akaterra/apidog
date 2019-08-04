@@ -8,34 +8,27 @@
   <style>
     {{> style.css }}
   </style>
+  <style>
+    .splash {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      font-weight: bold;
+      height: 100%;
+    }
+  </style>
 </head>
 <body>
-  {{> content.hbs }}
+<div class="splash">"{{title}}" {{description}} {{version}} apiDoc is loading ...</div>
 </body>
 <script>
-  const config = {{toJson this.config}};
-  const sections = {{toJson this.sections}};
+  const templateContent = `{{> content.hbs.content }}`;
 
-  const HtmlDiff = (function () {
-    const module = {};
-
-    {{> htmldiff.js }}
-
-    return module.exports.default;
+  (function () {
+    {{> handlebars.js }}
   })();
 
-  {{> compile_body_form.js }}
-  {{> compile_body_xml.js }}
-  {{> prepare_body.js }}
-  {{> main.element.js }}
-  {{> main.element.selector.js }}
-  {{> main.event_emitter.js }}
-  {{> main.func.js }}
-  {{> main.js }}
-  {{> main.request.js }}
-  {{> ssr.js }}
-  {{> ssr.hook.js }}
-  {{> ssr.preset.js }}
-  {{> ssr.variable.js }}
+  {{> apidoc.js }}
 </script>
 </html>

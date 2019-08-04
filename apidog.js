@@ -150,6 +150,7 @@ function loadTemplate(path, hbs) {
         }
 
         hbs.registerPartial(dirEntry, content);
+        hbs.registerPartial(dirEntry + '.content', content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}'));
       }
     });
   }

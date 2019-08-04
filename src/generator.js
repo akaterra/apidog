@@ -94,7 +94,7 @@ function generateSections(blocks, config) {
   });
 
   blocks.forEach((block, index) => {
-    if (block.define || block.ignore) {
+    if (block.define || block.ignore || !block.api) {
       return;
     }
 
@@ -140,7 +140,7 @@ function generateSections(blocks, config) {
   });
 
   const sections = fastSort(blocks).asc((block) => block.visualId).reduce((sections, block) => {
-    if (block.define || block.ignore) {
+    if (block.define || block.ignore || !block.api) {
       return sections;
     }
 
