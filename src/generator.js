@@ -1,7 +1,7 @@
 const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
 
-function generate(blocks, template, config, templateProcessor, hbs) {
+function generate(blocks, template, config, hbs) {
   blocks = blocks.filter((block) => {
     if (block.private) {
       if (config) {
@@ -71,8 +71,8 @@ function generate(blocks, template, config, templateProcessor, hbs) {
 
   hbs.registerHelper('context', (name) => templateParams[name]);
 
-  if (templateProcessor) {
-    return templateProcessor(hbs || handlebars, config, templateParams);
+  if (config.templateProcessor) {
+    return config.templateProcessor(hbs || handlebars, config, templateParams);
   }
 
   return (hbs || handlebars).compile(template)(templateParams);

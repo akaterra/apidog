@@ -21,5 +21,5 @@ module.exports = (input, align) => {
     input = input.map((line) => line.substr(indentIndex));
   }
 
-  return new handlebars.SafeString(input.map((line) => line || '').join('\n'));
+  return input.map((line) => line || '').join('\n');
 };

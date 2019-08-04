@@ -185,6 +185,7 @@ const content = generate.generate(
     author: config.author,
     description: args.description || config.description,
     keywords: config.keywords,
+    i18n: require('./i18n'),
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
     sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
@@ -192,6 +193,7 @@ const content = generate.generate(
     sampleRequestProxyWs: args['sampleRequestProxy:ws'] || config['sampleRequestProxy:ws'],
     sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,
+    templateProcessor: template.templateProcessor && template.templateProcessor(outputDir),
     transports: {
       http: {
         sampleRequestUrl: null,
@@ -202,7 +204,6 @@ const content = generate.generate(
     },
     version: config.version,
   },
-  template.templateProcessor && template.templateProcessor(outputDir),
   hbs,
 );
 

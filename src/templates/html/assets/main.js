@@ -1,79 +1,50 @@
-(function () {
+const main = (function () {
   let lastHintsStatus = {};
   let lastSelectedChapter = getValue(by.selector('[data-chapter-selector]')[0]);
   let lastSelectedContentType = {};
   let lastSelectedVersions = {};
   let lastSelectedVersionsCompareTo = {};
 
-  on.change(by.selector('[data-chapter-selector]')[0], (value) => {
-    if (lastSelectedChapter) {
-      cls.add(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
-    }
-
-    lastSelectedChapter = value;
-
-    cls.remove(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
+  on.change(by.selector('[data-chapter-selector]')[0], (chapterId) => {
+    api.showChapter(chapterId);
   });
 
   by.selector('[data-control-panel]').forEach((el) => {
-    const family = el.dataset.controlPanel;
+    const familyId = el.dataset.controlPanel;
 
     const showHintEl = by.selector('button', el)[0];
 
-    lastHintsStatus[family] = true;
-
     on.click(showHintEl, () => {
-      if (lastHintsStatus[family]) {
-        by.selector(`[data-block-hint="${family}"]`).forEach((el) => {
-          cls.add(el, 'hidden');
-        });
-
-        showHintEl.textContent = 'Show hints';
-      } else {
-        by.selector(`[data-block-hint="${family}"]`).forEach((el) => {
-          cls.remove(el, 'hidden');
-        });
-
-        showHintEl.textContent = 'Hide hints';
-      }
-
-      lastHintsStatus[family] = !lastHintsStatus[family];
+      api.toggleHints(familyId);
     });
 
     const blockControlPanelVersionCompareToSelector = by.selector('[data-control-panel-version-compare-to-selector]', el)[0];
 
-    lastSelectedVersionsCompareTo[family] = getValue(blockControlPanelVersionCompareToSelector);
+    lastSelectedVersionsCompareTo[familyId] = getValue(blockControlPanelVersionCompareToSelector);
 
     on.change(blockControlPanelVersionCompareToSelector, (value) => {
       if (value !== 'null') {
-        cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0], 'hidden');
-        cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+        cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0], 'hidden');
+        cls.remove(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
 
-        by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
-          by.selector(`[data-block="${family}_${value}"] [data-block-compare-to-content]`)[0].innerHTML,
-          by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0].innerHTML
+        by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
+          by.selector(`[data-block="${familyId}_${value}"] [data-block-compare-to-content]`)[0].innerHTML,
+          by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0].innerHTML
         );
       } else {
-        cls.remove(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-content]`)[0], 'hidden');
-        cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+        cls.remove(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0], 'hidden');
+        cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
       }
 
-      lastSelectedVersionsCompareTo[family] = value;
+      lastSelectedVersionsCompareTo[familyId] = value;
     });
 
     const blockControlPanelVersionSelector = by.selector('[data-control-panel-version-selector]', el)[0];
 
-    lastSelectedVersions[family] = getValue(blockControlPanelVersionSelector);
+    lastSelectedVersions[familyId] = getValue(blockControlPanelVersionSelector);
 
     on.change(blockControlPanelVersionSelector, (value) => {
-      cls.add(by.selector(`[data-block="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-      cls.add(by.selector(`[data-element-menu-item="${family}_${lastSelectedVersions[family]}"]`)[0], 'hidden');
-      cls.remove(by.selector(`[data-block="${family}_${value}"]`)[0], 'hidden');
-      cls.remove(by.selector(`[data-element-menu-item="${family}_${value}"]`)[0], 'hidden');
-
-      lastSelectedVersions[family] = value;
-
-      blockControlPanelVersionCompareToSelector.onchange({srcElement: blockControlPanelVersionCompareToSelector});
+      api.showVersion(familyId, value);
     });
   });
 
@@ -96,4 +67,107 @@
       }
     });
   });
+
+  function getControlPanelEl(familyId) {
+    return by.selector(`[data-control-panel="${familyId}"]`)[0];
+  }
+
+  const api = {
+    showChapter(chapterId) {
+      if (lastSelectedChapter) {
+        cls.add(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
+      }
+  
+      lastSelectedChapter = chapterId;
+  
+      cls.remove(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
+
+      return api;
+    },
+
+    hideHints(familyId) {
+      const controlPanelEl = getControlPanelEl(familyId);
+
+      if (controlPanelEl) {
+        by.selector(`[data-block-hint="${familyId}"]`).forEach((el) => {
+          cls.add(el, 'hidden');
+        });
+
+        const showHintEl = by.selector('button', controlPanelEl)[0];
+
+        if (showHintEl) {
+          showHintEl.textContent = 'Show hints';
+        }
+      }
+
+      return api;
+    },
+    showHints(familyId) {
+      const controlPanelEl = getControlPanelEl(familyId);
+
+      if (controlPanelEl) {
+        by.selector(`[data-block-hint="${familyId}"]`).forEach((el) => {
+          cls.remove(el, 'hidden');
+        });
+
+        const showHintEl = by.selector('button', controlPanelEl)[0];
+
+        if (showHintEl) {
+          showHintEl.textContent = 'Hide hints';
+        }
+      }
+
+      return api;
+    },
+    toggleHints(familyId) {
+      if (lastHintsStatus[familyId] === undefined) {
+        lastHintsStatus[familyId] = true;
+      }
+
+      if (lastHintsStatus[familyId]) {
+        api.hideHints(familyId);
+      } else {
+        api.showHints(familyId);
+      }
+
+      lastHintsStatus[familyId] = !lastHintsStatus[familyId];
+
+      return api;
+    },
+
+    showVersion(familyId, version) {
+      const controlPanelEl = getControlPanelEl(familyId);
+
+      if (controlPanelEl) {
+        const blockControlPanelVersionCompareToSelectorEl = by.selector(
+          '[data-control-panel-version-compare-to-selector]',
+          controlPanelEl
+        )[0];
+
+        if (blockControlPanelVersionCompareToSelectorEl) {
+          cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"]`)[0], 'hidden');
+          cls.add(by.selector(`[data-element-menu-item="${familyId}_${lastSelectedVersions[familyId]}"]`)[0], 'hidden');
+          cls.remove(by.selector(`[data-block="${familyId}_${version}"]`)[0], 'hidden');
+          cls.remove(by.selector(`[data-element-menu-item="${familyId}_${version}"]`)[0], 'hidden');
+
+          lastSelectedVersions[familyId] = version;
+
+          blockControlPanelVersionCompareToSelectorEl.onchange({srcElement: blockControlPanelVersionCompareToSelectorEl});
+        }
+
+        const blockControlPanelVersionSelectorEl = by.selector(
+          '[data-control-panel-version-selector]',
+          controlPanelEl
+        )[0];
+
+        if (blockControlPanelVersionSelectorEl) {
+          setValue(blockControlPanelVersionSelectorEl, version);
+        }
+      }
+
+      return api;
+    },
+  };
+
+  return api;
 })();

@@ -57,7 +57,7 @@
               {{/ifCond}}
               {{#each this.names}}
                 {{#each this as |block index|}}
-                  <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.title}}</a>
+                  <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
                 {{/each}}
               {{/each}}
             {{/each}}
@@ -205,8 +205,7 @@
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
                               <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
                         {{/if}}
@@ -269,8 +268,7 @@
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
                               <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
                         {{/if}}
@@ -305,11 +303,8 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}
-                                Success example{{/if}}
-                              </div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
+                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
                         {{/if}}
@@ -344,10 +339,8 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}
-                              </div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
+                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
                         {{/if}}

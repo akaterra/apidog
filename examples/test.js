@@ -60,7 +60,7 @@
  */
 
 /**
- * @api {get} /test/with/no/group/:id?:param1 GET with no subgroup
+ * @api {get} /test/with/no/subgroup/:id?:param1 GET with no subgroup
  * @apiChapter chapter
  * @apiGroup group1
  * @apiParam {String} id Id
@@ -68,8 +68,16 @@
  */
 
 /**
- * @api {get} /test/with/no/group/:id?:param1 GET with no group and subgroup
+ * @api {get} /test/with/no/group/subgroup/:id?:param1 GET with no group and subgroup
  * @apiChapter chapter
+ * @apiParam {String} id Id
+ * @apiParam (queryParameter) {String} [param1=test] Query param 1
+ */
+
+/**
+ * @api {get} /test/with/name/:id?:param1 GET with name
+ * @apiChapter chapter
+ * @apiName GET_WITH_NAME
  * @apiParam {String} id Id
  * @apiParam (queryParameter) {String} [param1=test] Query param 1
  */
@@ -94,7 +102,9 @@
  * }
  *
  * @apiParamExample {xml} Body example:
- * <xml><body param1="param1" /></xml>
+ * <xml>
+ *   <body param1="param1" />
+ * </xml>
  */
 
 // RabbitMQ chapter
