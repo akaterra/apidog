@@ -7,23 +7,26 @@ apiDog
 
 apiDog is a API documentation generator alternative to the ApiDoc.
 
+Features:
+
 * Templates for:
   * Minimalistic html file with dynamic loading of assets
   * Single pre-compiled html file with no external dependencies
   * Mark down file
 * Server-side proxy
-* Sample request plugin for html template:
+* Send sample request plugin for html template:
     * Transports support:
         * HTTP
         * HTTPS
         * RabbitMQ (via server-side proxy)
-        * RabbitMQ RPC (via server-side proxy)
+        * RabbitMQ RPC (remote procedure call, via server-side proxy)
         * Nats (via server-side proxy)
-        * WebSocket
+        * WebSocket (W3C)
     * Content types support:
         * Form
         * JSON
         * XML
+    * Nested typed params
     * Presets (saved requests)
     * Variables
 
@@ -35,7 +38,7 @@ Table of contents
 * Tokens
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
-  * [@apiKind](#apikind)
+  * [@apiFamily](#apiFamily)
   * [@apiParamPrefix](#apiparamprefix)
 * Embedded templates
 
@@ -57,7 +60,7 @@ Parameters:
 
   Default is \[ package.json in input directory \].description or null by default.
 
-* **-i, --input "input directory"** - input directory to be scanned for blocks
+* **-i, --input "input directory"** - input directory to be scanned for doc blocks
 
   Current directory by default.
 
@@ -65,9 +68,9 @@ Parameters:
 
   Same as **input directory** by default.
 
-* **-p, --private \["tag1, tag2,.."\]** -- filters blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
+* **-p, --private \["tag1,tag2,.."\]** -- filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
 
-  By default takes all the blocks.
+  By default takes all the doc blocks.
 
 * **-s, --sampleRequestUrl, --sampleUrl** - base url that will be used as prefix for all relative api paths in sample requests
 
@@ -83,7 +86,7 @@ Parameters:
 
   Default is \[ package.json in input directory \].name, \[ config.json in input directory \].title or "Untitled" by default
 
-* **-srp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy_config.js** and **package.json** in the output directory
+* **--withSrp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy_config.js** and **package.json** in the output directory
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
@@ -97,7 +100,7 @@ Format:
 ```
 
 Defines chapter.
-Can be used to split blocks between multiple namespaces.
+Can be used to split doc blocks between multiple namespaces.
 
 If **@apiDefine** declares definition with the same name also includes its title and description.
 
@@ -115,28 +118,28 @@ Content type will be used as a filter of the **@apiExample** content having corr
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
 
-##### @apiKind
+##### @apiFamily
 
 Format:
 ```
-@apiKind kind
+@apiFamily unique-identifier
 ```
 
-Defines uniq id of the block within its chapter, group and subgroup.
-It can be used to distinguish between several blocks with the same descriptors and to show them separately or to combine the different under versioning.
+Defines unique identifier of the doc block within its chapter, group and subgroup.
+It can be used to distinguish between several doc blocks with the same descriptors and show them separately or combine the different doc blocks under versioning.
 
 Example:
 ```
 /**
  * @api {post} /test
  * @apiVersion v1
- * @apiKind a
+ * @apiFamily a
  */
 
 /**
  * @api {post} /test
  * @apiVersion v1
- * @apiKind b
+ * @apiFamily b
  */
 ```
 
@@ -147,13 +150,13 @@ Example:
 /**
  * @api {post} /v1/test
  * @apiVersion v1
- * @apiKind a
+ * @apiFamily a
  */
 
 /**
  * @api {post} /v2/test
  * @apiVersion v2
- * @apiKind a
+ * @apiFamily a
  */
 ```
 
@@ -175,7 +178,7 @@ If data structure is a plain object and have to be sent in XML format it should 
 
 Prefixes all following **@apiParam**s with prefix.
 
-This allows also to reuse lists of **apiParams** between different blocks.
+This allows also to reuse lists of **apiParams** between different doc blocks.
 
 ```
 /**

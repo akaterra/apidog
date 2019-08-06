@@ -1,19 +1,19 @@
 const parser = require('../src/parser');
 
-describe('parser for @apiKind token by parseBlockLines', () => {
+describe('parser for @apiFamily token by parseBlockLines', () => {
   it('should parse', () => {
     const lines = [
-      '@apiKind test',
+      '@apiFamily family',
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      kind: 'test',
+      family: 'family',
     });
   });
 
   it('should raise error on malformed definition', () => {
     const lines = [
-      '@apiKind',
+      '@apiFamily',
     ];
 
     expect(() => parser.parseBlockLines(lines)).toThrow();

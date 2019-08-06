@@ -30,7 +30,7 @@
  * @apiChapter chapter
  * @apiDescription GET v1 description
  * @apiGroup group
- * @apiKind testGet
+ * @apiFamily testGet
  * @apiSubgroup subgroup
  * @apiVersion v1
  * @apiParam {String} id Id
@@ -42,7 +42,7 @@
  * @apiChapter chapter
  * @apiDescription GET v2 description
  * @apiGroup group
- * @apiKind testGet
+ * @apiFamily testGet
  * @apiSubgroup subgroup
  * @apiVersion v2
  * @apiParam {String} id Id

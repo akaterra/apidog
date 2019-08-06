@@ -76,7 +76,7 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '-srp', '--withSampleRequestProxy' ],
+  [ '--withSrp', '--withSampleRequestProxy' ],
   {
     help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
   },

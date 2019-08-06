@@ -40,7 +40,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {}, null, handlebars);
+    generator.generate(blocks, '', {}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([1, 4]);
   });
@@ -65,7 +65,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {private: true}, null, handlebars);
+    generator.generate(blocks, '', {private: true}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2, 3]);
   });
@@ -90,7 +90,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {private: ['a', 'b']}, null, handlebars);
+    generator.generate(blocks, '', {private: ['a', 'b']}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2]);
   });
@@ -154,23 +154,16 @@ describe('generate sections', () => {
     });
   });
 
-  it('should generate sections filling default version', () => {
+  fit('should generate sections filling default version', () => {
     const blocks = [
       {
-        api: {},
-        group: 'group',
-        name: 'name',
-        title: 'title',
+        api: {
+          endpoint: 'endpoint',
+        },
       },
     ];
 
-    expect(generator.generateSections(blocks)).toEqual({
-      group: {
-        $: {
-          name: { '0.0.1': Object.assign({version: '0.0.1'}, blocks[0]) },
-        },
-      },
-    });
+    expect(generator.generateSections(blocks).$.$.$.endpoint_['0.0.1'].version).toEqual('0.0.1');
   });
 
   // it('should generate sections filling defaults from use', () => {

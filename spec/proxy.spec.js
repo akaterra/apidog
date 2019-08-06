@@ -167,7 +167,7 @@ describe('proxy', () => {
         .expect(res => {
           expect(env.amqplibQueue).toBe('queue');
           expect(env.amqplibConnection.uri).toBe('amqp://default');
-          expect(res.text).toBe('Message has been sent to "queue" queue by ApiDog proxy');
+          expect(res.text).toBe('Message has been sent to "queue" queue by apiDog proxy');
         });
     });
 
@@ -184,7 +184,7 @@ describe('proxy', () => {
         .expect(res => {
           expect(env.amqplibQueue).toBe('queue');
           expect(env.amqplibConnection.uri).toBe('amqp://username:password@host:9999/vhost');
-          expect(res.text).toBe('Message has been sent to "amqp://username:password@host:9999/vhost/queue" queue by ApiDog proxy');
+          expect(res.text).toBe('Message has been sent to "amqp://username:password@host:9999/vhost/queue" queue by apiDog proxy');
         });
     });
 
@@ -201,7 +201,7 @@ describe('proxy', () => {
         .expect(res => {
           expect(env.amqplibQueue).toBe('queue');
           expect(env.amqplibConnection.uri).toBe('amqp://a:b@c:1/e');
-          expect(res.text).toBe('Message has been sent to "amqp://alias/queue" queue by ApiDog proxy');
+          expect(res.text).toBe('Message has been sent to "amqp://alias/queue" queue by apiDog proxy');
         });
     });
 

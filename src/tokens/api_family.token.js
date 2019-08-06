@@ -1,15 +1,15 @@
 /**
- * @apiKind 0.0.1
+ * @apiFamily 0.0.1
  */
 
 const utils = require('../utils');
 
 function parse(block, text) {
   if (!text) {
-    throw new Error('@apiKind malformed');
+    throw new Error('@apiFamily malformed');
   }
 
-  block.kind = text;
+  block.family = text;
 
   return block;
 }

@@ -110,8 +110,8 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (!block.kind) {
-      block.kind = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+    if (!block.family) {
+      block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
     if (!block.sampleRequest) {
@@ -134,8 +134,8 @@ function generateSections(blocks, config) {
       block.name = block.title;
     }
 
-    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.kind}`;
-    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.kind}_${block.version}`;
+    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}`;
+    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}_${block.version}`;
     block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
 
     if (block.validate) {
@@ -160,11 +160,11 @@ function generateSections(blocks, config) {
       sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
     }
 
-    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind] = {}; // {section: [{}]>}
+    if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.family]) {
+      sections[block.chapter.name][block.group.name][block.subgroup.name][block.family] = {}; // {section: [{}]>}
     }
 
-    sections[block.chapter.name][block.group.name][block.subgroup.name][block.kind][block.version] = block;
+    sections[block.chapter.name][block.group.name][block.subgroup.name][block.family][block.version] = block;
 
     return sections;
   }, {});
