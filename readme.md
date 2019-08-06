@@ -5,7 +5,7 @@
 apiDog
 ======
 
-apiDog is a API documentation generator alternative to the ApiDoc.
+apiDog is a API documentation generator alternative to the [apiDoc](http://apidocjs.com/).
 
 Features:
 
@@ -40,7 +40,12 @@ Table of contents
   * [@apiContentType](#apicontenttype)
   * [@apiFamily](#apiFamily)
   * [@apiParamPrefix](#apiparamprefix)
+  * [@apiSubgroup](#apisubgroup)
 * Embedded templates
+  * [@html (default)](#html-default)
+  * [@html.standalone](#html-standalone)
+  * [@md](#md)
+* @html template "Send sample request" plug-in
 
 ### Installation
 
@@ -126,7 +131,7 @@ Format:
 ```
 
 Defines unique identifier of the doc block within its chapter, group and subgroup.
-It can be used to distinguish between several doc blocks with the same descriptors and show them separately or combine the different doc blocks under versioning.
+It can be used to distinguish between several doc blocks with the same descriptors to show them separately or combine the different doc blocks under versioning.
 
 Example:
 ```
@@ -176,9 +181,16 @@ If data structure is a plain object and have to be sent in XML format it should 
 
 ##### @apiParamPrefix
 
+Format:
+```
+@apiParamPrefix prefix
+```
+
 Prefixes all following **@apiParam**s with prefix.
 
 This allows also to reuse lists of **apiParams** between different doc blocks.
+
+Example:
 
 ```
 /**
@@ -202,6 +214,16 @@ This allows also to reuse lists of **apiParams** between different doc blocks.
  * @apiUse sharedParams
  */
 ```
+
+### @apiSubgroup
+
+Format:
+```
+@apiSubgroup name
+```
+
+Defines to which subgroup the doc block belongs.
+The subgroup will be shown as menu sub navigation section.
 
 ### Embedded templates
 
@@ -233,3 +255,48 @@ apidog -t @md
 ```
 
 Compiles to mark down file.
+
+### Server-side proxy
+
+The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
+
+```sh
+apidog --withSampleRequestProxy=http://localhost:8088
+```
+
+Or by **apidoc.json** option "sampleRequestProxy".
+
+### @html template "Send sample request" plug-in
+
+"Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
+
+##### Nats and RabbitMQ
+To make possible to send sample requests through the transports such as Nats and RabbitMQ the server-side proxy must be used.
+
+**@api** token format for Nats:
+
+```
+/**
+ * @api {nats} endpoint
+ */
+```
+
+**@api** token format for RabbitMQ:
+
+```
+/**
+ * @api {rabbitmq[:exchange]} endpoint
+ */
+```
+
+**@api** token format for RabbitMQ RPC:
+
+```
+/**
+ * @api {rabbitmqRpc[:exchange]} endpoint
+ */
+```
+
+##### WebSocket and HTTP/HTTPS
+
+The WebSocket and HTTP/HTTPS requests also can be sent via server-side proxy optionally.
