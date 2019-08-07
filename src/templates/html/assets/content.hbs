@@ -5,9 +5,25 @@
         <div class="width-100 flex">
           <div class="width-20"></div>
           <div class="width-80 flex">
-            <div class="width-70"></div>
-            <div class="width-30 flex">
+            <div class="width-60"></div>
+            <div class="width-40 flex">
               <div class="flex-1">
+                <select class="width-100 input right color-blue" data-version-selector>
+                  <option value="null">All versions</option>
+                  {{#each this.versions}}
+                    <option value="{{@key}}">{{@key}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              <div class="flex-1">
+                <select class="width-100 input right color-blue" data-version-compare-to-selector>
+                  <option value="null">Compare to</option>
+                  {{#each this.versions}}
+                    <option value="{{@key}}">{{@key}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              <div class="flex-2">
                 <select class="width-100 input right color-blue" data-chapter-selector>
                   {{#each chaptersAsLists}}
                     {{#ifCond this.title '==' '$'}}
@@ -56,9 +72,11 @@
                 {{/with}}
               {{/ifCond}}
               {{#each this.names}}
-                {{#each this as |block index|}}
-                  <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
-                {{/each}}
+                <div data-family="{{this.[0].familyId}}">
+                  {{#each this as |block index|}}
+                    <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
+                  {{/each}}
+                </div>
               {{/each}}
             {{/each}}
           {{/each}}
@@ -70,7 +88,7 @@
           {{#each this.groups}}
             {{#each this.subgroups}}
               {{#each this.names}}
-                <div class="block">
+                <div class="block" data-family="{{this.0.familyId}}">
                   <div class="control-panel">
                     <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
                       <div class="flex-1">
@@ -360,14 +378,14 @@
                         <div class="section flex">
                           <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
                           <input
-                                  class="input flex-1 color-blue"
+                                  class="input-param flex-1 color-blue"
                                   id="{{../this.id}}_presetName"
                                   name="presetName"
                                   type="text"
                                   data-block-ssr-preset-name
                                   value=""
                           />
-                          <select class="input flex-1 color-blue" data-block-ssr-preset-selector>
+                          <select class="input-param flex-1 color-blue" data-block-ssr-preset-selector>
                             <option value="new">New</option>
                           </select>
                         </div>
@@ -387,7 +405,7 @@
                                    for="{{../../this.id}}_v_{{this.field.name}}"
                                    title="{{this.field.name}}">{{this.field.name}}</label>
                             <input
-                                    class="input flex-1 color-green"
+                                    class="input-param flex-1 color-green"
                                     id="{{../../this.id}}_v_{{this.field.name}}"
                                     name="{{this.field.name}}"
                                     type="text"
@@ -404,7 +422,7 @@
                       <div class="section flex">
                         <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
                         <input
-                                class="input flex-1"
+                                class="input-param flex-1"
                                 id="{{../this.id}}"
                                 name="endpoint"
                                 type="text"
@@ -424,7 +442,7 @@
                                        title="{{this.field.name}}">{{this.field.name}}</label>
                                 {{#if this.type.modifiers.enum}}
                                   <select
-                                          class="input flex-1"
+                                          class="input-param flex-1"
                                           id="{{../../../this.id}}_h_{{this.field.name}}"
                                           name="{{this.field.name}}"
                                           type="text"
@@ -438,7 +456,7 @@
                                   </select>
                                 {{else}}
                                   <input
-                                          class="input flex-1"
+                                          class="input-param flex-1"
                                           id="{{../../../this.id}}_h_{{this.field.name}}"
                                           name="{{this.field.name}}"
                                           type="text"
@@ -466,7 +484,7 @@
                                          title="{{../this.field.name}}">{{../this.field.name}}</label>
                                   {{#if ../this.type.modifiers.enum}}
                                     <select
-                                            class="input flex-1"
+                                            class="input-param flex-1"
                                             id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                             name="{{../this.field.name}}"
                                             type="text"
@@ -480,7 +498,7 @@
                                     </select>
                                   {{else}}
                                     <input
-                                            class="input flex-1"
+                                            class="input-param flex-1"
                                             id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                             name="{{../this.field.name}}"
                                             type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"

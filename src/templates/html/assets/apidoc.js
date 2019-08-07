@@ -9,7 +9,9 @@ const HtmlDiff = (function () {
 const chapters = {{toJson this.chapters}};
 const config = {{toJson this.config}};
 const definitions = {{toJson this.definitions}};
+const families = {{toJson this.families}}
 const sections = {{toJson this.sections}};
+const versions = {{toJson this.versions}}
 
 {{> compile_body_form.js }}
 {{> compile_body_xml.js }}
@@ -77,6 +79,19 @@ window.onload = () => {
           Object.values(subgroup).map((name) => {
             Object.values(name).forEach((version) => {
               acc[version.id] = version;
+            });
+          });
+        });
+      });
+
+      return acc;
+    }, {}),
+    versions: Object.values(chapters).reduce((acc, chapter) => {
+      Object.values(chapter).forEach((group) => {
+        Object.values(group).forEach((subgroup) => {
+          Object.values(subgroup).forEach((name) => {
+            Object.values(name).forEach((version) => {
+              acc[version.version] = [version.familyId].concat(acc[version.version] || []);
             });
           });
         });

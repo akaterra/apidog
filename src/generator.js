@@ -51,6 +51,19 @@ function generate(blocks, template, config, hbs) {
     config: config || {},
     definitions,
     description: config && config.description || 'No description',
+    families: Object.values(chapters).reduce((acc, chapter) => {
+      Object.values(chapter).forEach((group) => {
+        Object.values(group).forEach((subgroup) => {
+          Object.values(subgroup).forEach((name) => {
+            Object.values(name).forEach((version) => {
+              acc[version.familyId] = [version.version].concat(acc[version.familyId] || []);
+            });
+          });
+        });
+      });
+
+      return acc;
+    }, {}),
     keywords: config && config.keywords || [],
     sections: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
@@ -58,6 +71,19 @@ function generate(blocks, template, config, hbs) {
           Object.values(subgroup).forEach((name) => {
             Object.values(name).forEach((version) => {
               acc[version.id] = version;
+            });
+          });
+        });
+      });
+
+      return acc;
+    }, {}),
+    versions: Object.values(chapters).reduce((acc, chapter) => {
+      Object.values(chapter).forEach((group) => {
+        Object.values(group).forEach((subgroup) => {
+          Object.values(subgroup).forEach((name) => {
+            Object.values(name).forEach((version) => {
+              acc[version.version] = [version.familyId].concat(acc[version.version] || []);
             });
           });
         });

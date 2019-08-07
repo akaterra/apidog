@@ -223,7 +223,7 @@ Format:
 ```
 
 Defines to which subgroup the doc block belongs.
-The subgroup will be shown as menu sub navigation section.
+The subgroup will be shown as a sub navigation section of the menu.
 
 ### Embedded templates
 

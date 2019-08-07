@@ -28,10 +28,10 @@ const cls = {
     el.forEach((el) => {
       if (typeof el === 'string') {
         el = by.selector(el)[0];
+      }
 
-        if (!el) {
-          return;
-        }
+      if (!el) {
+        return;
       }
 
       const className = el.className.split(' ');
@@ -58,10 +58,10 @@ const cls = {
     el.forEach((el) => {
       if (typeof el === 'string') {
         el = by.selector(el)[0];
+      }
 
-        if (!el) {
-          return;
-        }
+      if (!el) {
+        return;
       }
 
       const className = el.className.split(' ');

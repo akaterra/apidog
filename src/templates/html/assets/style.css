@@ -151,7 +151,15 @@ ins.diffmod, .diffins {
 }
 
 .width-40 {
-  width: 40%;
+    width: 40%;
+}
+
+.width-50 {
+    width: 50%;
+}
+
+.width-60 {
+    width: 60%;
 }
 
 .width-70 {
@@ -354,7 +362,7 @@ ins.diffmod, .diffins {
 .input {
     background-color: #fcfcfc;
     border: 1px solid #e0e0e0;
-    font: 1rem monospace;
+    font-size: 0.75rem;
     height: 1.5rem;
     padding: 0 0.5rem;
 }
@@ -365,6 +373,14 @@ ins.diffmod, .diffins {
     height: 1.5rem;
     padding: 0.25rem 0.5rem;
     text-align: right;
+}
+
+.input-param {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    font: 1rem monospace;
+    height: 1.5rem;
+    padding: 0 0.5rem;
 }
 
 .input-placeholder {
