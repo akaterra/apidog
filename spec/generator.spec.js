@@ -154,7 +154,7 @@ describe('generate sections', () => {
     });
   });
 
-  fit('should generate sections filling default version', () => {
+  it('should generate sections filling default version', () => {
     const blocks = [
       {
         api: {

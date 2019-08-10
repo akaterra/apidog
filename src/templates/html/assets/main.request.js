@@ -103,7 +103,7 @@ const request = (function () {
       }
     });
 
-    // insert rest of data as query parameters in case of http "get" method
+    // insert rest of data as query parameters in case of http GET method
     if (method === 'GET') {
       if (url.indexOf('?') === - 1) {
         url += '?';
@@ -116,7 +116,7 @@ const request = (function () {
       }
     }
 
-    // prepare body based on content type in case of not http "get" method
+    // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
       if (data) {
         switch (contentType) {

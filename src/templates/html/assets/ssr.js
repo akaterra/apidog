@@ -66,6 +66,8 @@ const ssr = (function () {
         switch (blockDescriptor.api.transport.name) {
           case 'http':
           case 'https':
+          case 'nats':
+          case 'natsrpc':
           case 'rabbitmq':
           case 'rabbitmqrpc':
             hideResponse(el);
@@ -134,6 +136,12 @@ const ssr = (function () {
 
               showResponse(el, text);
             });
+
+            break;
+
+          case 'nats':
+          case 'natsrpc':
+            showResponse(el, 'ApiDog proxy must be used for NATS requests');
 
             break;
 

@@ -107,7 +107,23 @@
  * </xml>
  */
 
-// RabbitMQ chapter
+// Nats chapter
+
+/**
+ * @api {nats} publish Publish
+ * @apiChapter Nats
+ * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+/**
+ * @api {natsrpc} rpc RPC
+ * @apiChapter Nats
+ * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+ // RabbitMQ chapter
 
 /**
  * @api {rabbitmq} publish Publish
@@ -118,6 +134,7 @@
 /**
  * @api {rabbitmqRpc} rpc RPC
  * @apiChapter RabbitMQ
+ * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -126,5 +143,6 @@
 /**
  * @api {websocket} publish Publish
  * @apiChapter WebSocket
+ * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */

@@ -4,9 +4,9 @@ const https = require('https');
 const qs = require('qs');
 const URL = require('url').URL;
 
-function createApp(env) {
+async function createAppHttp(env) {
   const express = require('express');
-  const config = env && env.config || require('./apidog_proxy_config.js');
+  const config = await getConfig(env);
   const app = env.expressConstructor ? env.expressConstructor() : express();
 
   app.use((req, res, next) => {
@@ -117,11 +117,15 @@ function createApp(env) {
     res.header('Access-Control-Allow-Origin', '*');
 
     try {
+      let transport = req.params.transport.toLowerCase();
+      let transportConfig;
       let response;
 
-      switch (req.params.transport.toLowerCase()) {
+      switch (transport) {
         case 'http':
         case 'https':
+          transportConfig = config[transport] || config['http'] || {};
+
           delete req.headers.host;
 
           const url = new URL(req.params['0']);
@@ -129,7 +133,7 @@ function createApp(env) {
           const options = {
             port: url.port,
             headers: ['Content-Length', 'Content-Type']
-              .concat(config.http && config.http.allowHeaders || [])
+              .concat(transportConfig.allowHeaders || [])
               .reduce((acc, key) => {
                 if (req.header(key)) {
                   acc[key] = req.header(key);
@@ -159,7 +163,7 @@ function createApp(env) {
           });
 
           proxyReq.on('error', (err) => {
-            res.status(503).jsonp({'error': 'Service unavailable'});
+            res.status(503).jsonp("Service unavailable");
           });
 
           proxyReq.write(req.rawBody);
@@ -167,8 +171,61 @@ function createApp(env) {
 
           break;
 
+        case 'nats':
+          transportConfig = config['nats'] || {};
+
+          response = await natsSend(
+            transportConfig,
+            req.params['0'],
+            req.rawBody,
+            ['Content-Length', 'Content-Type']
+              .concat(config.amqp && config.amqp.allowHeaders || [])
+              .reduce((acc, key) => {
+                acc[key] = req.header(key);
+
+                return acc;
+              }, {}),
+            req.query
+          );
+
+          for (const [key, val] of Object.entries(response.headers)) {
+            res.setHeader(key, val);
+          }
+
+          res.status(200).send(response.body);
+
+          break;
+
+        case 'natsrpc':
+            transportConfig = config['natsrpc'] || config['nats'] || {};
+  
+            response = await natsSendRpc(
+              transportConfig,
+              req.params['0'],
+              req.rawBody,
+              ['Content-Length', 'Content-Type']
+                .concat(config.amqp && config.amqp.allowHeaders || [])
+                .reduce((acc, key) => {
+                  acc[key] = req.header(key);
+  
+                  return acc;
+                }, {}),
+              req.query
+            );
+  
+            for (const [key, val] of Object.entries(response.headers)) {
+              res.setHeader(key, val);
+            }
+  
+            res.status(200).send(response.body);
+  
+            break;
+
         case 'rabbitmq':
-          response = await amqpSend(
+          transportConfig = config['rabbitmq'] || {};
+
+          response = await rabbitmqSend(
+            transportConfig,
             req.params['0'],
             req.rawBody,
             ['Content-Length', 'Content-Type']
@@ -190,7 +247,10 @@ function createApp(env) {
           break;
 
         case 'rabbitmqrpc':
-          response = await amqpRpcSend(
+          transportConfig = config['rabbitmqrpc'] || config['rabbitmq'] || {};
+
+          response = await getRabbitmqRpcDriver(transportConfig.drivers && transportConfig.drivers.rpc || 'amqplibRpc')(
+            transportConfig,
             req.params['0'],
             req.rawBody,
             ['Content-Length', 'Content-Type']
@@ -212,7 +272,7 @@ function createApp(env) {
           break;
 
         default:
-          res.status(400).send('Unknown transport');
+          res.status(400).send(`Unknown transport "${req.params.transport.toLowerCase()}"`);
       }
     } catch (err) {
       console.error(err);
@@ -221,18 +281,83 @@ function createApp(env) {
     }
   });
 
-  let amqpConnections = {};
-  let amqpChannels = {};
+  // NATS
 
-  async function getAmqpConnection(uri) {
+  const natsConnections = {};
+
+  async function getNatsConnection(transportConfig, uri) {
+    if (uri.substr(0, 7) !== 'nats://') {
+      uri = `nats://default`;
+    }
+
+    uri = new URL(uri);
+
+    if (transportConfig[uri.hostname]) {
+      const configEntry = new URL(transportConfig[uri.hostname]);
+
+      uri.hostname = configEntry.hostname;
+      // uri.pathname = configEntry.pathname;
+      uri.port = configEntry.port;
+      uri.password = configEntry.password;
+      uri.username = configEntry.username;
+    }
+
+    uri.pathname = '';
+
+    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+    if (!natsConnections[key]) {
+      natsConnections[key] = await (env && env.nats || require('nats')).connect(uri.toString());
+    }
+
+    return natsConnections[key];
+  }
+
+  async function natsSend(config, queue, data, headers, opts) {
+    const natsConnection = await getNatsConnection(config, queue);
+    const q = queue.substr(queue.lastIndexOf('/') + 1);
+    natsConnection.publish(q, data);
+
+    return {
+      body: `Message has been sent to Nats "${queue}" queue by apiDog proxy`,
+      headers: {},
+    };
+  }
+
+  async function natsSendRpc(config, queue, data, headers, opts) {
+    const natsConnection = await getNatsConnection(config, queue);
+    const q = queue.substr(queue.lastIndexOf('/') + 1);
+
+    return new Promise((resolve, reject) => natsConnection.requestOne(q, data, {}, config.timeout || 60000, (res) => {
+      res instanceof Error
+        ? reject(res)
+        : resolve({body: res, headers: {}});
+    }));
+  }
+
+  // AMQP
+
+  const amqpConnections = {};
+  const amqpChannels = {};
+
+  function getRabbitmqRpcDriver(name) {
+    switch (name) {
+      case 'amqplibRpc':
+        return rabbitmqSendRpcViaAmqplibRpcDriver;
+    }
+
+    throw new Error(`Unknown RabbitMQ RPC driver "${name}"`);
+  }
+
+  async function getAmqpConnection(transportConfig, uri) {
     if (uri.substr(0, 7) !== 'amqp://') {
       uri = `amqp://default`;
     }
 
     uri = new URL(uri);
 
-    if (config.amqp && config.amqp[uri.hostname]) {
-      const configEntry = new URL(config.amqp[uri.hostname]);
+    if (transportConfig[uri.hostname]) {
+      const configEntry = new URL(transportConfig[uri.hostname]);
 
       uri.hostname = configEntry.hostname;
       uri.pathname = configEntry.pathname;
@@ -252,15 +377,15 @@ function createApp(env) {
     return amqpConnections[key];
   }
 
-  async function getAmqpChannel(uri) {
+  async function getAmqpChannel(transportConfig, uri) {
     if (uri.substr(0, 7) !== 'amqp://') {
       uri = `amqp://default`;
     }
 
     uri = new URL(uri);
 
-    if (config.amqp && config.amqp[uri.hostname]) {
-      const configEntry = new URL(config.amqp[uri.hostname]);
+    if (transportConfig[uri.hostname]) {
+      const configEntry = new URL(transportConfig[uri.hostname]);
 
       uri.hostname = configEntry.hostname;
       uri.pathname = configEntry.pathname;
@@ -273,30 +398,32 @@ function createApp(env) {
 
     const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
 
-    const connection = await getAmqpConnection(uri.toString());
+    const connection = await getAmqpConnection(transportConfig, uri.toString());
 
     amqpChannels[key] = await connection.createChannel();
 
     return amqpChannels[key];
   }
 
-  async function amqpSend(queue, data, headers, opts) {
-    const amqpChannel = await getAmqpChannel(queue);
-    const amqpQueue = await amqpChannel.assertQueue(queue.substr(queue.lastIndexOf('/') + 1));
-    const status = await amqpChannel.sendToQueue(queue.substr(queue.lastIndexOf('/') + 1), Buffer.from(data), {
+  async function rabbitmqSend(transportConfig, queue, data, headers, opts) {
+    const amqpChannel = await getAmqpChannel(transportConfig, queue);
+    const q = queue.substr(queue.lastIndexOf('/') + 1);
+    const amqpQueue = await amqpChannel.assertQueue(q);
+    const status = await amqpChannel.sendToQueue(q, Buffer.from(data), {
       headers: headers || {}, ...opts
     });
 
     return {
-      body: `Message has been sent to "${queue}" queue by apiDog proxy`,
+      body: `Message has been sent to RabbitMQ "${queue}" queue by apiDog proxy`,
       headers: {},
     };
   }
 
-  async function amqpRpcSend(queue, data, headers, opts) {
-    const amqpConnection = await getAmqpConnection(queue);
+  async function rabbitmqSendRpcViaAmqplibRpcDriver(transportConfig, queue, data, headers, opts) {
+    const amqpConnection = await getAmqpConnection(transportConfig, queue);
+    const q = queue.substr(queue.lastIndexOf('/') + 1);
     const req = (env && env.amqplibRpc || require('amqplib-rpc')).request;
-    const res = await req(amqpConnection, queue.substr(queue.lastIndexOf('/') + 1), data, {
+    const res = await req(amqpConnection, q, data, {
       sendOpts: { contentType: headers['Content-Type'], headers: headers || {}, ...opts },
     });
 
@@ -309,9 +436,9 @@ function createApp(env) {
   return app;
 }
 
-function createAppWebSocket(env) {
+async function createAppWebSocket(env) {
   const WebSocket = require('ws');
-  const config = env && env.config || require('./apidog_proxy_config.js');
+  const config = await getConfig(env);
 
   return {
     listen: (port, fn) => {
@@ -389,23 +516,29 @@ function createAppWebSocket(env) {
   };
 }
 
+async function getConfig(env) {
+  const config = env && env.config || require('./apidog_proxy.config.js');
+
+  if (typeof config === 'function') {
+    config = await config();
+  }
+
+  return config;
+}
+
 (async () => {
   if (process.env.NODE_ENV !== 'test') {
-    let config = require('./apidog_proxy_config.js');
+    const config = await getConfig();
 
-    if (typeof config === 'function') {
-      config = await config();
-    }
-
-    if (config.webSocket && config.webSocket.allow) {
-      createAppWebSocket({}).listen(
-        config.webSocket.proxyPort || 8089,
-        () => console.log(`ApiDog WebSocket proxy started on ${config.webSocket.proxyPort || 8089}`)
+    if (config.websocket && config.websocket.allow) {
+      (await createAppWebSocket({})).listen(
+        config.websocket.proxyPort || 8089,
+        () => console.log(`ApiDog WebSocket proxy started on ${config.websocket.proxyPort || 8089}`)
       );
     }
 
-    if (config.http && config.http.allow) {
-      createApp({}).listen(
+    if ((config.http && config.http.allow) || (config.https && config.https.allow)) {
+      (await createAppHttp({})).listen(
         config.http.proxyPort || 8088,
         () => console.log(`ApiDog HTTP proxy started on ${config.http.proxyPort || 8088}`)
       );
@@ -414,6 +547,6 @@ function createAppWebSocket(env) {
 })();
 
 module.exports = {
-  createApp,
+  createAppHttp,
   createAppWebSocket,
 };

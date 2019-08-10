@@ -73,6 +73,24 @@ describe('parser for @api token by parseBlockLines', () => {
     })
   });
 
+  it('should parse for nats rpc transport with exchange', () => {
+    const lines = [
+      '@api {natsrpc} url This is a title',
+    ];
+
+    const block = parser.parseBlockLines(lines);
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      api: {
+        endpoint: 'url',
+        title: 'This is a title',
+        transport: {name: 'natsrpc'},
+      },
+      title: 'This is a title',
+      validate: block.validate,
+    })
+  });
+
   it('should raise error on malformed', () => {
     const lines = [
       '@api',

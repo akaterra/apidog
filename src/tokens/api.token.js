@@ -58,6 +58,11 @@ function parse(block, text) {
 
       break;
 
+    case 'natsrpc':
+      blockApi.transport = { name: 'natsrpc' };
+    
+      break;
+
     case 'rabbitmq':
       blockApi.transport = { name: 'rabbitmq', exchange: transportTokens[1] };
 
