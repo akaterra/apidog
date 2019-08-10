@@ -212,7 +212,7 @@ if (!template.templateProcessor) {
 }
 
 if (args.withSampleRequestProxy) {
-  for (const file of ['apidog_proxy.js', 'apidog_proxy_config.js', 'package.json']) {
+  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
     if (!fs.existsSync(`${outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }
