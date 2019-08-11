@@ -1,4 +1,4 @@
-const parser = require('../src/parser');
+const parser = require('../src/parser.dir');
 
 describe('parse by parseJavaDocStyle', () => {
   it('should parse', () => {

@@ -1,4 +1,4 @@
-const parser = require('../src/parser');
+const parser = require('../src/parser.block_lines');
 
 describe('parser for @apiHeader token by parseBlockLines', () => {
   it('should parse multiple headers', () => {

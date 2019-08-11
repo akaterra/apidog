@@ -1,4 +1,4 @@
-const parser = require('../src/parser');
+const parser = require('../src/parser.block_lines');
 
 describe('parser for @apiSuccess token by parseBlockLines', () => {
   it('should parse multiple errors', () => {

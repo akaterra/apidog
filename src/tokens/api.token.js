@@ -96,6 +96,35 @@ function parse(block, text) {
 function blockValidate(block, config) {
   switch (block.api.transport.name) {
     case 'nats':
+    case 'natsrpc':
+      if (!block.sampleRequestProxy) {
+        block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
+      }
+
+      if (block.sampleRequest) {
+        if (config.sampleRequestProxyNats || config.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
+        }
+
+        if (!block.sampleRequestProxy) {
+          throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        }
+
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          if (typeof sampleRequest === 'string') {
+            return sampleRequest;
+          }
+
+          if (sampleRequest === true) {
+            return block.api.endpoint;
+          }
+
+          return false;
+        });
+      }
+
+      break;
+
     case 'rabbitmq':
     case 'rabbitmqrpc':
       if (!block.sampleRequestProxy) {

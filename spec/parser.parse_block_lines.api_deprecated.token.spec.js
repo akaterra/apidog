@@ -1,4 +1,4 @@
-const parser = require('../src/parser');
+const parser = require('../src/parser.block_lines');
 
 describe('parser for @apiDeprecated token by parseBlockLines', () => {
   it('should parse', () => {

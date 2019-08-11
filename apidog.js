@@ -1,11 +1,12 @@
 const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
 const generate = require('./src/generator');
-const parse = require('./src/parser');
+const parseDir = require('./src/parser.dir');
+const parseSwagger = require('./src/parser.swagger');
 
 const argumentParser = new ArgumentParser({
   addHelp: true,
-  description: 'ApiDog - API documentation generator',
+  description: 'apiDog - API documentation generator',
   version: JSON.parse(fs.readFileSync(`${__dirname}/package.json`)).version,
 });
 
@@ -34,6 +35,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--parser' ],
+  {
+    help: 'sets parser to be used to parse doc sources',
+  },
+);
+argumentParser.addArgument(
   [ '-s', '--sampleRequestUrl', '--sampleUrl' ],
   {
     help: 'base url that will be used as a prefix for all relative api paths in sample requests',
@@ -42,25 +49,31 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--sampleRequestProxy' ],
   {
-    help: 'url of ApiDog proxy to be used for requests',
+    help: 'url of apiDog proxy to be used for requests',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:http' ],
   {
-    help: 'url of ApiDog HTTP proxy to be used for requests',
+    help: 'url of apiDog HTTP/HTTPS proxy to be used for requests',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:nats' ],
+  {
+    help: 'url of apiDog Nats proxy to be used for requests',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmq' ],
   {
-    help: 'url of ApiDog RabbitMQ proxy to be used for requests',
+    help: 'url of apiDog RabbitMQ proxy to be used for requests',
   },
 );
 argumentParser.addArgument(
-  [ '--sampleRequestProxy:ws' ],
+  [ '--sampleRequestProxy:ws', '--sampleRequestProxy:websocket' ],
   {
-    help: 'url of ApiDog WebSocket proxy to be used for requests',
+    help: 'url of apiDog WebSocket proxy to be used for requests',
   },
 );
 argumentParser.addArgument(
@@ -78,13 +91,13 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSrp', '--withSampleRequestProxy' ],
   {
-    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy_config.js and package.json in the output directory',
+    help: 'creates (not rewrites existing) also apiDog_proxy.js, apiDog_proxy_config.js and package.json in the output directory',
   },
 );
 
 const args = argumentParser.parseArgs();
-
 const argsPrivate = args.p || args.private;
+const argsParser = args.parser && args.parser.toLowerCase() || 'dir';
 
 function loadConfig(dir) {
   let configApidoc = {};
@@ -174,12 +187,31 @@ function loadTemplate(path, hbs) {
   };
 }
 
+let docBlocks;
+
+switch (argsParser) {
+  case 'dir':
+    docBlocks = parseDir.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input));
+    args.i = parseDir.normalizeDir(args.i || args.input);
+
+    break;
+
+  case 'swagger':
+    docBlocks = parseSwagger.parseSwaggerFile(args.i || args.input);
+    args.i = parseSwagger.normalizeDir(args.i || args.input);
+
+    break;
+
+  default:
+    throw new Error(`Unknown doc blocks parser "${argsParser}"`);
+}
+
 const config = loadConfig(args.i || args.input);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 const outputDir = args.o || args.output || args.i || args.input;
 const content = generate.generate(
-  parse.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input)),
+  docBlocks,
   template.template,
   {
     author: config.author,
@@ -189,8 +221,12 @@ const content = generate.generate(
     private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
     sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
+    sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
     sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
-    sampleRequestProxyWs: args['sampleRequestProxy:ws'] || config['sampleRequestProxy:ws'],
+    sampleRequestProxyWs: args['sampleRequestProxy:ws']
+      || args['sampleRequestProxy:websocket']
+      || config['sampleRequestProxy:ws']
+      || config['sampleRequestProxy:websocket'],
     sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
     title: args.title || config.title,
     templateProcessor: template.templateProcessor && template.templateProcessor(outputDir),
@@ -200,7 +236,7 @@ const content = generate.generate(
       },
       https: {
         sampleRequestUrl: null,
-      }
+      },
     },
     version: config.version,
   },
@@ -212,7 +248,7 @@ if (!template.templateProcessor) {
 }
 
 if (args.withSampleRequestProxy) {
-  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
+  for (const file of ['apiDog_proxy.js', 'apiDog_proxy.config.js', 'package.json']) {
     if (!fs.existsSync(`${outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
     }

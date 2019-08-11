@@ -1,4 +1,4 @@
-const parser = require('../src/parser');
+const parser = require('../src/parser.dir');
 
 describe('parse by parseRuby', () => {
   it('should parse', () => {
