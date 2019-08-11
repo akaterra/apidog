@@ -6,6 +6,7 @@ src/templates/config.js
 dist/
 examples/*
 !examples/apidoc.json
+!examples/swagger.json
 !examples/test.js
 ignore*
 coverage/
