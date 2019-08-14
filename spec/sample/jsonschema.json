@@ -65,5 +65,14 @@
       "type": "string",
       "enum": ["a", "b", "c"]
     }
+  },
+  "definitions": {
+    "test": {
+      "properties": {
+        "x": {
+          "type": "string"
+        }
+      }
+    }
   }
 }

@@ -1,9 +1,9 @@
 const parser = require('../src/parser.block_lines');
 
 describe('parser for @apiSchema token by parseBlockLines', () => {
-  it('should parse', () => {
+  it('should parse JSON Schema', () => {
     const lines = [
-      '@apiSchema (group) {./spec/sample/jsonschema.json} @apiParam',
+      '@apiSchema (group) {jsonschema=./spec/sample/jsonschema.json} @apiParam',
     ];
 
     parser.parseBlockLines(lines);
@@ -28,11 +28,32 @@ describe('parser for @apiSchema token by parseBlockLines', () => {
     ]);
   });
 
-  // it('should raise error on malformed definition', () => {
-  //   const lines = [
-  //     '@apiUse',
-  //   ];
-  //
-  //   expect(() => parser.parseBlockLines(lines)).toThrow();
-  // });
+  it('should parse JSON Schema by internal path', () => {
+    const lines = [
+      '@apiSchema (group) {jsonschema=./spec/sample/jsonschema.json#definitions.test} @apiParam',
+    ];
+
+    parser.parseBlockLines(lines);
+
+    expect(lines).toEqual([
+      '',
+      '@apiParam (group) {String} [x]',
+    ]);
+  });
+
+  it('should raise error on unknown schema type', () => {
+    const lines = [
+      '@apiSchema (group) {unknown=unknown} @apiParam',
+    ];
+
+    expect(() => parser.parseBlockLines(lines)).toThrow();
+  });
+
+  it('should raise error on malformed definition', () => {
+    const lines = [
+      '@apiSchema',
+    ];
+
+    expect(() => parser.parseBlockLines(lines)).toThrow();
+  });
 });

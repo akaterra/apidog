@@ -1,9 +1,10 @@
 /**
- * @apiSchema [(group)] {jsonschema=./jsonschema.json} target
+ * @apiSchema [(group)] {jsonschema=./jsonschema.json[#internal.path]} target
  */
 
 const fs = require('fs');
-const utils = require('../utils');
+const parserJsonschemaUtils = require('../parser.jsonschema.utils');
+const parserSwaggerUtils = require('../parser.swagger.utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}\s+(.+)/;
 
@@ -14,87 +15,44 @@ function parse(block, text, line, index, lines) {
     throw new Error('@apiSchema malformed');
   }
 
-  const jsonSchema = JSON.parse(fs.readFileSync(tokens[3]));
+  const schema = tokens[3].split('=', 2);
 
-  lines.splice(index, 1, ...[''].concat(buildBlockLinesByJsonSchema(
-    jsonSchema.properties,
-    jsonSchema.required,
-    tokens[2],
-    '',
-    [],
-    tokens[4]
-  )));
-
-  return block;
-}
-
-const jsonSchemaTypeToApiDocType = {
-  boolean: 'Boolean',
-  number: 'Number',
-  object: 'Object',
-  string: 'String',
-};
-
-function buildBlockLinesByJsonSchema(props, propsRequired, group, field, lines, param) {
-  const paramGroup = group ? `(${group}) ` : '';
-
-  Object.entries(props).forEach(([key, val]) => {
-    const paramDefault = val.default ? `=${quote(val.default)}` : '';
-    const paramEnum = val.enum ? `=${val.enum.map(quote).join(',')}` : '';
-    const paramKey = propsRequired && propsRequired.indexOf(key) !== - 1
-      ? `${field}${key}${paramDefault}`
-      : `[${field}${key}${paramDefault}]`;
-    const paramTitle = val.title ? ` ${val.title}` : '';
-
-    switch (val.type) {
-      case 'boolean':
-      case 'number':
-      case 'string':
-        lines.push(`${param} ${paramGroup}{${jsonSchemaTypeToApiDocType[val.type]}${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          lines.push(val.description);
-        }
-
-        break;
-
-      case 'array':
-        lines.push(`${param} ${paramGroup}{${jsonSchemaTypeToApiDocType[val.item.type]}[]${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          lines.push(val.description);
-        }
-
-        if (val.item.properties) {
-          buildBlockLinesByJsonSchema(val.item.properties, val.item.required, group, `${field}${key}[].`, lines, param);
-        }
-
-        break;
-
-      case 'object':
-        lines.push(`${param} ${paramGroup}{${jsonSchemaTypeToApiDocType[val.type]}${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          lines.push(val.description);
-        }
-
-        if (val.properties) {
-          buildBlockLinesByJsonSchema(val.properties, val.required, group, `${field}${key}.`, lines, param);
-        }
-
-        break;
-    }
-  });
-
-  return lines;
-}
-
-function quote(val) {
-  if (typeof val === 'string' && val.indexOf(' ') !== - 1) {
-    return `"${val.replace(/"/g, '\\"')}"`;
+  if (schema.length < 2) {
+    throw new Error('@apiSchema malformed');
   }
 
-  return val;
+  const [schemaFile, schemaPath] = schema[1].split('#', 2);
+
+  switch (schema[0].toLowerCase()) {
+    case 'jsonschema':
+      let jsonSchema = JSON.parse(fs.readFileSync(schemaFile));
+
+      if (schemaPath) {
+        for (const key of schemaPath.split('.')) {
+          if (jsonSchema && typeof jsonSchema === 'object' && key in jsonSchema) {
+            jsonSchema = jsonSchema[key];
+          } else {
+            throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" path not exists`);
+          }
+        }
+      }
+
+      if (!jsonSchema || typeof jsonSchema !== 'object') {
+
+      }
+
+      lines.splice(index, 1, ...[''].concat(parserJsonschemaUtils.convert(
+        jsonSchema,
+        tokens[2],
+        tokens[4]
+      )));
+
+      return block;
+
+    case 'swaggermodel':
+    default:
+      throw new Error(`Unknown schema type "${schema[0]}"`)
+  }
 }
 
 module.exports = {
