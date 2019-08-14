@@ -9,6 +9,10 @@ function convert(spec) {
     throwError();
   }
 
+  if (spec.apiVersion && typeof spec.apiVersion !== 'string') {
+    throwError();
+  }
+
   for (const api of spec.apis) {
     if (!api || typeof api !== 'object') {
       throwError();
@@ -29,6 +33,10 @@ function convert(spec) {
         throwError();
       }
 
+      if (operation.nickname && typeof operation.nickname !== 'string') {
+        throwError();
+      }
+
       if (typeof operation.notes !== 'string') {
         throwError();
       }
@@ -43,11 +51,19 @@ function convert(spec) {
 
       let apiUri = api.path.replace(/\{(\w+)}/g, (_, param) => `:${param}`);
 
-      // if (apiUri.lastIndexOf('?') === -1) {
-      //   apiUri += '?';
-      // }
-      //
       docBlock.push(`@api {${operation.method.toLowerCase()}} ${apiUri} ${operation.summary || ''}`);
+
+      if (spec.apiVersion) {
+        docBlock.push(`@apiVersion ${spec.apiVersion}`);
+      }
+
+      if (operation.deprecated) {
+        docBlock.push(`@apiDeprecated`);
+      }
+
+      if (operation.nickname) {
+        docBlock.push(`@apiName ${operation.nickname}`);
+      }
 
       if (operation.notes) {
         docBlock.push(`@apiDescription ${operation.notes}`);

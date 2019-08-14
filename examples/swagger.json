@@ -1,27 +1,27 @@
 {
   "apiVersion": "1.0.0",
   "swaggerVersion": "1.2",
-  "basePath": "http://petstore.swagger.wordnik.com/api",
-  "resourcePath": "/store",
+  "basePath": "http://test/api",
+  "resourcePath": "/resource",
   "produces": [
     "application/json"
   ],
   "authorizations": {},
   "apis": [
     {
-      "path": "/store/order/{orderId}",
+      "path": "/resource/{resourceId}/deprecated",
       "operations": [
         {
           "method": "GET",
-          "summary": "Find purchase order by ID",
-          "notes": "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors",
-          "type": "Order",
-          "nickname": "getOrderById",
+          "summary": "Find resource by id",
+          "notes": "Find resource by id description",
+          "type": "Resource",
+          "nickname": "getResourceById",
           "authorizations": {},
           "parameters": [
             {
-              "name": "orderId",
-              "description": "ID of pet that needs to be fetched",
+              "name": "resourceId",
+              "description": "id of resource",
               "required": true,
               "type": "string",
               "paramType": "path"
@@ -30,20 +30,53 @@
           "responseMessages": [
             {
               "code": 400,
-              "message": "Invalid ID supplied"
+              "message": "Invalid id supplied"
             },
             {
               "code": 404,
-              "message": "Order not found"
+              "message": "Resource not found"
+            }
+          ],
+          "deprecated": true
+        }
+      ]
+    },
+    {
+      "path": "/resource/{resourceId}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Find resource by id",
+          "notes": "Find resource by id description",
+          "type": "Resource",
+          "nickname": "getResourceById",
+          "authorizations": {},
+          "parameters": [
+            {
+              "name": "resourceId",
+              "description": "id of resource",
+              "required": true,
+              "type": "string",
+              "paramType": "path"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid id supplied"
+            },
+            {
+              "code": 404,
+              "message": "Resource not found"
             }
           ]
         },
         {
           "method": "DELETE",
-          "summary": "Delete purchase order by ID",
-          "notes": "For valid response try integer IDs with value < 1000.  Anything above 1000 or nonintegers will generate API errors",
+          "summary": "Delete resource by id",
+          "notes": "Delete resource by id description",
           "type": "void",
-          "nickname": "deleteOrder",
+          "nickname": "deleteResource",
           "authorizations": {
             "oauth2": [
               {
@@ -54,8 +87,8 @@
           },
           "parameters": [
             {
-              "name": "orderId",
-              "description": "ID of the order that needs to be deleted",
+              "name": "resourceId",
+              "description": "id of resource",
               "required": true,
               "type": "string",
               "paramType": "path"
@@ -64,25 +97,25 @@
           "responseMessages": [
             {
               "code": 400,
-              "message": "Invalid ID supplied"
+              "message": "Invalid id supplied"
             },
             {
               "code": 404,
-              "message": "Order not found"
+              "message": "Resource not found"
             }
           ]
         }
       ]
     },
     {
-      "path": "/store/order",
+      "path": "/resource",
       "operations": [
         {
           "method": "POST",
-          "summary": "Place an order for a pet",
+          "summary": "Create resource",
           "notes": "",
           "type": "void",
-          "nickname": "placeOrder",
+          "nickname": "createResource",
           "authorizations": {
             "oauth2": [
               {
@@ -94,16 +127,16 @@
           "parameters": [
             {
               "name": "body",
-              "description": "order placed for purchasing the pet",
+              "description": "Resource data",
               "required": true,
-              "type": "Order",
+              "type": "Resource",
               "paramType": "body"
             }
           ],
           "responseMessages": [
             {
               "code": 400,
-              "message": "Invalid order"
+              "message": "Invalid resource"
             }
           ]
         }
@@ -111,31 +144,31 @@
     }
   ],
   "models": {
-    "Order": {
-      "id": "Order",
+    "Resource": {
+      "id": "Resource",
       "properties": {
         "id": {
           "type": "integer",
           "format": "int64"
         },
-        "petId": {
+        "field1": {
           "type": "integer",
           "format": "int64"
         },
-        "quantity": {
+        "field2": {
           "type": "integer",
           "format": "int32"
         },
-        "status": {
+        "field3": {
           "type": "string",
-          "description": "Order Status",
+          "description": "Resource status",
           "enum": [
-            "placed",
-            " approved",
-            " delivered"
+            "a",
+            " b",
+            " c"
           ]
         },
-        "shipDate": {
+        "field4": {
           "type": "string",
           "format": "date-time"
         }
