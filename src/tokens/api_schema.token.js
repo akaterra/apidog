@@ -25,7 +25,8 @@ function parse(block, text, line, index, lines) {
 
   switch (schema[0].toLowerCase()) {
     case 'jsonschema':
-      let jsonSchema = JSON.parse(fs.readFileSync(schemaFile));
+      let rootJsonSchema = JSON.parse(fs.readFileSync(schemaFile));
+      let jsonSchema = rootJsonSchema;
 
       if (schemaPath) {
         for (const key of schemaPath.split('.')) {
@@ -37,14 +38,11 @@ function parse(block, text, line, index, lines) {
         }
       }
 
-      if (!jsonSchema || typeof jsonSchema !== 'object') {
-
-      }
-
       lines.splice(index, 1, ...[''].concat(parserJsonschemaUtils.convert(
         jsonSchema,
         tokens[2],
-        tokens[4]
+        tokens[4],
+        rootJsonSchema
       )));
 
       return block;

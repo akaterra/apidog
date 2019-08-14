@@ -37,7 +37,7 @@ describe('parser for @apiSchema token by parseBlockLines', () => {
 
     expect(lines).toEqual([
       '',
-      '@apiParam (group) {String} [x]',
+      '@apiParam (group) {Number} [x] Title',
     ]);
   });
 

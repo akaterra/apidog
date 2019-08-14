@@ -19,7 +19,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '-i', '--input' ],
   {
-    help: 'input directory to be scanned for blocks',
+    action: 'append', help: 'input source(-es) to be scanned for doc blocks',
   },
 );
 argumentParser.addArgument(
@@ -31,13 +31,13 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '-p', '--private' ],
   {
-    help: 'filters blocks having all the private tags or entirely marked as private',
+    help: 'tags to filter doc blocks having all the private tags or entirely marked as private',
   },
 );
 argumentParser.addArgument(
   [ '--parser' ],
   {
-    help: 'sets parser to be used to parse doc sources',
+    help: 'parser to be used to parse doc blocks sources',
   },
 );
 argumentParser.addArgument(
@@ -91,13 +91,15 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSrp', '--withSampleRequestProxy' ],
   {
-    help: 'creates (not rewrites existing) also apiDog_proxy.js, apiDog_proxy_config.js and package.json in the output directory',
+    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy.config.js and package.json in the output directory',
   },
 );
 
 const args = argumentParser.parseArgs();
-const argsPrivate = args.p || args.private;
-const argsParser = args.parser && args.parser.toLowerCase() || 'dir';
+
+let argsInput = (args.i || args.input).length ? (args.i || args.input) : ['.'];
+let argsPrivate = args.p || args.private;
+let argsParser = args.parser && args.parser.toLowerCase() || 'dir';
 
 function loadConfig(dir) {
   let configApidoc = {};
@@ -187,18 +189,24 @@ function loadTemplate(path, hbs) {
   };
 }
 
-let docBlocks;
+let docBlocks = [];
 
 switch (argsParser) {
   case 'dir':
-    docBlocks = parseDir.parseDir(args.i || args.input, [], loadGitIgnore(args.i || args.input));
-    args.i = parseDir.normalizeDir(args.i || args.input);
+    for (const inp of argsInput) {
+      docBlocks = docBlocks.concat(parseDir.parseDir(inp, [], loadGitIgnore(inp)));
+    }
+
+    argsInput[0] = parseDir.normalizeDir(argsInput[0]);
 
     break;
 
   case 'swagger':
-    docBlocks = parseSwagger.parseSwaggerFile(args.i || args.input);
-    args.i = parseSwagger.normalizeDir(args.i || args.input);
+    for (const inp of argsInput) {
+      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(inp));
+    }
+
+    argsInput[0] = parseSwagger.normalizeDir(argsInput[0]);
 
     break;
 
@@ -206,10 +214,10 @@ switch (argsParser) {
     throw new Error(`Unknown doc blocks parser "${argsParser}"`);
 }
 
-const config = loadConfig(args.i || args.input);
+const config = loadConfig(argsInput[0]);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
-const outputDir = args.o || args.output || args.i || args.input;
+const outputDir = args.o || args.output || argsInput[0];
 const content = generate.generate(
   docBlocks,
   template.template,

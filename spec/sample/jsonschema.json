@@ -70,7 +70,8 @@
     "test": {
       "properties": {
         "x": {
-          "type": "string"
+          "$ref": "#/properties/a",
+          "type": "number"
         }
       }
     }

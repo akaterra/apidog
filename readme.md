@@ -65,15 +65,31 @@ Parameters:
 
   Default is \[ package.json in input directory \].description or null by default.
 
-* **-i, --input "input directory"** - input directory to be scanned for doc blocks
+* **-i, --input "input directory"** - input source(-es) to be scanned for doc blocks
 
-  Current directory by default.
+  Can be multiple. Default is current directory.
 
 * **-o, --output "output directory"** - output directory where **apidoc.html** and additional files will be saved
 
   Same as **input directory** by default.
 
-* **-p, --private \["tag1,tag2,.."\]** -- filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
+* **--parser "dir" | "swagger"** -- parser to be used to parse doc blocks sources
+
+  Default is "dir".
+
+  "dir" is used to scan the source files in the provided input directory for the doc blocks.
+
+  ```sh
+  apidog --parser dir
+  ```
+
+  "swagger" is used to parse the provided swagger specification file(s) as input source.
+
+  ```sh
+  apidog --parser swagger -i ./api-v1.swagger.json -i ./api-v2.swagger.json
+  ```
+
+* **-p, --private \["tag1,tag2,.."\]** -- tags to filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
 
   By default takes all the doc blocks.
 
@@ -85,13 +101,13 @@ Parameters:
 
 * **-t, --template** - alias of embedded template or directory where the custom template be load from
 
-  "@html" by default.
+  Default is "@html".
 
 * **--title** - custom title that will be used as title of the generated documentation
 
   Default is \[ package.json in input directory \].name, \[ config.json in input directory \].title or "Untitled" by default
 
-* **--withSrp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy_config.js** and **package.json** in the output directory
+* **--withSrp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy.config.js** and **package.json** in the output directory
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 

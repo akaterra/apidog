@@ -1,8 +1,8 @@
-function convert(spec, group, token) {
-  return resolveDefinition(spec, group, '', token, []);
+function convert(spec, group, token, rootSpec) {
+  return resolveDefinition(spec, group, '', token, [], rootSpec);
 }
 
-function resolveDefinition(spec, group, prefix, token, docBlock) {
+function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -11,12 +11,20 @@ function resolveDefinition(spec, group, prefix, token, docBlock) {
     prefix = '';
   }
 
+  if (!rootSpec) {
+    rootSpec = spec;
+  }
+
   if (!spec || typeof spec !== 'object') {
     throwError();
   }
 
+  if (spec.$ref) {
+    resolveRef(rootSpec, spec);
+  }
+
   if (!spec.properties || typeof spec.properties !== 'object') {
-    throwError();
+    return docBlock;
   }
 
   if (spec.required && !Array.isArray(spec.required)) {
@@ -28,16 +36,16 @@ function resolveDefinition(spec, group, prefix, token, docBlock) {
   const paramGroup = group ? `(${group}) ` : '';
 
   Object.entries(spec.properties).forEach(([key, val]) => {
+    if (val.$ref) {
+      resolveRef(rootSpec, val);
+    }
+
     const paramDefault = val.default ? `=${quote(val.default)}` : '';
     const paramEnum = val.enum ? `=${val.enum.map(quote).join(',')}` : '';
     const paramKey = required && required.indexOf(key) !== - 1
       ? `${prefix}${key}${paramDefault}`
       : `[${prefix}${key}${paramDefault}]`;
     const paramTitle = val.title ? ` ${val.title}` : '';
-
-    if (val.$ref) {
-      throwError(`"$ref" is not supported`);
-    }
 
     switch (val.type) {
       case 'boolean':
@@ -59,7 +67,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock) {
         }
 
         if (val.item.properties) {
-          resolveDefinition(val.item, group, `${prefix}${key}[].`, token, docBlock);
+          resolveDefinition(val.item, group, `${prefix}${key}[].`, token, docBlock, rootSpec);
         }
 
         break;
@@ -72,7 +80,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock) {
         }
 
         if (val.properties) {
-          resolveDefinition(val, group, `${prefix}${key}.`, token, docBlock);
+          resolveDefinition(val, group, `${prefix}${key}.`, token, docBlock, rootSpec);
         }
 
         break;
@@ -88,6 +96,38 @@ function quote(val) {
   }
 
   return val;
+}
+
+function resolveRef(spec, obj) {
+  if (obj.$ref) {
+    if (typeof obj.$ref !== 'string') {
+      throwError();
+    }
+
+    const [schemaName, schemaPath] = obj.$ref.split('#', 2);
+
+    if (schemaName) {
+      throwError(`"${schemaName}" external reference is not supported`);
+    }
+
+    let refObj = spec;
+
+    for (const key of schemaPath.split('/').slice(1)) {
+      if (refObj && typeof refObj === 'object' && key in refObj) {
+        refObj = refObj[key];
+      } else {
+        throwError(`"${schemaPath}" path not exists`);
+      }
+    }
+
+    delete obj.$ref;
+
+    if (refObj && typeof refObj === 'object') {
+      Object.assign(obj, Object.assign(resolveRef(spec, refObj), obj));
+    }
+  }
+
+  return obj;
 }
 
 function resolveType(type) {
