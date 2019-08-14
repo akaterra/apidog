@@ -2,59 +2,58 @@
  * Send sample request
  */
 const ssr = (function () {
-  function hideResponse(el) {
-    cls.add(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
-    by.selector('[data-block-ssr-response]>pre', el)[0].textContent = '';
-  }
-
-  function showResponse(el, text) {
-    cls.remove(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
-    by.selector('[data-block-ssr-response]>pre', el)[0].textContent = text;
-  }
-
-  function showWsConnect(el) {
-    cls.remove(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
-    cls.add(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
-  }
-
-  function showWsDisconnect(el) {
-    cls.add(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
-    cls.remove(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
-  }
-
   by.selector('[data-block]').forEach((el) => {
-    const blockId = el.dataset.block;
-
     const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
     if (!blockSsrSendEl) {
       return;
     }
 
+    const blockId = el.dataset.block;
+    const blockDescriptor = sections[blockId];
+
+    const requestOptions = {
+      http: {
+        options: blockDescriptor.option,
+      },
+      websocket: {
+        onConnect: () => api.showWsDisconnect(blockId),
+        onData: (ws, msg) => api.showResponse(blockId, msg),
+        onDisconnect: () => api.showWsConnect(blockId),
+        onError: (ws, err) => api.showErrorResponse(blockId, err),
+        options: blockDescriptor.option,
+      }
+    };
+
     on.click(blockSsrSendEl, () => {
-      const blockDescriptor = sections[el.dataset.block];
-      const contentType = by.selector('[data-block-content-type]', el)[0].value;
-      const endpoint = by.selector('[data-block-ssr-endpoint]', el)[0].value;
-      const headers = {};
-      const params = {};
-
-      by.selector('[data-block-ssr-input]', el).forEach((blockSsrInputEl) => {
-        switch (blockSsrInputEl.dataset.blockSsrInput) {
-          case 'header':
-            headers[blockSsrInputEl.name] = getValue(blockSsrInputEl);
-
-            break;
-
-          case 'param':
-            params[blockSsrInputEl.name] = getValue(blockSsrInputEl);
-
-            break;
-        }
-      });
+      const config = {};
+      const contentType = api.getContentType(blockId);
+      const endpoint = api.getEndpoint(blockId);
+      const headers = api.getHeaders(blockId);
+      const params = api.getParams(blockId);
 
       emitRequestPrepareParams(el, {headers, params});
 
       let {data, extra} = prepareBody(params, blockDescriptor.params);
+
+      if (extra) {
+        switch (extra.type) {
+          case 'file':
+            data = extra.value;
+
+            break;
+
+          case 'parametrizedBody':
+            data = extra.value;
+
+            break;
+
+          case 'rawBody':
+            data = extra.value;
+
+            break;
+        }
+      }
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
         for (const ssrHook of blockDescriptor.sampleRequestHooks) {
@@ -62,120 +61,86 @@ const ssr = (function () {
         }
       }
 
-      if (blockDescriptor.sampleRequestProxy) {
-        switch (blockDescriptor.api.transport.name) {
-          case 'http':
-          case 'https':
-          case 'nats':
-          case 'natsrpc':
-          case 'rabbitmq':
-          case 'rabbitmqrpc':
-            hideResponse(el);
+      let actualEndpoint;
+      let actualOptions;
 
-            request(
-              'http',
-              `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`,
-              blockDescriptor.api.transport.method || 'post',
-              data,
-              headers,
-              contentType,
-              {
-                options: blockDescriptor.option
-              }
-            ).then(({text}) => {
-              emitResponse(el, text, contentType);
+      switch (blockDescriptor.api.transport.name) {
+        case 'http':
+        case 'https':
+          api.showResponse(blockId, 'Waiting for response ...');
 
-              showResponse(el, text);
-            });
+          if (blockDescriptor.sampleRequestProxy) {
+            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
+          } else {
+            actualEndpoint = endpoint;
+          }
 
-            break;
+          actualOptions = requestOptions.http;
 
-          case 'websocket':
-          case 'ws':
-            // hideResponse(el);
+          break;
 
-            request(
-              'ws',
-              `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`,
-              'ws',
-              data,
-              headers,
-              contentType,
-              {
-                onConnect: () => showWsDisconnect(el),
-                onData: (ws, msg) => showResponse(el, msg),
-                onDisconnect: () => showWsConnect(el),
-                onError: (ws, err) => showResponse(el, err),
-                options: blockDescriptor.option
-              }
-            );
+        case 'nats':
+        case 'natsrpc':
+          api.showResponse(blockId, 'Waiting for response ...');
 
-            break;
+          if (blockDescriptor.sampleRequestProxy) {
+            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
+          } else {
+            return api.showErrorResponse(blockId, 'apiDog proxy must be used for Nats requests');
+          }
 
-          default:
-            showResponse(el, `Unknown transport: ${blockDescriptor.api.transport.name}`);
-        }
-      } else {
-        switch (blockDescriptor.api.transport.name) {
-          case 'http':
-          case 'https':
-            hideResponse(el);
+          actualOptions = requestOptions.http;
 
-            request(
-              'http',
-              endpoint,
-              blockDescriptor.api.transport.method || 'get',
-              data,
-              headers,
-              contentType,
-              {
-                options: blockDescriptor.option
-              }
-            ).then(({text}) => {
-              emitResponse(el, text, contentType);
+          break;
 
-              showResponse(el, text);
-            });
+        case 'rabbitmq':
+        case 'rabbitmqrpc':
+          api.showResponse(blockId, 'Waiting for response ...');
 
-            break;
+          if (blockDescriptor.sampleRequestProxy) {
+            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
+          } else {
+            return api.showErrorResponse(blockId, 'apiDog proxy must be used for RabbitMQ requests');
+          }
 
-          case 'nats':
-          case 'natsrpc':
-            showResponse(el, 'ApiDog proxy must be used for NATS requests');
+          actualOptions = requestOptions.http;
 
-            break;
+          break;
 
-          case 'rabbitmq':
-          case 'rabbitmqrpc':
-            showResponse(el, 'ApiDog proxy must be used for RabbitMQ requests');
+        case 'websocket':
+        case 'ws':
+          // api.hideResponses(blockId);
 
-            break;
+          if (blockDescriptor.sampleRequestProxy) {
+            actualEndpoint = `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`;
+          } else {
+            actualEndpoint = endpoint;
+          }
 
-          case 'websocket':
-          case 'ws':
-            // hideResponse(el);
+          actualOptions = requestOptions.websocket;
 
-            request(
-              'ws',
-              endpoint,
-              'ws',
-              data,
-              headers,
-              contentType,
-              {
-                onConnect: () => showWsDisconnect(el),
-                onData: (ws, msg) => showResponse(el, msg),
-                onDisconnect: () => showWsConnect(el),
-                onError: (ws, err) => showResponse(el, err),
-                options: blockDescriptor.option
-              }
-            );
+          break;
 
-            break;
+        default:
+          return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name}"`);
+      }
 
-          default:
-            showResponse(el, `Unknown transport: ${blockDescriptor.api.transport.name}`);
-        }
+      const response = request.requestWithFormattedBody(
+        'http',
+        `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`,
+        blockDescriptor.api.transport.method || 'post',
+        data,
+        headers,
+        contentType,
+        actualOptions
+      );
+
+      if (response instanceof Promise) {
+        response.then(({text}) => {
+          emitResponse(el, text, contentType);
+
+          api.showResponse(blockId, text);
+        });
       }
     });
 
@@ -186,10 +151,10 @@ const ssr = (function () {
         const endpoint = api.getEndpoint(blockId);
 
         request.ws.connect(endpoint, {
-          onConnect: () => showWsDisconnect(el),
-          onData: (ws, data) => showResponse(el, data),
-          onDisconnect: () => showWsConnect(el),
-          onError: (ws, err) => showResponse(el, err),
+          onConnect: () => api.showWsDisconnect(blockId),
+          onData: (ws, data) => api.showResponse(blockId, data),
+          onDisconnect: () => api.showWsConnect(blockId),
+          onError: (ws, err) => api.showResponse(blockId, err),
         });
       });
     }
@@ -201,7 +166,7 @@ const ssr = (function () {
         const endpoint = api.getEndpoint(blockId);
 
         request.ws.disconnect(endpoint);
-        showWsConnect(el);
+        api.showWsConnect(blockId);
       });
     }
   });
@@ -218,11 +183,34 @@ const ssr = (function () {
     return by.selector(`[data-block="${blockId}"]`)[0];
   }
 
+  function getBlockContentTypeEl(blockId) {
+    return by.selector(`[data-block="${blockId}"] [data-block-content-type]`)[0];
+  }
+  
   function getBlockSsrEndpointEl(blockId) {
     return by.selector(`[data-block="${blockId}"] [data-block-ssr-endpoint]`)[0];
   }
 
   const api = {
+    getContentType(blockId) {
+      const el = getBlockContentTypeEl(blockId);
+
+      if (el) {
+        return getValue(el);
+      }
+
+      return null;
+    },
+    setContentType(blockId, value) {
+      const el = getBlockContentTypeEl(blockId);
+
+      if (el) {
+        setValue(el, value);
+      }
+
+      return api;
+    },
+
     getEndpoint(blockId) {
       const el = getBlockSsrEndpointEl(blockId);
 
@@ -296,6 +284,70 @@ const ssr = (function () {
       return api;
     },
 
+    hideResponses(blockId) {
+      return api.hideErrorResponse(blockId).hideResponse(blockId);
+    },
+    hideErrorResponse(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.add(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
+        by.selector('[data-block-ssr-error-response]>pre', el)[0].textContent = '';
+      }
+
+      return api;
+    },
+    hideResponse(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.add(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
+        by.selector('[data-block-ssr-response]>pre', el)[0].textContent = '';
+      }
+
+      return api;
+    },
+    showErrorResponse(blockId, text) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.remove(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
+        by.selector('[data-block-ssr-error-response]>pre', el)[0].textContent = text;
+      }
+
+      return api.hideResponse(blockId);
+    },
+    showResponse(blockId, text) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.remove(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
+        by.selector('[data-block-ssr-response]>pre', el)[0].textContent = text;
+      }
+
+      return api.hideErrorResponse(blockId);
+    },
+    showWsConnect(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.remove(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
+        cls.add(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
+      }
+      
+      return api;
+    },
+    showWsDisconnect(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        cls.add(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
+        cls.remove(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
+      }
+
+      return api;
+    },
+    
     onRequestPrepareParams(cb) {
       ee.on('onSsrRequestPrepareParams', cb);
 

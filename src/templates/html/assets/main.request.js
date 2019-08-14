@@ -71,7 +71,15 @@ const request = (function () {
     }
   }
 
-  const request = function(transport, url, method, data, headers, contentType, config) {
+  function request(
+    transport,
+    url,
+    method,
+    data,
+    headers,
+    contentType,
+    config
+  ) {
     if (!method) {
       method = 'GET';
     } else {
@@ -88,57 +96,6 @@ const request = (function () {
 
     if (!config.options) {
       config.options = {};
-    }
-
-    // insert placeholders
-    url = url.replace(/:\w+/g, (key) => {
-      if (has(data, key.substr(1))) {
-        const value = get(data, key.substr(1));
-
-        del(data, key.substr(1));
-
-        return encodeURIComponent(value);
-      } else {
-        return key;
-      }
-    });
-
-    // insert rest of data as query parameters in case of http GET method
-    if (method === 'GET') {
-      if (url.indexOf('?') === - 1) {
-        url += '?';
-      } else if (url.slice(- 1) !== '&') {
-        url += '&';
-      }
-
-      if (data) {
-        url += compileBodyForm(data);
-      }
-    }
-
-    // prepare body based on content type in case of not http GET method
-    if (method !== 'GET') {
-      if (data) {
-        switch (contentType) {
-          case 'form':
-            data = compileBodyForm(data);
-            headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-            break;
-
-          case 'json':
-            data = JSON.stringify(data);
-            headers['Content-Type'] = 'application/json';
-
-            break;
-
-          case 'xml':
-            data = compileBodyXml(data, {root: config.options.sampleRequestXmlRoot});
-            headers['Content-Type'] = 'text/xml';
-
-            break;
-        }
-      }
     }
 
     switch (transport) {
@@ -159,7 +116,7 @@ const request = (function () {
         });
 
       case 'ws':
-        wsConnect(url, {
+        return wsConnect(url, {
           onConnect: config && config.onConnect,
           onData: config && config.onData,
           onDisconnect: config && config.onDisconnect,
@@ -173,24 +130,123 @@ const request = (function () {
           },
         });
 
-        return Promise.resolve();
-
       default:
-        throw new Error(`Unknown transport: ${transport}`);
+        throw new Error(`Unknown transport "${transport}"`);
     }
-  };
+  }
+
+  function requestWithFormattedBody(
+    transport,
+    url,
+    method,
+    bodyParams,
+    headers,
+    contentType,
+    config
+  ) {
+    if (!method) {
+      method = 'GET';
+    } else {
+      method = method.toUpperCase();
+    }
+
+    if (!headers) {
+      headers = {};
+    }
+
+    if (!config) {
+      config = {};
+    }
+
+    if (!config.options) {
+      config.options = {};
+    }
+
+    let data;
+
+    // prepare body based on content type in case of not http GET method
+    if (method !== 'GET') {
+      if (bodyParams) {
+        switch (contentType) {
+          case 'form':
+            data = compileBodyForm(bodyParams);
+            headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+            break;
+
+          case 'json':
+            data = JSON.stringify(bodyParams);
+            headers['Content-Type'] = 'application/json';
+
+            break;
+
+          case 'xml':
+            data = compileBodyXml(bodyParams, {root: config.options.sampleRequestXmlRoot});
+            headers['Content-Type'] = 'text/xml';
+
+            break;
+        }
+      }
+    }
+
+    // insert placeholders
+    url = url.replace(/:\w+/g, (key) => {
+      if (has(bodyParams, key.substr(1))) {
+        const value = get(bodyParams, key.substr(1));
+
+        del(bodyParams, key.substr(1));
+
+        return encodeURIComponent(value);
+      } else {
+        return key;
+      }
+    });
+
+    // insert rest of data as query parameters in case of http GET method
+    if (method === 'GET') {
+      if (bodyParams) {
+        if (url.indexOf('?') === -1) {
+          url += '?';
+        } else if (url.slice(-1) !== '&') {
+          url += '&';
+        }
+
+        url += compileBodyForm(bodyParams);
+      }
+    }
+
+    return request(transport, url, method, data, headers, contentType, config);
+  }
+
+  request.requestWithFormattedBody = requestWithFormattedBody;
 
   request.http = {
     delete: (url) => request('http', url, 'delete'),
     get: (url) => request('http', url, 'get'),
-    post: (url, data, contentType) => request('http', url, 'post', data, undefined, contentType),
-    put: (url, data, contentType) => request('http', url, 'put', data, undefined, contentType),
-  }
+    post: (url, bodyParams, contentType) => requestWithFormattedBody('http', url, 'post', bodyParams, undefined, contentType),
+    put: (url, bodyParams, contentType) => requestWithFormattedBody('http', url, 'put', bodyParams, undefined, contentType),
+    requestWithFormattedBody: (url, method, bodyParams, headers, contentType) => requestWithFormattedBody(
+      'http',
+      url,
+      method,
+      bodyParams,
+      headers,
+      contentType
+    ),
+  };
   request.ws = {
     disconnect: wsDisconnect,
     connect: wsConnect,
     isConnected: wsIsConnected,
-    publish: (url, data, contentType) => request('ws', url, 'ws', data, undefined, contentType),
+    publish: (url, bodyParams, contentType) => requestWithFormattedBody('ws', url, 'ws', bodyParams, undefined, contentType),
+    requestWithFormattedBody: (url, bodyParams, contentType) => requestWithFormattedBody(
+      'ws',
+      url,
+      'ws',
+      bodyParams,
+      undefined,
+      contentType
+    ),
   };
 
   return request;

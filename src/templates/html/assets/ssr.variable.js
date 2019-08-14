@@ -9,7 +9,7 @@ const ssrVariable = (function () {
 
     const blockDescriptor = sections[blockId];
 
-    api.set()
+    api.set();
 
     by.selector('[data-block-ssr-input="variable"]', el).forEach((blockSsrInputEl) => {
       const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable

@@ -383,6 +383,14 @@ ins.diffmod, .diffins {
     padding: 0 0.5rem;
 }
 
+.input-param-raw-body {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    font: 1rem monospace;
+    min-height: 1.5rem;
+    padding: 0 0.5rem;
+}
+
 .input-placeholder {
     background-color: #e0e0e0;
     color: #808080;

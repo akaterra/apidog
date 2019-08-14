@@ -1,5 +1,5 @@
 {
   "title": "Sample API",
   "description": "This is a sample API",
-  "sampleUrl": "http://localhost:8088"
+  "sampleUrl": "http://localhost:80"
 }

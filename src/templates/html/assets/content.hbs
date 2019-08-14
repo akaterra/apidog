@@ -1,4 +1,4 @@
-<div class="container flex">
+<div class="container flex" xmlns="http://www.w3.org/1999/html">
   <div class="width-100">
     <div class="sub-container">
       <div class="control-panel">
@@ -487,15 +487,31 @@
                                             class="input-param flex-1"
                                             id="{{../../../../this.id}}_p_{{../this.field.name}}"
                                             name="{{../this.field.name}}"
-                                            type="text"
                                             data-block-ssr-input="param"
                                             data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            value="{{../this.field.defaultValue}}"
                                     >
                                       {{#each ../this.type.allowedValues}}
                                         <option value="{{this}}">{{this}}</option>
                                       {{/each}}
                                     </select>
+                                  {{else ifCond ../this.type.name '==' 'ParametrizedBody'}}
+                                    <textarea
+                                            class="input-param-raw-body flex-1"
+                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
+                                            name="{{../this.field.name}}"
+                                            data-block-ssr-input="param"
+                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                            rows="10"
+                                    >{{../this.field.defaultValue}}</textarea>
+                                  {{else ifCond ../this.type.name '==' 'RawBody'}}
+                                    <textarea
+                                            class="input-param-raw-body flex-1"
+                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
+                                            name="{{../this.field.name}}"
+                                            data-block-ssr-input="param"
+                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                            rows="10"
+                                    >{{../this.field.defaultValue}}</textarea>
                                   {{else}}
                                     <input
                                             class="input-param flex-1"
@@ -521,6 +537,11 @@
                           <button class="button" data-block-ssr-ws-connect>Connect</button>
                           <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
                         {{/ifCond}}
+                      </div>
+
+                      <div class="section hidden" data-block-ssr-error-response>
+                        <div class="label">Response:</div>
+                        <pre class="response big-badge bg-color-dark-red color-white mono"></pre>
                       </div>
 
                       <div class="section hidden" data-block-ssr-response>

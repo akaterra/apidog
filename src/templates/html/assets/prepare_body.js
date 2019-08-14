@@ -71,7 +71,7 @@ const prepareBody = (params, paramsDescriptors) => {
             break;
 
           case 'file':
-            body.extra.push(value);
+            body.extra.push({type: 'file', value});
 
             value = void 0;
 
@@ -89,6 +89,14 @@ const prepareBody = (params, paramsDescriptors) => {
 
           case 'object':
             value = {};
+
+            break;
+
+          case 'parametrizedBody':
+          case 'rawBody':
+            body.extra.push({type: 'rawBody', value});
+
+            value = void 0;
 
             break;
         }
