@@ -61,7 +61,17 @@ const ssr = (function () {
         }
       }
 
-      let actualEndpoint;
+      const actualEndpoint = api.getActualEndpoint(blockId);
+
+      if (actualEndpoint === false) {
+        return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name}" requests`);
+      }
+
+      if (actualEndpoint === null) {
+        return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name}"`);
+      }
+
+      let actualTransport;
       let actualOptions;
 
       switch (blockDescriptor.api.transport.name) {
@@ -69,12 +79,7 @@ const ssr = (function () {
         case 'https':
           api.showResponse(blockId, 'Waiting for response ...');
 
-          if (blockDescriptor.sampleRequestProxy) {
-            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
-          } else {
-            actualEndpoint = endpoint;
-          }
-
+          actualTransport = 'http';
           actualOptions = requestOptions.http;
 
           break;
@@ -83,12 +88,7 @@ const ssr = (function () {
         case 'natsrpc':
           api.showResponse(blockId, 'Waiting for response ...');
 
-          if (blockDescriptor.sampleRequestProxy) {
-            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
-          } else {
-            return api.showErrorResponse(blockId, 'apiDog proxy must be used for Nats requests');
-          }
-
+          actualTransport = 'http';
           actualOptions = requestOptions.http;
 
           break;
@@ -97,12 +97,7 @@ const ssr = (function () {
         case 'rabbitmqrpc':
           api.showResponse(blockId, 'Waiting for response ...');
 
-          if (blockDescriptor.sampleRequestProxy) {
-            actualEndpoint = `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`;
-          } else {
-            return api.showErrorResponse(blockId, 'apiDog proxy must be used for RabbitMQ requests');
-          }
-
+          actualTransport = 'http';
           actualOptions = requestOptions.http;
 
           break;
@@ -111,23 +106,15 @@ const ssr = (function () {
         case 'ws':
           // api.hideResponses(blockId);
 
-          if (blockDescriptor.sampleRequestProxy) {
-            actualEndpoint = `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`;
-          } else {
-            actualEndpoint = endpoint;
-          }
-
+          actualTransport = 'ws';
           actualOptions = requestOptions.websocket;
 
           break;
-
-        default:
-          return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name}"`);
       }
 
       const response = request.requestWithFormattedBody(
-        'http',
-        `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`,
+        actualTransport,
+        actualEndpoint,
         blockDescriptor.api.transport.method || 'post',
         data,
         headers,
@@ -163,7 +150,7 @@ const ssr = (function () {
 
     if (blockSsrWsDisconnectEl) {
       on.click(blockSsrWsDisconnectEl, () => {
-        const endpoint = api.getEndpoint(blockId);
+        const endpoint = api.getActualEndpoint(blockId);
 
         request.ws.disconnect(endpoint);
         api.showWsConnect(blockId);
@@ -192,6 +179,41 @@ const ssr = (function () {
   }
 
   const api = {
+    getActualEndpoint(blockId) {
+      const blockDescriptor = sections[blockId];
+      const endpoint = api.getEndpoint(blockId);
+
+      switch (blockDescriptor.api.transport.name) {
+        case 'http':
+        case 'https':
+          return blockDescriptor.sampleRequestProxy
+            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
+            : endpoint;
+
+        case 'nats':
+        case 'natsrpc':
+          return blockDescriptor.sampleRequestProxy
+            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
+            : false;
+
+        case 'rabbitmq':
+        case 'rabbitmqrpc':
+          return blockDescriptor.sampleRequestProxy
+            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
+            : false;
+
+        case 'websocket':
+        case 'ws':
+          return blockDescriptor.sampleRequestProxy
+            ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`
+            : endpoint;
+
+          break;
+      }
+
+      return null;
+    },
+
     getContentType(blockId) {
       const el = getBlockContentTypeEl(blockId);
 

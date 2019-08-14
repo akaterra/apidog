@@ -40,6 +40,7 @@ Table of contents
   * [@apiContentType](#apicontenttype)
   * [@apiFamily](#apiFamily)
   * [@apiParamPrefix](#apiparamprefix)
+  * [@apiSchema](#apischema)
   * [@apiSubgroup](#apisubgroup)
 * Embedded templates
   * [@html (default)](#html-default)
@@ -89,9 +90,9 @@ Parameters:
   apidog --parser swagger -i ./api-v1.swagger.json -i ./api-v2.swagger.json
   ```
 
-* **-p, --private \["tag1,tag2,.."\]** -- tags to filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
+* **-p, --private \["tag"\]** -- tags to filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
 
-  By default takes all the doc blocks.
+  Can be multiple. By default takes all the doc blocks.
 
 * **-s, --sampleRequestUrl, --sampleUrl** - base url that will be used as prefix for all relative api paths in sample requests
 
@@ -230,6 +231,15 @@ Example:
  * @apiUse sharedParams
  */
 ```
+
+### @apiSchema
+
+Format:
+```
+@apiSchema {jsonschema|swagger=pathToFile[#internalPath]} @apiParam
+```
+
+Uses external schema to generate **@apiParam** list.
 
 ### @apiSubgroup
 

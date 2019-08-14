@@ -31,7 +31,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '-p', '--private' ],
   {
-    help: 'tags to filter doc blocks having all the private tags or entirely marked as private',
+    action: 'append', help: 'tags to filter doc blocks having all the private tags or entirely marked as private',
   },
 );
 argumentParser.addArgument(
@@ -89,7 +89,7 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '--withSrp', '--withSampleRequestProxy' ],
+  [ '--withSampleRequestProxy', '--withSrp' ],
   {
     help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy.config.js and package.json in the output directory',
   },
@@ -226,7 +226,7 @@ const content = generate.generate(
     description: args.description || config.description,
     keywords: config.keywords,
     i18n: require('./i18n'),
-    private: typeof argsPrivate === 'string' ? argsPrivate.split(',') : argsPrivate,
+    private: argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
     sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
     sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
