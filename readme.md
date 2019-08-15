@@ -18,9 +18,10 @@ Features:
     * Transports support:
         * HTTP
         * HTTPS
+        * Nats (via server-side proxy)
+        * Nats RPC (remote procedure call, via server-side proxy)
         * RabbitMQ (via server-side proxy)
         * RabbitMQ RPC (remote procedure call, via server-side proxy)
-        * Nats (via server-side proxy)
         * WebSocket (W3C)
     * Content types support:
         * Form
@@ -144,7 +145,7 @@ Currently supported data format of the sample request are FORM, JSON and XML.
 
 Format:
 ```
-@apiFamily unique-identifier
+@apiFamily uniqueIdentifier
 ```
 
 Defines unique identifier of the doc block within its chapter, group and subgroup.
@@ -287,7 +288,7 @@ Compiles to mark down file.
 The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
 
 ```sh
-apidog --withSampleRequestProxy=http://localhost:8088
+apidog --withSampleRequestProxy
 ```
 
 Or by **apidoc.json** option "sampleRequestProxy".
