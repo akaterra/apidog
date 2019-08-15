@@ -3,6 +3,7 @@ const fs = require('fs');
 const generate = require('./src/generator');
 const parseDir = require('./src/parser.dir');
 const parseSwagger = require('./src/parser.swagger');
+const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({
   addHelp: true,
@@ -226,6 +227,7 @@ const content = generate.generate(
     description: args.description || config.description,
     keywords: config.keywords,
     i18n: require('./i18n'),
+    logger: new utils.Logger(),
     private: argsPrivate,
     sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
     sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],

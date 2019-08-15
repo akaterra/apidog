@@ -369,7 +369,7 @@
                     Send sample request
                     -->
 
-                    {{#ifCond this.sampleRequest.[0] '!=' false}}
+                    {{#ifCond this.sampleRequest.length '!=' 0}}
                       <div class="label">Send sample request</div>
 
                       {{#if ../this.sampleRequestProxy}}
@@ -540,12 +540,12 @@
                       </div>
 
                       <div class="section hidden" data-block-ssr-error-response>
-                        <div class="label">Response:</div>
+                        <div class="label">Error response</div>
                         <pre class="response big-badge bg-color-dark-red color-white mono"></pre>
                       </div>
 
                       <div class="section hidden" data-block-ssr-response>
-                        <div class="label">Response:</div>
+                        <div class="label">Response</div>
                         <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
                       </div>
                     {{/ifCond}}

@@ -140,9 +140,9 @@ function generateSections(blocks, config) {
       block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
     }
 
-    if (!block.sampleRequest) {
-      block.sampleRequest = [block.api.endpoint];
-    }
+    // if (!block.sampleRequest) {
+    //   block.sampleRequest = [block.api.endpoint];
+    // }
 
     if (!block.subgroup) {
       block.subgroup = {description: [], name: '$', title: null};

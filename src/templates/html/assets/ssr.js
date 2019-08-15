@@ -64,11 +64,11 @@ const ssr = (function () {
       const actualEndpoint = api.getActualEndpoint(blockId);
 
       if (actualEndpoint === false) {
-        return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name}" requests`);
+        return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
       }
 
       if (actualEndpoint === null) {
-        return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name}"`);
+        return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name.toUpperCase()}"`);
       }
 
       let actualTransport;

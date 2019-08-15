@@ -39,7 +39,7 @@ function parse(block, text) {
           break;
 
         default:
-          throw new Error('Unknown ' + transportTokens[0] + ' transport method: ' + transportTokens[1]);
+          throw new Error(`Unknown "${transportTokens[0]}" transport method "${transportTokens[1]}"`);
       }
 
       break;
@@ -85,7 +85,7 @@ function parse(block, text) {
       break;
 
     default:
-      throw new Error(`Unknown transport ${transportTokens[0]}`);
+      throw new Error(`Unknown transport "${transportTokens[0]}"`);
   }
 
   block.validate = blockValidate;
@@ -94,62 +94,56 @@ function parse(block, text) {
 }
 
 function blockValidate(block, config) {
+  if (block.sampleRequest === undefined) {
+    if (config.sampleRequestUrl) {
+      block.sampleRequest = [true];
+    } else {
+      block.sampleRequest = [];
+    }
+  }
+
+  block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest);
+
   switch (block.api.transport.name) {
     case 'nats':
     case 'natsrpc':
-      if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
-      }
-
-      if (block.sampleRequest) {
-        if (config.sampleRequestProxyNats || config.sampleRequestProxy) {
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
-          throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+          block.sampleRequest = [];
+
+          config.logger.warn(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        } else {
+          block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+            return sampleRequest === true
+              ? block.api.endpoint
+              : sampleRequest;
+          });
         }
-
-        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          if (typeof sampleRequest === 'string') {
-            return sampleRequest;
-          }
-
-          if (sampleRequest === true) {
-            return block.api.endpoint;
-          }
-
-          return false;
-        });
       }
 
       break;
 
     case 'rabbitmq':
     case 'rabbitmqrpc':
-      if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
-      }
-
-      if (block.sampleRequest) {
-        if (config.sampleRequestProxyRabbitmq || config.sampleRequestProxy) {
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
-          throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+          block.sampleRequest = [];
+
+          config.logger.warn(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
         }
 
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          if (typeof sampleRequest === 'string') {
-            return sampleRequest;
-          }
-
-          if (sampleRequest === true) {
-            return block.api.endpoint;
-          }
-
-          return false;
+          return sampleRequest === true
+            ? block.api.endpoint
+            : sampleRequest;
         });
       }
 
@@ -157,41 +151,23 @@ function blockValidate(block, config) {
 
     case 'websocket':
     case 'ws':
-      if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
-      }
-
-      if (block.sampleRequest) {
-        if (config.sampleRequestProxyWs || config.sampleRequestProxy) {
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy && (config.sampleRequestProxyWs || config.sampleRequestProxy)) {
           block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
         }
 
-        if (!block.sampleRequestProxy) {
-          throw new Error(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
-        }
-
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          if (typeof sampleRequest === 'string') {
-            return sampleRequest;
-          }
-
-          if (sampleRequest === true) {
-            return block.api.endpoint;
-          }
-
-          return false;
+          return sampleRequest === true
+            ? block.api.endpoint
+            : sampleRequest;
         });
       }
 
       break;
 
     default:
-      if (!block.sampleRequestProxy) {
-        block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
-      }
-
-      if (block.sampleRequest) {
-        if (config.sampleRequestProxyHttp || config.sampleRequestProxy) {
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
         }
 
@@ -215,7 +191,7 @@ function blockValidate(block, config) {
           }
 
           return false;
-        });
+        }).filter((sampleRequest) => sampleRequest);
       }
   }
 
