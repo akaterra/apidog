@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+'use strict';
+
 const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
 const generate = require('./src/generator');

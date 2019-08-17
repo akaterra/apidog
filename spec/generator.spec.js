@@ -98,60 +98,211 @@ describe('generator', () => {
 
 describe('generate sections', () => {
   it('should generate sections', () => {
+    const A = {
+      name: 'A',
+    };
+    const B = {
+      name: 'B',
+    };
     const blocks = [
       {
-        api: {}, group: 'A', name: 'A', subgroup: 'A', title: 'A', version: '1',
+        api: {endpoint: 'endpoint'}, chapter: A, group: A, name: 'A', subgroup: A, title: 'A', version: '1',
       },
       {
-        api: {}, group: 'A', name: 'A', subgroup: 'A', title: 'A', version: '2',
+        api: {}, chapter: A, family: 'a', group: A, name: 'A', subgroup: B, title: 'A', version: '2',
       },
       {
-        api: {}, group: 'A', name: 'B', subgroup: 'A', title: 'B', version: '1',
+        api: {}, chapter: A, family: 'b', group: B, name: 'B', subgroup: B, title: 'B', version: '1',
       },
       {
-        api: {}, group: 'B', name: 'A', subgroup: 'B', title: 'A', version: '1',
+        api: {endpoint: 'endpoint'}, chapter: B, group: A, name: 'A', subgroup: A, title: 'A', version: '1',
       },
       {
-        api: {}, group: 'B', name: 'A', subgroup: 'B', title: 'A', version: '2',
+        api: {}, chapter: B, family: 'a', group: B, name: 'A', subgroup: A, title: 'A', version: '2',
       },
       {
-        api: {}, group: 'B', name: 'B', subgroup: 'B', title: 'B', version: '1',
+        api: {}, chapter: B, family: 'b', group: B, name: 'B', subgroup: B, title: 'B', version: '1',
       },
     ];
 
-    expect(generator.generateSections(blocks)).toEqual({
+    const [definitions, sections] = generator.generateSections(blocks);
+
+    expect(sections).toEqual({
+
+      // chapter A
       A: {
+
+        // group A
         A: {
-          A: { '1': blocks[0], '2': blocks[1] },
-          B: { '1': blocks[2] },
+          A: {
+            endpoint__: {
+              1: {
+                api: {endpoint: 'endpoint'},
+                chapter: A,
+                contentType: ['form'],
+                family: 'endpoint__',
+                familyId: 'A_A_A_endpoint__',
+                group: A,
+                id: 'A_A_A_endpoint___1',
+                name: 'A',
+                subgroup: A,
+                title: 'A',
+                version: '1',
+                visualId: 'A_A_A_A_1',
+              },
+            },
+          },
+          B: {
+            a: {
+              2: {
+                api: {},
+                chapter: A,
+                contentType: ['form'],
+                family: 'a',
+                familyId: 'A_A_B_a',
+                group: A,
+                id: 'A_A_B_a_2',
+                name: 'A',
+                subgroup: B,
+                title: 'A',
+                version: '2',
+                visualId: 'A_A_B_A_2',
+              },
+            },
+          },
+        },
+
+        // group B
+        B: {
+          B: {
+            b: {
+              1: {
+                api: {},
+                chapter: A,
+                contentType: ['form'],
+                family: 'b',
+                familyId: 'A_B_B_b',
+                group: B,
+                id: 'A_B_B_b_1',
+                name: 'B',
+                subgroup: B,
+                title: 'B',
+                version: '1',
+                visualId: 'A_B_B_B_1',
+              },
+            },
+          },
         },
       },
+
+      // chapter B
       B: {
+
+        // group A
+        A: {
+          A: {
+            endpoint__: {
+              1: {
+                api: {endpoint: 'endpoint'},
+                chapter: B,
+                contentType: ['form'],
+                family: 'endpoint__',
+                familyId: 'B_A_A_endpoint__',
+                group: A,
+                id: 'B_A_A_endpoint___1',
+                name: 'A',
+                subgroup: A,
+                title: 'A',
+                version: '1',
+                visualId: 'B_A_A_A_1',
+              },
+            },
+          },
+        },
+
+        // group B
         B: {
-          A: { '1': blocks[3], '2': blocks[4] },
-          B: { '1': blocks[5]},
+          A: {
+            a: {
+              2: {
+                api: {},
+                chapter: B,
+                contentType: ['form'],
+                family: 'a',
+                familyId: 'B_B_A_a',
+                group: B,
+                id: 'B_B_A_a_2',
+                name: 'A',
+                subgroup: A,
+                title: 'A',
+                version: '2',
+                visualId: 'B_B_A_A_2',
+              },
+            },
+          },
+          B: {
+            b: {
+              1: {
+                api: {},
+                chapter: B,
+                contentType: ['form'],
+                family: 'b',
+                familyId: 'B_B_B_b',
+                group: B,
+                id: 'B_B_B_b_1',
+                name: 'B',
+                subgroup: B,
+                title: 'B',
+                version: '1',
+                visualId: 'B_B_B_B_1',
+              },
+            },
+          },
         },
       },
     });
   });
 
-  it('should generate sections filling default group', () => {
+  it('should generate sections filling default chapter', () => {
     const blocks = [
       {
-        api: {},
-        name: 'name',
-        title: 'title',
-        version: 'version',
+        api: {
+          endpoint: 'endpoint',
+        },
       },
     ];
 
-    expect(generator.generateSections(blocks)).toEqual({
-      $: {
-        $: {
-          name: { version: Object.assign({group: 'default'}, blocks[0]) },
+    const [definitions, sections] = generator.generateSections(blocks);
+
+    expect(sections.$.$.$.endpoint__['0.0.1'].chapter).toEqual({description: [], name: '$', title: null});
+  });
+
+  it('should generate sections filling default group', () => {
+    const blocks = [
+      {
+        api: {
+          endpoint: 'endpoint',
         },
       },
-    });
+    ];
+
+    const [definitions, sections] = generator.generateSections(blocks);
+
+    expect(sections.$.$.$.endpoint__['0.0.1'].group).toEqual({description: [], name: '$', title: null});
+  });
+
+  it('should generate sections filling default subgroup', () => {
+    const blocks = [
+      {
+        api: {
+          endpoint: 'endpoint',
+        },
+      },
+    ];
+
+    const [definitions, sections] = generator.generateSections(blocks);
+
+    expect(sections.$.$.$.endpoint__['0.0.1'].subgroup).toEqual({description: [], name: '$', title: null});
   });
 
   it('should generate sections filling default version', () => {
@@ -163,51 +314,17 @@ describe('generate sections', () => {
       },
     ];
 
-    expect(generator.generateSections(blocks).$.$.$.endpoint_['0.0.1'].version).toEqual('0.0.1');
-  });
+    const [definitions, sections] = generator.generateSections(blocks);
 
-  // it('should generate sections filling defaults from use', () => {
-  //   const blocks = [
-  //     {
-  //       define: {
-  //         description: ['default description'],
-  //         name: 'default name',
-  //         title: 'default title',
-  //       },
-  //       description: ['default description'],
-  //       title: 'default title',
-  //     },
-  //     {
-  //       api: {},
-  //       group: 'group',
-  //       name: 'name',
-  //       title: 'title',
-  //       use: ['default name'],
-  //     },
-  //   ];
-  //
-  //   expect(generate.generateSections(blocks)).toEqual({
-  //     group: {
-  //       name: {
-  //         '0.0.1': {
-  //           api: {},
-  //           description: ['default description'],
-  //           group: 'group',
-  //           id: 'group_0.0.1_name',
-  //           name: 'name',
-  //           title: 'title',
-  //           use: ['default name'],
-  //           version: '0.0.1',
-  //         },
-  //       },
-  //     }
-  //   });
-  // });
+    expect(sections.$.$.$.endpoint__['0.0.1'].version).toEqual('0.0.1');
+  });
 
   it('should generate sections skipping "ignore" blocks', () => {
     const blocks = [{ ignore: true }];
 
-    expect(generator.generateSections(blocks)).toEqual({});
+    const [definitions, sections] = generator.generateSections(blocks);
+
+    expect(sections).toEqual({});
   });
 
   // it('should raise exception on unknown use', () => {

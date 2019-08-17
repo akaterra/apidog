@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "apiDog is a API documentation generator alternative to the apiDoc",
   "main": "start.js",
+  "bin": "apidog",
   "dependencies": {
     "argparse": "1.0.10",
     "fast-sort": "^1.5.6",
