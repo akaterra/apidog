@@ -167,7 +167,7 @@ describe('proxy', () => {
   });
 
   it('should terminate websocket server connection on client disconnection', async () => {
-    initWebSocketEnv({});
+    await initWebSocketEnv({});
 
     app.listen();
 

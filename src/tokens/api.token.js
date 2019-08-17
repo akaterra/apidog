@@ -105,6 +105,40 @@ function blockValidate(block, config) {
   block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest);
 
   switch (block.api.transport.name) {
+    case 'http':
+    case 'https':
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
+        }
+
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          if (sampleRequest === true) {
+            const isFullUrl = /^http(s)?:\/\//.test(block.api.endpoint);
+
+            if (isFullUrl || (config && config.sampleRequestUrl)) {
+              return isFullUrl ? block.api.endpoint : config.sampleRequestUrl + (
+                block.api.endpoint[0] !== '/'
+                  ? `/${block.api.endpoint}`
+                  : block.api.endpoint
+              );
+            }
+          } else if (sampleRequest !== false) {
+            const isFullUrl = /^http(s)?:\/\//.test(sampleRequest);
+
+            if (isFullUrl || (config && config.sampleRequestUrl)) {
+              return isFullUrl ? sampleRequest : config.sampleRequestUrl + (
+                sampleRequest[0] !== '/'
+                  ? `/${sampleRequest}`
+                  : sampleRequest
+              );
+            }
+          }
+
+          return false;
+        }).filter((sampleRequest) => sampleRequest);
+      }
+
     case 'nats':
     case 'natsrpc':
       if (block.sampleRequest.length) {
@@ -157,47 +191,42 @@ function blockValidate(block, config) {
         }
 
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          return sampleRequest === true
-            ? block.api.endpoint
-            : sampleRequest;
-        });
-      }
-
-      break;
-
-    default:
-      if (block.sampleRequest.length) {
-        if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyHttp || config.sampleRequestProxy;
-        }
-
-        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
-          if (typeof sampleRequest === 'string' && sampleRequest[0] !== '/') {
-            return sampleRequest;
-          }
-
-          if (block.api.endpoint[0] !== '/') {
-            return block.api.endpoint;
-          }
-
           if (sampleRequest === true) {
-            if (config && config.sampleRequestUrl) {
-              return config.sampleRequestUrl + block.api.endpoint;
+            const isFullUrl = /^ws(s)?:\/\//.test(block.api.endpoint);
+
+            if (isFullUrl || (config && config.sampleRequestUrl)) {
+              return isFullUrl ? block.api.endpoint : config.sampleRequestUrl.replace(/http(s)?:\/\//, 'ws://') + (
+                block.api.endpoint[0] !== '/'
+                  ? `/${block.api.endpoint}`
+                  : block.api.endpoint
+              );
             }
           } else if (sampleRequest !== false) {
-            if (config && config.sampleRequestUrl) {
-              return config.sampleRequestUrl + sampleRequest;
+            const isFullUrl = /^ws(s)?:\/\//.test(sampleRequest);
+
+            if (isFullUrl || (config && config.sampleRequestUrl)) {
+              return isFullUrl ? sampleRequest : config.sampleRequestUrl.replace(/http(s)?:\/\//, 'ws://') + (
+                sampleRequest[0] !== '/'
+                  ? `/${sampleRequest}`
+                  : sampleRequest
+              );
             }
           }
 
           return false;
         }).filter((sampleRequest) => sampleRequest);
       }
+
+      break;
+
+    default:
+      throw new Error(`Unknown transport "${block.api.transport.name}"`);
   }
 
   return block;
 }
 
 module.exports = {
-  parse: parse,
+  parse,
+  blockValidate,
 };

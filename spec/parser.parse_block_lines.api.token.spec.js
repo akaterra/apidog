@@ -1,7 +1,8 @@
 const parser = require('../src/parser.block_lines');
+const apiToken = require('../src/tokens/api.token');
 
 describe('parser for @api token by parseBlockLines', () => {
-  it('should parse for http transport', () => {
+  it('should parse http transport', () => {
     const lines = [
       '@api {get} /url This is a title',
     ];
@@ -19,43 +20,7 @@ describe('parser for @api token by parseBlockLines', () => {
     })
   });
 
-  it('should parse for rabbitmq transport with exchange', () => {
-    const lines = [
-      '@api {rabbitmq:exchange} url This is a title',
-    ];
-
-    const block = parser.parseBlockLines(lines);
-
-    expect(parser.parseBlockLines(lines)).toEqual({
-      api: {
-        endpoint: 'url',
-        title: 'This is a title',
-        transport: {name: 'rabbitmq', exchange: 'exchange'},
-      },
-      title: 'This is a title',
-      validate: block.validate,
-    })
-  });
-
-  it('should parse for rabbitmq rpc transport with exchange', () => {
-    const lines = [
-      '@api {rabbitmqrpc:exchange} url This is a title',
-    ];
-
-    const block = parser.parseBlockLines(lines);
-
-    expect(parser.parseBlockLines(lines)).toEqual({
-      api: {
-        endpoint: 'url',
-        title: 'This is a title',
-        transport: {name: 'rabbitmqrpc', exchange: 'exchange'},
-      },
-      title: 'This is a title',
-      validate: block.validate,
-    })
-  });
-
-  it('should parse for nats transport with exchange', () => {
+  it('should parse nats transport', () => {
     const lines = [
       '@api {nats} url This is a title',
     ];
@@ -73,7 +38,7 @@ describe('parser for @api token by parseBlockLines', () => {
     })
   });
 
-  it('should parse for nats rpc transport with exchange', () => {
+  it('should parse nats rpc transport', () => {
     const lines = [
       '@api {natsrpc} url This is a title',
     ];
@@ -85,6 +50,42 @@ describe('parser for @api token by parseBlockLines', () => {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'natsrpc'},
+      },
+      title: 'This is a title',
+      validate: block.validate,
+    })
+  });
+
+  it('should parse rabbitmq transport with exchange', () => {
+    const lines = [
+      '@api {rabbitmq:exchange} url This is a title',
+    ];
+
+    const block = parser.parseBlockLines(lines);
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      api: {
+        endpoint: 'url',
+        title: 'This is a title',
+        transport: {name: 'rabbitmq', exchange: 'exchange'},
+      },
+      title: 'This is a title',
+      validate: block.validate,
+    })
+  });
+
+  it('should parse rabbitmq rpc transport with exchange', () => {
+    const lines = [
+      '@api {rabbitmqrpc:exchange} url This is a title',
+    ];
+
+    const block = parser.parseBlockLines(lines);
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      api: {
+        endpoint: 'url',
+        title: 'This is a title',
+        transport: {name: 'rabbitmqrpc', exchange: 'exchange'},
       },
       title: 'This is a title',
       validate: block.validate,
