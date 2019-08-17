@@ -5,6 +5,8 @@
 apiDog
 ======
 
+[![Build Status](https://travis-ci.org/akaterra/apidog.svg?branch=master)](https://travis-ci.org/akaterra/apidog)
+
 apiDog is a API documentation generator alternative to the [apiDoc](http://apidocjs.com/).
 
 Features:
