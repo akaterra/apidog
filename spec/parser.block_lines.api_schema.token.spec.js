@@ -41,6 +41,40 @@ describe('parser.block_lines parseBlockLines @apiSchema token', () => {
     ]);
   });
 
+  it('should parse Swagger api', () => {
+    const lines = [
+      '@apiSchema (group) {swagger=./spec/sample/swagger.json#apis[0]} getResourceById',
+    ];
+
+    parser.parseBlockLines(lines);
+
+    expect(lines).toEqual([
+      '',
+      '@api {get} /resource/:resourceId/deprecated Find resource by id',
+      '@apiVersion 1.0.0',
+      '@apiDeprecated',
+      '@apiDescription Find resource by id description',
+      '@apiParam {String} resourceId id of resource',
+    ]);
+  });
+
+  it('should parse Swagger model', () => {
+    const lines = [
+      '@apiSchema (group) {swagger=./spec/sample/swagger.json#models.Resource} @apiParam',
+    ];
+
+    parser.parseBlockLines(lines);
+
+    expect(lines).toEqual([
+      '',
+      '@apiParam {Number} [id] ',
+      '@apiParam {Number} [field1] ',
+      '@apiParam {Number} [field2] ',
+      '@apiParam {String} [field3] Resource status',
+      '@apiParam {Date} [field4] ',
+    ]);
+  });
+
   it('should raise error on unknown schema type', () => {
     const lines = [
       '@apiSchema (group) {unknown=unknown} @apiParam',

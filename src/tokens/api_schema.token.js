@@ -1,7 +1,7 @@
 /**
  * @apiSchema [(group)] {jsonschema=./jsonschema.json[#internal.path]} @apiParam
  * @apiSchema [(group)] {swagger=./swagger.json#internal.path.to.api} operationNickname
- * @apiSchema [(group)] {swagger=./swagger.json#internal.path.to.model}  @apiParam
+ * @apiSchema [(group)] {swagger=./swagger.json#internal.path.to.model} @apiParam
  */
 
 const get = require('lodash.get');
@@ -10,7 +10,7 @@ const parserJsonschemaUtils = require('../parser.jsonschema.utils');
 const parserSwaggerUtils = require('../parser.swagger.utils');
 const utils = require('../utils');
 
-const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+)?)/;
+const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
 
 function parse(block, text, line, index, lines) {
   const tokens = regex.exec(text);
@@ -55,42 +55,51 @@ function parse(block, text, line, index, lines) {
       return block;
 
     case 'swagger':
-      if (!schemaPath) {
+      if (!schemaPath || (schemaPath.substr(0, 4) !== 'apis' && schemaPath.substr(0, 6) !== 'models')) {
         throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing path to api definition or model`);
       }
 
       let swaggerSpec = parserSwaggerUtils.fetchSource(schemaFile);
       parserSwaggerUtils.validate(swaggerSpec);
 
-      if (schemaPath.substr(0, 3) === 'apis') {
+      if (schemaPath.substr(0, 4) === 'apis') {
         let swaggerApi = get(swaggerSpec, schemaPath, parse);
 
-        if (jsonSchema === parse) {
+        if (swaggerApi === parse) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" api definition not exists`);
         }
 
-        swaggerApi = parserSwaggerUtils.validateApi(swaggerApi).operations.find((op) => op.nickname === params[0]);
+        const swaggerApiOperation = parserSwaggerUtils.validateApi(swaggerSpec, swaggerApi).operations.find((op) => op.nickname === params[0]);
 
-        if (!swaggerApi) {
+        if (!swaggerApiOperation) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" api definition nickname "${params[0]}" not exists`);
         }
 
         lines.splice(index, 1, ...[''].concat(parserSwaggerUtils.resolveApi(
           swaggerSpec,
-          swaggerApi
-        )));
+          swaggerApi,
+          [],
+          [swaggerApiOperation]
+        )[0]));
 
         return block;
       }
 
-      if (schemaPath.substr(0, 5) === 'models') {
+      if (schemaPath.substr(0, 6) === 'models') {
         let swaggerModel = get(swaggerSpec, schemaPath, parse);
 
-        if (jsonSchema === parse) {
+        if (swaggerModel === parse) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" model definition not exists`);
         }
 
+        lines.splice(index, 1, ...[''].concat(parserSwaggerUtils.resolveModel(
+          swaggerSpec,
+          params[0],
+          swaggerModel,
+          ''
+        )));
 
+        return block;
       }
 
       break;

@@ -12,12 +12,12 @@ function convert(spec) {
   return docBlocks;
 }
 
-function resolveApi(spec, api, docBlocks) {
+function resolveApi(spec, api, docBlocks, operations) {
   if (!docBlocks) {
     docBlocks = [];
   }
 
-  for (const operation of api.operations) {
+  for (const operation of operations || api.operations) {
     const docBlock = [];
 
     let apiUri = api.path.replace(/\{(\w+)}/g, (_, param) => `:${param}`);
@@ -43,7 +43,7 @@ function resolveApi(spec, api, docBlocks) {
     for (const parameter of operation.parameters) {
       switch (parameter.paramType) {
         case 'body':
-          resolveModel(spec, '@apiParam', parameter.type, '', docBlock);
+          resolveModelByType(spec, '@apiParam', parameter.type, '', docBlock);
 
           break;
 
@@ -78,7 +78,27 @@ function resolveApiOperation(spec, operation, docBlock) {
   return docBlock;
 }
 
-function resolveModel(spec, token, type, prefix, docBlock) {
+function resolveModel(spec, token, model, prefix, docBlock) {
+  if (!docBlock) {
+    docBlock = [];
+  }
+
+  if (!prefix) {
+    prefix = '';
+  }
+
+  validateModel(spec, model);
+
+  Object.entries(model.properties).forEach(([key, val]) => {
+    const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
+
+    docBlock.push(`${token} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
+  });
+
+  return docBlock;
+}
+
+function resolveModelByType(spec, token, type, prefix, docBlock) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -90,15 +110,7 @@ function resolveModel(spec, token, type, prefix, docBlock) {
   validateModelByType(spec, type);
 
   if (type in spec.models) {
-    const model = spec.models[type];
-
-    Object.entries(model.properties).forEach(([key, val]) => {
-      const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
-
-      docBlock.push(`${token} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
-    });
-
-    return docBlock;
+    return resolveModel(spec, token, spec.models[type], prefix, docBlock);
   }
 
   throwError(`Model "${type}" is not defined`);
@@ -153,8 +165,10 @@ function validate(spec) {
       throwError();
     }
 
-    Object.keys(spec.models).forEach((type) => validateModelByType(spec, type));
+    Object.values(spec.models).forEach((model) => validateModel(spec, model));
   }
+
+  return spec;
 }
 
 function validateApi(spec, api) {
@@ -217,15 +231,11 @@ function validateApi(spec, api) {
       }
     }
   }
+
+  return api;
 }
 
-function validateModelByType(spec, type) {
-  if (!spec.models || typeof spec.models !== 'object') {
-    throwError();
-  }
-
-  const model = spec.models[type];
-
+function validateModel(spec, model) {
   if (!model || typeof model !== 'object') {
     throwError();
   }
@@ -259,6 +269,16 @@ function validateModelByType(spec, type) {
       }
     }
   });
+
+  return model;
+}
+
+function validateModelByType(spec, type) {
+  if (!spec.models || typeof spec.models !== 'object') {
+    throwError();
+  }
+
+  return validateModel(spec, spec.models[type]);
 }
 
 module.exports = {
@@ -273,8 +293,10 @@ module.exports = {
   resolveApi,
   resolveApiOperation,
   resolveModel,
+  resolveModelByType,
   resolveType,
   validate,
   validateApi,
+  validateModel,
   validateModelByType,
 };
