@@ -1,6 +1,6 @@
 const prepareBody = require('../../../src/templates/html/assets/prepare_body').prepareBody;
 
-describe('template html assets, prepareBody', () => {
+describe('template html assets prepareBody', () => {
   it('should set values by path', () => {
     const body = prepareBody({
       'a': 1,

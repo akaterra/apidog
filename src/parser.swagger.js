@@ -1,20 +1,15 @@
-const fs = require('fs');
 const parseBlockLines = require('./parser.block_lines');
 const parserSwaggerUtils = require('./parser.swagger.utils');
 const utils = require('./utils');
 
-function parseSwaggerFile(file, logger) {
+function parseSwaggerFile(source, logger) {
   if (!logger) {
     logger = new utils.Logger();
   }
 
-  if (file.slice(-5).toLowerCase() === '.json') {
-    return parserSwaggerUtils.convert(JSON.parse(fs.readFileSync(file, 'utf8'))).map((lines) => {
-      return parseBlockLines.parseBlockLines(lines, undefined, logger);
-    });
-  }
-
-  throw new Error(`Unknown Swagger file format "${file}"`);
+  return parserSwaggerUtils.convert(parserSwaggerUtils.fetchSource(source)).map((lines) => {
+    return parseBlockLines.parseBlockLines(lines, undefined, logger);
+  });
 }
 
 module.exports = {

@@ -1,4 +1,8 @@
+const fs = require('fs');
+
 function convert(spec, group, token, rootSpec) {
+  validate(spec);
+
   return resolveDefinition(spec, group, '', token, [], rootSpec);
 }
 
@@ -15,20 +19,12 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
     rootSpec = spec;
   }
 
-  if (!spec || typeof spec !== 'object') {
-    throwError();
-  }
-
   if (spec.$ref) {
     resolveRef(rootSpec, spec);
   }
 
   if (!spec.properties || typeof spec.properties !== 'object') {
     return docBlock;
-  }
-
-  if (spec.required && !Array.isArray(spec.required)) {
-    throwError();
   }
 
   const required = spec.required || [];
@@ -152,8 +148,26 @@ function throwError(message) {
   throw new Error(`Malformed JSON Schema specification${message ? `: ${message}` : ''}`);
 }
 
+function validate(spec) {
+  if (!spec || typeof spec !== 'object') {
+    throwError();
+  }
+
+  if (spec.required && !Array.isArray(spec.required)) {
+    throwError();
+  }
+}
+
 module.exports = {
   convert,
+  fetchSource: (source) => {
+    if (source.slice(-5).toLowerCase() === '.json') {
+      return JSON.parse(fs.readFileSync(source, 'utf8'));
+    }
+
+    throw new Error(`Unknown JSON Schema source format "${source}"`);
+  },
   resolveDefinition,
   resolveType,
+  validate,
 };

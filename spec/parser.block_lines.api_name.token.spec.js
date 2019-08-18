@@ -1,0 +1,21 @@
+const parser = require('../src/parser.block_lines');
+
+describe('parser.block_lines parseBlockLines @apiName token', () => {
+  it('should parse', () => {
+    const lines = [
+      '@apiName name',
+    ];
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      name: 'name',
+    })
+  });
+
+  it('should raise error on malformed definition', () => {
+    const lines = [
+      '@apiName',
+    ];
+
+    expect(() => parser.parseBlockLines(lines)).toThrow();
+  });
+});

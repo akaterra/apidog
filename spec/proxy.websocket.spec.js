@@ -1,7 +1,7 @@
 const request = require('supertest');
 const WebSocket = require('ws');
 
-describe('proxy', () => {
+describe('proxy websocket', () => {
   let app;
   let env;
 
@@ -122,7 +122,7 @@ describe('proxy', () => {
     app = await require('../src/templates/apidog_proxy').createAppWebSocket(env);
   }
 
-  it('should initiate websocket server connection', async () => {
+  it('should initiate server connection', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -132,7 +132,7 @@ describe('proxy', () => {
     expect(env.server.$connected).toBeTruthy();
   });
 
-  it('should initiate websocket client connection on server connection', async () => {
+  it('should initiate client connection on server connection', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -142,7 +142,7 @@ describe('proxy', () => {
     expect(env.client).not.toBeUndefined();
   });
 
-  it('should terminate websocket client connection on server disconnection', async () => {
+  it('should terminate client connection on server disconnection', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -154,7 +154,7 @@ describe('proxy', () => {
     expect(env.client.$ws.terminated).toBeTruthy();
   });
 
-  it('should terminate websocket client connection on server error', async () => {
+  it('should terminate client connection on server error', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -166,7 +166,7 @@ describe('proxy', () => {
     expect(env.client.$ws.terminated).toBeTruthy();
   });
 
-  it('should terminate websocket server connection on client disconnection', async () => {
+  it('should terminate server connection on client disconnection', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -178,7 +178,7 @@ describe('proxy', () => {
     expect(env.server.$ws.terminated).toBeTruthy();
   });
 
-  it('should terminate websocket server connection on client error', async () => {
+  it('should terminate server connection on client error', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -190,7 +190,7 @@ describe('proxy', () => {
     expect(env.server.$ws.terminated).toBeTruthy();
   });
 
-  it('should pass websocket server message to client buffer in case of not ready connection on server message', async () => {
+  it('should pass server message to client buffer in case of not ready connection on server message', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -202,7 +202,7 @@ describe('proxy', () => {
     expect(env.client.$ws.messages).toEqual([]);
   });
 
-  it('should pass websocket server message to client in case of ready connection on server message', async () => {
+  it('should pass server message to client in case of ready connection on server message', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -214,7 +214,7 @@ describe('proxy', () => {
     expect(env.client.$ws.messages).toEqual(['message']);
   });
 
-  it('should pass buffered websocket server message to client in case of ready connection on server message', async () => {
+  it('should pass buffered server message to client in case of ready connection on server message', async () => {
     await initWebSocketEnv({});
 
     app.listen();
@@ -226,7 +226,7 @@ describe('proxy', () => {
     expect(env.client.$ws.messages).toEqual(['message']);
   });
 
-  it('should pass websocket client message to server connection on client message', async () => {
+  it('should pass client message to server connection on client message', async () => {
     await initWebSocketEnv({});
 
     app.listen();

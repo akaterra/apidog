@@ -1,7 +1,7 @@
 const request = require('supertest');
 const WebSocket = require('ws');
 
-describe('proxy', () => {
+describe('proxy rabbitmq', () => {
   let app;
   let env;
 
@@ -36,7 +36,7 @@ describe('proxy', () => {
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
   }
 
-  it('should process rabbitmq request', async () => {
+  it('should process request', async () => {
     await initAmqpEnv({});
 
     return request(app)
@@ -53,7 +53,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process rabbitmq request with full uri', async () => {
+  it('should process request with full uri', async () => {
     await initAmqpEnv({});
 
     return request(app)
@@ -70,7 +70,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process rabbitmq request with alias of uri', async () => {
+  it('should process request with alias of uri', async () => {
     await initAmqpEnv(undefined, {rabbitmq: {alias: 'amqp://a:b@c:1/e'}});
 
     return request(app)
@@ -87,7 +87,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process rabbitmqRpc request', async () => {
+  it('should process rpc request', async () => {
     await initAmqpEnv({ content: { toString: () => 'data' }, properties: {} });
 
     return request(app)
@@ -104,7 +104,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process rabbitmq request with full uri', async () => {
+  it('should process rpc request with full uri', async () => {
     await initAmqpEnv({ content: { toString: () => 'data' }, properties: {} });
 
     return request(app)

@@ -1,7 +1,7 @@
 const request = require('supertest');
 const WebSocket = require('ws');
 
-describe('proxy', () => {
+describe('proxy nats', () => {
   let app;
   let env;
 
@@ -36,7 +36,7 @@ describe('proxy', () => {
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
   }
 
-  it('should process nats request', async () => {
+  it('should process request', async () => {
     await initNatsEnv({});
 
     return request(app)
@@ -53,7 +53,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process rabbitmq request with full uri', async () => {
+  it('should process request with full uri', async () => {
     await initNatsEnv({});
 
     return request(app)
@@ -70,7 +70,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process nats request with alias of uri', async () => {
+  it('should process request with alias of uri', async () => {
     await initNatsEnv(undefined, {nats: {alias: 'nats://a:b@c:1'}});
 
     return request(app)
@@ -87,7 +87,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process nats request', async () => {
+  it('should process rpc request', async () => {
     await initNatsEnv('data');
 
     return request(app)
@@ -104,7 +104,7 @@ describe('proxy', () => {
       });
   });
 
-  it('should process nats request with full uri', async () => {
+  it('should process rpc request with full uri', async () => {
     await initNatsEnv('data');
 
     return request(app)

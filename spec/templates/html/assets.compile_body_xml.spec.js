@@ -1,6 +1,6 @@
 const compileBodyXml = require('../../../src/templates/html/assets/compile_body_xml').compileBodyXml;
 
-describe('template html assets, compileBodyForm', () => {
+describe('template html assets compileBodyForm', () => {
   it('should compile', () => {
     const text = compileBodyXml({
       a: 1,
