@@ -235,16 +235,27 @@ Example:
  */
 ```
 
-### @apiSchema
+##### @apiSchema
 
 Format:
 ```
-@apiSchema {jsonschema|swagger=pathToFile[#internalPath]} @apiParam
+@apiSchema [(group)] {jsonschema=pathToFile[#internal.path]} @apiParam
 ```
 
-Uses external schema to generate **@apiParam** list.
+```
+@apiSchema [(group)] {swagger=pathToFile#internal.path.to.api} operationNickname
+```
 
-### @apiSubgroup
+```
+@apiSchema [(group)] {swagger=pathToFile#internal.path.to.model} @apiParam
+```
+
+Uses external schema to fill doc block.
+
+"jsonschema" also allows to use **$ref** definitions within schema.
+"swagger" generates doc block by api operation or **@apiParam** list by model.
+
+##### @apiSubgroup
 
 Format:
 ```
