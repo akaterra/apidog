@@ -12,7 +12,7 @@ const utils = require('../utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
 
-function parse(block, text, line, index, lines) {
+function parse(block, text, line, index, lines, definitions, config) {
   const tokens = regex.exec(text);
 
   if (!tokens) {
@@ -49,7 +49,8 @@ function parse(block, text, line, index, lines) {
         jsonSchema,
         tokens[2],
         params[0],
-        jsonSchemaSpec
+        jsonSchemaSpec,
+        config
       )));
 
       return block;
@@ -59,8 +60,7 @@ function parse(block, text, line, index, lines) {
         throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing path to api definition or model`);
       }
 
-      let swaggerSpec = parserSwaggerUtils.fetchSource(schemaFile);
-      parserSwaggerUtils.validate(swaggerSpec);
+      let swaggerSpec = parserSwaggerUtils.validate(parserSwaggerUtils.fetchSource(schemaFile));
 
       if (schemaPath.substr(0, 4) === 'apis') {
         let swaggerApi = get(swaggerSpec, schemaPath, parse);

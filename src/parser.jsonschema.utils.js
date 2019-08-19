@@ -1,12 +1,13 @@
 const fs = require('fs');
+const utils = require('./utils');
 
-function convert(spec, group, token, rootSpec) {
-  validate(spec);
+function convert(spec, group, token, rootSpec, config) {
+  validateInternal(spec, config);
 
-  return resolveDefinition(spec, group, '', token, [], rootSpec);
+  return resolveDefinition(spec, group, '', token, [], rootSpec, config);
 }
 
-function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
+function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec, config) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -20,7 +21,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
   }
 
   if (spec.$ref) {
-    resolveRef(rootSpec, spec);
+    resolveRef(rootSpec, spec, config);
   }
 
   if (!spec.properties || typeof spec.properties !== 'object') {
@@ -33,21 +34,20 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
 
   Object.entries(spec.properties).forEach(([key, val]) => {
     if (val.$ref) {
-      resolveRef(rootSpec, val);
+      resolveRef(rootSpec, val, config);
     }
 
-    const paramDefault = val.default ? `=${quote(val.default)}` : '';
-    const paramEnum = val.enum ? `=${val.enum.map(quote).join(',')}` : '';
-    const paramKey = required && required.indexOf(key) !== - 1
-      ? `${prefix}${key}${paramDefault}`
-      : `[${prefix}${key}${paramDefault}]`;
+    const paramDefault = val.default ? `=${utils.quote(val.default)}` : '';
+    const paramIsRequired = required.indexOf(key) !== - 1;
+    const paramEnum = val.enum ? `=${[].concat(paramIsRequired ? [] : ['""'], val.enum).map(utils.quote).join(',')}` : '';
+    const paramKey = paramIsRequired ? `${prefix}${key}${paramDefault}` : `[${prefix}${key}${paramDefault}]`;
     const paramTitle = val.title ? ` ${val.title}` : '';
 
     switch (val.type) {
       case 'boolean':
       case 'number':
       case 'string':
-        docBlock.push(`${token} ${paramGroup}{${resolveType(val.type)}${paramEnum}} ${paramKey}${paramTitle}`);
+        docBlock.push(`${token} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
 
         if (val.description) {
           docBlock.push(val.description);
@@ -63,7 +63,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
         }
 
         if (val.item.properties) {
-          resolveDefinition(val.item, group, `${prefix}${key}[].`, token, docBlock, rootSpec);
+          resolveDefinition(val.item, group, `${prefix}${key}[].`, token, docBlock, rootSpec, config);
         }
 
         break;
@@ -76,7 +76,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
         }
 
         if (val.properties) {
-          resolveDefinition(val, group, `${prefix}${key}.`, token, docBlock, rootSpec);
+          resolveDefinition(val, group, `${prefix}${key}.`, token, docBlock, rootSpec, config);
         }
 
         break;
@@ -86,24 +86,20 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec) {
   return docBlock;
 }
 
-function quote(val) {
-  if (typeof val === 'string' && val.indexOf(' ') !== - 1) {
-    return `"${val.replace(/"/g, '\\"')}"`;
-  }
-
-  return val;
-}
-
-function resolveRef(spec, obj) {
+function resolveRef(spec, obj, config) {
   if (obj.$ref) {
     if (typeof obj.$ref !== 'string') {
-      throwError();
+      throwErrorVia(config);
     }
 
     const [schemaName, schemaPath] = obj.$ref.split('#', 2);
 
     if (schemaName) {
-      throwError(`"${schemaName}" external reference is not supported`);
+      spec = config.schema.jsonschema[schemaName];
+
+      if (!spec) {
+        throwErrorVia(config, `"${schemaName}" external reference not exists`);
+      }
     }
 
     let refObj = spec;
@@ -112,33 +108,33 @@ function resolveRef(spec, obj) {
       if (refObj && typeof refObj === 'object' && key in refObj) {
         refObj = refObj[key];
       } else {
-        throwError(`"${schemaPath}" path not exists`);
+        throwErrorVia(config, `"${schemaPath}" path not exists`);
       }
     }
 
     delete obj.$ref;
 
     if (refObj && typeof refObj === 'object') {
-      Object.assign(obj, Object.assign(resolveRef(spec, refObj), obj));
+      Object.assign(obj, Object.assign(resolveRef(spec, refObj, config), obj));
     }
   }
 
   return obj;
 }
 
-function resolveType(type) {
+function resolveType(type, isEnum) {
   switch (type) {
     case 'boolean':
-      return 'Boolean';
+      return isEnum ? 'Boolean:Enum' : 'Boolean';
 
     case 'number':
-      return 'Number';
+      return isEnum ? 'Number:Enum' : 'Number';
 
     case 'object':
       return 'Object';
 
     case 'string':
-      return 'String';
+      return isEnum ? 'String:Enum' : 'String';
   }
 
   return 'String';
@@ -148,13 +144,39 @@ function throwError(message) {
   throw new Error(`Malformed JSON Schema specification${message ? `: ${message}` : ''}`);
 }
 
-function validate(spec) {
+function throwErrorVia(config, message) {
+  config.logger.throw(`Malformed JSON Schema specification${message ? `: ${message}` : ''}`);
+}
+
+function validate(spec, config) {
   if (!spec || typeof spec !== 'object') {
-    throwError();
+    throwErrorVia(config);
+  }
+
+  if (!spec.id && !spec.$id) {
+    throwErrorVia(config);
+  }
+
+  if (spec.id && typeof spec.id !== 'string') {
+    throwErrorVia(config);
+  }
+
+  if (spec.$id && typeof spec.$id !== 'string') {
+    throwErrorVia(config);
   }
 
   if (spec.required && !Array.isArray(spec.required)) {
-    throwError();
+    throwErrorVia(config);
+  }
+}
+
+function validateInternal(spec, config) {
+  if (!spec || typeof spec !== 'object') {
+    throwErrorVia(config);
+  }
+
+  if (spec.required && !Array.isArray(spec.required)) {
+    throwErrorVia(config);
   }
 }
 
@@ -170,4 +192,5 @@ module.exports = {
   resolveDefinition,
   resolveType,
   validate,
+  validateInternal,
 };

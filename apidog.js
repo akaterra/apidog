@@ -5,8 +5,11 @@
 const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
 const generate = require('./src/generator');
+const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
+const parseJsonschemaUtils = require('./src/parser.jsonschema.utils');
 const parseSwagger = require('./src/parser.swagger');
+const parseSwaggerUtils = require('./src/parser.swagger.utils');
 const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({
@@ -25,6 +28,12 @@ argumentParser.addArgument(
   [ '-i', '--input' ],
   {
     action: 'append', help: 'input source(-es) to be scanned for doc blocks',
+  },
+);
+argumentParser.addArgument(
+  [ '--jsonschema' ],
+  {
+    action: 'append', help: 'JSON Schema source to be loaded for resolving the external references',
   },
 );
 argumentParser.addArgument(
@@ -194,21 +203,75 @@ function loadTemplate(path, hbs) {
   };
 }
 
+const config = loadConfig(argsInput[0]);
+const hbs = require('handlebars');
+const template = loadTemplate(args.t || args.template || '@html', hbs);
+const outputDir = args.o || args.output || argsInput[0];
+
+const envConfig = {
+  author: config.author,
+  description: args.description || config.description,
+  keywords: config.keywords,
+  i18n: require('./i18n'),
+  logger: new utils.Logger(),
+  private: argsPrivate,
+  sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
+  sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
+  sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
+  sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
+  sampleRequestProxyWs: args['sampleRequestProxy:ws']
+    || args['sampleRequestProxy:websocket']
+    || config['sampleRequestProxy:ws']
+    || config['sampleRequestProxy:websocket'],
+  sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
+  schema: {
+    jsonschema: (args.jsonschema || []).reduce((acc, source) => {
+      const jsonSchemaSpec = parseJsonschemaUtils.fetchSource(source);
+
+      parseJsonschemaUtils.validate(jsonSchemaSpec);
+
+      acc[jsonSchemaSpec.id || jsonSchemaSpec.$id] = jsonSchemaSpec;
+
+      return acc;
+    }, {}),
+  },
+  title: args.title || config.title,
+  templateProcessor: template.templateProcessor && template.templateProcessor(outputDir),
+  transports: {
+    http: {
+      sampleRequestUrl: null,
+    },
+    https: {
+      sampleRequestUrl: null,
+    },
+  },
+  version: config.version,
+};
+
 let docBlocks = [];
 
 switch (argsParser) {
   case 'dir':
     for (const inp of argsInput) {
-      docBlocks = docBlocks.concat(parseDir.parseDir(inp, [], loadGitIgnore(inp)));
+      docBlocks = docBlocks.concat(parseDir.parseDir(inp, [], loadGitIgnore(inp), envConfig));
     }
 
     argsInput[0] = parseDir.normalizeDir(argsInput[0]);
 
     break;
 
+  case 'inline':
+    docBlocks = [
+      parseBlockLines.parseBlockLines(argsInput.slice(), undefined, envConfig),
+    ];
+
+    argsInput[0] = null;
+
+    break;
+
   case 'swagger':
     for (const inp of argsInput) {
-      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(inp));
+      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(inp, envConfig));
     }
 
     argsInput[0] = parseSwagger.normalizeDir(argsInput[0]);
@@ -219,41 +282,10 @@ switch (argsParser) {
     throw new Error(`Unknown doc blocks parser "${argsParser}"`);
 }
 
-const config = loadConfig(argsInput[0]);
-const hbs = require('handlebars');
-const template = loadTemplate(args.t || args.template || '@html', hbs);
-const outputDir = args.o || args.output || argsInput[0];
 const content = generate.generate(
   docBlocks,
   template.template,
-  {
-    author: config.author,
-    description: args.description || config.description,
-    keywords: config.keywords,
-    i18n: require('./i18n'),
-    logger: new utils.Logger(),
-    private: argsPrivate,
-    sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
-    sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
-    sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
-    sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
-    sampleRequestProxyWs: args['sampleRequestProxy:ws']
-      || args['sampleRequestProxy:websocket']
-      || config['sampleRequestProxy:ws']
-      || config['sampleRequestProxy:websocket'],
-    sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
-    title: args.title || config.title,
-    templateProcessor: template.templateProcessor && template.templateProcessor(outputDir),
-    transports: {
-      http: {
-        sampleRequestUrl: null,
-      },
-      https: {
-        sampleRequestUrl: null,
-      },
-    },
-    version: config.version,
-  },
+  envConfig,
   hbs,
 );
 

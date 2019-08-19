@@ -3,7 +3,11 @@ const path = require('path');
 const parserBlockLines = require('./parser.block_lines');
 const utils = require('./utils');
 
-function parseDir(dir, blocks, ignoreList, logger) {
+function parseDir(dir, blocks, ignoreList, config) {
+  if (!config) {
+    config = {logger: utils.logger};
+  }
+
   dir = path.resolve(dir);
 
   if (ignoreList) {
@@ -15,14 +19,10 @@ function parseDir(dir, blocks, ignoreList, logger) {
       }`));
   }
 
-  if (!logger) {
-    logger = new utils.Logger();
-  }
-
-  return parseDirInternal(dir, blocks, ignoreList, undefined, logger);
+  return parseDirInternal(dir, blocks, ignoreList, undefined, config);
 }
 
-function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
+function parseDirInternal(dir, blocks, ignoreList, definitions, config) {
   if (!blocks) {
     blocks = [];
   }
@@ -45,7 +45,7 @@ function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
         }
       }
 
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions, logger);
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions, config);
     } else if (fsStat.isFile()) {
       if (dirEntry.slice(-7) === '.min.js') {
         return blocks;
@@ -56,7 +56,7 @@ function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
       if (extensionIndex !== - 1) {
         const source = fs.readFileSync(`${dir}/${dirEntry}`, { encoding: 'utf8' });
 
-        logger.setFile(`${dir}/${dirEntry}`);
+        config.logger.setFile(`${dir}/${dirEntry}`);
 
         switch (dirEntry.substr(extensionIndex + 1)) {
           case 'cs':
@@ -66,22 +66,22 @@ function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
           case 'js':
           case 'php':
           case 'ts':
-            blocks = blocks.concat(parseJavaDocStyle(source, definitions, logger));
+            blocks = blocks.concat(parseJavaDocStyle(source, definitions, config));
 
             break;
 
           case 'lua':
-            blocks = blocks.concat(parseLua(source, definitions, logger));
+            blocks = blocks.concat(parseLua(source, definitions, config));
 
             break;
 
           case 'py':
-            blocks = blocks.concat(parsePy(source, definitions, logger));
+            blocks = blocks.concat(parsePy(source, definitions, config));
 
             break;
 
           case 'rb':
-            blocks = blocks.concat(parseRuby(source, definitions, logger));
+            blocks = blocks.concat(parseRuby(source, definitions, config));
 
             break;
         }
@@ -94,7 +94,7 @@ function parseDirInternal(dir, blocks, ignoreList, definitions, logger) {
 
 const defaultCommentPrefixContent = [null, null];
 
-function parseJavaDocStyle(source, definitions, logger) {
+function parseJavaDocStyle(source, definitions, config) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
@@ -103,14 +103,14 @@ function parseJavaDocStyle(source, definitions, logger) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/\s*\*(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions, logger);
+      }).filter((line) => line), definitions, config);
     });
   }
 
   return [];
 }
 
-function parseLua(source, definitions, logger) {
+function parseLua(source, definitions, config) {
   const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
 
   if (blocks) {
@@ -119,14 +119,14 @@ function parseLua(source, definitions, logger) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions, logger);
+      }), definitions, config);
     });
   }
 
   return [];
 }
 
-function parsePerl(source, definitions, logger) {
+function parsePerl(source, definitions, config) {
   const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
 
   if (blocks) {
@@ -135,14 +135,14 @@ function parsePerl(source, definitions, logger) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/#\s?(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions, logger);
+      }).filter((line) => line), definitions, config);
     });
   }
 
   return [];
 }
 
-function parsePy(source, definitions, logger) {
+function parsePy(source, definitions, config) {
   const blocks = source.match(/^(\s*'{3}|\s*"{3})[^!][.\s\t\S\n\r]*?(\s*'{3}|\s*"{3})/gm);
 
   if (blocks) {
@@ -151,14 +151,14 @@ function parsePy(source, definitions, logger) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.substr(lines[0].indexOf(lines[0].match(/\S/)[0]));
-      }), definitions, logger);
+      }), definitions, config);
     });
   }
 
   return [];
 }
 
-function parseRuby(source, definitions, logger) {
+function parseRuby(source, definitions, config) {
   const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
 
   if (blocks) {
@@ -167,7 +167,7 @@ function parseRuby(source, definitions, logger) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions, logger);
+      }), definitions, config);
     });
   }
 

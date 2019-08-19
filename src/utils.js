@@ -1,3 +1,11 @@
+function quote(val) {
+  if (typeof val === 'string' && val.indexOf(' ') !== - 1) {
+    return `"${val.replace(/"/g, '\\"')}"`;
+  }
+
+  return val;
+}
+
 function strSplitBy(str, splitter, limit, trim) {
   if (str) {
     const splitted = str.trim().split(splitter);
@@ -92,19 +100,30 @@ class Logger {
   }
 
   info(message) {
-    console.info(`${message} (${this.file}:${this.line})`);
+    console.info(this.generateMessage(message));
 
     return this;
   }
 
   warn(message) {
-    console.warn(`${message} (${this.file}:${this.line})`);
+    console.warn(this.generateMessage(message));
 
     return this;
+  }
+
+  throw(error) {
+    error = String(error);
+
+    throw new Error(this.generateMessage(error));
+  }
+
+  generateMessage(message) {
+    return `${message} [ file: ${this.file}:${this.lineNum} line: "${this.line ? this.line.trim() : ''}" ]`;
   }
 }
 
 module.exports = {
+  quote,
   strExtractByCurlyBrackets,
   strExtractByBrackets,
   strExtractByRoundBrackets,
@@ -113,4 +132,5 @@ module.exports = {
   strSplitByQuotedTokens,
   strSplitBySpace,
   Logger,
+  logger: new Logger(),
 };

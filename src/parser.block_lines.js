@@ -38,35 +38,39 @@ const tokenParsers = {
   '@apiVersion': require('./tokens/api_version.token'),
 };
 
-function parseBlockLines(lines, definitions, logger) {
+function parseBlockLines(lines, definitions, config) {
+  if (!config) {
+    config = {logger: utils.logger};
+  }
+
   if (!definitions) {
     definitions = {};
   }
 
   const block = {};
 
-  let lastCmdParser;
+  let lastTokenParser;
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
 
-    if (logger) {
-      logger.setLine(line);
+    if (config) {
+      config.logger.setLine(line);
     }
 
     const tokens = utils.strSplitBySpace(line.trim(), 1);
 
     if (tokenParsers.hasOwnProperty(tokens[0])) {
-      lastCmdParser = tokenParsers[tokens[0]];
+      lastTokenParser = tokenParsers[tokens[0]];
 
-      Object.assign(block, lastCmdParser.parse(block, tokens[1], line, index, lines, definitions));
+      Object.assign(block, lastTokenParser.parse(block, tokens[1], line, index, lines, definitions, config));
     } else {
-      if (logger && tokens[0].substr(0, 4) === '@api') {
-        logger.warn(`Possibly unknown token: ${tokens[0]}`);
+      if (config.logger && tokens[0].substr(0, 4) === '@api') {
+        config.logger.warn(`Possibly unknown token: ${tokens[0]}`);
       }
 
-      if (lastCmdParser && lastCmdParser.addDescription) {
-        Object.assign(block, lastCmdParser.addDescription(block, line));
+      if (lastTokenParser && lastTokenParser.addDescription) {
+        Object.assign(block, lastTokenParser.addDescription(block, line, config));
       }
     }
   }

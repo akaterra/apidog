@@ -25,7 +25,7 @@ const ssrVariable = (function () {
     });
 
     Object.entries(headers).forEach(([key, val]) => {
-      headers[key] = val.replace(/\$\{(.+)}/g, (_, sub) => {
+      headers[key] = val.replace(/@(\w+)/g, (_, sub) => {
         const [ns, key] = sub.split(':', 1);
 
         return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
@@ -33,7 +33,7 @@ const ssrVariable = (function () {
     });
 
     Object.entries(params).forEach(([key, val]) => {
-      params[key] = val.replace(/\$\{(.+)}/g, (_, sub) =>{
+      params[key] = val.replace(/@(\w+)/g, (_, sub) =>{
         const [ns, key] = sub.split(':', 1);
 
         return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';

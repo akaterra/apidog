@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
-  "$id": "jsonschema.json",
+  "$id": "jsonschema.external.json",
   "type": "object",
   "required": [
     "b",
@@ -87,10 +87,6 @@
     "k": {
       "type": "string",
       "enum": ["a", "b", "c", "Hello, world!"]
-    },
-    "x": {
-      "$ref": "jsonschema.external.json#/properties/b",
-      "type": "number"
     }
   },
   "definitions": {

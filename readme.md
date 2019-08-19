@@ -73,11 +73,19 @@ Parameters:
 
   Can be multiple. Default is current directory.
 
+* **--jsonschema "source"** - JSON Schema source to be loaded for resolving the external references
+
+  Can be multiple.
+
+  ```sh
+  apidog -i '@apiSchema {jsonschema=./schemas/my-schema.json#definitions.create} @apiParam' -o my-api/ --parser inline --jsonschema ./schemas/schema1.json --jsonschema ./schemas/schema2.json
+  ```
+
 * **-o, --output "output directory"** - output directory where **apidoc.html** and additional files will be saved
 
   Same as **input directory** by default.
 
-* **--parser "dir" | "swagger"** -- parser to be used to parse doc blocks sources
+* **--parser "dir" | "inline" | "swagger"** -- parser to be used to parse doc blocks sources
 
   Default is "dir".
 
@@ -87,7 +95,13 @@ Parameters:
   apidog --parser dir
   ```
 
-  "swagger" is used to parse the provided swagger specification file(s) as input source.
+  "inline" is used to scan the input as lines of the doc block.
+
+  ```sh
+  apidog --parser inline -i "@api {get} /version"
+  ```
+
+  "swagger" is used to parse the provided Swagger specification sources.
 
   ```sh
   apidog --parser swagger -i ./api-v1.swagger.json -i ./api-v2.swagger.json

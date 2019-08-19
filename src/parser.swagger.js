@@ -2,13 +2,13 @@ const parseBlockLines = require('./parser.block_lines');
 const parserSwaggerUtils = require('./parser.swagger.utils');
 const utils = require('./utils');
 
-function parseSwaggerFile(source, logger) {
-  if (!logger) {
-    logger = new utils.Logger();
+function parseSwaggerFile(source, config) {
+  if (!config) {
+    config = {logger: utils.logger};
   }
 
   return parserSwaggerUtils.convert(parserSwaggerUtils.fetchSource(source)).map((lines) => {
-    return parseBlockLines.parseBlockLines(lines, undefined, logger);
+    return parseBlockLines.parseBlockLines(lines, undefined, config);
   });
 }
 

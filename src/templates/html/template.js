@@ -3,6 +3,8 @@ const handlebars = require('handlebars');
 const uglify = require('uglify-es');
 
 module.exports = (outputDir) => (hbs, config, params) => {
+  delete config.schema;
+
   const styleCssTemplate = fs.readFileSync(`${__dirname}/assets/style.css`, {encoding: 'utf8'});
   fs.writeFileSync(`${outputDir}/style.css`, handlebars.compile(styleCssTemplate)(params));
 
