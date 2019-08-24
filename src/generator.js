@@ -160,6 +160,24 @@ function generateSections(blocks, config) {
       block.name = block.title;
     }
 
+    if (config && config.ordered) {
+      if (block.chapter.title) {
+        block.chapter.title = block.chapter.title.replace(/^(\d+\.)+\s+/, expandTitleOrder);
+      }
+
+      if (block.group.title) {
+        block.group.title = block.group.title.replace(/^(\d+\.)+\s+/, expandTitleOrder);
+      }
+
+      if (block.subgroup.title) {
+        block.subgroup.title = block.subgroup.title.replace(/^(\d+\.)+\s+/, expandTitleOrder);
+      }
+
+      if (block.title) {
+        block.title = block.title.replace(/^(\d+\.)+\s+/, expandTitleOrder);
+      }
+    }
+
     block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}`;
     block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}_${block.version}`;
     block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
@@ -175,27 +193,59 @@ function generateSections(blocks, config) {
     }
 
     if (!sections[block.chapter.name]) {
-      sections[block.chapter.name] = {}; // {section: [{}]>}
+      sections[block.chapter.name] = {};
     }
 
     if (!sections[block.chapter.name][block.group.name]) {
-      sections[block.chapter.name][block.group.name] = {}; // {section: [{}]>}
+      sections[block.chapter.name][block.group.name] = {};
     }
 
     if (!sections[block.chapter.name][block.group.name][block.subgroup.name]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name] = {}; // {section: [{}]>}
+      sections[block.chapter.name][block.group.name][block.subgroup.name] = {};
     }
 
     if (!sections[block.chapter.name][block.group.name][block.subgroup.name][block.family]) {
-      sections[block.chapter.name][block.group.name][block.subgroup.name][block.family] = {}; // {section: [{}]>}
+      sections[block.chapter.name][block.group.name][block.subgroup.name][block.family] = {};
     }
 
     sections[block.chapter.name][block.group.name][block.subgroup.name][block.family][block.version] = block;
 
+    if (config && config.ordered) {
+      if (block.chapter.title) {
+        block.chapter.title = block.chapter.title.replace(/^(\d+\.)+\s+/, '');
+      }
+
+      if (block.group.title) {
+        block.group.title = block.group.title.replace(/^(\d+\.)+\s+/, '');
+      }
+
+      if (block.subgroup.title) {
+        block.subgroup.title = block.subgroup.title.replace(/^(\d+\.)+\s+/, '');
+      }
+
+      if (block.title) {
+        block.title = block.title.replace(/^(\d+\.)+\s+/, '');
+      }
+    }
+
     return sections;
   }, {});
 
+  if (config && config.ordered) {
+    Object.values(definitions).forEach((definition) => {
+      if (definition.title) {
+        definition.title = definition.title.replace(/^(\d+\.)+\s+/, '');
+      }
+    });
+  }
+
   return [definitions, sections];
+}
+
+function expandTitleOrder(title) {
+  return title.replace(/(\d+\.)/g, (order) => {
+    return '0'.repeat(4 - order.length + 1) + order.slice(0, -1) + '.';
+  });
 }
 
 module.exports = {

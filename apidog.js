@@ -37,6 +37,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--ordered' ],
+  {
+    action: 'storeTrue', help: 'process titles as ordered titles',
+  },
+);
+argumentParser.addArgument(
   [ '-o', '--output' ],
   {
     help: 'output directory where apidoc.html and additional files will be saved',
@@ -215,6 +221,7 @@ const envConfig = {
   i18n: require('./i18n'),
   logger: new utils.Logger(),
   private: argsPrivate,
+  ordered: args.ordered,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
   sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],

@@ -139,6 +139,8 @@ function blockValidate(block, config) {
         }).filter((sampleRequest) => sampleRequest);
       }
 
+      break;
+
     case 'nats':
     case 'natsrpc':
       if (block.sampleRequest.length) {

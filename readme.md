@@ -81,6 +81,15 @@ Parameters:
   apidog -i '@apiSchema {jsonschema=./schemas/my-schema.json#definitions.create} @apiParam' -o my-api/ --parser inline --jsonschema ./schemas/schema1.json --jsonschema ./schemas/schema2.json
   ```
 
+* **--ordered** - process titles as ordered titles
+
+  Order index must be in format of "1.2.3." and must start the title.
+  Titles will be sorted numerically by order index, then the order index will be removed.
+
+  ```sh
+  apidog -i '@apiDefine 1. First' -i '@apiDefine 2. Second' --ordered
+  ```
+
 * **-o, --output "output directory"** - output directory where **apidoc.html** and additional files will be saved
 
   Same as **input directory** by default.
@@ -115,7 +124,7 @@ Parameters:
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestProxy\[:http | :rabbitmq | :ws\]** - url of ApiDog proxy to be used for requests. "http", "rabbitmq" or "ws" specifier provides proxy for specified transport
+* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - url of ApiDog proxy to be used for requests. "http", "rabbitmq" or "ws" specifier provides proxy for specified transport
 
 * **-t, --template** - alias of embedded template or directory where the custom template be load from
 

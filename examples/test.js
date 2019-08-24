@@ -1,5 +1,5 @@
 /**
- * @apiDefine chapter Sample chapter
+ * @apiDefine chapter 1.2. Sample chapter
  * This is a sample chapter with a title and description
  */
 
@@ -21,6 +21,18 @@
 /**
  * @apiDefine queryParameter2 Sample query parameter 2
  * This is a sample query parameter 2 with a title and description
+ */
+
+/**
+ * @apiDefine Nats 2. Nats
+ */
+
+/**
+ * @apiDefine RabbitMQ 3. RabbitMQ
+ */
+
+/**
+ * @apiDefine WebSocket 4. WebSocket
  */
 
 // Sample chapter
