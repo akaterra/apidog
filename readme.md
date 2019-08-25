@@ -45,9 +45,9 @@ Table of contents
   * [@apiParamPrefix](#apiparamprefix)
   * [@apiSchema](#apischema)
   * [@apiSubgroup](#apisubgroup)
-* Embedded templates
+* Built-in templates
   * [@html (default)](#html-default)
-  * [@html.standalone](#html-standalone)
+  * [@html.standalone](#htmlstandalone)
   * [@md](#md)
 * @html template "Send sample request" plug-in
 
@@ -65,15 +65,15 @@ apidog -h
 
 Parameters:
 
-* **--description "description"** - custom description that will be used as description of the generated documentation
+* **--description "description"** - Custom description that will be used as a description of the generated documentation
 
   Default is \[ package.json in input directory \].description or null by default.
 
-* **-i, --input "input directory"** - input source(-es) to be scanned for doc blocks
+* **-i, --input "input directory"** - Input source(-s) to be scanned for doc blocks
 
   Can be multiple. Default is current directory.
 
-* **--jsonschema "source"** - JSON Schema source to be loaded for resolving the external references
+* **--jsonschema "source"** - JSON Schema source(-s) to be loaded for resolving the external references
 
   Can be multiple.
 
@@ -81,20 +81,16 @@ Parameters:
   apidog -i '@apiSchema {jsonschema=./schemas/my-schema.json#definitions.create} @apiParam' -o my-api/ --parser inline --jsonschema ./schemas/schema1.json --jsonschema ./schemas/schema2.json
   ```
 
-* **--ordered** - process titles as ordered titles
+* **--ordered** - Process titles as ordered titles
 
   Order index must be in format of "1.2.3." and must start the title.
   Titles will be sorted numerically by order index, then the order index will be removed.
 
-  ```sh
-  apidog -i '@apiDefine 1. First' -i '@apiDefine 2. Second' --ordered
-  ```
-
-* **-o, --output "output directory"** - output directory where **apidoc.html** and additional files will be saved
+* **-o, --output "output directory"** - Output directory where "apidoc.html" and additional files will be written
 
   Same as **input directory** by default.
 
-* **--parser "dir" | "inline" | "swagger"** -- parser to be used to parse doc blocks sources
+* **--parser "dir" | "inline" | "swagger"** -- Parser to be used to parse the doc blocks sources
 
   Default is "dir".
 
@@ -116,25 +112,25 @@ Parameters:
   apidog --parser swagger -i ./api-v1.swagger.json -i ./api-v2.swagger.json
   ```
 
-* **-p, --private \["tag"\]** -- tags to filters doc blocks having all the private tags (see **@apiPrivate**) or entirely marked as private
+* **-p, --private \["tag"\]** -- Tags to filter doc blocks having all the private tags or entirely marked as private
 
   Can be multiple. By default takes all the doc blocks.
 
-* **-s, --sampleRequestUrl, --sampleUrl** - base url that will be used as prefix for all relative api paths in sample requests
+* **-s, --sampleRequestUrl, --sampleUrl** - Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - url of ApiDog proxy to be used for requests. "http", "rabbitmq" or "ws" specifier provides proxy for specified transport
+* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq" or "websocket" specifier provides a proxy for the specified transport
 
-* **-t, --template** - alias of embedded template or directory where the custom template be load from
+* **-t, --template** - Alias of the built-in template (@html or @md) or the directory where the custom template be load from
 
   Default is "@html".
 
-* **--title** - custom title that will be used as title of the generated documentation
+* **--title** - Custom title that will be used as a title of the generated documentation
 
   Default is \[ package.json in input directory \].name, \[ config.json in input directory \].title or "Untitled" by default
 
-* **--withSrp, --withSampleRequestProxy \["update"\]** - creates also **apidog_proxy.js**, **apidog_proxy.config.js** and **package.json** in the output directory
+* **--withSrp, --withSampleRequestProxy \["update"\]** - Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
@@ -288,7 +284,7 @@ Format:
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
 
-### Embedded templates
+### Built-in templates
 
 ##### @html (default)
 

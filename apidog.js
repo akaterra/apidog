@@ -21,97 +21,97 @@ const argumentParser = new ArgumentParser({
 argumentParser.addArgument(
   [ '--description' ],
   {
-    help: 'custom description that will be used as a description of the generated documentation',
+    help: 'Custom description that will be used as a description of the generated documentation',
   },
 );
 argumentParser.addArgument(
   [ '-i', '--input' ],
   {
-    action: 'append', help: 'input source(-es) to be scanned for doc blocks',
+    action: 'append', help: 'Input source(-s) to be scanned for doc blocks',
   },
 );
 argumentParser.addArgument(
   [ '--jsonschema' ],
   {
-    action: 'append', help: 'JSON Schema source to be loaded for resolving the external references',
+    action: 'append', help: 'JSON Schema source(-s) to be loaded for resolving the external references',
   },
 );
 argumentParser.addArgument(
   [ '--ordered' ],
   {
-    action: 'storeTrue', help: 'process titles as ordered titles',
+    action: 'storeTrue', help: 'Process titles as ordered titles',
   },
 );
 argumentParser.addArgument(
   [ '-o', '--output' ],
   {
-    help: 'output directory where apidoc.html and additional files will be saved',
-  },
-);
-argumentParser.addArgument(
-  [ '-p', '--private' ],
-  {
-    action: 'append', help: 'tags to filter doc blocks having all the private tags or entirely marked as private',
+    help: 'Output directory where apidoc.html and additional files will be written',
   },
 );
 argumentParser.addArgument(
   [ '--parser' ],
   {
-    help: 'parser to be used to parse doc blocks sources',
+    help: 'Parser to be used to parse the doc blocks sources',
+  },
+);
+argumentParser.addArgument(
+  [ '-p', '--private' ],
+  {
+    action: 'append', help: 'Tags to filter doc blocks having all the private tags or entirely marked as private',
   },
 );
 argumentParser.addArgument(
   [ '-s', '--sampleRequestUrl', '--sampleUrl' ],
   {
-    help: 'base url that will be used as a prefix for all relative api paths in sample requests',
+    help: 'Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy' ],
   {
-    help: 'url of apiDog proxy to be used for requests',
+    help: 'URL of apiDog proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:http' ],
   {
-    help: 'url of apiDog HTTP/HTTPS proxy to be used for requests',
+    help: 'URL of apiDog HTTP/HTTPS proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:nats' ],
   {
-    help: 'url of apiDog Nats proxy to be used for requests',
+    help: 'URL of apiDog Nats proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmq' ],
   {
-    help: 'url of apiDog RabbitMQ proxy to be used for requests',
+    help: 'URL of apiDog RabbitMQ proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:ws', '--sampleRequestProxy:websocket' ],
   {
-    help: 'url of apiDog WebSocket proxy to be used for requests',
+    help: 'URL of apiDog WebSocket proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '-t', '--template' ],
   {
-    help: 'alias of embedded template (@html or @md) or directory where the custom template be load from',
+    help: 'Alias of the built-in template (@html or @md) or the directory where the custom template be load from',
   },
 );
 argumentParser.addArgument(
   [ '--title' ],
   {
-    help: 'custom title that will be used as a title of the generated documentation',
+    help: 'Custom title that will be used as a title of the generated documentation',
   },
 );
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    help: 'creates (not rewrites existing) also apidog_proxy.js, apidog_proxy.config.js and package.json in the output directory',
+    help: 'Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
   },
 );
 
