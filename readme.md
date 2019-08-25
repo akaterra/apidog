@@ -206,18 +206,6 @@ Example:
 
 The second one is combined with the first and is shown under version.
 
-##### @apiOption
-
-Format:
-```
-@apiOption key [val=true]
-```
-
-Defines custom options for internal usage.
-
-**sampleRequestXmlRoot** - defines root namespace for params have to be send as XML.
-If data structure is a plain object and have to be sent in XML format it should be wrapped into root namespace.
-
 ##### @apiParamPrefix
 
 Format:
@@ -273,6 +261,18 @@ Uses external schema to fill doc block.
 
 "jsonschema" also allows to use **$ref** definitions within schema.
 "swagger" generates doc block by api operation or **@apiParam** list by model.
+
+##### @apiSampleRequestOption
+
+Format:
+```
+@apiSampleRequestOption key [val=true]
+```
+
+Defines custom options for the internal usage of the "Send sample request" plug-in.
+
+**xmlRoot** - defines root namespace for params have to be send as XML.
+If data structure is a plain object and have to be sent in XML format it should be wrapped into root namespace.
 
 ##### @apiSubgroup
 

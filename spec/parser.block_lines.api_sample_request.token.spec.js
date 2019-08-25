@@ -13,6 +13,18 @@ describe('parser.block_lines parseBlockLines @apiSampleRequest token', () => {
     })
   });
 
+  it('should parse', () => {
+    const lines = [
+      '@apiSr baseEndpoint',
+    ];
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      sampleRequest: [
+        'baseEndpoint',
+      ],
+    })
+  });
+
   it('should parse with off', () => {
     const lines = [
       '@apiSampleRequest off',

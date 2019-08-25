@@ -43,13 +43,23 @@ const ssrVariable = (function () {
 
   ssr.onResponse((el, text, contentType) => {
     const blockId = el.dataset.block;
-    const blockDescriptor = sections[el.dataset.block];
+    const blockDescriptor = sections[blockId];
 
     if (blockDescriptor.sampleRequestVariable) {
       switch (contentType) {
+        case 'form':
+          text = parseForm(text);
+
+          break;
+
         case 'json':
           text = JSON.parse(text);
 
+          break;
+
+        case 'xml':
+          text = parseXML(text);
+    
           break;
       }
 

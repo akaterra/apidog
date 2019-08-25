@@ -4,13 +4,13 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestVariable token', (
   it('should parse', () => {
     const lines = [
       '@apiSampleRequestVariable name1',
-      '@apiSampleRequestVariable name2=123',
+      '@apiSrVariable name2=123',
       '@apiSampleRequestVariable {response.name} name3',
-      '@apiSampleRequestVariable {response.name} name4=123',
+      '@apiSrVariable {response.name} name4=123',
       '@apiSampleRequestVariable (namespace) name1',
-      '@apiSampleRequestVariable (namespace) name2=123',
+      '@apiSrVariable (namespace) name2=123',
       '@apiSampleRequestVariable (namespace) {response.name} name3',
-      '@apiSampleRequestVariable (namespace) {response.name} name4=123',
+      '@apiSrVariable (namespace) {response.name} name4=123',
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({

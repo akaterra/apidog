@@ -4,7 +4,7 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestHook token', () =>
   it('should parse', () => {
     const lines = [
       '@apiSampleRequestHook hook1',
-      '@apiSampleRequestHook hook2',
+      '@apiSrHook hook2',
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({

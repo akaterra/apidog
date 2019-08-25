@@ -21,8 +21,8 @@ const ssr = (function () {
         onData: (ws, msg) => api.showResponse(blockId, msg),
         onDisconnect: () => api.showWsConnect(blockId),
         onError: (ws, err) => api.showErrorResponse(blockId, err),
-        options: blockDescriptor.option,
-      }
+        options: blockDescriptor.sampleRequestOption,
+      },
     };
 
     on.click(blockSsrSendEl, () => {

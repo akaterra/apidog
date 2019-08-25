@@ -87,3 +87,22 @@ if (typeof module !== 'undefined') {
     has,
   };
 }
+
+function parseForm(text) {
+  return text.split('&').reduce((acc, pair) => {
+    const [key, val] = pair.split('=', 2);
+
+    acc[decodeURIComponent(key)] = decodeURIComponent(val);
+
+    return acc;
+  }, {});
+}
+
+function parseXML(text) {
+  return text
+}
+
+if (typeof module !== 'undefined') {
+  module.exports.parseForm = parseForm;
+  module.exports.parseXML = parseXML;
+}

@@ -1,5 +1,5 @@
 /**
- * @apiOption key [value]
+ * @apiSampleRequestOption key [value]
  */
 
 const utils = require('../utils');
@@ -10,14 +10,14 @@ function parse(block, text) {
   const tokens = regex.exec(text);
 
   if (!tokens) {
-    throw new Error('@apiOption malformed');
+    throw new Error('@apiSampleRequestOption malformed');
   }
 
-  if (!block.option) {
-    block.option = {};
+  if (!block.sampleRequestOption) {
+    block.sampleRequestOption = {};
   }
 
-  block.option[tokens[1]] = tokens[3] || true;
+  block.sampleRequestOption[tokens[1]] = tokens[3] || true;
 
   return block;
 }
