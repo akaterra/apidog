@@ -38,12 +38,15 @@ Table of contents
 
 * Installation
 * CLI
-* Tokens
+* Additional tokens
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
   * [@apiFamily](#apiFamily)
   * [@apiParamPrefix](#apiparamprefix)
   * [@apiSchema](#apischema)
+  * [@apiSampleRequestOption](#apisamplerequestoption)
+  * [@apiSampleRequestVariable](#apisamplerequestvariable)
+  * [@apiSubgroup](#apisubgroup)
   * [@apiSubgroup](#apisubgroup)
 * Built-in templates
   * [@html (default)](#html-default)
@@ -134,7 +137,7 @@ Parameters:
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
-### Tokens
+### Additional tokens
 
 ##### @apiChapter
 
@@ -218,7 +221,6 @@ Prefixes all following **@apiParam**s with prefix.
 This allows also to reuse lists of **apiParams** between different doc blocks.
 
 Example:
-
 ```
 /**
  * @apiDefine sharedParams
@@ -274,6 +276,45 @@ Defines custom options for the internal usage of the "Send sample request" plug-
 **xmlRoot** - defines root namespace for params have to be send as XML.
 If data structure is a plain object and have to be sent in XML format it should be wrapped into root namespace.
 
+##### @apiSampleRequestVariable
+
+Format:
+```
+@apiSampleRequestVariable [(namespace)] [{responsePath}] field[=defaultValue]
+```
+
+Defines variable of the "Send sample request" plug-in that can be used globally via placeholders in the **@apiHeader** or **@apiParam** values.
+
+* **namespace** - name of the global bucket in which the variable value is placed
+* **responsePath** - path in the response data to the variable value, this value will be assigned to the variable authomatically after the response
+* **field** - variable name
+
+Example:
+```
+/**
+ * @api {post} /login
+ * @apiSampleRequestVariable {data.accessToken} accessToken
+ */
+
+/**
+ * @api {get} /goods
+ * @apiHeader {String} Authorization="Bearer @accessToken"
+ */
+```
+
+Example with global bucket:
+```
+/**
+ * @api {post} /login
+ * @apiSampleRequestVariable (accessBucket) {data.accessToken} accessToken
+ */
+
+/**
+ * @api {get} /goods
+ * @apiHeader {String} Authorization="Bearer @accessBucket:accessToken"
+ */
+```
+
 ##### @apiSubgroup
 
 Format:
@@ -283,6 +324,7 @@ Format:
 
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
+
 
 ### Built-in templates
 
@@ -323,7 +365,84 @@ The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
 apidog --withSampleRequestProxy
 ```
 
-Or by **apidoc.json** option "sampleRequestProxy".
+After which the following files will be copied to the output directory:
+
+* **apidog_proxy.js** - start script file
+* **apidog_proxy.config.js** - configuration file
+* **package.json**
+
+Configuration file is a js script that by default exports the object with next parameters:
+
+* **allowPresets** - enables presets support for the built-in HTML template particularly
+* **presetsDir** - directory where the presets are located
+* **http** - HTTP/HTTPS configuration section:
+  * **allow** - allowes proxing HTTP/HTTPS requests, also allows running of HTTP/HTTPS proxy
+  * **allowHeaders** - list of allowed headers
+  * **proxyPort** - the port that the HTTP/HTTPS proxy is listening on
+
+* **nats** - Nats configuration section:
+  * **allow** - allowes proxing Nats requests, depends on **http** section
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
+
+    Example:
+
+    ```js
+    module.exports = {
+      nats: {
+        connectionA: "nats://username:password@ip:4222",
+      },
+    }
+    ```
+
+    URI passed to the proxy:
+
+    ```
+    nats://connectionA/queue
+    ```
+
+* **rabbitmq** - RabbitMQ configuration section:
+  * **allow** - allowes proxing RabbitMQ requests, depends on **http** section
+  * **allowHeaders** - list of allowed headers
+  * **drivers** - the drivers to be used for custom operations:
+    * **rpc** - RPC (Remote Procedure Call) driver, "amqplibRpc" is only supported
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
+
+    Example:
+
+    ```js
+    module.exports = {
+      rabbitmq: {
+        connectionA: "amqp://username:password@ip:5672/virtualHost",
+      },
+    }
+    ```
+
+    URI passed to the proxy:
+
+    ```
+    amqp://connectionA/queue
+    ```
+
+  * **websocket** - WebSocket configuration section:
+    * **allow** - allowes proxing WebSocketrequests, also allows running of WebSocket proxy
+    * **proxyPort** - the port that the WebSocket proxy is listening on
+    * **[connection alias]** - connection URI or settings to be used if its alias is passed
+
+    Example:
+
+    ```js
+    module.exports = {
+      websocket: {
+        connectionA: "ws://ip:9999",
+      },
+    }
+    ```
+
+    URI passed to the proxy:
+
+    ```
+    ws://connectionA/queue
+    ```
 
 ### @html template "Send sample request" plug-in
 

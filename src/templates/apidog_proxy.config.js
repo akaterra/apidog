@@ -1,5 +1,7 @@
 module.exports = {
   allowPresets: true,
+  presetsDir: "presets",
+
   http: {
     allow: true,
     allowHeaders: [
@@ -9,10 +11,12 @@ module.exports = {
     ],
     proxyPort: 8088,
   },
+
   nats: {
     allow: true,
     default: 'nats://username:password@ip:4222'
   },
+
   rabbitmq: {
     allow: true,
     allowHeaders: [
@@ -25,6 +29,7 @@ module.exports = {
       rpc: 'amqplibRpc',
     },
   },
+
   websocket: {
     allow: true,
     default: 'ws://ip:9999',

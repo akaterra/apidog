@@ -42,10 +42,10 @@ async function createAppHttp(env) {
     app.get('/preset/:presetBlockId', async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
-      if (config.presetDir) {
+      if (config.presetsDir) {
         const presetBlockId = encodeURIComponent(req.params.presetBlockId);
 
-        fs.readdir(config.presetDir, async (err, files) => {
+        fs.readdir(config.presetsDir, async (err, files) => {
           if (err) {
             return res.status(500).json(err.message);
           }
@@ -60,7 +60,7 @@ async function createAppHttp(env) {
 
               if (filenameOnly.substr(0, presetBlockId.length) === presetBlockId) {
                 presets[decodeURIComponent(presetBlockId)][decodeURIComponent(filenameOnly.substr(presetBlockId.length + 2))] = await new Promise(
-                  (resolve, reject) => fs.readFile(`${config.presetDir}/${file}`, (err, data) => {
+                  (resolve, reject) => fs.readFile(`${config.presetsDir}/${file}`, (err, data) => {
                     if (err) {
                       reject(err);
                     } else {
@@ -84,11 +84,11 @@ async function createAppHttp(env) {
     app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
-      if (config.presetDir) {
+      if (config.presetsDir) {
         const presetBlockId = encodeURIComponent(req.params.presetBlockId);
         const presetName = encodeURIComponent(req.params.presetName);
 
-        fs.writeFile(`${config.presetDir}/${presetBlockId}__${presetName}.json`, req.rawBody, (err) => {
+        fs.writeFile(`${config.presetsDir}/${presetBlockId}__${presetName}.json`, req.rawBody, (err) => {
           if (err) {
             res.status(500).json(err.message);
           } else {
