@@ -2,7 +2,9 @@ const fs = require('fs');
 const handlebars = require('handlebars');
 const uglify = require('uglify-es');
 
-module.exports = (outputDir) => (hbs, config, params) => {
+module.exports = (config) => (hbs, config, params) => {
+  const outputDir = config.outputDir;
+
   delete config.schema;
 
   const styleCssTemplate = fs.readFileSync(`${__dirname}/assets/style.css`, {encoding: 'utf8'});

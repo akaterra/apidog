@@ -212,7 +212,7 @@ function loadTemplate(path, hbs) {
 const config = loadConfig(argsInput[0]);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
-const outputDir = args.o || args.output || argsInput[0];
+const outputDir = args.o || args.output;
 
 const envConfig = {
   author: config.author,
@@ -222,6 +222,7 @@ const envConfig = {
   logger: new utils.Logger(),
   private: argsPrivate,
   ordered: args.ordered,
+  outputDir,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
   sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
@@ -243,7 +244,6 @@ const envConfig = {
     }, {}),
   },
   title: args.title || config.title,
-  templateProcessor: template.templateProcessor && template.templateProcessor(outputDir),
   transports: {
     http: {
       sampleRequestUrl: null,
@@ -256,38 +256,57 @@ const envConfig = {
 };
 
 let docBlocks = [];
+let linesInlineParser = [];
 
-switch (argsParser) {
-  case 'dir':
-    for (const inp of argsInput) {
-      docBlocks = docBlocks.concat(parseDir.parseDir(inp, [], loadGitIgnore(inp), envConfig));
-    }
+argsInput.forEach((argInput, index) => {
+  let [_, parser, source] = argInput.match(/^(inline:)(.*)$/) || [];
 
-    argsInput[0] = parseDir.normalizeDir(argsInput[0]);
+  if (!parser) {
+    return;
+  }
 
-    break;
+  switch (parser.slice(0, -1) || argsParser) {
+    case 'inline':
+      linesInlineParser.push(source);
 
-  case 'inline':
-    docBlocks = [
-      parseBlockLines.parseBlockLines(argsInput.slice(), undefined, envConfig),
-    ];
-
-    argsInput[0] = null;
+      argInput[index] = null;
 
     break;
+  }
+});
 
-  case 'swagger':
-    for (const inp of argsInput) {
-      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(inp, envConfig));
-    }
-
-    argsInput[0] = parseSwagger.normalizeDir(argsInput[0]);
-
-    break;
-
-  default:
-    throw new Error(`Unknown doc blocks parser "${argsParser}"`);
+if (linesInlineParser.length) {
+  docBlocks = [parseBlockLines.parseBlockLines(linesInlineParser, undefined, envConfig)];
 }
+
+argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
+  let [_, parser, source] = argInput.match(/^(dir:|inline:|swagger:|)(.*)$/) || [];
+
+  switch (parser.slice(0, -1) || argsParser) {
+    case 'dir':
+      docBlocks = docBlocks.concat(parseDir.parseDir(source, [], loadGitIgnore(source), envConfig));
+
+      if (index === 0 && !outputDir) {
+        envConfig.outputDir = parseDir.normalizeDir(source);
+      }
+
+      break;
+
+    case 'swagger':
+      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(source, envConfig));
+
+      if (index === 0 && !outputDir) {
+        envConfig.outputDir = parseSwagger.normalizeDir(source);
+      }
+
+      break;
+
+    default:
+      throw new Error(`Unknown doc blocks parser "${argsParser}"`);
+  }
+});
+
+envConfig.templateProcessor = template.templateProcessor && template.templateProcessor(envConfig);
 
 const content = generate.generate(
   docBlocks,
@@ -297,13 +316,13 @@ const content = generate.generate(
 );
 
 if (!template.templateProcessor) {
-  fs.writeFileSync(`${outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
+  fs.writeFileSync(`${envConfig.outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
 if (args.withSampleRequestProxy) {
   for (const file of ['apiDog_proxy.js', 'apiDog_proxy.config.js', 'package.json']) {
-    if (!fs.existsSync(`${outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
-      fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${outputDir}/${file}`);
+    if (!fs.existsSync(`${envConfig.outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
+      fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/${file}`);
     }
   }
 }
