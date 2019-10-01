@@ -161,7 +161,7 @@ function loadGitIgnore(dir) {
 }
 
 function loadTemplate(path, hbs) {
-  const customNameIndex = path.lastIndexOf('.');
+  const customNameIndex = path.indexOf('.');
 
   let [realPath, customName] = customNameIndex !== - 1
     ? [path.substr(0, customNameIndex), path.substr(customNameIndex)]

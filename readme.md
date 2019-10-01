@@ -12,9 +12,10 @@ apiDog is a API documentation generator alternative to the [apiDoc](http://apido
 Features:
 
 * Templates for:
-  * Minimalistic html file with dynamic loading of assets
-  * Single pre-compiled html file with no external dependencies
-  * Mark down file
+  * Minimalistic HTML file with dynamic assets loading
+  * Single pre-compiled HTML file with no external dependencies
+  * Markdown file
+  * Swagger specification file (v1.2, v2.0)
 * Server-side proxy
 * Send sample request plugin for html template:
     * Transports support:
@@ -47,11 +48,12 @@ Table of contents
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
-  * [@apiSubgroup](#apisubgroup)
 * Built-in templates
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
+  * [@swagger.1.2](#swagger12)
+  * [@swagger.2.0](#swagger20)
 * @html template "Send sample request" plug-in
 
 ### Installation
@@ -125,9 +127,16 @@ Parameters:
 
 * **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq" or "websocket" specifier provides a proxy for the specified transport
 
-* **-t, --template** - Alias of the built-in template (@html or @md) or the directory where the custom template be load from
+* **-t, --template** - Alias of the built-in template or the directory where the custom template be load from
 
   Default is "@html".
+
+  Build-in templates:
+    * @html
+    * @html.standalone
+    * @md
+    * @swagger.1.2
+    * @swagger.2.0
 
 * **--title** - Custom title that will be used as a title of the generated documentation
 
@@ -355,7 +364,23 @@ Compiles to standalone html file without external dependencies.
 apidog -t @md
 ```
 
-Compiles to mark down file.
+Compiles to markdown file.
+
+##### @swagger.1.2
+
+```sh
+apidog -t @swagger.1.2
+```
+
+Compiles to Swagger v1.2 specification JSON file.
+
+##### @swagger.2.0
+
+```sh
+apidog -t @swagger.2.0
+```
+
+Compiles to Swagger v2.0 specification JSON file.
 
 ### Server-side proxy
 

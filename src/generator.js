@@ -78,6 +78,19 @@ function generate(blocks, template, config, hbs) {
 
       return acc;
     }, {}),
+    schemes: Object.values(chapters).reduce((acc, chapter) => {
+      Object.values(chapter).forEach((group) => {
+        Object.values(group).forEach((subgroup) => {
+          Object.values(subgroup).forEach((name) => {
+            Object.values(name).forEach((version) => {
+              acc[version.api.transport.name] = version.api.transport.name;
+            });
+          });
+        });
+      });
+
+      return acc;
+    }, {}),
     versions: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
