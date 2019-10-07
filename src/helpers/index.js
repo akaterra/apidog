@@ -1,4 +1,5 @@
 module.exports = {
+  addVar: require('./add_var'),
   first: require('./first'),
   hook: require('./hook'),
   ifCond: require('./if_cond'),
@@ -6,6 +7,7 @@ module.exports = {
   joinWithComma: require('./join_with_comma'),
   lookup: require('./lookup'),
   pathLastKeyIndented: require('./path_last_key_indented'),
+  setVar: require('./set_var'),
   toHtml: require('./to_html'),
   toJson: require('./to_json'),
   toLowerCase: require('./to_lower_case'),

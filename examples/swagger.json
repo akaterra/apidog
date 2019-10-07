@@ -1,0 +1,116 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Sample API",
+    "description": "This is a sample API",
+    "version": "0.0.1"
+  },
+  "host": "http://localhost:80",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "nats",
+    "natsrpc",
+    "rabbitmq",
+    "rabbitmqrpc",
+    "websocket"
+  ],
+  "paths": {
+    "/test/with/name/:id?:param1": {
+      "get": {
+        "description": "",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "/test/with/no/group/subgroup/:id?:param1": {
+      "get": {
+        "description": "",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "/test/with/no/group/:id?:param1": {
+      "get": {
+        "description": "",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "/v1/test/:id?:param1": {
+      "get": {
+        "description": "GET v1 description",
+        "produces": [
+          "form"
+        ]
+      },
+      "get": {
+        "description": "GET v2 description",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "/test/with/no/subgroup/:id?:param1": {
+      "get": {
+        "description": "",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "/test/:id": {
+      "post": {
+        "description": "",
+        "produces": [
+          "form",
+          "json",
+          "xml"
+        ]
+      }
+    }
+    "publish": {
+      "": {
+        "description": "",
+        "produces": [
+          "json"
+        ]
+      }
+    }
+    "rpc": {
+      "": {
+        "description": "",
+        "produces": [
+          "json"
+        ]
+      }
+    }
+    "publish": {
+      "": {
+        "description": "",
+        "produces": [
+          "form"
+        ]
+      }
+    }
+    "rpc": {
+      "": {
+        "description": "",
+        "produces": [
+          "json"
+        ]
+      }
+    }
+    "publish": {
+      "": {
+        "description": "",
+        "produces": [
+          "json"
+        ]
+      }
+    }
+  ]
+}

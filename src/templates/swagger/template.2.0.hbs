@@ -1,4 +1,4 @@
-{
+{{setVar "countNames" 1}}{{setVar "totalNames" total.names}}{
   "swagger": "2.0",
   "info": {
     "title": "{{this.title}}",
@@ -22,18 +22,37 @@
     "{{this.[0].api.endpoint}}": {
           {{#each this}}
       "{{this.api.transport.method}}": {
+        "summary": "{{this.title}}",
         "description": "{{this.description}}",
+        "operationId": "{{this.id}}",
+        "consumes": [
+            {{#each this.contentType}}
+              {{#ifCond this "==" "form"}}
+          "application/x-www-form-urlencoded"{{#if @last}}{{else}},{{/if}}
+              {{else ifCond ../this "==" "json"}}
+          "application/json"{{#if @last}}{{else}},{{/if}}
+              {{else ifCond ../../this "==" "xml"}}
+          "application/xml"{{#if @last}}{{else}},{{/if}}
+              {{/ifCond}}
+            {{/each}}
+        ],
         "produces": [
             {{#each this.contentType}}
-          "{{this}}"{{#if @last}}{{else}},{{/if}}
+              {{#ifCond this "==" "form"}}
+          "application/x-www-form-urlencoded"{{#if @last}}{{else}},{{/if}}
+              {{else ifCond ../this "==" "json"}}
+          "application/json"{{#if @last}}{{else}},{{/if}}
+              {{else ifCond ../../this "==" "xml"}}
+          "application/xml"{{#if @last}}{{else}},{{/if}}
+              {{/ifCond}}
             {{/each}}
         ]
       }{{#if @last}}{{else}},{{/if}}
           {{/each}}
-    }
+    }{{#ifCond (context "countNames") "==" (context "totalNames")}}{{else}},{{/ifCond}}{{addVar "countNames" 1}}
         {{/each}}
       {{/each}}
     {{/each}}
   {{/each}}
-  ]
+  }
 }

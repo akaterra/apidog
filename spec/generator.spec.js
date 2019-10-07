@@ -23,19 +23,19 @@ describe('generator', () => {
   it('should generate with public filtering', () => {
     const blocks = [
       {
-        $id: 0, api: {}, private: true,
+        $id: 0, api: {transport: {name: 'test'}}, private: true,
       },
       {
-        $id: 1, api: {}, private: false,
+        $id: 1, api: {transport: {name: 'test'}}, private: false,
       },
       {
-        $id: 2, api: {}, private: ['a', 'b', 'c'],
+        $id: 2, api: {transport: {name: 'test'}}, private: ['a', 'b', 'c'],
       },
       {
-        $id: 3, api: {}, private: ['a'],
+        $id: 3, api: {transport: {name: 'test'}}, private: ['a'],
       },
       {
-        $id: 4, api: {},
+        $id: 4, api: {transport: {name: 'test'}},
       },
     ];
     const handlebars = hbs();
@@ -48,19 +48,19 @@ describe('generator', () => {
   it('should generate with private filtering', () => {
     const blocks = [
       {
-        $id: 0, api: {}, private: true,
+        $id: 0, api: {transport: {name: 'test'}}, private: true,
       },
       {
-        $id: 1, api: {}, private: false,
+        $id: 1, api: {transport: {name: 'test'}}, private: false,
       },
       {
-        $id: 2, api: {}, private: ['a', 'b', 'c'],
+        $id: 2, api: {transport: {name: 'test'}}, private: ['a', 'b', 'c'],
       },
       {
-        $id: 3, api: {}, private: ['a'],
+        $id: 3, api: {transport: {name: 'test'}}, private: ['a'],
       },
       {
-        $id: 4, api: {},
+        $id: 4, api: {transport: {name: 'test'}},
       },
     ];
     const handlebars = hbs();
@@ -73,19 +73,19 @@ describe('generator', () => {
   it('should generate with private filtering of slices', () => {
     const blocks = [
       {
-        $id: 0, api: {}, private: true,
+        $id: 0, api: {transport: {name: 'test'}}, private: true,
       },
       {
-        $id: 1, api: {}, private: false,
+        $id: 1, api: {transport: {name: 'test'}}, private: false,
       },
       {
-        $id: 2, api: {}, private: ['a', 'b', 'c'],
+        $id: 2, api: {transport: {name: 'test'}}, private: ['a', 'b', 'c'],
       },
       {
-        $id: 3, api: {}, private: ['a'],
+        $id: 3, api: {transport: {name: 'test'}}, private: ['a'],
       },
       {
-        $id: 4, api: {},
+        $id: 4, api: {transport: {name: 'test'}},
       },
     ];
     const handlebars = hbs();

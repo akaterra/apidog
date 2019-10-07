@@ -24,7 +24,15 @@ function generate(blocks, template, config, hbs) {
     return config ? !config.private : true;
   });
 
-  const [definitions, chapters] = generateSections(blocks, config);
+  let [definitions, chapters] = generateSections(blocks, config);
+
+  if (config.templateProcessor && config.templateProcessor.prepareChapters) {
+    chapters = config.templateProcessor.prepareChapters(chapters);
+  }
+
+  const total = {
+    names: 0,
+  }
 
   const templateParams = {
     author: config && config.author,
@@ -37,6 +45,8 @@ function generate(blocks, template, config, hbs) {
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
                 names: Object.entries(subgroup).map(([name, version]) => {
+                  total.names += 1;
+
                   return Object.values(version);
                 }),
                 title: subgroupName,
@@ -91,6 +101,7 @@ function generate(blocks, template, config, hbs) {
 
       return acc;
     }, {}),
+    total,
     versions: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
@@ -111,7 +122,7 @@ function generate(blocks, template, config, hbs) {
   hbs.registerHelper('context', (name) => templateParams[name]);
 
   if (config.templateProcessor) {
-    return config.templateProcessor(hbs || handlebars, config, templateParams);
+    return config.templateProcessor.generate(hbs || handlebars, config, templateParams);
   }
 
   return (hbs || handlebars).compile(template)(templateParams);
