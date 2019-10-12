@@ -1,5 +1,6 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
+const parserUtils = require('../../parser.utils');
 
 module.exports = (config) => ({
   generate(hbs, config, params) {
@@ -20,51 +21,42 @@ module.exports = (config) => ({
       paths: {},
     };
 
-    Object.entries(params.chaptersAsLists).forEach(([chapterName, chapter]) => {
-      Object.entries(chapter).forEach(([groupName, group]) => {
-        Object.entries(group).forEach(([subgroupName, subgroup]) => {
-          Object.entries(subgroup).forEach(([name, version]) => {
-            console.log(version[0]);
-            Object.entries(version).forEach(([versionName, descriptor]) => {
-            });
-          });
-        });
-      });
+    parserUtils.enumChapters(params.chapters, ({descriptor}) => {
+      if (!(descriptor.api.endpoint in spec.paths)) {
+        spec.paths[descriptor.api.endpoint] = {};
+      }
+
+      spec.paths[descriptor.api.endpoint][descriptor.api.transport.method] = {
+        summary: descriptor.title,
+        description: descriptor.description,
+        operationId: descriptor.id,
+        consumes: descriptor.contentType.map((contentType) => {
+          switch (contentType) {
+            case 'form':
+              return 'application/x-www-form-urlencoded';
+
+            case 'json':
+              return 'application/json';
+
+            case 'xml':
+              return 'application/xml';
+          }
+        }),
+        produces: descriptor.contentType.map((contentType) => {
+          switch (contentType) {
+            case 'form':
+              return 'application/x-www-form-urlencoded';
+
+            case 'json':
+              return 'application/json';
+
+            case 'xml':
+              return 'application/xml';
+          }
+        }),
+      };
     });
 
     fs.writeFileSync(`${outputDir}/swagger2.json`, JSON.stringify(spec, undefined, 2));
-  },
-  prepareChapters(chapters) {
-    const newChapters = {};
-
-    Object.entries(chapters).forEach(([chapterName, chapter]) => {
-      Object.entries(chapter).forEach(([groupName, group]) => {
-        Object.entries(group).forEach(([subgroupName, subgroup]) => {
-          Object.entries(subgroup).forEach(([name, version]) => {
-            Object.entries(version).forEach(([versionName, descriptor]) => {
-              if (!newChapters[chapterName]) {
-                newChapters[chapterName] = {};
-              }
-
-              if (!newChapters[chapterName][groupName]) {
-                newChapters[chapterName][groupName] = {};
-              }
-
-              if (!newChapters[chapterName][groupName][subgroupName]) {
-                newChapters[chapterName][groupName][subgroupName] = {};
-              }
-
-              if (!newChapters[chapterName][groupName][subgroupName][descriptor.api.endpoint]) {
-                newChapters[chapterName][groupName][subgroupName][descriptor.api.endpoint] = {};
-              }
-
-              newChapters[chapterName][groupName][subgroupName][descriptor.api.endpoint][versionName] = descriptor;
-            });
-          });
-        });
-      });
-    });
-
-    return newChapters;
   },
 });

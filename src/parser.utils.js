@@ -1,3 +1,28 @@
+function enumChapters(chapters, fn) {
+  Object.entries(chapters).forEach(([chapterName, groups]) => {
+    Object.entries(groups).forEach(([groupName, subgroups]) => {
+      Object.entries(subgroups).forEach(([subgroupName, names]) => {
+        Object.entries(names).forEach(([name, versions]) => {
+          Object.entries(versions).forEach(([versionName, descriptor]) => {
+            fn({
+              chapterName,
+              groups,
+              groupName,
+              subgroups,
+              subgroupName,
+              names,
+              name,
+              versions,
+              versionName,
+              descriptor,
+            });
+          });
+        });
+      });
+    });
+  });
+}
+
 function paramsToJsonSchema(params) {
   const jsonSchema = {
     type: 'object',
@@ -78,5 +103,6 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
 }
 
 module.exports = {
-  paramsToJsonSchema: paramsToJsonSchema,
+  enumChapters,
+  paramsToJsonSchema,
 };
