@@ -23,7 +23,21 @@ function enumChapters(chapters, fn) {
   });
 }
 
-function paramsToJsonSchema(params) {
+function enumUriPlaceholders(uri, fn) {
+  const placeholderRegex = /:(\w+)/g;
+
+  let placeholder;
+
+  while (placeholder = placeholderRegex.exec(uri.substr(0, uri.indexOf('?')))) {
+    fn(placeholder[1], false);
+  }
+
+  while (placeholder = placeholderRegex.exec(uri.substr(uri.indexOf('?') + 1))) {
+    fn(placeholder[1], true);
+  }
+}
+
+function convertParamsToJsonSchema(params) {
   const jsonSchema = {
     type: 'object',
     required: [],
@@ -37,20 +51,26 @@ function paramsToJsonSchema(params) {
     const path = param.field.name.split('.');
 
     path.forEach((key, ind) => {
-      const keyLists = key.match(/^(\w+)(\[.*])*$/);
+      const keyMixed = key.match(/^(.+?)(\[\d*])*$/);
 
-      if (keyLists) {
-        if (!(keyLists[1] in nodeProperties)) {
+      if (keyMixed) {
+        const [, name, list] = keyMixed;
+
+        if (!(name in nodeProperties)) {
           if (!param.field.isOptional) {
-            nodeRequired.push(keyLists[1]);
+            nodeRequired.push(name);
           }
 
-          nodeProperties = nodeProperties[keyLists[1]] = {};
+          nodeProperties = nodeProperties[name] = {};
 
-          if (keyLists[2]) {
-            const arrayElRegex = /\[.*]/g;
+          if (param.description) {
+            nodeProperties.description = param.description.join('\n');
+          }
 
-            while (arrayElRegex.exec(keyLists[2])) {
+          if (list) {
+            const arrayElRegex = /\[\d*]/g;
+
+            while (arrayElRegex.exec(list)) {
               nodeProperties.type = 'array';
               nodeProperties = nodeProperties.items = {};
             }
@@ -58,7 +78,7 @@ function paramsToJsonSchema(params) {
 
           const type = param.type.name.toLowerCase();
 
-          if (type === 'object' || ind < path.length - 1) {
+          if (ind < path.length - 1) {
             nodeProperties.required = [];
             nodeRequired = nodeProperties.required
             nodeProperties.type = 'object';
@@ -70,10 +90,16 @@ function paramsToJsonSchema(params) {
             if (param.type.allowedValues && param.type.allowedValues.length) {
               nodeProperties.enum = param.type.allowedValues;
             }
+          } else {
+            nodeProperties.required = [];
+            nodeRequired = nodeProperties.required
+            nodeProperties.type = 'object';
+            nodeProperties.properties = {};
+            nodeProperties = nodeProperties.properties
           }
         } else {
-          nodeRequired = nodeProperties[keyLists[1]].required;
-          nodeProperties = nodeProperties[keyLists[1]].items || nodeProperties[keyLists[1]].properties;
+          nodeRequired = nodeProperties[keyMixed[1]].required;
+          nodeProperties = nodeProperties[keyMixed[1]].items || nodeProperties[keyMixed[1]].properties;
         }
       }
     });
@@ -104,5 +130,6 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
 
 module.exports = {
   enumChapters,
-  paramsToJsonSchema,
+  enumUriPlaceholders,
+  convertParamsToJsonSchema,
 };

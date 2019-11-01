@@ -19,13 +19,13 @@ Features:
 * Server-side proxy
 * Send sample request plugin for html template:
     * Transports support:
-        * HTTP
-        * HTTPS
+        * HTTP/HTTPS
         * Nats (via server-side proxy)
         * Nats RPC (remote procedure call, via server-side proxy)
         * RabbitMQ (via server-side proxy)
         * RabbitMQ RPC (remote procedure call, via server-side proxy)
-        * WebSocket (W3C)
+        * Redis PUB/SUB (via server-side proxy)
+        * WebSocket/WebSocket Secure (W3C)
     * Content types support:
         * Form
         * JSON

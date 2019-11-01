@@ -1,13 +1,11 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
 const parserUtils = require('../../parser.utils');
+const URL = require('url').URL;
 
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
-
-    // const apidocHtmlTemplate = fs.readFileSync(`${__dirname}/template.2.0.hbs`, {encoding: 'utf8'});
-    // fs.writeFileSync(`${outputDir}/swagger.json`, handlebars.compile(apidocHtmlTemplate)(params));
 
     const spec = {
       swagger: '2.0',
@@ -17,18 +15,62 @@ module.exports = (config) => ({
         version: params.version,
       },
       basePath: '/',
-      schemes: Object.values(params.schemes),
+      schemes: Object.values(params.schemes).map((scheme) => {
+        switch (scheme) {
+          case 'websocket':
+            return 'ws';
+
+          case 'websocketsequre':
+            return 'wss';
+        }
+
+        return scheme;
+      }),
       paths: {},
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
-      if (!(descriptor.api.endpoint in spec.paths)) {
-        spec.paths[descriptor.api.endpoint] = {};
+      const endpoint = new URL(descriptor.api.endpoint).pathname;
+
+      if (!(endpoint in spec.paths)) {
+        spec.paths[endpoint] = {};
       }
 
-      spec.paths[descriptor.api.endpoint][descriptor.api.transport.method] = {
+      const uriParams = {};
+
+      parserUtils.enumUriPlaceholders(descriptor.api.endpoint, (placeholder, isInQuery) => {
+        uriParams[placeholder] = isInQuery;
+      });
+
+      const responses = {};
+
+      if (!descriptor.successsGroups && !descriptor.errorsGroups) {
+        responses['200'] = {description: 'No description'};
+      } else {
+        if (descriptor.successsGroups) {
+          Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
+            responses[key] = {
+              description: 'No description',
+              schema: parserUtils.convertParamsToJsonSchema(params),
+            };
+          });
+        }
+
+        if (descriptor.errorsGroups) {
+          Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
+            responses[key] = {
+              description: 'No description',
+              schema: parserUtils.convertParamsToJsonSchema(params),
+            };
+          });
+        }
+      }
+
+      let isBodyParamInitiated = false;
+
+      spec.paths[endpoint][descriptor.api.transport.method] = {
         summary: descriptor.title,
-        description: descriptor.description,
+        description: descriptor.description && descriptor.description.join('\n'),
         operationId: descriptor.id,
         consumes: descriptor.contentType.map((contentType) => {
           switch (contentType) {
@@ -41,6 +83,8 @@ module.exports = (config) => ({
             case 'xml':
               return 'application/xml';
           }
+
+          return contentType;
         }),
         produces: descriptor.contentType.map((contentType) => {
           switch (contentType) {
@@ -53,7 +97,35 @@ module.exports = (config) => ({
             case 'xml':
               return 'application/xml';
           }
+
+          return contentType;
         }),
+        parameters: descriptor.params.map((param) => {
+          if (param.field.name in uriParams) {
+            return {
+              name: param.field.name,
+              in: uriParams[param.field.name] ? 'query' : 'path',
+              description: param.description && param.description.join('/n'),
+              required: !param.field.isOptional,
+              type: param.type.name.toLowerCase(),
+            };
+          }
+
+          if (isBodyParamInitiated) {
+            return null;
+          }
+
+          isBodyParamInitiated = true;
+
+          return {
+            name: 'body',
+            in: 'body',
+            description: '',
+            required: true,
+            schema: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams))),
+          };
+        }).filter((parameter) => parameter),
+        responses,
       };
     });
 

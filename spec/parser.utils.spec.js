@@ -1,8 +1,26 @@
 const parserUtils = require('../src/parser.utils');
 
-describe('parser.utils paramsToJsonSchema', () => {
+describe('parser.utils enumUriPlaceholders', () => {
+  it('should enum', () => {
+    const placeholders = {};
+
+    parserUtils.enumUriPlaceholders('schema://uri/:a/:b?c=:c&d=:d', (placeholder, isInQuery) => {
+      placeholders[placeholder] = isInQuery;
+    });
+
+    expect(placeholders).toEqual({
+      a: false,
+      b: false,
+      c: true,
+      d: true,
+    });
+  });
+});
+
+describe('parser.utils convertParamsToJsonSchema', () => {
   it('should convert', () => {
     const params = [{
+      description: ['a', 'b'],
       field: {
         name: 'a',
       },
@@ -46,12 +64,13 @@ describe('parser.utils paramsToJsonSchema', () => {
       },
     }];
 
-    expect(parserUtils.paramsToJsonSchema(params)).toEqual({
+    expect(parserUtils.convertParamsToJsonSchema(params)).toEqual({
       type: 'object',
       required: ['a', 'c', 'd', 'e', 'f'],
       properties: {
         a: {
           type: 'string',
+          description: 'a\nb',
         },
         b: {
           type: 'number',

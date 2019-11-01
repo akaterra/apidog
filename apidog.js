@@ -202,9 +202,17 @@ function loadTemplate(path, hbs) {
     ? require(`${realPath}/template${customName}.js`)
     : null;
 
+  const template = fs.existsSync(`${realPath}/template${customName}.hbs`)
+    ? fs.readFileSync(`${realPath}/template${customName}.hbs`, { encoding: 'utf8' })
+    : null;
+
+  if (!template && !templateProcessor) {
+    throw new Error(`Template not exists: ${realPath}/template${customName}.hbs`);
+  }
+
   return {
     config: JSON.parse(fs.readFileSync(`${realPath}/config.json`, { encoding: 'utf8' })),
-    template: fs.readFileSync(`${realPath}/template${customName}.hbs`, { encoding: 'utf8' }),
+    template,
     templateProcessor,
   };
 }
