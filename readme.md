@@ -24,7 +24,6 @@ Features:
         * Nats RPC (remote procedure call, via server-side proxy)
         * RabbitMQ (via server-side proxy)
         * RabbitMQ RPC (remote procedure call, via server-side proxy)
-        * Redis PUB/SUB (via server-side proxy)
         * WebSocket/WebSocket Secure (W3C)
     * Content types support:
         * Form

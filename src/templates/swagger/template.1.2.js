@@ -63,29 +63,27 @@ module.exports = (config) => ({
         uriParams[placeholder] = isInQuery;
       });
 
-      const responses = {};
+      const responses = [];
 
-      // if (!descriptor.successsGroups && !descriptor.errorsGroups) {
-      //   responses['default'] = {description: 'No description'};
-      // } else {
-      //   if (descriptor.successsGroups) {
-      //     Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
-      //       responses[key] = {
-      //         description: 'No description',
-      //         schema: parserUtils.convertParamsToJsonSchema(params),
-      //       };
-      //     });
-      //   }
+      if (descriptor.successsGroups) {
+        Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
+          responses.push({
+            code: key,
+            message: 'No description',
+            responseModel: '???',
+          });
+        });
+      }
 
-      //   if (descriptor.errorsGroups) {
-      //     Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
-      //       responses[key] = {
-      //         description: 'No description',
-      //         schema: parserUtils.convertParamsToJsonSchema(params),
-      //       };
-      //     });
-      //   }
-      // }
+      if (descriptor.errorsGroups) {
+        Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
+          responses.push({
+            code: key,
+            message: 'No description',
+            responseModel: '???',
+          });
+        });
+      }
 
       // let isBodyParamInitiated = false;
 
@@ -94,6 +92,7 @@ module.exports = (config) => ({
         summary: descriptor.title,
         notes: descriptor.description && descriptor.description.join('\n'),
         nickname: descriptor.id,
+        responseMessages: responses,
         consumes: descriptor.contentType.map((contentType) => {
           switch (contentType) {
             case 'form':
