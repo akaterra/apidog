@@ -1,4 +1,4 @@
-function enumChapters(chapters, fn) {
+function enumChapters(chapters, fn, acc) {
   Object.entries(chapters).forEach(([chapterName, groups]) => {
     Object.entries(groups).forEach(([groupName, subgroups]) => {
       Object.entries(subgroups).forEach(([subgroupName, names]) => {
@@ -15,12 +15,14 @@ function enumChapters(chapters, fn) {
               versions,
               versionName,
               descriptor,
-            });
+            }, acc);
           });
         });
       });
     });
   });
+
+  return acc;
 }
 
 function enumUriPlaceholders(uri, fn) {

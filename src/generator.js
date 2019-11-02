@@ -1,5 +1,6 @@
 const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
+const parserUtils = require('./parser.utils');
 
 function generate(blocks, template, config, hbs) {
   blocks = blocks.filter((block) => {
@@ -59,6 +60,11 @@ function generate(blocks, template, config, hbs) {
       }
     }),
     config: config || {},
+    contentTypes: parserUtils.enumChapters(chapters, ({descriptor}, acc) => {
+      descriptor.contentType.forEach((contentType) => {
+        acc[contentType] = contentType;
+      });
+    }, {}),
     definitions,
     description: config && config.description || 'No description',
     families: Object.values(chapters).reduce((acc, chapter) => {

@@ -45,7 +45,7 @@ module.exports = (config) => ({
       const responses = {};
 
       if (!descriptor.successsGroups && !descriptor.errorsGroups) {
-        responses['200'] = {description: 'No description'};
+        responses['default'] = {description: 'No description'};
       } else {
         if (descriptor.successsGroups) {
           Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
