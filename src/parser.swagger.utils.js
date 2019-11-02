@@ -281,8 +281,26 @@ function validateModelByType(spec, type) {
   return validateModel(spec, spec.models[type]);
 }
 
+function enumUriPlaceholders(uri, fn) {
+  const placeholderRegex = /(\{|\%7B)(\w+)(\}|\%7D)/g;
+  const pathQsIndex = uri.indexOf('?');
+
+  let placeholder;
+
+  while (placeholder = placeholderRegex.exec(pathQsIndex !== -1 ? uri.substr(0, pathQsIndex) : uri)) {
+    fn(placeholder[2], false);
+  }
+
+  if (pathQsIndex !== -1) {
+    while (placeholder = placeholderRegex.exec(uri.substr(pathQsIndex + 1))) {
+      fn(placeholder[2], true);
+    }
+  }
+}
+
 module.exports = {
   convert,
+  enumUriPlaceholders,
   fetchSource: (source) => {
     if (source.slice(-5).toLowerCase() === '.json') {
       return JSON.parse(fs.readFileSync(source, 'utf8'));

@@ -25,15 +25,18 @@ function enumChapters(chapters, fn) {
 
 function enumUriPlaceholders(uri, fn) {
   const placeholderRegex = /:(\w+)/g;
+  const pathQsIndex = uri.indexOf('?');
 
   let placeholder;
 
-  while (placeholder = placeholderRegex.exec(uri.substr(0, uri.indexOf('?')))) {
+  while (placeholder = placeholderRegex.exec(pathQsIndex !== -1 ? uri.substr(0, pathQsIndex) : uri)) {
     fn(placeholder[1], false);
   }
 
-  while (placeholder = placeholderRegex.exec(uri.substr(uri.indexOf('?') + 1))) {
-    fn(placeholder[1], true);
+  if (pathQsIndex !== -1) {
+    while (placeholder = placeholderRegex.exec(uri.substr(pathQsIndex + 1))) {
+      fn(placeholder[1], true);
+    }
   }
 }
 

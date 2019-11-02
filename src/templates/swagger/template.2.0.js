@@ -1,6 +1,6 @@
 const fs = require('fs');
-const handlebars = require('handlebars');
 const parserUtils = require('../../parser.utils');
+const parserSwaggerUtils = require('../../parser.swagger.utils');
 const URL = require('url').URL;
 
 module.exports = (config) => ({
@@ -30,7 +30,7 @@ module.exports = (config) => ({
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
-      const endpoint = new URL(descriptor.api.endpoint).pathname;
+      const endpoint = decodeURIComponent(new URL(descriptor.api.endpoint.replace(/:(\w+)/g, (_, p) => `{${p}}`)).pathname);
 
       if (!(endpoint in spec.paths)) {
         spec.paths[endpoint] = {};
@@ -38,7 +38,7 @@ module.exports = (config) => ({
 
       const uriParams = {};
 
-      parserUtils.enumUriPlaceholders(descriptor.api.endpoint, (placeholder, isInQuery) => {
+      parserSwaggerUtils.enumUriPlaceholders(endpoint, (placeholder, isInQuery) => {
         uriParams[placeholder] = isInQuery;
       });
 
@@ -68,7 +68,7 @@ module.exports = (config) => ({
 
       let isBodyParamInitiated = false;
 
-      spec.paths[endpoint][descriptor.api.transport.method] = {
+      spec.paths[endpoint][descriptor.api.transport.method || 'get'] = {
         summary: descriptor.title,
         description: descriptor.description && descriptor.description.join('\n'),
         operationId: descriptor.id,
