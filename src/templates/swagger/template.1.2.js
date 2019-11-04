@@ -43,12 +43,16 @@ module.exports = (config) => ({
 
         return contentType;
       }),
+      apis: [],
+      models: {},
     };
 
     const apis = {};
 
+    let modelBodyId = 1;
+
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
-      const endpoint = decodeURIComponent(new URL(descriptor.api.endpoint.replace(/:(\w+)/g, (_, p) => `{${p}}`)).pathname);
+      const endpoint = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint)).pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in apis)) {
         apis[endpoint] = {
@@ -85,13 +89,45 @@ module.exports = (config) => ({
         });
       }
 
-      // let isBodyParamInitiated = false;
+      let isBodyParamInitiated = false;
 
       apis[endpoint].operations.push({
         method: descriptor.api.transport.method || 'get',
         summary: descriptor.title,
         notes: descriptor.description && descriptor.description.join('\n'),
         nickname: descriptor.id,
+        parameters: descriptor.params.map((param) => {
+          if (param.field.name in uriParams) {
+            return {
+              name: param.field.name,
+              paramType: uriParams[param.field.name] ? 'query' : 'path',
+              description: param.description && param.description.join('/n'),
+              required: !param.field.isOptional,
+              type: param.type.name.toLowerCase(),
+            }
+          }
+
+          if (isBodyParamInitiated) {
+            return null;
+          }
+
+          isBodyParamInitiated = true;
+
+          spec.models[`Body${modelBodyId}`] = {
+            id: `Body${modelBodyId}`,
+            properties: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams)))
+          };
+
+          modelBodyId += 1;
+
+          return {
+            name: 'body',
+            paramType: 'body',
+            description: '',
+            required: true,
+            type: `Body${modelBodyId - 1}`,
+          };
+        }).filter((parameter) => parameter),
         responseMessages: responses,
         consumes: descriptor.contentType.map((contentType) => {
           switch (contentType) {
@@ -123,67 +159,6 @@ module.exports = (config) => ({
         }),
         deprecated: descriptor.deprecated ? 'true' : 'false',
       });
-
-      // spec.paths[endpoint][descriptor.api.transport.method || 'get'] = {
-      //   method: descriptor.api.transport.method || 'get',
-      //   summary: descriptor.title,
-      //   description: descriptor.description && descriptor.description.join('\n'),
-      //   operationId: descriptor.id,
-      //   consumes: descriptor.contentType.map((contentType) => {
-      //     switch (contentType) {
-      //       case 'form':
-      //         return 'application/x-www-form-urlencoded';
-
-      //       case 'json':
-      //         return 'application/json';
-
-      //       case 'xml':
-      //         return 'application/xml';
-      //     }
-
-      //     return contentType;
-      //   }),
-      //   produces: descriptor.contentType.map((contentType) => {
-      //     switch (contentType) {
-      //       case 'form':
-      //         return 'application/x-www-form-urlencoded';
-
-      //       case 'json':
-      //         return 'application/json';
-
-      //       case 'xml':
-      //         return 'application/xml';
-      //     }
-
-      //     return contentType;
-      //   }),
-      //   parameters: descriptor.params.map((param) => {
-      //     if (param.field.name in uriParams) {
-      //       return {
-      //         name: param.field.name,
-      //         in: uriParams[param.field.name] ? 'query' : 'path',
-      //         description: param.description && param.description.join('/n'),
-      //         required: !param.field.isOptional,
-      //         type: param.type.name.toLowerCase(),
-      //       };
-      //     }
-
-      //     if (isBodyParamInitiated) {
-      //       return null;
-      //     }
-
-      //     isBodyParamInitiated = true;
-
-      //     return {
-      //       name: 'body',
-      //       in: 'body',
-      //       description: '',
-      //       required: true,
-      //       schema: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams))),
-      //     };
-      //   }).filter((parameter) => parameter),
-      //   responses,
-      // };
     });
 
     spec.apis = Object.values(apis);

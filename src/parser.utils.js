@@ -25,21 +25,23 @@ function enumChapters(chapters, fn, acc) {
   return acc;
 }
 
-function enumUriPlaceholders(uri, fn) {
+function enumUriPlaceholders(uri, fn, acc) {
   const placeholderRegex = /:(\w+)/g;
   const pathQsIndex = uri.indexOf('?');
 
   let placeholder;
 
   while (placeholder = placeholderRegex.exec(pathQsIndex !== -1 ? uri.substr(0, pathQsIndex) : uri)) {
-    fn(placeholder[1], false);
+    fn(placeholder[1], false, acc);
   }
 
   if (pathQsIndex !== -1) {
     while (placeholder = placeholderRegex.exec(uri.substr(pathQsIndex + 1))) {
-      fn(placeholder[1], true);
+      fn(placeholder[1], true, acc);
     }
   }
+
+  return acc;
 }
 
 function convertParamsToJsonSchema(params) {
@@ -56,26 +58,26 @@ function convertParamsToJsonSchema(params) {
     const path = param.field.name.split('.');
 
     path.forEach((key, ind) => {
-      const keyMixed = key.match(/^(.+?)(\[\d*])*$/);
+      const propertyNameAndPeopertyAsListIndex = key.match(/^(.+?)(\[\d*])*$/);
 
-      if (keyMixed) {
-        const [, name, list] = keyMixed;
+      if (propertyNameAndPeopertyAsListIndex) {
+        const [, propertyName, propertyAsListIndex] = propertyNameAndPeopertyAsListIndex;
 
-        if (!(name in nodeProperties)) {
+        if (!(propertyName in nodeProperties)) {
           if (!param.field.isOptional) {
-            nodeRequired.push(name);
+            nodeRequired.push(propertyName);
           }
 
-          nodeProperties = nodeProperties[name] = {};
+          nodeProperties = nodeProperties[propertyName] = {};
 
           if (param.description) {
             nodeProperties.description = param.description.join('\n');
           }
 
-          if (list) {
+          if (propertyAsListIndex) {
             const arrayElRegex = /\[\d*]/g;
 
-            while (arrayElRegex.exec(list)) {
+            while (arrayElRegex.exec(propertyAsListIndex)) {
               nodeProperties.type = 'array';
               nodeProperties = nodeProperties.items = {};
             }
@@ -103,8 +105,8 @@ function convertParamsToJsonSchema(params) {
             nodeProperties = nodeProperties.properties
           }
         } else {
-          nodeRequired = nodeProperties[keyMixed[1]].required;
-          nodeProperties = nodeProperties[keyMixed[1]].items || nodeProperties[keyMixed[1]].properties;
+          nodeRequired = nodeProperties[propertyName].required;
+          nodeProperties = nodeProperties[propertyName].items || nodeProperties[propertyName].properties;
         }
       }
     });
@@ -133,7 +135,16 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
   return jsonSchema;
 }
 
+function addUriDefaultScheme(uri) {
+  if (!/^\w+:\/\//.test(uri)) {
+    return `scheme://domain${uri[0] === '/' ? '' : '/'}${uri}`;
+  }
+
+  return uri;
+}
+
 module.exports = {
+  addUriDefaultScheme,
   enumChapters,
   enumUriPlaceholders,
   convertParamsToJsonSchema,

@@ -30,7 +30,7 @@ module.exports = (config) => ({
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
-      const endpoint = decodeURIComponent(new URL(descriptor.api.endpoint.replace(/:(\w+)/g, (_, p) => `{${p}}`)).pathname);
+      const endpoint = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint)).pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
         spec.paths[endpoint] = {};

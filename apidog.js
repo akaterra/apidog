@@ -25,6 +25,18 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '-f', '--fileFilter' ],
+  {
+    action: 'append', help: 'RegExp pattern to filter files that should be parsed',
+  },
+);
+argumentParser.addArgument(
+  [ '--fileIgnore' ],
+  {
+    action: 'append', help: 'RegExp pattern to ignore files that should be parsed',
+  },
+);
+argumentParser.addArgument(
   [ '-i', '--input' ],
   {
     action: 'append', help: 'Input source(-s) to be scanned for doc blocks',
@@ -156,8 +168,16 @@ function loadConfig(dir) {
 
 function loadGitIgnore(dir) {
   if (fs.existsSync(`${dir}/.gitignore`)) {
-    return fs.readFileSync(`${dir}/.gitignore`, {encoding: 'utf8'}).split('\n');
+    return fs.readFileSync(`${dir}/.gitignore`, {encoding: 'utf8'})
+      .split('\n')
+      .filter((ignore) => ignore.trim())
+      .map((ignore) => new RegExp(`^${dir}/${ignore
+        .replace(/\*\*/g, '.*')
+        .replace(/\*/g, '[^\\/]*')
+      }`));
   }
+
+  return [];
 }
 
 function loadTemplate(path, hbs) {
@@ -292,7 +312,15 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
 
   switch (parser.slice(0, -1) || argsParser) {
     case 'dir':
-      docBlocks = docBlocks.concat(parseDir.parseDir(source, [], loadGitIgnore(source), envConfig));
+      docBlocks = docBlocks.concat(parseDir.parseDir(
+        source,
+        [],
+        {
+          filter: (args.f || args.fileFilter || []).map((p) => new RegExp(p)),
+          ignore: (args.f || args.fileIgnore || []).map((p) => new RegExp(p)).concat(loadGitIgnore(source)),
+        },
+        envConfig
+      ));
 
       if (index === 0 && !outputDir) {
         envConfig.outputDir = parseDir.normalizeDir(source);

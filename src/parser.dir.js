@@ -3,26 +3,17 @@ const path = require('path');
 const parserBlockLines = require('./parser.block_lines');
 const utils = require('./utils');
 
-function parseDir(dir, blocks, ignoreList, config) {
+function parseDir(dir, blocks, filter, config) {
   if (!config) {
     config = {logger: utils.logger};
   }
 
   dir = path.resolve(dir);
 
-  if (ignoreList) {
-    ignoreList = ignoreList
-      .filter((ignoreDir) => ignoreDir.trim())
-      .map((ignoreDir) => new RegExp(`^${dir}/${ignoreDir
-        .replace(/\*\*/g, '.*')
-        .replace(/\*/g, '[^\\/]*')
-      }`));
-  }
-
-  return parseDirInternal(dir, blocks, ignoreList, undefined, config);
+  return parseDirInternal(dir, blocks, filter, undefined, config);
 }
 
-function parseDirInternal(dir, blocks, ignoreList, definitions, config) {
+function parseDirInternal(dir, blocks, filter, definitions, config) {
   if (!blocks) {
     blocks = [];
   }
@@ -33,19 +24,25 @@ function parseDirInternal(dir, blocks, ignoreList, definitions, config) {
 
   const dirList = fs.readdirSync(dir);
 
-  dirList.forEach(function (dirEntry) {
-    const fsStat = fs.statSync(dir + '/' + dirEntry);
-
-    if (fsStat.isDirectory()) {
-      if (ignoreList) {
-        for (const ignoreDir of ignoreList) {
-          if (ignoreDir.test(dir + '/' + dirEntry)) {
-            return blocks;
-          }
+  dirList.forEach((dirEntry) => {
+    if (filter) {
+      if (filter.filter && filter.filter.length) {
+        if (!filter.filter.some((filter) => filter.test(dir + '/' + dirEntry))) {
+          return blocks;
         }
       }
 
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, ignoreList, definitions, config);
+      if (filter.ignore && filter.ignore.length) {
+        if (filter.ignore.some((ignore) => ignore.test(dir + '/' + dirEntry))) {
+          return blocks;
+        }
+      }
+    }
+
+    const fsStat = fs.statSync(dir + '/' + dirEntry);
+
+    if (fsStat.isDirectory()) {
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, filter, definitions, config);
     } else if (fsStat.isFile()) {
       if (dirEntry.slice(-7) === '.min.js') {
         return blocks;
