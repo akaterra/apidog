@@ -10,6 +10,7 @@ const tokenParsers = {
   '@apiGroup': require('./tokens/api_group.token'),
   '@apiError': require('./tokens/api_param.token').construct('error'),
   '@apiErrorExample': require('./tokens/api_param_example.token').construct('error', '@errorExample'),
+  '@apiErrorValue': require('./tokens/api_param_value.token').construct('errorValue'),
   '@apiExample': require('./tokens/api_param_example.token').construct(void 0, '@example'),
   '@apiFamily': require('./tokens/api_family.token'),
   '@apiHeader': require('./tokens/api_param.token').construct('header'),
@@ -19,6 +20,7 @@ const tokenParsers = {
   '@apiParam': require('./tokens/api_param.token'),
   '@apiParamExample': require('./tokens/api_param_example.token'),
   '@apiParamPrefix': require('./tokens/api_param_prefix.token'),
+  '@apiParamValue': require('./tokens/api_param_value.token'),
   '@apiPermission': require('./tokens/api_permission.token'),
   '@apiPrivate': require('./tokens/api_private.token'),
   '@apiSampleRequest': require('./tokens/api_sample_request.token'),
@@ -52,29 +54,48 @@ function parseBlockLines(lines, definitions, config) {
 
   let lastTokenParser;
 
+  // think good before to change it to "lines.forEach" - amount of lines can be changed by @apiUse
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
+
+    if (!line) {
+      return;
+    }
 
     if (config) {
       config.logger.setLine(line);
     }
 
-    const tokens = utils.strSplitBySpace(line.trim(), 1);
+    /**
+     * Example:
+     * 
+     * @apiToken abc def
+     * 
+     * token = "@apiToken"
+     * text = "abc def"
+     */
+    const [token, text] = utils.strSplitBySpace(line.trim(), 1);
 
-    if (tokenParsers.hasOwnProperty(tokens[0])) {
-      lastTokenParser = tokenParsers[tokens[0]];
+    if (token) {
+      if (tokenParsers.hasOwnProperty(token)) {
+        if (text) {
+          lastTokenParser = tokenParsers[token];
 
-      Object.assign(block, lastTokenParser.parse(block, tokens[1], line, index, lines, definitions, config));
-    } else {
-      if (config.logger && tokens[0].substr(0, 4) === '@api') {
-        config.logger.warn(`Possibly unknown token: ${tokens[0]}`);
-      }
+          Object.assign(block, lastTokenParser.parse(block, text, line, index, lines, definitions, config));
+        }
+      } else {
+        // unknown token
+        if (config.logger && token.substr(0, 4) === '@api') {
+          config.logger.warn(`Possibly unknown token: ${token}`);
+        }
 
-      if (lastTokenParser && lastTokenParser.addDescription) {
-        Object.assign(block, lastTokenParser.addDescription(block, line, config));
+        // add line of description (or another props) via last used token parser
+        if (lastTokenParser && lastTokenParser.addDescription) {
+          Object.assign(block, lastTokenParser.addDescription(block, line, config));
+        }
       }
     }
-  }
+  };
 
   return block;
 }

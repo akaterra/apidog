@@ -123,10 +123,14 @@ const ssr = (function () {
       );
 
       if (response instanceof Promise) {
-        response.then(({text}) => {
+        response.then(({status, text}) => {
           emitResponse(el, text, contentType);
 
-          api.showResponse(blockId, text);
+          status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
+        }).catch((e) => {
+          // emitResponse(el, text, contentType);
+
+          api.showErrorResponse(blockId, e.message.text || e.message);
         });
       }
     });

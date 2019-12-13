@@ -130,7 +130,11 @@
                     </div>
                     <div class="hidden" data-block-compare-to-diff-content></div>
                     <div data-block-compare-to-content>
+
+                      <!-- title -->
+
                       <div class="section left-padded color-1 font-size-1 bold">
+                        <a class="section-title" href="#{{block.familyId}}">
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
@@ -143,12 +147,16 @@
                               {{this.version}}
                             </span>
                           </span>
-                        {{#if this.deprecated}}
-                          {{#ifCond this.deprecated '!=' true}}
-                            <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
-                          {{/ifCond}}
-                        {{/if}}
+                          {{#if this.deprecated}}
+                            {{#ifCond this.deprecated '!=' true}}
+                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                            {{/ifCond}}
+                          {{/if}}
+                        </a>
                       </div>
+
+                      <!-- title:end -->
+
                       <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
 
                       <div class="section flex">
@@ -280,6 +288,31 @@
                           {{/each}}
                         {{/if}}
 
+                        {{#if this.paramValue.length}}
+                          {{#each this.paramValueGroup as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Parameter value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">Value</div>
+                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                                <div class="flex-1 bg-color-4 bold">Description</div>
+                              </div>
+                              {{#each params}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
+                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
                         {{#if this.paramExample}}
                           {{#each this.paramExample}}
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
@@ -307,7 +340,7 @@
                               </div>
                               {{#each successes}}
                                 <div class="table">
-                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
                                   <div class="width-15 color-2 mono">{{this.type.name}}</div>
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
@@ -338,12 +371,37 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Name</div>
+                                {{#if (lookup (context 'templateOptions') 'html' 'apiErrorTokenParametrized')}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">Description</div>
+                              </div>
+                              {{#each errors}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                                  {{#if (lookup (context 'templateOptions') 'html' 'apiErrorTokenParametrized')}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errorValue.length}}
+                          {{#each this.errorValueGroup as |errors key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Error value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">Value</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
                                 <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
                               {{#each errors}}
                                 <div class="table">
-                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
                                   <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
@@ -534,6 +592,9 @@
                       <div class="section">
                         <button class="button margin-left-25" data-block-ssr-send>Send</button>
                         {{#ifCond ../this.api.transport.name '==' 'websocket'}}
+                          <button class="button" data-block-ssr-ws-connect>Connect</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
+                        {{else ifCond ../this.api.transport.name '==' 'redisSub'}}
                           <button class="button" data-block-ssr-ws-connect>Connect</button>
                           <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
                         {{/ifCond}}

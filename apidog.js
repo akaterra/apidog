@@ -160,6 +160,7 @@ function loadConfig(dir) {
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
     url: configApidoc.url || configPackage.apidoc.url,
@@ -271,6 +272,7 @@ const envConfig = {
       return acc;
     }, {}),
   },
+  templateOptions: config.templateOptions,
   title: args.title || config.title,
   transports: {
     http: {

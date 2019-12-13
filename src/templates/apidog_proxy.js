@@ -13,7 +13,7 @@ async function createAppHttp(env) {
     let data = '';
 
     req.on('data', (chunk) => data += chunk);
-    req.on('end', () => {
+    req.on('end', _ => {
       req.rawBody = data;
 
       next();
@@ -466,7 +466,7 @@ async function createAppWebSocket(env) {
 
         let messageBuffer = [];
 
-        remoteWs.onclose = () => {
+        remoteWs.onclose = _ => {
           console.info(`Outgoing WebSocket connection closed: ${req.url}`);
 
           ws.terminate();
@@ -484,13 +484,13 @@ async function createAppWebSocket(env) {
           ws.send(message.data);
         };
 
-        remoteWs.onopen = () => {
+        remoteWs.onopen = _ => {
           for (const message of messageBuffer) {
             remoteWs.send(message);
           }
         };
 
-        ws.on('disconnect', () => {
+        ws.on('disconnect', _ => {
           console.info(`Incoming WebSocket connection closed: ${req.url}`);
 
           remoteWs.terminate();
@@ -526,21 +526,21 @@ async function getConfig(env) {
   return config;
 }
 
-(async () => {
+(async _ => {
   if (process.env.NODE_ENV !== 'test') {
     const config = await getConfig();
 
     if (config.websocket && config.websocket.allow) {
       (await createAppWebSocket({})).listen(
         config.websocket.proxyPort || 8089,
-        () => console.log(`ApiDog WebSocket proxy started on ${config.websocket.proxyPort || 8089}`)
+        _ => console.log(`ApiDog WebSocket proxy started on ${config.websocket.proxyPort || 8089}`)
       );
     }
 
     if ((config.http && config.http.allow) || (config.https && config.https.allow)) {
       (await createAppHttp({})).listen(
         config.http.proxyPort || 8088,
-        () => console.log(`ApiDog HTTP proxy started on ${config.http.proxyPort || 8088}`)
+        _ => console.log(`ApiDog HTTP proxy started on ${config.http.proxyPort || 8088}`)
       );
     }
   }

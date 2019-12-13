@@ -73,32 +73,39 @@ window.onload = () => {
     config: config || {},
     definitions,
     description: config && config.description || 'No description',
-    sections: Object.values(chapters).reduce((acc, chapter) => {
-      Object.values(chapter).forEach((group) => {
-        Object.values(group).forEach((subgroup) => {
-          Object.values(subgroup).map((name) => {
-            Object.values(name).forEach((version) => {
-              acc[version.id] = version;
-            });
-          });
-        });
-      });
+    // sections: enumChapters(chapters, ({descriptor}, acc) => {
+    //   acc[descriptor.id] = descriptor;
+    // }, {}),
+    // sections: Object.values(chapters).reduce((acc, chapter) => {
+    //   Object.values(chapter).forEach((group) => {
+    //     Object.values(group).forEach((subgroup) => {
+    //       Object.values(subgroup).map((name) => {
+    //         Object.values(name).forEach((version) => {
+    //           acc[version.id] = version;
+    //         });
+    //       });
+    //     });
+    //   });
 
-      return acc;
+    //   return acc;
+    // }, {}),
+    versions: enumChapters(chapters, ({descriptor}, acc) => {
+      acc[descriptor.version] = [descriptor.familyId].concat(acc[descriptor.version] || []);
     }, {}),
-    versions: Object.values(chapters).reduce((acc, chapter) => {
-      Object.values(chapter).forEach((group) => {
-        Object.values(group).forEach((subgroup) => {
-          Object.values(subgroup).forEach((name) => {
-            Object.values(name).forEach((version) => {
-              acc[version.version] = [version.familyId].concat(acc[version.version] || []);
-            });
-          });
-        });
-      });
+    // versions: Object.values(chapters).reduce((acc, chapter) => {
+    //   Object.values(chapter).forEach((group) => {
+    //     Object.values(group).forEach((subgroup) => {
+    //       Object.values(subgroup).forEach((name) => {
+    //         Object.values(name).forEach((version) => {
+    //           acc[version.version] = [version.familyId].concat(acc[version.version] || []);
+    //         });
+    //       });
+    //     });
+    //   });
 
-      return acc;
-    }, {}),
+    //   return acc;
+    // }, {}),
+    templateOptions: {{toJson this.templateOptions}},
     title: config && config.title || 'No title',
   };
 
@@ -119,3 +126,30 @@ window.onload = () => {
   {{> ssr.preset.js }}
   {{> ssr.variable.js }}
 };
+
+function enumChapters(chapters, fn, acc) {
+  Object.entries(chapters).forEach(([chapterName, groups]) => {
+    Object.entries(groups).forEach(([groupName, subgroups]) => {
+      Object.entries(subgroups).forEach(([subgroupName, names]) => {
+        Object.entries(names).forEach(([name, versions]) => {
+          Object.entries(versions).forEach(([versionName, descriptor]) => {
+            fn({
+              chapterName,
+              groups,
+              groupName,
+              subgroups,
+              subgroupName,
+              names,
+              name,
+              versions,
+              versionName,
+              descriptor,
+            }, acc);
+          });
+        });
+      });
+    });
+  });
+
+  return acc;
+}

@@ -16,14 +16,15 @@ Features:
   * Single pre-compiled HTML file with no external dependencies
   * Markdown file
   * Swagger specification file (v1.2, v2.0)
-* Server-side proxy
+* Server proxy
 * Send sample request plugin for html template:
     * Transports support:
         * HTTP/HTTPS
-        * Nats (via server-side proxy)
-        * Nats RPC (remote procedure call, via server-side proxy)
-        * RabbitMQ (via server-side proxy)
-        * RabbitMQ RPC (remote procedure call, via server-side proxy)
+        * Nats (via Server proxy)
+        * Nats RPC (remote procedure call, via Server proxy)
+        * RabbitMQ (via Server proxy)
+        * RabbitMQ RPC (remote procedure call, via Server proxy)
+        * Redis PUB/SUB (via Server proxy)
         * WebSocket/WebSocket Secure (W3C)
     * Content types support:
         * Form
@@ -381,7 +382,7 @@ apidog -t @swagger.2.0
 
 Compiles to Swagger v2.0 specification JSON file.
 
-### Server-side proxy
+### Server proxy
 
 The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
 
@@ -447,10 +448,30 @@ Configuration file is a js script that by default exports the object with next p
     amqp://connectionA/queue
     ```
 
-  * **websocket** - WebSocket configuration section:
-    * **allow** - allowes proxing WebSocketrequests, also allows running of WebSocket proxy
-    * **proxyPort** - the port that the WebSocket proxy is listening on
-    * **[connection alias]** - connection URI or settings to be used if its alias is passed
+* **redis** - Redis configuration section:
+  * **allow** - allowes proxing Radis requests
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
+
+    Example:
+
+    ```js
+    module.exports = {
+      redis: {
+        connectionA: "redis://ip:6379",
+      },
+    }
+    ```
+
+    URI passed to the proxy:
+
+    ```
+    redis://connectionA/queue
+    ```
+
+* **websocket** - WebSocket configuration section:
+  * **allow** - allowes proxing WebSocket requests, also allows running of WebSocket proxy
+  * **proxyPort** - the port that the WebSocket proxy is listening on
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
 
     Example:
 
@@ -472,14 +493,22 @@ Configuration file is a js script that by default exports the object with next p
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
 
-##### Nats and RabbitMQ
-To make possible to send sample requests through the transports such as Nats and RabbitMQ the server-side proxy must be used.
+##### Nats, RabbitMQ, and Redis
+To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
 
 **@api** token format for Nats:
 
 ```
 /**
  * @api {nats} endpoint
+ */
+```
+
+**@api** token format for Nats RPC:
+
+```
+/**
+ * @api {natsRpc} endpoint
  */
 ```
 
@@ -499,6 +528,22 @@ To make possible to send sample requests through the transports such as Nats and
  */
 ```
 
+**@api** token format for Redis PUB:
+
+```
+/**
+ * @api {redisPub} endpoint
+ */
+```
+
+**@api** token format for Redis SUB:
+
+```
+/**
+ * @api {redisSub} endpoint
+ */
+```
+
 ##### WebSocket and HTTP/HTTPS
 
-The WebSocket and HTTP/HTTPS requests also can be sent via server-side proxy optionally.
+The WebSocket and HTTP/HTTPS requests also can be sent via Server proxy optionally.

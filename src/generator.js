@@ -81,19 +81,22 @@ function generate(blocks, template, config, hbs) {
       return acc;
     }, {}),
     keywords: config && config.keywords || [],
-    sections: Object.values(chapters).reduce((acc, chapter) => {
-      Object.values(chapter).forEach((group) => {
-        Object.values(group).forEach((subgroup) => {
-          Object.values(subgroup).forEach((name) => {
-            Object.values(name).forEach((version) => {
-              acc[version.id] = version;
-            });
-          });
-        });
-      });
-
-      return acc;
+    sections: parserUtils.enumChapters(chapters, ({descriptor}, acc) => {
+      acc[descriptor.id] = descriptor;
     }, {}),
+    // sections: Object.values(chapters).reduce((acc, chapter) => {
+    //   Object.values(chapter).forEach((group) => {
+    //     Object.values(group).forEach((subgroup) => {
+    //       Object.values(subgroup).forEach((name) => {
+    //         Object.values(name).forEach((version) => {
+    //           acc[version.id] = version;
+    //         });
+    //       });
+    //     });
+    //   });
+
+    //   return acc;
+    // }, {}),
     schemes: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
@@ -121,6 +124,7 @@ function generate(blocks, template, config, hbs) {
 
       return acc;
     }, {}),
+    templateOptions: config && config.templateOptions || {},
     title: config && config.title || 'No title',
     version: config && config.version || '0.0.1',
   };

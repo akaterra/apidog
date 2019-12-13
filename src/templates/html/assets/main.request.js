@@ -102,17 +102,23 @@ const request = (function () {
       case 'http':
       case 'https':
         return httpRequest(url, method, data, headers).then((response) => {
-          return response.text().then((text) => ({status: response.status, text, response}))
+          return response.text().then((text) => {
+            return {
+              response,
+              status: response.status,
+              text,
+            };
+          });
         }).catch((error) => {
           if (error instanceof TypeError) {
-            return {status: 0, text: 'Network error'};
+            throw new Error(`Network error: ${error.message}`);
           }
 
           if (error.text) {
-            return error.text().then((text) => ({status: 0, text: error.text()}));
+            return error.text().then((text) => {throw new Error(error.text())});
           }
 
-          return {status: 0, text: error};
+          throw error;
         });
 
       case 'ws':

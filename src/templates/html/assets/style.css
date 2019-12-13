@@ -15,7 +15,8 @@ ins.diffmod, .diffins {
 
 .container {
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 85%;
+    min-width: 800px;
 }
 
 .sub-container {
@@ -24,6 +25,16 @@ ins.diffmod, .diffins {
 
 .section {
     margin-bottom: 0.5rem;
+}
+
+.section-title {
+  color: initial;
+  text-decoration: none;
+}
+
+.section-title:hover {
+  color: initial;
+  text-decoration: underline;
 }
 
 .splitter {
