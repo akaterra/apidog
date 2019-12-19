@@ -71,10 +71,11 @@ function construct(name, usePrefix) {
     blockParam.type = type;
 
     if (!block[paramsGroupsName][group || '$']) {
-      block[paramsGroupsName][group || '$'] = [];
+      block[paramsGroupsName][group || '$'] = {isTyped: true, list: []};
     }
 
-    block[paramsGroupsName][group || '$'].push(blockParam);
+    block[paramsGroupsName][group || '$'].isTyped &= !!type;
+    block[paramsGroupsName][group || '$'].list.push(blockParam);
 
     return block;
   }

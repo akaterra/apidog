@@ -71,10 +71,20 @@
                   <div class="left-padded top-padded bold smaller">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</div>
                 {{/with}}
               {{/ifCond}}
-              {{#each this.names}}
+              {{#each this.apis}}
                 <div data-family="{{this.[0].familyId}}">
                   {{#each this as |block index|}}
                     <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
+                  {{/each}}
+                </div>
+              {{/each}}
+              {{#if this.notes.length}}
+                <div class="left-padded top-padded bold smaller color-blue">Docs:</div>
+              {{/if}}
+              {{#each this.notes}}
+                <div data-family="{{this.[0].familyId}}">
+                  {{#each this as |block index|}}
+                    <a class="menu-item color-blue element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
                   {{/each}}
                 </div>
               {{/each}}
@@ -87,7 +97,10 @@
         <div class="sub-container">
           {{#each this.groups}}
             {{#each this.subgroups}}
-              {{#each this.names}}
+
+              <!-- apis -->
+
+              {{#each this.apis}}
                 <div class="block" data-family="{{this.0.familyId}}">
                   <div class="control-panel">
                     <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
@@ -211,13 +224,13 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
                                 <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                              {{#each params}}
+                              {{#each params.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
                               {{/each}}
@@ -247,10 +260,10 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
                                 <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                              {{#each params}}
+                              {{#each params.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">
                                     {{pathLastKeyIndented this.field.name}}
@@ -259,7 +272,7 @@
                                         <span class="small sup mono color-3 optional">optional</span>{{else}}{{/if}}
                                     {{/if}}
                                   </div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">
                                     {{toHtml (join this.description true)}}
                                     {{#if this.type}}
@@ -335,13 +348,13 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
+                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
                                 <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                              {{#each successes}}
+                              {{#each successes.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  {{#if successes.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
                               {{/each}}
@@ -371,13 +384,13 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Name</div>
-                                {{#if (lookup (context 'templateOptions') 'html' 'apiErrorTokenParametrized')}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
+                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
                                 <div class="flex-1 bg-color-4 bold">Description</div>
                               </div>
-                              {{#each errors}}
+                              {{#each errors.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                                  {{#if (lookup (context 'templateOptions') 'html' 'apiErrorTokenParametrized')}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  {{#if errors.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
                               {{/each}}
@@ -493,7 +506,7 @@
                         {{#each ../this.headersGroups as |params key|}}
                           <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
                           <div class="section">
-                            {{#each params}}
+                            {{#each params.list}}
                               <div class="section flex">
                                 <label class="input-label width-25"
                                        for="{{../../../this.id}}_h_{{this.field.name}}"
@@ -534,7 +547,7 @@
                         {{#each ../this.paramsGroups as |params key|}}
                           <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
                           <div class="section">
-                            {{#each params}}
+                            {{#each params.list}}
                               {{#hook 'isNotContainerType' this.type.name}}
                                 <div class="section flex">
                                   <label class="input-label width-25"
@@ -610,6 +623,86 @@
                         <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
                       </div>
                     {{/ifCond}}
+                  </div>
+                  {{/each}}
+                  <hr class="splitter">
+                </div>
+              {{/each}}
+
+              <!-- notes -->
+
+              {{#each this.notes}}
+                <div class="block" data-family="{{this.0.familyId}}">
+                  <div class="control-panel">
+                    <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-selector>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
+                          <option value="null">Compare to</option>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <button class="width-100 control flex-1 color-blue">Hide hints</button>
+                      </div>
+                      <div class="flex-1"></div>
+                    </div>
+                  </div>
+                  {{#each this as |block index|}}
+                    {{#ifCond index '==' 0}}
+                      <a name="{{block.familyId}}"></a>
+                    {{/ifCond}}
+                  <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
+                    <div class="control-panel">
+                      <div class="width-10 flex" data-block-control-panel="{{block.id}}">
+                        <div class="flex-1">
+                          <select class="width-100 input right color-blue hidden" data-block-content-type>
+                            {{#each block.contentType}}
+                              <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hidden" data-block-compare-to-diff-content></div>
+                    <div data-block-compare-to-content>
+
+                      <!-- title -->
+
+                      <div class="section left-padded color-1 font-size-1 bold">
+                        <a class="section-title color-blue" href="#{{block.familyId}}">
+                          <span class="{{#if this.deprecated}}line-through{{/if}}">
+                            {{this.title}}
+                            <span class="color-3">
+                              {{#ifCond this.group.name '!=' '$'}}
+                                {{first ../this.group.title ../this.group.name}} /
+                              {{/ifCond}}
+                              {{#ifCond this.subgroup.name '!=' '$'}}
+                                {{first ../this.subgroup.title ../this.subgroup.name}} /
+                              {{/ifCond}}
+                              {{this.version}}
+                            </span>
+                          </span>
+                          {{#if this.deprecated}}
+                            {{#ifCond this.deprecated '!=' true}}
+                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                            {{/ifCond}}
+                          {{/if}}
+                        </a>
+                      </div>
+
+                      <!-- title:end -->
+
+                      <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
+                    </div>
                   </div>
                   {{/each}}
                   <hr class="splitter">

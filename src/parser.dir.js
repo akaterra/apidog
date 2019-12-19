@@ -95,7 +95,7 @@ function parseJavaDocStyle(source, definitions, config) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
@@ -111,7 +111,7 @@ function parseLua(source, definitions, config) {
   const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
@@ -127,7 +127,7 @@ function parsePerl(source, definitions, config) {
   const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
@@ -143,7 +143,7 @@ function parsePy(source, definitions, config) {
   const blocks = source.match(/^(\s*'{3}|\s*"{3})[^!][.\s\t\S\n\r]*?(\s*'{3}|\s*"{3})/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
@@ -159,7 +159,7 @@ function parseRuby(source, definitions, config) {
   const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {

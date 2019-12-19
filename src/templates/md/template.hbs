@@ -92,7 +92,7 @@ Main chapter
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-    {{#each params}}
+    {{#each params.list}}
 | {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
     {{/each}}
   {{/each}}
@@ -105,7 +105,7 @@ Main chapter
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-    {{#each params}}
+    {{#each params.list}}
 | {{this.field.name}}{{#if this.field.isOptional}}<sup> optional</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}}{{#if this.type}}{{#if this.type.allowedValues}}{{#if this.description.length}}<br><br>{{/if}}**Allowed values:**{{#each this.type.allowedValues}}<br>{{this}}{{/each}}{{/if}}{{/if}}{{#if this.field}}{{#if this.field.defaultValue}}{{#if this.description.length}}<br><br>{{else}}{{#if this.type}}{{#if this.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{this.field.defaultValue}}{{/if}}{{/if}} |
     {{/each}}
   {{/each}}
@@ -128,7 +128,7 @@ Main chapter
 **{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}:**
 
 ```{{this.type}}
-{{join this.description true}}
+{{join this.description true true}}
 ```
   {{/each}}
 {{/if}}

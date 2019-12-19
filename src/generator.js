@@ -33,6 +33,7 @@ function generate(blocks, template, config, hbs) {
 
   const total = {
     names: 0,
+    notes: 0,
   }
 
   const templateParams = {
@@ -45,11 +46,16 @@ function generate(blocks, template, config, hbs) {
           return {
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                names: Object.entries(subgroup).map(([name, version]) => {
+                apis: Object.entries(subgroup).map(([name, version]) => {
                   total.names += 1;
 
-                  return Object.values(version);
-                }),
+                  return Object.values(version).filter((version) => version.api);
+                }).filter((apis) => apis.length),
+                notes: Object.entries(subgroup).map(([name, version]) => {
+                  total.notes += 1;
+
+                  return Object.values(version).filter((version) => version.note);
+                }).filter((notes) => notes.length),
                 title: subgroupName,
               }
             }),
@@ -102,7 +108,9 @@ function generate(blocks, template, config, hbs) {
         Object.values(group).forEach((subgroup) => {
           Object.values(subgroup).forEach((name) => {
             Object.values(name).forEach((version) => {
-              acc[version.api.transport.name] = version.api.transport.name;
+              if (version.api) {
+                acc[version.api.transport.name] = version.api.transport.name;
+              }
             });
           });
         });
@@ -154,7 +162,7 @@ function generateSections(blocks, config) {
   });
 
   blocks.forEach((block, index) => {
-    if (block.define || block.ignore || !block.api) {
+    if (block.define || block.ignore || (!block.api && !block.note)) {
       return;
     }
 
@@ -170,8 +178,12 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (!block.family) {
+    if (!block.family && !block.note) {
       block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+    }
+
+    if (!block.params) {
+      block.params = [];
     }
 
     // if (!block.sampleRequest) {
@@ -186,7 +198,7 @@ function generateSections(blocks, config) {
       block.version = '0.0.1';
     }
 
-    if (!block.title) {
+    if (!block.title && !block.note) {
       block.title = block.api.endpoint;
     }
 
@@ -222,7 +234,7 @@ function generateSections(blocks, config) {
   });
 
   const sections = fastSort(blocks).asc((block) => block.visualId).reduce((sections, block) => {
-    if (block.define || block.ignore || !block.api) {
+    if (block.define || block.ignore || (!block.api && !block.note)) {
       return sections;
     }
 

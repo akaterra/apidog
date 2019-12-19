@@ -1,9 +1,19 @@
-function enumChapters(chapters, fn, acc) {
+function enumChapters(chapters, fn, acc, scope) {
   Object.entries(chapters).forEach(([chapterName, groups]) => {
     Object.entries(groups).forEach(([groupName, subgroups]) => {
       Object.entries(subgroups).forEach(([subgroupName, names]) => {
         Object.entries(names).forEach(([name, versions]) => {
           Object.entries(versions).forEach(([versionName, descriptor]) => {
+            if (scope) {
+              if (scope === 'api' && !descriptor.api) {
+                return;
+              }
+
+              if (scope === 'note' && !descriptor.note) {
+                return;
+              }
+            }
+
             fn({
               chapterName,
               groups,
@@ -23,6 +33,14 @@ function enumChapters(chapters, fn, acc) {
   });
 
   return acc;
+}
+
+function enumChaptersApis(chapters, fn, acc) {
+  return enumChapters(chapters, fn, acc, 'api');
+}
+
+function enumChaptersNotes(chapters, fn, acc) {
+  return enumChapters(chapters, fn, acc, 'note');
 }
 
 function enumUriPlaceholders(uri, fn, acc) {
@@ -146,6 +164,8 @@ function addUriDefaultScheme(uri) {
 module.exports = {
   addUriDefaultScheme,
   enumChapters,
+  enumChaptersApis,
+  enumChaptersNotes,
   enumUriPlaceholders,
   convertParamsToJsonSchema,
 };

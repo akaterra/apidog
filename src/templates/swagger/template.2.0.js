@@ -48,8 +48,8 @@ module.exports = (config) => ({
         responses['default'] = {description: 'No description'};
       } else {
         if (descriptor.successsGroups) {
-          Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
-            responses[key] = {
+          Object.entries(descriptor.successsGroups.list).forEach(([key, params]) => {
+            responses[key === '$' ? 'default' : key] = {
               description: 'No description',
               schema: parserUtils.convertParamsToJsonSchema(params),
             };
@@ -57,8 +57,8 @@ module.exports = (config) => ({
         }
 
         if (descriptor.errorsGroups) {
-          Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
-            responses[key] = {
+          Object.entries(descriptor.errorsGroups.list).forEach(([key, params]) => {
+            responses[key === '$' ? 'default' : key] = {
               description: 'No description',
               schema: parserUtils.convertParamsToJsonSchema(params),
             };

@@ -58,9 +58,12 @@ window.onload = () => {
           return {
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                names: Object.entries(subgroup).map(([name, version]) => {
-                  return Object.values(version);
-                }),
+                apis: Object.entries(subgroup).map(([name, version]) => {
+                  return Object.values(version).filter((version) => version.api);
+                }).filter((apis) => apis.length),
+                notes: Object.entries(subgroup).map(([name, version]) => {
+                  return Object.values(version).filter((version) => version.note);
+                }).filter((notes) => notes.length),
                 title: subgroupName,
               }
             }),

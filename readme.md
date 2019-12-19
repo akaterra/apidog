@@ -42,12 +42,16 @@ Table of contents
 * Additional tokens
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
-  * [@apiFamily](#apiFamily)
+  * [@apiErrorValue](#apierrorvalue)
+  * [@apiFamily](#apifamily)
+  * [@apiHeaderValue](#apiheadervalue)
   * [@apiParamPrefix](#apiparamprefix)
+  * [@apiParamValue](#apiparamvalue)
   * [@apiSchema](#apischema)
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
+  * [@apiSuccessValue](#apisuccessvalue)
 * Built-in templates
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
@@ -174,6 +178,24 @@ Content type will be used as a filter of the **@apiExample** content having corr
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
 
+##### @apiErrorValue
+
+Format:
+```
+@apiErrorValue [{type}] value [description]
+```
+
+Describes custom error value.
+
+##### @apiErrorValue
+
+Format:
+```
+@apiHeaderValue [{type}] value [description]
+```
+
+Describes custom header value.
+
 ##### @apiFamily
 
 Format:
@@ -253,6 +275,15 @@ Example:
  */
 ```
 
+##### @apiParamValue
+
+Format:
+```
+@apiParamValue [{type}] value [description]
+```
+
+Describes custom parameter value.
+
 ##### @apiSchema
 
 Format:
@@ -294,8 +325,8 @@ Format:
 
 Defines variable of the "Send sample request" plug-in that can be used globally via placeholders in the **@apiHeader** or **@apiParam** values.
 
-* **namespace** - name of the global bucket in which the variable value is placed
-* **responsePath** - path in the response data to the variable value, this value will be assigned to the variable authomatically after the response
+* **namespace** - name of the global bucket in which the variable value is stored
+* **responsePath** - path inside the response data to the variable value, this value will be assigned to the variable automatically after the response
 * **field** - variable name
 
 Example:
@@ -333,6 +364,15 @@ Format:
 
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
+
+##### @apiSuccessValue
+
+Format:
+```
+@apiSuccessValue [{type}] value [description]
+```
+
+Describes custom success value.
 
 
 ### Built-in templates
