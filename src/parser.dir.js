@@ -99,7 +99,7 @@ function parseJavaDocStyle(source, definitions, config) {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return (line.match(/\s*\*(.*)/) || defaultCommentPrefixContent)[1];
+        return (line.match(/\s*\*(\s)?(.*)/) || defaultCommentPrefixContent)[2];
       }).filter((line) => line), definitions, config);
     });
   }

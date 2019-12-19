@@ -1,4 +1,5 @@
 const parser = require('../src/parser.block_lines');
+const apiDescriptionToken = require('../src/tokens/api_description.token');
 
 describe('parser.block_lines parseBlockLines @apiDescriptor token', () => {
   it('should parse', () => {
@@ -12,6 +13,7 @@ describe('parser.block_lines parseBlockLines @apiDescriptor token', () => {
         'This is a description',
         'Some description',
       ],
+      validate: [apiDescriptionToken.validate],
     })
   });
 });

@@ -229,7 +229,9 @@ function generateSections(blocks, config) {
     block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
 
     if (block.validate) {
-      blocks[index] = block.validate(block, config);
+      for (const validate of block.validate) {
+        blocks[index] = validate(block, config);
+      }
     }
   });
 

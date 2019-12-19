@@ -83,7 +83,19 @@ function parseBlockLines(lines, definitions, config) {
         if (text) {
           lastTokenParser = tokenParsers[token];
 
-          Object.assign(block, lastTokenParser.parse(block, text, line, index, lines, definitions, config));
+          // merge parsed properties with block properties
+          Object.assign(
+            block,
+            lastTokenParser.parse(
+              block,
+              text,
+              line,
+              index,
+              lines,
+              definitions,
+              config
+            )
+          );
         }
       } else {
         // unknown token

@@ -78,9 +78,6 @@
                   {{/each}}
                 </div>
               {{/each}}
-              {{#if this.notes.length}}
-                <div class="left-padded top-padded bold smaller color-blue">Docs:</div>
-              {{/if}}
               {{#each this.notes}}
                 <div data-family="{{this.[0].familyId}}">
                   {{#each this as |block index|}}

@@ -45,6 +45,7 @@ Table of contents
   * [@apiErrorValue](#apierrorvalue)
   * [@apiFamily](#apifamily)
   * [@apiHeaderValue](#apiheadervalue)
+  * [@apiNote](#apinote)
   * [@apiParamPrefix](#apiparamprefix)
   * [@apiParamValue](#apiparamvalue)
   * [@apiSchema](#apischema)
@@ -239,6 +240,17 @@ Example:
 ```
 
 The second one is combined with the first and is shown under version.
+
+##### @apiNote
+
+Format:
+```
+@apiNote title
+```
+
+Adds note section that describes some additional information.
+
+Can be used with **@apiDescription**.
 
 ##### @apiParamPrefix
 

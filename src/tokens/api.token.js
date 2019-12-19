@@ -88,12 +88,16 @@ function parse(block, text) {
       throw new Error(`Unknown transport "${transportTokens[0]}"`);
   }
 
-  block.validate = blockValidate;
+  if (!block.validate) {
+    block.validate = [validate];
+  } else {
+    block.validate.push(validate);
+  }
 
   return block;
 }
 
-function blockValidate(block, config) {
+function validate(block, config) {
   if (block.sampleRequest === undefined) {
     if (config.sampleRequestUrl) {
       block.sampleRequest = [true];
@@ -230,5 +234,5 @@ function blockValidate(block, config) {
 
 module.exports = {
   parse,
-  blockValidate,
+  validate,
 };

@@ -29,13 +29,13 @@ Main chapter
         {{#with (context 'definitions') as |definitions|}}
   * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
           {{#with (context 'definitions') as |definitions|}}
     * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
           {{/with}}
         {{/each}}
       {{else}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
           {{#with (context 'definitions') as |definitions|}}
   * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
           {{/with}}
@@ -48,11 +48,11 @@ Main chapter
         {{#with (context 'definitions') as |definitions|}}
 * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
   * {{this.0.title}}
         {{/each}}
       {{else}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
 * {{this.0.title}}
         {{/each}}
       {{/ifCond}}
@@ -69,7 +69,7 @@ Main chapter
 ---
   {{/ifCond}}
   {{#each this.subgroups}}
-    {{#each this.names}}
+    {{#each this.apis}}
       {{#each this as |block index|}}
 
         {{#with (context 'definitions') as |definitions|}}
