@@ -43,7 +43,7 @@ const tokenParsers = {
   '@apiVersion': require('./tokens/api_version.token'),
 };
 
-function parseBlockLines(lines, definitions, config) {
+function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   if (!config) {
     config = {logger: utils.logger};
   }
@@ -93,7 +93,8 @@ function parseBlockLines(lines, definitions, config) {
               index,
               lines,
               definitions,
-              config
+              config,
+              onlyDefinitions
             )
           );
         }
@@ -111,7 +112,7 @@ function parseBlockLines(lines, definitions, config) {
     }
   };
 
-  return block;
+  return onlyDefinitions ? {} : block;
 }
 
 module.exports = {
