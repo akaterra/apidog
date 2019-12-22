@@ -70,7 +70,7 @@ module.exports = (config) => ({
       const responses = [];
 
       if (descriptor.successsGroups) {
-        Object.entries(descriptor.successsGroups.list).forEach(([key, params]) => {
+        Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
           responses.push({
             code: key,
             message: 'No description',
@@ -80,7 +80,7 @@ module.exports = (config) => ({
       }
 
       if (descriptor.errorsGroups) {
-        Object.entries(descriptor.errorsGroups.list).forEach(([key, params]) => {
+        Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
           responses.push({
             code: key,
             message: 'No description',

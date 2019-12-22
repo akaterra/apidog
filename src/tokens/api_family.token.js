@@ -1,5 +1,5 @@
 /**
- * @apiFamily 0.0.1
+ * @apiFamily name
  */
 
 const utils = require('../utils');

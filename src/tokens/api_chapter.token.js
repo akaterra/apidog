@@ -1,5 +1,5 @@
 /**
- * @apiChapter 0.0.1
+ * @apiChapter name
  */
 
 const utils = require('../utils');

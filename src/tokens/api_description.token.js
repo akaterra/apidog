@@ -1,7 +1,9 @@
 /**
- * @apiDescription First line
- * Second line
- * Third line
+ * @apiDescription [{type}] 1st line
+ * 2nd line
+ * 3rd line
+ * ...
+ * nth line
  */
 
 const markdown = require( "markdown" ).markdown;

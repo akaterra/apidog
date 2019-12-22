@@ -178,8 +178,8 @@ function generateSections(blocks, config) {
       block.group = {description: [], name: '$', title: null};
     }
 
-    if (!block.family && !block.note) {
-      block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+    if (!block.family) {
+      block.family = `${block.api ? block.api.endpoint : index}__${block.api ? Object.values(block.api.transport || {}).join('_') : index}`;
     }
 
     if (!block.params) {

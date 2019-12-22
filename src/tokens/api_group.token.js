@@ -1,5 +1,5 @@
 /**
- * @apiGroup group
+ * @apiGroup name
  */
 
 const utils = require('../utils');

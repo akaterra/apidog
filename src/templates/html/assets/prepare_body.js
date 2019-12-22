@@ -39,6 +39,16 @@ const prepareBody = (params, paramsDescriptors) => {
       }
     }
 
+    if (paramsDescriptor && paramsDescriptor.type.name.slice(-2) === '[]') {
+      pathKeys.push(0);
+
+      if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
+        pathKeyTypes[pathKeyTypes.length - 1] = 'a';
+      }
+
+      pathKeyTypes.push('i');
+    }
+
     const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.name.split(':')[0].toLowerCase();
 
     let value = params[key];

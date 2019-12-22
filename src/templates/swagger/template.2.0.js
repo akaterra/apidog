@@ -30,6 +30,10 @@ module.exports = (config) => ({
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
+      if (!descriptor.api) {
+        return;
+      }
+
       const endpoint = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint)).pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
@@ -48,19 +52,19 @@ module.exports = (config) => ({
         responses['default'] = {description: 'No description'};
       } else {
         if (descriptor.successsGroups) {
-          Object.entries(descriptor.successsGroups.list).forEach(([key, params]) => {
+          Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
             responses[key === '$' ? 'default' : key] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params),
+              schema: parserUtils.convertParamsToJsonSchema(params.list),
             };
           });
         }
 
         if (descriptor.errorsGroups) {
-          Object.entries(descriptor.errorsGroups.list).forEach(([key, params]) => {
+          Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
             responses[key === '$' ? 'default' : key] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params),
+              schema: parserUtils.convertParamsToJsonSchema(params.list),
             };
           });
         }

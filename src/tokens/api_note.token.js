@@ -1,5 +1,5 @@
 /**
- * @apiNote Title
+ * @apiNote name
  */
 
 const utils = require('../utils');

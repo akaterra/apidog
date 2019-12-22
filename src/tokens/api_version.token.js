@@ -1,5 +1,5 @@
 /**
- * @apiVersion 0.0.1
+ * @apiVersion version
  */
 
 const utils = require('../utils');

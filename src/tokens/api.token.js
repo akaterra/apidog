@@ -1,5 +1,5 @@
 /**
- * @api {transport} endpoint description
+ * @api {transport} endpoint [description]
  */
 
 const utils = require('../utils');

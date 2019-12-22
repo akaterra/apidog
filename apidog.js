@@ -286,7 +286,7 @@ const envConfig = {
 };
 
 let docBlocks = [];
-let linesInlineParser = [];
+let linesOfInlineParser = [];
 
 argsInput.forEach((argInput, index) => {
   let [_, parser, source] = argInput.match(/^(inline:)(.*)$/) || [];
@@ -297,7 +297,7 @@ argsInput.forEach((argInput, index) => {
 
   switch (parser.slice(0, -1) || argsParser) {
     case 'inline':
-      linesInlineParser.push(source);
+      linesOfInlineParser.push(source);
 
       argInput[index] = null;
 
@@ -305,8 +305,8 @@ argsInput.forEach((argInput, index) => {
   }
 });
 
-if (linesInlineParser.length) {
-  docBlocks = [parseBlockLines.parseBlockLines(linesInlineParser, undefined, envConfig)];
+if (linesOfInlineParser.length) {
+  docBlocks = [parseBlockLines.parseBlockLines(linesOfInlineParser, undefined, envConfig)];
 }
 
 argsInput.filter((argInput) => argInput).forEach((argInput, index) => {

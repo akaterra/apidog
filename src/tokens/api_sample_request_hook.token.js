@@ -1,5 +1,5 @@
 /**
- * @apiSampleRequest hook
+ * @apiSampleRequestHook name
  */
 
 const utils = require('../utils');

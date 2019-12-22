@@ -1,5 +1,5 @@
 /**
- * @apiSubgroup subgroup
+ * @apiSubgroup name
  */
 
 const utils = require('../utils');
