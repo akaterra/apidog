@@ -5,11 +5,11 @@
 const utils = require('../utils');
 
 function parse(block, text, line, index, lines, definitions, config, onlyDefinitions) {
-  if (!definitions[text]) {
-    if (onlyDefinitions) {
-      return block;
-    }
+  if (onlyDefinitions) {
+    return block;
+  }
 
+  if (!definitions[text]) {
     throw new Error(`@apiUse refers to unknown @apiDefine "${text}"`);
   }
 
