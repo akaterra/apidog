@@ -3,6 +3,10 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+[disabled] {
+  opacity: 0.25;
+}
+
 del.diffmod, .diffdel {
     color: red !important;
     font-weight: bold !important;

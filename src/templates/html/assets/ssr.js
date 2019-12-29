@@ -26,9 +26,7 @@ const ssr = (function () {
     };
 
     on.click(blockSsrSendEl, () => {
-      const config = {};
       const contentType = api.getContentType(blockId);
-      const endpoint = api.getEndpoint(blockId);
       const headers = api.getHeaders(blockId);
       const params = api.getParams(blockId);
 
@@ -139,9 +137,19 @@ const ssr = (function () {
 
     if (blockSsrWsConnectEl) {
       on.click(blockSsrWsConnectEl, () => {
-        const endpoint = api.getEndpoint(blockId);
+        const contentType = api.getContentType(blockId);
+        const headers = api.getHeaders(blockId);
+        const params = api.getParams(blockId);
+  
+        emitRequestPrepareParams(el, {headers, params});
 
-        request.ws.connect(endpoint, {
+        const actualEndpoint = api.getActualEndpoint(blockId);
+
+        if (actualEndpoint === false) {
+          return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
+        }
+
+        request.ws.connect(prepareUrl(actualEndpoint, params), {
           onConnect: () => api.showWsDisconnect(blockId),
           onData: (ws, data) => api.showResponse(blockId, data),
           onDisconnect: () => api.showWsConnect(blockId),
@@ -154,9 +162,13 @@ const ssr = (function () {
 
     if (blockSsrWsDisconnectEl) {
       on.click(blockSsrWsDisconnectEl, () => {
-        const endpoint = api.getActualEndpoint(blockId);
+        const actualEndpoint = api.getActualEndpoint(blockId);
 
-        request.ws.disconnect(endpoint);
+        if (actualEndpoint === false) {
+          return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
+        }
+
+        request.ws.disconnect(actualEndpoint);
         api.showWsConnect(blockId);
       });
     }

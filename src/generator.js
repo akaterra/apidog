@@ -179,7 +179,11 @@ function generateSections(blocks, config) {
     }
 
     if (!block.family) {
-      block.family = `${block.api ? block.api.endpoint : index}__${block.api ? Object.values(block.api.transport || {}).join('_') : index}`;
+      if (block.api) {
+        block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+      } else {
+        block.family = block.title.toLowerCase().replace(' ', '_');
+      }
     }
 
     if (!block.params) {

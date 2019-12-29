@@ -1,6 +1,5 @@
-const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
-
-const prepareBody = (params, paramsDescriptors) => {
+function prepareBody (params, paramsDescriptors) {
+  const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
   const body = {
     data: {},
     extra: [],

@@ -10,11 +10,13 @@ function parseDir(dir, blocks, filter, config) {
 
   dir = path.resolve(dir);
 
+  const definitions = {};
+
   // first pass - definitions only
-  parseDirInternal(dir, blocks, filter, undefined, config, true);
+  parseDirInternal(dir, blocks, filter, definitions, config, true);
 
   // second pass - resolve definitions
-  return parseDirInternal(dir, blocks, filter, undefined, config);
+  return parseDirInternal(dir, blocks, filter, definitions, config);
 }
 
 function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefinitions) {
@@ -54,7 +56,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
 
       const extensionIndex = dirEntry.lastIndexOf('.');
 
-      if (extensionIndex !== - 1) {
+      if (extensionIndex !== - 1 || dirEntry.toLowerCase() === 'apidoc') {
         const source = fs.readFileSync(`${dir}/${dirEntry}`, { encoding: 'utf8' });
 
         config.logger.setFile(`${dir}/${dirEntry}`);
@@ -76,6 +78,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
 
             break;
 
+          case 'apidoc':
           case 'py':
             blocks = blocks.concat(parsePy(source, definitions, config, onlyDefinitions));
 

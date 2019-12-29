@@ -13,9 +13,11 @@ const families = {{toJson this.families}}
 const sections = {{toJson this.sections}};
 const versions = {{toJson this.versions}}
 
+{{> main.func.js }}
 {{> compile_body_form.js }}
 {{> compile_body_xml.js }}
 {{> prepare_body.js }}
+{{> prepare_url.js }}
 
 window.onload = () => {
   window.module = {};
@@ -121,7 +123,6 @@ window.onload = () => {
   {{> main.element.js }}
   {{> main.element.selector.js }}
   {{> main.event_emitter.js }}
-  {{> main.func.js }}
   {{> main.js }}
   {{> main.request.js }}
   {{> ssr.js }}

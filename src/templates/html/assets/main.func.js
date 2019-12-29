@@ -34,9 +34,8 @@ function has(obj, path) {
   return true;
 }
 
-const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
-
 function getByPath(obj, path) {
+  const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
   const pathKeys = path.split('.');
   const pathKeyTypes = [];
 

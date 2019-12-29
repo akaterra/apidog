@@ -1,4 +1,16 @@
 const request = (function () {
+  function parseUrl(url) {
+    const a = document.createElement("a");
+
+    a.url = url;
+
+    return {
+      fullPath: `${a.hostname}/${a.pathname || ''}`,
+      host: a.hostname,
+      path: a.pathname,
+    };
+  };
+
   function httpRequest(url, method, data, headers, config) {
     return fetch(url, {
       body: method !== 'GET' ? data : void 0,
@@ -10,64 +22,72 @@ const request = (function () {
   const wsConnections = {};
 
   function wsConnect(url, config) {
-    if (!(url in wsConnections) || !wsIsConnected(url)) {
-      wsConnections[url] = new WebSocket(url);
+    const parsedUrl = parseUrl(url);
+
+    if (!(parsedUrl.fullPath in wsConnections) || !wsIsConnected(url)) {
+      wsConnections[parsedUrl.fullPath] = new WebSocket(url);
 
       if (config) {
         if (config.onConnect) {
-          wsConnections[url].onopen = () => {
-            config.onConnect(wsConnections[url]);
+          wsConnections[parsedUrl.fullPath].onopen = () => {
+            config.onConnect(wsConnections[parsedUrl.fullPath]);
 
             if (config.onReady) {
-              config.onReady(wsConnections[url]);
+              config.onReady(wsConnections[parsedUrl.fullPath]);
             }
           };
         }
 
         if (config.onData) {
-          wsConnections[url].onmessage = (msg) => {
-            config.onData(wsConnections[url], msg.data);
+          wsConnections[parsedUrl.fullPath].onmessage = (msg) => {
+            config.onData(wsConnections[parsedUrl.fullPath], msg.data);
           };
         }
 
         if (config.onDisconnect) {
-          wsConnections[url].onclose = () => {
-            config.onDisconnect(wsConnections[url]);
+          wsConnections[parsedUrl.fullPath].onclose = () => {
+            config.onDisconnect(wsConnections[parsedUrl.fullPath]);
           };
         }
 
         if (config.onError) {
-          wsConnections[url].onerror = (err) => {
-            config.onError(wsConnections[url], err);
+          wsConnections[parsedUrl.fullPath].onerror = (err) => {
+            config.onError(wsConnections[parsedUrl.fullPath], err);
           };
         }
       }
     } else {
       if (config) {
         if (config.onReady) {
-          config.onReady(wsConnections[url]);
+          config.onReady(wsConnections[parsedUrl.fullPath]);
         }
       }
     }
 
-    return wsConnections[url];
+    return wsConnections[parsedUrl.fullPath];
   }
 
   function wsDisconnect(url) {
-    if (url in wsConnections && wsIsConnected(url)) {
-      wsConnections[url].close();
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in wsConnections && wsIsConnected(url)) {
+      wsConnections[parsedUrl.fullPath].close();
     }
   }
 
   function wsIsConnected(url) {
-    return url in wsConnections && (
-      wsConnections[url].readyState === WebSocket.CONNECTING || wsConnections[url].readyState === WebSocket.OPEN
+    const parsedUrl = parseUrl(url);
+
+    return parsedUrl.fullPath in wsConnections && (
+      wsConnections[parsedUrl.fullPath].readyState === WebSocket.CONNECTING || wsConnections[parsedUrl.fullPath].readyState === WebSocket.OPEN
     );
   }
 
-  function wsPublish(url, data) {
-    if (url in wsConnections && wsIsConnected(url)) {
-      wsConnections[url].send(data);
+  function wsPublish(url, data, headers) {
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in wsConnections && wsIsConnected(url)) {
+      wsConnections[parsedUrl.fullPath].send(data);
     }
   }
 
@@ -132,7 +152,7 @@ const request = (function () {
               config.onReady(ws);
             }
 
-            wsPublish(url, data);
+            wsPublish(url, data, headers);
           },
         });
 
@@ -145,7 +165,7 @@ const request = (function () {
     transport,
     url,
     method,
-    bodyParams,
+    params,
     headers,
     contentType,
     config
@@ -172,22 +192,22 @@ const request = (function () {
 
     // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
-      if (bodyParams) {
+      if (params) {
         switch (contentType) {
           case 'form':
-            data = compileBodyForm(bodyParams);
+            data = compileBodyForm(params);
             headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
             break;
 
           case 'json':
-            data = JSON.stringify(bodyParams);
+            data = JSON.stringify(params);
             headers['Content-Type'] = 'application/json';
 
             break;
 
           case 'xml':
-            data = compileBodyXml(bodyParams, {root: config.options.sampleRequestXmlRoot});
+            data = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
             headers['Content-Type'] = 'text/xml';
 
             break;
@@ -196,28 +216,18 @@ const request = (function () {
     }
 
     // insert placeholders
-    url = url.replace(/:\w+/g, (key) => {
-      if (has(bodyParams, key.substr(1))) {
-        const value = get(bodyParams, key.substr(1));
-
-        del(bodyParams, key.substr(1));
-
-        return encodeURIComponent(value);
-      } else {
-        return key;
-      }
-    });
+    url = prepareUrl(url, params);
 
     // insert rest of data as query parameters in case of http GET method
     if (method === 'GET') {
-      if (bodyParams) {
+      if (params) {
         if (url.indexOf('?') === -1) {
           url += '?';
         } else if (url.slice(-1) !== '&') {
           url += '&';
         }
 
-        url += compileBodyForm(bodyParams);
+        url += compileBodyForm(params);
       }
     }
 
@@ -229,13 +239,13 @@ const request = (function () {
   request.http = {
     delete: (url) => request('http', url, 'delete'),
     get: (url) => request('http', url, 'get'),
-    post: (url, bodyParams, contentType) => requestWithFormattedBody('http', url, 'post', bodyParams, undefined, contentType),
-    put: (url, bodyParams, contentType) => requestWithFormattedBody('http', url, 'put', bodyParams, undefined, contentType),
-    requestWithFormattedBody: (url, method, bodyParams, headers, contentType) => requestWithFormattedBody(
+    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, contentType),
+    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, contentType),
+    requestWithFormattedBody: (url, method, params, headers, contentType) => requestWithFormattedBody(
       'http',
       url,
       method,
-      bodyParams,
+      params,
       headers,
       contentType
     ),
@@ -244,12 +254,12 @@ const request = (function () {
     disconnect: wsDisconnect,
     connect: wsConnect,
     isConnected: wsIsConnected,
-    publish: (url, bodyParams, contentType) => requestWithFormattedBody('ws', url, 'ws', bodyParams, undefined, contentType),
-    requestWithFormattedBody: (url, bodyParams, contentType) => requestWithFormattedBody(
+    publish: (url, params, contentType) => requestWithFormattedBody('ws', url, 'ws', params, undefined, contentType),
+    requestWithFormattedBody: (url, params, contentType) => requestWithFormattedBody(
       'ws',
       url,
       'ws',
-      bodyParams,
+      params,
       undefined,
       contentType
     ),

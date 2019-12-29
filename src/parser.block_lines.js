@@ -60,53 +60,51 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
 
-    if (!line) {
-      return;
-    }
+    if (line) {
+      if (config) {
+        config.logger.setLine(line);
+      }
 
-    if (config) {
-      config.logger.setLine(line);
-    }
+      /**
+       * Example:
+       * 
+       * @apiToken abc def
+       * 
+       * token = "@apiToken"
+       * text = "abc def"
+       */
+      const [token, text] = utils.strSplitBySpace(line.trim(), 1);
 
-    /**
-     * Example:
-     * 
-     * @apiToken abc def
-     * 
-     * token = "@apiToken"
-     * text = "abc def"
-     */
-    const [token, text] = utils.strSplitBySpace(line.trim(), 1);
+      if (token) {
+        if (tokenParsers.hasOwnProperty(token)) {
+          if (text) {
+            lastTokenParser = tokenParsers[token];
 
-    if (token) {
-      if (tokenParsers.hasOwnProperty(token)) {
-        if (text) {
-          lastTokenParser = tokenParsers[token];
-
-          // merge parsed properties with block properties
-          Object.assign(
-            block,
-            lastTokenParser.parse(
+            // merge parsed properties with block properties
+            Object.assign(
               block,
-              text,
-              line,
-              index,
-              lines,
-              definitions,
-              config,
-              onlyDefinitions
-            )
-          );
-        }
-      } else {
-        // unknown token
-        if (config.logger && token.substr(0, 4) === '@api') {
-          config.logger.warn(`Possibly unknown token: ${token}`);
-        }
+              lastTokenParser.parse(
+                block,
+                text,
+                line,
+                index,
+                lines,
+                definitions,
+                config,
+                onlyDefinitions
+              )
+            );
+          }
+        } else {
+          // unknown token
+          if (config.logger && token.substr(0, 4) === '@api') {
+            config.logger.warn(`Possibly unknown token: ${token}`);
+          }
 
-        // add line of description (or another props) via last used token parser
-        if (lastTokenParser && lastTokenParser.addDescription) {
-          Object.assign(block, lastTokenParser.addDescription(block, line, config));
+          // add line of description (or another props) via last used token parser
+          if (lastTokenParser && lastTokenParser.addDescription) {
+            Object.assign(block, lastTokenParser.addDescription(block, line, config));
+          }
         }
       }
     }
