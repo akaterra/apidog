@@ -129,6 +129,8 @@ window.onload = () => {
   {{> ssr.hook.js }}
   {{> ssr.preset.js }}
   {{> ssr.variable.js }}
+
+  main.jumpToByHash(document.location.hash.substr(1));
 };
 
 function enumChapters(chapters, fn, acc) {

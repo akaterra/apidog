@@ -153,7 +153,7 @@ const ssr = (function () {
           onConnect: () => api.showWsDisconnect(blockId),
           onData: (ws, data) => api.showResponse(blockId, data),
           onDisconnect: () => api.showWsConnect(blockId),
-          onError: (ws, err) => api.showResponse(blockId, err),
+          onError: (ws, err) => api.showErrorResponse(blockId, err),
         });
       });
     }

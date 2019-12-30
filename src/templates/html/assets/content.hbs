@@ -126,6 +126,7 @@
                     {{#ifCond index '==' 0}}
                       <a name="{{block.familyId}}"></a>
                     {{/ifCond}}
+                  <a name="{{block.id}}"></a>
                   <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
                     <div class="control-panel">
                       <div class="width-10 flex" data-block-control-panel="{{block.id}}">
@@ -144,7 +145,7 @@
                       <!-- title -->
 
                       <div class="section left-padded color-1 font-size-1 bold">
-                        <a class="section-title" href="#{{block.familyId}}">
+                        <a class="section-title" href="#{{block.id}}">
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
@@ -491,7 +492,7 @@
                         <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
                         <input
                                 class="input-param flex-1"
-                                id="{{../this.id}}"
+                                id="{{../this.id}}_endpoint"
                                 name="endpoint"
                                 type="text"
                                 data-block-ssr-endpoint

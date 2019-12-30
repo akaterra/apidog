@@ -228,9 +228,9 @@ function generateSections(blocks, config) {
       }
     }
 
-    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}`;
-    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}_${block.version}`;
-    block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
+    block.familyId = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}`;
+    block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
+    block.visualId = `${getDef(block.chapter.name)}___${getDef(block.group.name)}___${getDef(block.subgroup.name)}___${block.title}___${block.version}`;
 
     if (block.validate) {
       for (const validate of block.validate) {
