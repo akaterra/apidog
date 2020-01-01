@@ -52,7 +52,7 @@ const request = (function () {
 
         if (config.onError) {
           wsConnections[parsedUrl.fullPath].onerror = (err) => {
-            config.onError(wsConnections[parsedUrl.fullPath], err);
+            config.onError(wsConnections[parsedUrl.fullPath], 'Network error');
           };
         }
       }

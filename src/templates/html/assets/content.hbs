@@ -93,7 +93,21 @@
       <div class="width-80">
         <div class="sub-container">
           {{#each this.groups}}
+
+            {{#ifCond this.title '!=' '$'}}
+              <div class="section left-padded color-1 font-size-2 bold">
+                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+              </div>
+            {{/ifCond}}
+
+
             {{#each this.subgroups}}
+
+              {{#ifCond this.title '!=' '$'}}
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+                </div>
+              {{/ifCond}}
 
               <!-- apis -->
 
@@ -144,7 +158,7 @@
 
                       <!-- title -->
 
-                      <div class="section left-padded color-1 font-size-1 bold">
+                      <div class="section left-padded color-1 font-size-1">
                         <a class="section-title" href="#{{block.id}}">
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
@@ -447,12 +461,12 @@
                         <div class="section flex">
                           <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
                           <input
-                                  class="input-param flex-1 color-blue"
-                                  id="{{../this.id}}_presetName"
-                                  name="presetName"
-                                  type="text"
-                                  data-block-ssr-preset-name
-                                  value=""
+                            class="input-param flex-1 color-blue"
+                            id="{{../this.id}}_presetName"
+                            name="presetName"
+                            type="text"
+                            data-block-ssr-preset-name
+                            value=""
                           />
                           <select class="input-param flex-1 color-blue" data-block-ssr-preset-selector>
                             <option value="new">New</option>
@@ -470,17 +484,17 @@
 
                         <div class="section flex">
                           {{#each ../this.sampleRequestVariable}}
-                            <label class="input-label width-25 color-green"
-                                   for="{{../../this.id}}_v_{{this.field.name}}"
-                                   title="{{this.field.name}}">{{this.field.name}}</label>
+                            <label class="input-label width-25 color-green" for="{{../../this.id}}_v_{{this.field.name}}" title="{{this.field.name}}">
+                              {{this.field.name}}
+                            </label>
                             <input
-                                    class="input-param flex-1 color-green"
-                                    id="{{../../this.id}}_v_{{this.field.name}}"
-                                    name="{{this.field.name}}"
-                                    type="text"
-                                    data-block-ssr-input-global-id="_v_{{this.field.name}}"
-                                    data-block-ssr-input="variable"
-                                    value="{{this.field.defaultValue}}"
+                              class="input-param flex-1 color-green"
+                              id="{{../../this.id}}_v_{{this.field.name}}"
+                              name="{{this.field.name}}"
+                              type="text"
+                              data-block-ssr-input-global-id="_v_{{this.field.name}}"
+                              data-block-ssr-input="variable"
+                              value="{{this.field.defaultValue}}"
                             />
                           {{/each}}
                         </div>
@@ -491,47 +505,62 @@
                       <div class="section flex">
                         <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
                         <input
-                                class="input-param flex-1"
-                                id="{{../this.id}}_endpoint"
-                                name="endpoint"
-                                type="text"
-                                data-block-ssr-endpoint
-                                value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
+                          class="input-param flex-1"
+                          id="{{../this.id}}_endpoint"
+                          name="endpoint"
+                          type="text"
+                          data-block-ssr-endpoint
+                          value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
                         />
                       </div>
 
                       {{#if ../this.headers.length}}
                         {{#each ../this.headersGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
-                          <div class="section">
+                          <div class="flex">
+                            <div class="label width-25 right">
+                              <input
+                                type="radio"
+                                name="{{block.id}}_hgs"
+                                {{#if @first}} checked{{/if}}
+                                data-block-ssr-headers-group-selector="{{key}}"
+                                data-block-ssr-name="{{key}}"
+                              />
+                            </div>
+                            <div class="label flex-1">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
+                          </div>
+                          <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-headers-group="{{key}}">
                             {{#each params.list}}
                               <div class="section flex">
-                                <label class="input-label width-25"
-                                       for="{{../../../this.id}}_h_{{this.field.name}}"
-                                       title="{{this.field.name}}">{{this.field.name}}</label>
+                                <label
+                                  class="input-label width-25"
+                                  for="{{block.id}}_h_{{this.field.name}}"
+                                  title="{{this.field.name}}"
+                                >
+                                  {{this.field.name}}
+                                </label>
                                 {{#if this.type.modifiers.enum}}
                                   <select
-                                          class="input-param flex-1"
-                                          id="{{../../../this.id}}_h_{{this.field.name}}"
-                                          name="{{this.field.name}}"
-                                          type="text"
-                                          data-block-ssr-input="header"
-                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                          value="{{this.field.defaultValue}}"
-                                  >
-                                    {{#each ../this.type.allowedValues}}
-                                      <option value="{{this}}">{{this}}</option>
-                                    {{/each}}
-                                  </select>
+                                    class="input-param flex-1"
+                                    id="{{block.id}}_h_{{this.field.name}}"
+                                    name="{{this.field.name}}"
+                                    type="text"
+                                    data-block-ssr-input="header"
+                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{this.field.name}}"
+                                    value="{{this.field.defaultValue}}"
+                                  >{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
                                 {{else}}
                                   <input
-                                          class="input-param flex-1"
-                                          id="{{../../../this.id}}_h_{{this.field.name}}"
-                                          name="{{this.field.name}}"
-                                          type="text"
-                                          data-block-ssr-input="header"
-                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                          value="{{this.field.defaultValue}}"
+                                    class="input-param flex-1"
+                                    id="{{block.id}}_h_{{this.field.name}}"
+                                    name="{{this.field.name}}"
+                                    type="text"
+                                    data-block-ssr-input="header"
+                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{this.field.name}}"
+                                    value="{{this.field.defaultValue}}"
                                   />
                                 {{/if}}
                                 <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
@@ -543,53 +572,73 @@
 
                       {{#if ../this.params.length}}
                         {{#each ../this.paramsGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
-                          <div class="section">
+                          <div class="flex">
+                            <div class="label width-25 right">
+                              <input
+                                type="radio"
+                                name="{{block.id}}_pgs"
+                                {{#if @first}} checked{{/if}}
+                                data-block-ssr-params-group-selector="{{key}}"
+                                data-block-ssr-name="{{key}}"
+                              />
+                            </div>
+                            <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
+                          </div>
+                          <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
                             {{#each params.list}}
                               {{#hook 'isNotContainerType' this.type.name}}
                                 <div class="section flex">
-                                  <label class="input-label width-25"
-                                         for="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                         title="{{../this.field.name}}">{{../this.field.name}}</label>
+                                  <label
+                                    class="input-label width-25"
+                                    for="{{block.id}}_p_{{../this.field.name}}"
+                                    title="{{../this.field.name}}"
+                                  >
+                                    {{../this.field.name}}
+                                  </label>
                                   {{#if ../this.type.modifiers.enum}}
                                     <select
-                                            class="input-param flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                    >
-                                      {{#each ../this.type.allowedValues}}
-                                        <option value="{{this}}">{{this}}</option>
-                                      {{/each}}
-                                    </select>
+                                      class="input-param flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      value="{{this.field.defaultValue}}"
+                                    >{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
                                   {{else ifCond ../this.type.name '==' 'ParametrizedBody'}}
                                     <textarea
-                                            class="input-param-raw-body flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            rows="10"
+                                      class="input-param-raw-body flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      rows="10"
                                     >{{../this.field.defaultValue}}</textarea>
                                   {{else ifCond ../this.type.name '==' 'RawBody'}}
                                     <textarea
-                                            class="input-param-raw-body flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            rows="10"
+                                      class="input-param-raw-body flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      rows="10"
                                     >{{../this.field.defaultValue}}</textarea>
                                   {{else}}
                                     <input
-                                            class="input-param flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            value="{{../this.field.defaultValue}}"
+                                      class="input-param flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}" rows="10"
+                                      value="{{../this.field.defaultValue}}"
                                     />
                                   {{/if}}
                                   <span class="input-placeholder mono">{{../this.type.name}}</span>

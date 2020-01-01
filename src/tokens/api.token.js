@@ -200,18 +200,18 @@ function validate(block, config) {
           if (sampleRequest === true) {
             const isFullUrl = /^ws(s)?:\/\//.test(block.api.endpoint);
 
-            if (isFullUrl || (config && config.sampleRequestUrl)) {
-              return isFullUrl ? block.api.endpoint : config.sampleRequestUrl.replace(/http(s)?:\/\//, 'ws://') + (
+            if (isFullUrl || (config && config.sampleRequestUrlWs)) {
+              return isFullUrl ? block.api.endpoint : config.sampleRequestUrlWs.replace(/http(s)?:\/\//, 'ws://') + (
                 block.api.endpoint[0] !== '/'
                   ? `/${block.api.endpoint}`
                   : block.api.endpoint
               );
             }
           } else if (sampleRequest !== false) {
-            const isFullUrl = /^ws(s)?:\/\//.test(sampleRequest);
+            const isFullUrl = /^ws(s)?:\/\//.test(sampleRequestWs);
 
             if (isFullUrl || (config && config.sampleRequestUrl)) {
-              return isFullUrl ? sampleRequest : config.sampleRequestUrl.replace(/http(s)?:\/\//, 'ws://') + (
+              return isFullUrl ? sampleRequest : config.sampleRequestUrlWs.replace(/http(s)?:\/\//, 'ws://') + (
                 sampleRequest[0] !== '/'
                   ? `/${sampleRequest}`
                   : sampleRequest

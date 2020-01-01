@@ -160,6 +160,7 @@ function loadConfig(dir) {
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    'sampleUrl:ws': configApidoc['sampleUrl:ws'] || configPackage.apidoc['sampleUrl:ws'],
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
@@ -261,6 +262,7 @@ const envConfig = {
     || config['sampleRequestProxy:ws']
     || config['sampleRequestProxy:websocket'],
   sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
+  sampleRequestUrlWs: config['sampleRequestUrl:ws'] || config['sampleUrl:ws'] || args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
   schema: {
     jsonschema: (args.jsonschema || []).reduce((acc, source) => {
       const jsonSchemaSpec = parseJsonschemaUtils.fetchSource(source);

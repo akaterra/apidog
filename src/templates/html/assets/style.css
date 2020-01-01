@@ -53,6 +53,10 @@ ins.diffmod, .diffins {
     padding-left: 0.5rem;
 }
 
+.right-padded {
+    padding-right: 0.5rem;
+}
+
 .top-padded {
     padding-top: 0.5rem;
 }
@@ -324,7 +328,7 @@ ins.diffmod, .diffins {
 }
 
 .block {
-/ / padding: 1 rem 0;
+    //padding: 1 rem 0;
 }
 
 .table {
@@ -356,14 +360,14 @@ ins.diffmod, .diffins {
     color: #383838;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    padding: 1rem 0 0 25%;
+    padding: 1rem 0.5rem 0 25%;
 }
 
 .label {
     color: #383838;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    padding: 1rem 0 0 0.5rem;
+    padding: 1rem 0.5rem 0 0.5rem;
 }
 
 .control {

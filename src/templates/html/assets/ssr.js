@@ -2,6 +2,8 @@
  * Send sample request
  */
 const ssr = (function () {
+  const lastSelectedGroups = {};
+
   by.selector('[data-block]').forEach((el) => {
     const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
@@ -25,10 +27,34 @@ const ssr = (function () {
       },
     };
 
+    if (!lastSelectedGroups[blockId]) {
+      lastSelectedGroups[blockId] = {};
+    }
+
+    const blockSsrHeadersGroupSelectorCheckedEl = by.selector('[data-block-ssr-headers-group-selector]:checked', el)[0];
+
+    if (blockSsrHeadersGroupSelectorCheckedEl) {
+      lastSelectedGroups[blockId].headers = blockSsrHeadersGroupSelectorCheckedEl.dataset.blockSsrName;
+    }
+
+    for (const blockSsrHeadersGroupSelectorEl of by.selector('[data-block-ssr-headers-group-selector]', el)) {
+      on.click(blockSsrHeadersGroupSelectorEl, () => api.showHeadersGroup(blockId, blockSsrHeadersGroupSelectorEl.dataset.blockSsrName));
+    }
+
+    const blockSsrParamsGroupSelectorCheckedEl = by.selector('[data-block-ssr-params-group-selector]:checked', el)[0];
+
+    if (blockSsrParamsGroupSelectorCheckedEl) {
+      lastSelectedGroups[blockId].params = blockSsrParamsGroupSelectorCheckedEl.dataset.blockSsrName;
+    }
+
+    for (const blockSsrParamsGroupSelectorEl of by.selector('[data-block-ssr-params-group-selector]', el)) {
+      on.click(blockSsrParamsGroupSelectorEl, () => api.showParamsGroup(blockId, blockSsrParamsGroupSelectorEl.dataset.blockSsrName));
+    }
+
     on.click(blockSsrSendEl, () => {
       const contentType = api.getContentType(blockId);
-      const headers = api.getHeaders(blockId);
-      const params = api.getParams(blockId);
+      const headers = api.getHeadersByLastGroup(blockId);
+      const params = api.getParamsByLastGroup(blockId);
 
       emitRequestPrepareParams(el, {headers, params});
 
@@ -281,6 +307,19 @@ const ssr = (function () {
 
       return {};
     },
+    getHeadersByLastGroup(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector(`[data-block-ssr-input="header"][data-block-ssr-group="${lastSelectedGroups[blockId].headers}"]`, el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
     setHeaders(blockId, values) {
       const el = getBlockEl(blockId);
 
@@ -308,6 +347,19 @@ const ssr = (function () {
 
       return {};
     },
+    getParamsByLastGroup(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector(`[data-block-ssr-input="param"][data-block-ssr-group="${lastSelectedGroups[blockId].params}"]`, el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
     setParams(blockId, values) {
       const el = getBlockEl(blockId);
 
@@ -317,6 +369,46 @@ const ssr = (function () {
             setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
           }
         });
+      }
+
+      return api;
+    },
+
+    showHeadersGroup(blockId, name) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        if (!lastSelectedGroups[blockId]) {
+          lastSelectedGroups[blockId] = {};
+        }
+  
+        if (name !== lastSelectedGroups[blockId].headers) {
+          cls.add(by.selector(`[data-block-ssr-headers-group="${lastSelectedGroups[blockId].headers}"]`, el), 'hidden');
+
+          lastSelectedGroups[blockId].headers = name;
+
+          cls.remove(by.selector(`[data-block-ssr-headers-group="${name}"]`, el), 'hidden');
+        }
+      }
+
+      return api;
+    },
+
+    showParamsGroup(blockId, name) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        if (!lastSelectedGroups[blockId]) {
+          lastSelectedGroups[blockId] = {};
+        }
+  
+        if (name !== lastSelectedGroups[blockId].params) {
+          cls.add(by.selector(`[data-block-ssr-params-group="${lastSelectedGroups[blockId].params}"]`, el), 'hidden');
+
+          lastSelectedGroups[blockId].params = name;
+
+          cls.remove(by.selector(`[data-block-ssr-params-group="${name}"]`, el), 'hidden');
+        }
       }
 
       return api;

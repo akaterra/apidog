@@ -42,10 +42,13 @@ function generate(blocks, template, config, hbs) {
     chapters,
     chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
+        id: `${chapterName}`,
         groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
+            id: `${chapterName}___${groupName}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
+                id: `${chapterName}___${groupName}__${subgroupName}`,
                 apis: Object.entries(subgroup).map(([name, version]) => {
                   total.names += 1;
 

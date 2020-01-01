@@ -42,26 +42,40 @@ function construct(name, usePrefix) {
     let description = tokens[11] ? [tokens[11]] : [];
 
     if (field) {
-      const fieldTokens = utils.strSplitBy(field, '=', 1);
+      const [fieldName, fieldDefaultValues] = utils.strSplitBy(field, '=', 1);
 
       field = {
-        defaultValue: fieldTokens[1] ? utils.strSplitByQuotedTokens(fieldTokens[1])[0] : null,
+        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : null,
         isOptional: !!tokens[6],
-        name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldTokens[0] : fieldTokens[0],
+        name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldName : fieldName,
       }
     }
 
     if (type) {
-      const typeTokens = utils.strSplitBy(type, '=', 1);
+      const [typeName, typeAllowedValues] = utils.strSplitBy(type, '=', 1);
 
       type = {
-        allowedValues: typeTokens[1] ? utils.strSplitByQuotedTokens(typeTokens[1]) : [],
-        modifiers: typeTokens[0].split(':').reduce((acc, val) => {
+        allowedValues: typeAllowedValues ? utils.strSplitByQuotedTokens(typeAllowedValues) : [],
+        modifiers: typeName.split(':').reduce((acc, val) => {
+          if (val.slice(-2) === '[]') {
+            acc.list = true;
+
+            val = val.substr(0, val.length - 2);
+          }
+
           acc[val.toLowerCase()] = true;
+
+          if (val.toLowerCase() === 'file') {
+            group = 'File upload';
+          }
+
+          if (val.toLowerCase() === 'rawbody') {
+            group = 'Raw body';
+          }
 
           return acc;
         }, {}),
-        name: typeTokens[0],
+        name: typeName,
       }
     }
 

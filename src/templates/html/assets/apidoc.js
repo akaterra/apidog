@@ -56,10 +56,13 @@ window.onload = () => {
     chapters: chapters,
     chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
+        id: `${chapterName}`,
         groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
+            id: `${chapterName}___${groupName}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
+                id: `${chapterName}___${groupName}__${subgroupName}`,
                 apis: Object.entries(subgroup).map(([name, version]) => {
                   return Object.values(version).filter((version) => version.api);
                 }).filter((apis) => apis.length),
