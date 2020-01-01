@@ -1,12 +1,29 @@
-function prepareBody (params, paramsDescriptors) {
+function prepareBody (params, paramsDescriptors, paramsGroup) {
+  if (paramsGroup === '$') {
+    paramsGroup = null; // :( refactor
+  }
+
   const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
   const body = {
-    data: {},
-    extra: [],
+    body: {},
+    type: 'params',
   };
 
-  Object.keys(params).forEach((key) => {
-    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key);
+  Object.entries(params).forEach(([key, val]) => {
+    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+
+    if (paramsDescriptor && paramsDescriptor.type) {
+      switch (paramsDescriptor.type.modifiers.self) {
+        case 'file':
+        case 'parametrizedbody':
+        case 'rawbody':
+          body.type = paramsDescriptor.type.modifiers.self;
+      }
+    }
+  });
+
+  Object.entries(params).forEach(([key, val]) => {
+    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
     const pathKeys = key.split('.');
     const pathKeyTypes = [];
 
@@ -48,115 +65,61 @@ function prepareBody (params, paramsDescriptors) {
       pathKeyTypes.push('i');
     }
 
-    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.name.split(':')[0].toLowerCase();
-
-    let value = params[key];
-
     if (paramsDescriptor) {
       if ((paramsDescriptor.type && paramsDescriptor.type.modifiers.none) || (paramsDescriptor.field && paramsDescriptor.field.isOptional)) {
-        value = params[key] === '' ? void 0 : params[key];
+        val = params[key] === '' ? void 0 : params[key];
       } else if (paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.null) {
-        value = params[key] === '' ? null : params[key];
+        val = params[key] === '' ? null : params[key];
       }
     }
 
-    const [typeSimple, typeIsArray] = type && type.substr(-2, 0) === '[]'
-      ? [type.substr(0, -2), true]
-      : [type, false];
+    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.self;
+    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
 
-    if (value !== null && value !== void 0) {
-      if (typeIsArray) {
-        value = [];
+    if (val !== null && val !== void 0) {
+      if (typeIsList) {
+
       } else {
-        switch (typeSimple) {
+        switch (type) {
           case 'array':
-            value = [];
+            val = [];
 
             break;
 
           case 'boolean':
-            value = value === '' ? void 0 : (params[key] === '1' || params[key] === 'true');
-
-            break;
-
-          case 'file':
-            body.extra.push({type: 'file', value});
-
-            value = void 0;
+            val = val === '' ? void 0 : (params[key] === '1' || params[key] === 'true');
 
             break;
 
           case 'isodate':
-            value = value === '' ? void 0 : new Date(params[key]).toISOString();
+            val = val === '' ? void 0 : new Date(params[key]).toISOString();
 
             break;
 
           case 'number':
-            value = value === '' ? void 0 : Number(params[key]);
+            val = val === '' ? void 0 : Number(params[key]);
 
             break;
 
           case 'object':
-            value = {};
-
-            break;
-
-          case 'parametrizedBody':
-          case 'rawBody':
-            body.extra.push({type: 'rawBody', value});
-
-            value = void 0;
+            val = {};
 
             break;
         }
       }
     }
 
-    if (value !== void 0) {
-      let bodyNode = body.data;
+    if (val !== void 0) {
+      if (body.type !== 'params') {
+        body.body[key] = val;
+      } else {
+        let bodyNode = body.body;
 
-      pathKeyTypes.forEach((type, typeIndex) => {
-        let key = pathKeys[typeIndex];
+        pathKeyTypes.forEach((type, typeIndex) => {
+          let key = pathKeys[typeIndex];
 
-        if (typeIndex === pathKeys.length - 1) {
-          if (Array.isArray(bodyNode)) {
-            let ind = key === '' ? - 1 : parseInt(key);
-
-            if (ind === - 1) {
-              if (!bodyNode.length) {
-                bodyNode.push(void 0);
-              }
-
-              ind = bodyNode.length - 1;
-              key = String(ind);
-            }
-
-            if (ind < 0) {
-              throw new Error(`Invalid array index ${key}`);
-            }
-
-            let fillCount = ind - bodyNode.length;
-
-            while (fillCount > 0) {
-              bodyNode.push(void 0);
-
-              fillCount -= 1;
-            }
-
-            bodyNode[key] = value;
-          } else {
-            bodyNode[key] = value;
-          }
-        } else {
-          switch (type) {
-            case 'a':
-              if (!(key in bodyNode) || !Array.isArray(bodyNode[key])) {
-                bodyNode[key] = [];
-              }
-
-              break;
-
-            case 'i':
+          if (typeIndex === pathKeys.length - 1) {
+            if (Array.isArray(bodyNode)) {
               let ind = key === '' ? - 1 : parseInt(key);
 
               if (ind === - 1) {
@@ -180,21 +143,59 @@ function prepareBody (params, paramsDescriptors) {
                 fillCount -= 1;
               }
 
-              if (!(key in bodyNode) || bodyNode[key] === void 0) {
-                bodyNode[key] = pathKeyTypes[typeIndex + 1] === 'i' ? [] : {};
-              }
+              bodyNode[key] = val;
+            } else {
+              bodyNode[key] = val;
+            }
+          } else {
+            switch (type) {
+              case 'a':
+                if (!(key in bodyNode) || !Array.isArray(bodyNode[key])) {
+                  bodyNode[key] = [];
+                }
 
-              break;
+                break;
 
-            default:
-              if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
-                bodyNode[key] = {};
-              }
+              case 'i':
+                let ind = key === '' ? - 1 : parseInt(key);
+
+                if (ind === - 1) {
+                  if (!bodyNode.length) {
+                    bodyNode.push(void 0);
+                  }
+
+                  ind = bodyNode.length - 1;
+                  key = String(ind);
+                }
+
+                if (ind < 0) {
+                  throw new Error(`Invalid array index ${key}`);
+                }
+
+                let fillCount = ind - bodyNode.length;
+
+                while (fillCount > 0) {
+                  bodyNode.push(void 0);
+
+                  fillCount -= 1;
+                }
+
+                if (!(key in bodyNode) || bodyNode[key] === void 0) {
+                  bodyNode[key] = pathKeyTypes[typeIndex + 1] === 'i' ? [] : {};
+                }
+
+                break;
+
+              default:
+                if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
+                  bodyNode[key] = {};
+                }
+            }
+
+            bodyNode = bodyNode[key];
           }
-
-          bodyNode = bodyNode[key];
-        }
-      });
+        });
+      }
     }
   });
 

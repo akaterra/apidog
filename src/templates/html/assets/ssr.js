@@ -58,30 +58,11 @@ const ssr = (function () {
 
       emitRequestPrepareParams(el, {headers, params});
 
-      let {data, extra} = prepareBody(params, blockDescriptor.params);
-
-      if (extra) {
-        switch (extra.type) {
-          case 'file':
-            data = extra.value;
-
-            break;
-
-          case 'parametrizedBody':
-            data = extra.value;
-
-            break;
-
-          case 'rawBody':
-            data = extra.value;
-
-            break;
-        }
-      }
+      let {body, type} = prepareBody(params, blockDescriptor.params, lastSelectedGroups[blockId] && lastSelectedGroups[blockId].params || null);
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
         for (const ssrHook of blockDescriptor.sampleRequestHooks) {
-          data = sampleRequestHooks[ssrHook](data);
+          body = sampleRequestHooks[ssrHook](body);
         }
       }
 
@@ -140,7 +121,8 @@ const ssr = (function () {
         actualTransport,
         actualEndpoint,
         blockDescriptor.api.transport.method || 'post',
-        data,
+        body,
+        type,
         headers,
         contentType,
         actualOptions

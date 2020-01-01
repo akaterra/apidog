@@ -101,7 +101,12 @@ function parseXML(text) {
   return text
 }
 
+function Raw(value) {
+  this.value = value;
+}
+
 if (typeof module !== 'undefined') {
   module.exports.parseForm = parseForm;
   module.exports.parseXML = parseXML;
+  module.exports.Raw = Raw;
 }

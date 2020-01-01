@@ -95,7 +95,7 @@ const request = (function () {
     transport,
     url,
     method,
-    data,
+    body,
     headers,
     contentType,
     config
@@ -121,7 +121,7 @@ const request = (function () {
     switch (transport) {
       case 'http':
       case 'https':
-        return httpRequest(url, method, data, headers).then((response) => {
+        return httpRequest(url, method, body, headers).then((response) => {
           return response.text().then((text) => {
             return {
               response,
@@ -152,7 +152,7 @@ const request = (function () {
               config.onReady(ws);
             }
 
-            wsPublish(url, data, headers);
+            wsPublish(url, body, headers);
           },
         });
 
@@ -165,7 +165,8 @@ const request = (function () {
     transport,
     url,
     method,
-    params,
+    body,
+    type,
     headers,
     contentType,
     config
@@ -190,24 +191,47 @@ const request = (function () {
 
     let data;
 
+    switch (type) {
+      case 'file':
+        data = new FormData();
+        Object.entries(body).forEach(([key, val]) => data.append(key, val));
+        contentType = undefined;
+
+        break;
+
+      case 'parametrizedbody':
+        if (body.parametrizedBody) {
+          data = prepareUrl(body.parametrizedBody, body);
+        }
+
+        break;
+
+      case 'rawbody':
+        if (body.rawBody) {
+          data = body.rawBody;
+        }
+
+        break;
+    }
+
     // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
-      if (params) {
+      if (!type || type === 'params') {
         switch (contentType) {
           case 'form':
-            data = compileBodyForm(params);
+            data = compileBodyForm(body);
             headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
             break;
 
           case 'json':
-            data = JSON.stringify(params);
+            data = JSON.stringify(body);
             headers['Content-Type'] = 'application/json';
 
             break;
 
           case 'xml':
-            data = compileBodyXml(params, {root: config.options.sampleRequestXmlRoot});
+            data = compileBodyXml(body, {root: config.options.sampleRequestXmlRoot});
             headers['Content-Type'] = 'text/xml';
 
             break;
@@ -216,18 +240,18 @@ const request = (function () {
     }
 
     // insert placeholders
-    url = prepareUrl(url, params);
+    url = prepareUrl(url, body);
 
     // insert rest of data as query parameters in case of http GET method
     if (method === 'GET') {
-      if (params) {
+      if (body) {
         if (url.indexOf('?') === -1) {
           url += '?';
         } else if (url.slice(-1) !== '&') {
           url += '&';
         }
 
-        url += compileBodyForm(params);
+        url += compileBodyForm(body);
       }
     }
 

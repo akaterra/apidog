@@ -56,21 +56,25 @@ function construct(name, usePrefix) {
 
       type = {
         allowedValues: typeAllowedValues ? utils.strSplitByQuotedTokens(typeAllowedValues) : [],
-        modifiers: typeName.split(':').reduce((acc, val) => {
+        modifiers: typeName.split(':').reduce((acc, val, ind) => {
           if (val.slice(-2) === '[]') {
             acc.list = true;
 
             val = val.substr(0, val.length - 2);
           }
 
+          if (ind === 0) {
+            acc.self = val.toLowerCase();
+          }
+
           acc[val.toLowerCase()] = true;
 
-          if (val.toLowerCase() === 'file') {
-            group = 'File upload';
+          if (val.toLowerCase() === 'parametrizedbody') {
+            field.name = 'parametrizedBody';
           }
 
           if (val.toLowerCase() === 'rawbody') {
-            group = 'Raw body';
+            field.name = 'rawBody';
           }
 
           return acc;

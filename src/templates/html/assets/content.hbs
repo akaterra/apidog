@@ -515,6 +515,7 @@
                       </div>
 
                       {{#if ../this.headers.length}}
+                        <div class="inner-label"><hr></div>
                         {{#each ../this.headersGroups as |params key|}}
                           <div class="flex">
                             <div class="label width-25 right">
@@ -526,7 +527,9 @@
                                 data-block-ssr-name="{{key}}"
                               />
                             </div>
-                            <div class="label flex-1">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label flex-1">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                            {{/with}}
                           </div>
                           <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-headers-group="{{key}}">
                             {{#each params.list}}
@@ -571,6 +574,7 @@
                       {{/if}}
 
                       {{#if ../this.params.length}}
+                        <div class="inner-label"><hr></div>
                         {{#each ../this.paramsGroups as |params key|}}
                           <div class="flex">
                             <div class="label width-25 right">
@@ -582,7 +586,9 @@
                                 data-block-ssr-name="{{key}}"
                               />
                             </div>
-                            <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                            {{/with}}
                           </div>
                           <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
                             {{#each params.list}}
@@ -676,7 +682,9 @@
                 </div>
               {{/each}}
 
-              <!-- notes -->
+              <!--
+              Notes
+              -->
 
               {{#each this.notes}}
                 <div class="block" data-family="{{this.0.familyId}}">

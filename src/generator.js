@@ -2,7 +2,7 @@ const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
 const parserUtils = require('./parser.utils');
 
-function generate(blocks, template, config, hbs) {
+function generate(blocks, template, definitions, config, hbs) {
   blocks = blocks.filter((block) => {
     if (block.private) {
       if (config) {
@@ -25,7 +25,7 @@ function generate(blocks, template, config, hbs) {
     return config ? !config.private : true;
   });
 
-  let [definitions, chapters] = generateSections(blocks, config);
+  let [, chapters] = generateSections(blocks, definitions, config);
 
   if (config.templateProcessor && config.templateProcessor.prepareChapters) {
     chapters = config.templateProcessor.prepareChapters(chapters);
@@ -149,8 +149,10 @@ function generate(blocks, template, config, hbs) {
   return (hbs || handlebars).compile(template)(templateParams);
 }
 
-function generateSections(blocks, config) {
-  const definitions = {};
+function generateSections(blocks, definitions, config) {
+  if (!definitions) {
+    definitions = {};
+  }
 
   function getDef(name) {
     return definitions[name]

@@ -25,19 +25,23 @@ const ssrVariable = (function () {
     });
 
     Object.entries(headers).forEach(([key, val]) => {
-      headers[key] = val.replace(/@(\w+)/g, (_, sub) => {
-        const [ns, key] = sub.split(':', 1);
+      if (typeof val === 'string') {
+        headers[key] = val.replace(/@(\w+)/g, (_, sub) => {
+          const [ns, key] = sub.split(':', 1);
 
-        return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-      });
+          return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
+        });
+      }
     });
 
     Object.entries(params).forEach(([key, val]) => {
-      params[key] = val.replace(/@(\w+)/g, (_, sub) =>{
-        const [ns, key] = sub.split(':', 1);
+      if (typeof val === 'string') {
+        params[key] = val.replace(/@(\w+)/g, (_, sub) =>{
+          const [ns, key] = sub.split(':', 1);
 
-        return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-      });
+          return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
+        });
+      }
     });
   });
 

@@ -243,6 +243,26 @@ const config = loadConfig(argsInput[0]);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 const outputDir = args.o || args.output;
+const definitions = {
+  file: {
+    description: [],
+    embeddedLines: [],
+    name: 'file',
+    title: 'File',
+  },
+  parametrizedBody: {
+    description: [],
+    embeddedLines: [],
+    name: 'parametrizedBody',
+    title: 'Parametrized body',
+  },
+  rawBody: {
+    description: [],
+    embeddedLines: [],
+    name: 'rawBody',
+    title: 'Raw body',
+  },
+}
 
 const envConfig = {
   author: config.author,
@@ -308,7 +328,7 @@ argsInput.forEach((argInput, index) => {
 });
 
 if (linesOfInlineParser.length) {
-  docBlocks = [parseBlockLines.parseBlockLines(linesOfInlineParser, undefined, envConfig)];
+  docBlocks = [parseBlockLines.parseBlockLines(linesOfInlineParser, definitions, envConfig)];
 }
 
 argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
@@ -323,6 +343,7 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
           filter: (args.f || args.fileFilter || []).map((p) => new RegExp(p)),
           ignore: (args.f || args.fileIgnore || []).map((p) => new RegExp(p)).concat(loadGitIgnore(source)),
         },
+        definitions,
         envConfig
       ));
 
@@ -351,6 +372,7 @@ envConfig.templateProcessor = template.templateProcessor && template.templatePro
 const content = generate.generate(
   docBlocks,
   template.template,
+  definitions,
   envConfig,
   hbs,
 );

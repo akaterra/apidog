@@ -3,14 +3,16 @@ const path = require('path');
 const parserBlockLines = require('./parser.block_lines');
 const utils = require('./utils');
 
-function parseDir(dir, blocks, filter, config) {
+function parseDir(dir, blocks, filter, definitions, config) {
   if (!config) {
     config = {logger: utils.logger};
   }
 
-  dir = path.resolve(dir);
+  if (!definitions) {
+    definitions = {};
+  }
 
-  const definitions = {};
+  dir = path.resolve(dir);
 
   // first pass - definitions only
   parseDirInternal(dir, blocks, filter, definitions, config, true);
