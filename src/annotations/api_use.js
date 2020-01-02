@@ -9,6 +9,10 @@ function parse(block, text, line, index, lines, definitions, config, onlyDefinit
     return block;
   }
 
+  if (!text) {
+    throw new Error('@apiUse malformed');
+  }
+
   if (!definitions[text]) {
     throw new Error(`@apiUse refers to unknown @apiDefine "${text}"`);
   }

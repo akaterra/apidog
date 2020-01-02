@@ -17,6 +17,10 @@ function construct(name) {
   const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\S+)(\s+(.*))?$/;
 
   function parse(block, text) {
+    if (!text) {
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
+    }
+
     if (!block[paramName]) {
       block[paramName] = [];
     }
@@ -29,16 +33,16 @@ function construct(name) {
 
     block[paramName].push(blockParam);
 
-    const annotations = regex.exec(text);
+    const tokens = regex.exec(text);
 
-    if (!annotations) {
-      throw new Error(`Malformed @api${name}`);
+    if (!tokens) {
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
-    let group = annotations[2] || null;
-    let type = annotations[4] || null;
-    let value = annotations[5];
-    let description = annotations[7] ? [annotations[7]] : [];
+    let group = tokens[2] || null;
+    let type = tokens[4] || null;
+    let value = tokens[5];
+    let description = tokens[7] ? [tokens[7]] : [];
 
     if (type) {
       const typeTokens = utils.strSplitBy(type, '=', 1);

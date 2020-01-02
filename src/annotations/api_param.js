@@ -18,6 +18,10 @@ function construct(name, usePrefix) {
   const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+?)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
 
   function parse(block, text) {
+    if (!text) {
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
+    }
+
     if (!block[paramsName]) {
       block[paramsName] = [];
     }
@@ -30,23 +34,23 @@ function construct(name, usePrefix) {
 
     block[paramsName].push(blockParam);
 
-    const annotations = regex.exec(text);
+    const tokens = regex.exec(text);
 
-    if (!annotations) {
-      throw new Error('Malformed @apiParam');
+    if (!tokens) {
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
-    let group = annotations[2] || null;
-    let type = annotations[4] || null;
-    let field = annotations[6] || annotations[7] || annotations[8] || annotations[9];
-    let description = annotations[11] ? [annotations[11]] : [];
+    let group = tokens[2] || null;
+    let type = tokens[4] || null;
+    let field = tokens[6] || tokens[7] || tokens[8] || tokens[9];
+    let description = tokens[11] ? [tokens[11]] : [];
 
     if (field) {
       const [fieldName, fieldDefaultValues] = utils.strSplitBy(field, '=', 1);
 
       field = {
         defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : null,
-        isOptional: !!annotations[6],
+        isOptional: !!tokens[6],
         name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldName : fieldName,
       }
     }

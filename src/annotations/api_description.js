@@ -20,13 +20,17 @@ const regex = /^(\{(\S+)}\s)?(.+)/;
 let lastDescriptionType;
 
 function parse(block, text) {
-  const annotations = regex.exec(text);
-
-  if (!annotations) {
+  if (!text) {
     throw new Error('@apiDescription malformed');
   }
 
-  const [, , type, line] = annotations;
+  const tokens = regex.exec(text);
+
+  if (!tokens) {
+    throw new Error('@apiDescription malformed');
+  }
+
+  const [, , type, line] = tokens;
 
   lastDescriptionType = type;
 

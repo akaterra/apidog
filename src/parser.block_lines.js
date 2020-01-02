@@ -77,24 +77,22 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
 
       if (annotation) {
         if (annotationParsers.hasOwnProperty(annotation)) {
-          if (text) {
-            lastTokenParser = annotationParsers[annotation];
+          lastTokenParser = annotationParsers[annotation];
 
-            // merge parsed properties with block properties
-            Object.assign(
+          // merge parsed properties with block properties
+          Object.assign(
+            block,
+            lastTokenParser.parse(
               block,
-              lastTokenParser.parse(
-                block,
-                text,
-                line,
-                index,
-                lines,
-                definitions,
-                config,
-                onlyDefinitions
-              )
-            );
-          }
+              text,
+              line,
+              index,
+              lines,
+              definitions,
+              config,
+              onlyDefinitions
+            )
+          );
         } else {
           // unknown annotation
           if (config.logger && annotation.substr(0, 4) === '@api') {

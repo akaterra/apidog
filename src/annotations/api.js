@@ -7,9 +7,13 @@ const utils = require('../utils');
 const regex = /^\{\s*([\w:]+?)\s*}\s+(\S+)(\s+(.*))?/;
 
 function parse(block, text) {
-  const annotations = regex.exec(text);
+  if (!text) {
+    throw new Error('@api malformed');
+  }
 
-  if (!annotations) {
+  const tokens = regex.exec(text);
+
+  if (!tokens) {
     throw new Error('@api malformed');
   }
 
@@ -19,11 +23,11 @@ function parse(block, text) {
 
   const blockApi = block.api = {};
 
-  blockApi.endpoint = annotations[2];
-  blockApi.title = block.title = annotations[4] || null;
+  blockApi.endpoint = tokens[2];
+  blockApi.title = block.title = tokens[4] || null;
 
   // transport {name(:...)}
-  const transportTokens = utils.strSplitBy(annotations[1], ':');
+  const transportTokens = utils.strSplitBy(tokens[1], ':');
 
   switch (transportTokens[0].toLowerCase()) {
     case 'http':
@@ -72,6 +76,16 @@ function parse(block, text) {
       blockApi.transport = { name: 'rabbitmqrpc', exchange: transportTokens[1] };
 
       break;
+
+    case 'redispub':
+        blockApi.transport = { name: 'redispub' };
+  
+        break;
+
+    case 'redissub':
+        blockApi.transport = { name: 'redissub' };
+  
+        break;
 
     case 'test':
       blockApi.transport = { name: 'test' };

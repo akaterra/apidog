@@ -11,6 +11,10 @@ function addDescription(block, text) {
 const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)((\w+\s*=\s*".+?(?<!\\)")|(\w+\s*=\s*\S+)|(\w+))$/;
 
 function parse(block, text) {
+  if (!text) {
+    throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
+  }
+
   if (!block.sampleRequestVariable) {
     block.sampleRequestVariable = [];
   }
@@ -19,15 +23,15 @@ function parse(block, text) {
 
   block.sampleRequestVariable.push(blockSrVariable);
 
-  const annotations = regex.exec(text);
+  const tokens = regex.exec(text);
 
-  if (!annotations) {
-    throw new Error('Malformed @apiParam');
+  if (!tokens) {
+    throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
   }
 
-  let ns = annotations[2] || null;
-  let responsePath = annotations[4] || null;
-  let field = annotations[6] || annotations[7] || annotations[8];
+  let ns = tokens[2] || null;
+  let responsePath = tokens[4] || null;
+  let field = tokens[6] || tokens[7] || tokens[8];
 
   if (field) {
     const fieldTokens = utils.strSplitBy(field, '=', 1);

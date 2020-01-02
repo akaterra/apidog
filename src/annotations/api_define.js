@@ -14,9 +14,13 @@ function addDescription(block, text) {
 const regex = /^(\S+)(\s+(.+))?/;
 
 function parse(block, text, line, index, lines, definitions) {
-  const annotations = regex.exec(text);
+  if (!text) {
+    throw new Error('@apiDefine malformed');
+  }
 
-  if (!annotations) {
+  const tokens = regex.exec(text);
+
+  if (!tokens) {
     throw new Error('@apiDefine malformed');
   }
 
@@ -24,8 +28,8 @@ function parse(block, text, line, index, lines, definitions) {
 
   blockDefine.description = [];
   blockDefine.embeddedLines = lines.filter((line) => line.trim().substr(0, 10) !== '@apiDefine');
-  blockDefine.name = annotations[1];
-  blockDefine.title = annotations[3] || null;
+  blockDefine.name = tokens[1];
+  blockDefine.title = tokens[3] || null;
 
   // if (!block.description) {
   //   block.description = blockDefine.description;
@@ -35,7 +39,7 @@ function parse(block, text, line, index, lines, definitions) {
   //   block.title = blockDefine.title;
   // }
 
-  definitions[annotations[1]] = blockDefine;
+  definitions[tokens[1]] = blockDefine;
 
   return block;
 }

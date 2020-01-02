@@ -17,9 +17,13 @@ function construct(name, fullName) {
   const regex = /^({(.+)})?(.+)?/;
 
   function parse(block, text, line, index, lines, embeddedLines) {
-    const annotations = regex.exec(text);
+    if (!text) {
+      throw new Error(`${fullName} malformed`);
+    }
 
-    if (!annotations) {
+    const tokens = regex.exec(text);
+
+    if (!tokens) {
       throw new Error(`${fullName} malformed`);
     }
 
@@ -32,8 +36,8 @@ function construct(name, fullName) {
     block[annotationName].push(blockParamExample);
 
     blockParamExample.description = [];
-    blockParamExample.type = annotations[2] || 'form';
-    blockParamExample.title = annotations[3] ? annotations[3].trim() : null;
+    blockParamExample.type = tokens[2] || 'form';
+    blockParamExample.title = tokens[3] ? tokens[3].trim() : null;
 
     return block;
   }

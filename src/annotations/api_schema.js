@@ -13,20 +13,24 @@ const utils = require('../utils');
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
 
 function parse(block, text, line, index, lines, definitions, config) {
-  const annotations = regex.exec(text);
-
-  if (!annotations) {
+  if (!text) {
     throw new Error('@apiSchema malformed');
   }
 
-  const schema = annotations[3].split('=', 2);
+  const tokens = regex.exec(text);
+
+  if (!tokens) {
+    throw new Error('@apiSchema malformed');
+  }
+
+  const schema = tokens[3].split('=', 2);
 
   if (schema.length < 2) {
     throw new Error('@apiSchema malformed');
   }
 
   const [schemaFile, schemaPath] = schema[1].split('#', 2);
-  const params = utils.strSplitBySpace(annotations[5] || '');
+  const params = utils.strSplitBySpace(tokens[5] || '');
 
   switch (schema[0].toLowerCase()) {
     case 'jsonschema':
@@ -47,7 +51,7 @@ function parse(block, text, line, index, lines, definitions, config) {
 
       lines.splice(index, 1, ...[''].concat(parserJsonschemaUtils.convert(
         jsonSchema,
-        annotations[2],
+        tokens[2],
         params[0],
         jsonSchemaSpec,
         config

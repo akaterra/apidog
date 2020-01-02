@@ -7,9 +7,13 @@ const utils = require('../utils');
 const regex = /^({(.+)}\s+)?(.+)/;
 
 function parse(block, text) {
-  const annotations = regex.exec(text);
+  if (!text) {
+    throw new Error('@apiSampleRequest malformed');
+  }
 
-  if (!annotations) {
+  const tokens = regex.exec(text);
+
+  if (!tokens) {
     throw new Error('@apiSampleRequest malformed');
   }
 
@@ -17,12 +21,12 @@ function parse(block, text) {
     block.sampleRequest = [];
   }
 
-  if (annotations[3] === 'off') {
+  if (tokens[3] === 'off') {
     block.sampleRequest.push(false);
-  } else if (annotations[3] === 'on') {
+  } else if (tokens[3] === 'on') {
     block.sampleRequest.push(true);
   } else {
-    block.sampleRequest.push(annotations[3]);
+    block.sampleRequest.push(tokens[3]);
   }
 
   return block;
