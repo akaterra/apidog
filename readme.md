@@ -39,7 +39,7 @@ Table of contents
 
 * Installation
 * CLI
-* Additional tokens
+* Additional annotations
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
   * [@apiErrorValue](#apierrorvalue)
@@ -151,7 +151,7 @@ Parameters:
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
-### Additional tokens
+### Additional annotations
 
 ##### @apiChapter
 
@@ -548,7 +548,7 @@ Configuration file is a js script that by default exports the object with next p
 ##### Nats, RabbitMQ, and Redis
 To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
 
-**@api** token format for Nats:
+**@api** annotation format for Nats:
 
 ```
 /**
@@ -556,7 +556,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** token format for Nats RPC:
+**@api** annotation format for Nats RPC:
 
 ```
 /**
@@ -564,7 +564,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** token format for RabbitMQ:
+**@api** annotation format for RabbitMQ:
 
 ```
 /**
@@ -572,7 +572,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** token format for RabbitMQ RPC:
+**@api** annotation format for RabbitMQ RPC:
 
 ```
 /**
@@ -580,7 +580,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** token format for Redis PUB:
+**@api** annotation format for Redis PUB:
 
 ```
 /**
@@ -588,7 +588,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** token format for Redis SUB:
+**@api** annotation format for Redis SUB:
 
 ```
 /**

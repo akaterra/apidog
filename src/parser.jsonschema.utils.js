@@ -1,13 +1,13 @@
 const fs = require('fs');
 const utils = require('./utils');
 
-function convert(spec, group, token, rootSpec, config) {
+function convert(spec, group, annotation, rootSpec, config) {
   validateInternal(spec, config);
 
-  return resolveDefinition(spec, group, '', token, [], rootSpec, config);
+  return resolveDefinition(spec, group, '', annotation, [], rootSpec, config);
 }
 
-function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec, config) {
+function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, config) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -47,7 +47,7 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec, confi
       case 'boolean':
       case 'number':
       case 'string':
-        docBlock.push(`${token} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
+        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
 
         if (val.description) {
           docBlock.push(val.description);
@@ -56,27 +56,27 @@ function resolveDefinition(spec, group, prefix, token, docBlock, rootSpec, confi
         break;
 
       case 'array':
-        docBlock.push(`${token} ${paramGroup}{${resolveType(val.item.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
+        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.item.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
 
         if (val.description) {
           docBlock.push(val.description);
         }
 
         if (val.item.properties) {
-          resolveDefinition(val.item, group, `${prefix}${key}[].`, token, docBlock, rootSpec, config);
+          resolveDefinition(val.item, group, `${prefix}${key}[].`, annotation, docBlock, rootSpec, config);
         }
 
         break;
 
       case 'object':
-        docBlock.push(`${token} ${paramGroup}{${resolveType(val.type)}${paramEnum}} ${paramKey}${paramTitle}`);
+        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type)}${paramEnum}} ${paramKey}${paramTitle}`);
 
         if (val.description) {
           docBlock.push(val.description);
         }
 
         if (val.properties) {
-          resolveDefinition(val, group, `${prefix}${key}.`, token, docBlock, rootSpec, config);
+          resolveDefinition(val, group, `${prefix}${key}.`, annotation, docBlock, rootSpec, config);
         }
 
         break;

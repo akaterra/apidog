@@ -16,8 +16,8 @@ const versions = {{toJson this.versions}}
 {{> main.func.js }}
 {{> compile_body_form.js }}
 {{> compile_body_xml.js }}
-{{> prepare_body.js }}
-{{> prepare_url.js }}
+{{> ssr.prepare_body.js }}
+{{> ssr.prepare_url.js }}
 
 window.onload = () => {
   window.module = {};

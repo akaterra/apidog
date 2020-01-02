@@ -40,7 +40,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {}, handlebars);
+    generator.generate(blocks, '', {}, {}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([1, 4]);
   });
@@ -65,7 +65,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {private: true}, handlebars);
+    generator.generate(blocks, '', {}, {private: true}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2, 3]);
   });
@@ -90,7 +90,7 @@ describe('generator', () => {
     ];
     const handlebars = hbs();
 
-    generator.generate(blocks, '', {private: ['a', 'b']}, handlebars);
+    generator.generate(blocks, '', {}, {private: ['a', 'b']}, handlebars);
 
     expect(handlebars.params.blocks.map((block) => block.$id)).toEqual([0, 2]);
   });
@@ -141,14 +141,15 @@ describe('generate sections', () => {
                 chapter: A,
                 contentType: ['form'],
                 family: 'endpoint__',
-                familyId: 'A_A_A_endpoint__',
+                familyId: 'A___A___A___endpoint__',
                 group: A,
-                id: 'A_A_A_endpoint___1',
+                id: 'A___A___A___endpoint_____1',
                 name: 'A',
+                params: [],
                 subgroup: A,
                 title: 'A',
                 version: '1',
-                visualId: 'A_A_A_A_1',
+                visualId: 'A___A___A___A___1',
               },
             },
           },
@@ -159,14 +160,15 @@ describe('generate sections', () => {
                 chapter: A,
                 contentType: ['form'],
                 family: 'a',
-                familyId: 'A_A_B_a',
+                familyId: 'A___A___B___a',
                 group: A,
-                id: 'A_A_B_a_2',
+                id: 'A___A___B___a___2',
                 name: 'A',
+                params: [],
                 subgroup: B,
                 title: 'A',
                 version: '2',
-                visualId: 'A_A_B_A_2',
+                visualId: 'A___A___B___A___2',
               },
             },
           },
@@ -181,14 +183,15 @@ describe('generate sections', () => {
                 chapter: A,
                 contentType: ['form'],
                 family: 'b',
-                familyId: 'A_B_B_b',
+                familyId: 'A___B___B___b',
                 group: B,
-                id: 'A_B_B_b_1',
+                id: 'A___B___B___b___1',
                 name: 'B',
+                params: [],
                 subgroup: B,
                 title: 'B',
                 version: '1',
-                visualId: 'A_B_B_B_1',
+                visualId: 'A___B___B___B___1',
               },
             },
           },
@@ -207,14 +210,15 @@ describe('generate sections', () => {
                 chapter: B,
                 contentType: ['form'],
                 family: 'endpoint__',
-                familyId: 'B_A_A_endpoint__',
+                familyId: 'B___A___A___endpoint__',
                 group: A,
-                id: 'B_A_A_endpoint___1',
+                id: 'B___A___A___endpoint_____1',
                 name: 'A',
+                params: [],
                 subgroup: A,
                 title: 'A',
                 version: '1',
-                visualId: 'B_A_A_A_1',
+                visualId: 'B___A___A___A___1',
               },
             },
           },
@@ -229,14 +233,15 @@ describe('generate sections', () => {
                 chapter: B,
                 contentType: ['form'],
                 family: 'a',
-                familyId: 'B_B_A_a',
+                familyId: 'B___B___A___a',
                 group: B,
-                id: 'B_B_A_a_2',
+                id: 'B___B___A___a___2',
                 name: 'A',
+                params: [],
                 subgroup: A,
                 title: 'A',
                 version: '2',
-                visualId: 'B_B_A_A_2',
+                visualId: 'B___B___A___A___2',
               },
             },
           },
@@ -247,14 +252,15 @@ describe('generate sections', () => {
                 chapter: B,
                 contentType: ['form'],
                 family: 'b',
-                familyId: 'B_B_B_b',
+                familyId: 'B___B___B___b',
                 group: B,
-                id: 'B_B_B_b_1',
+                id: 'B___B___B___b___1',
                 name: 'B',
+                params: [],
                 subgroup: B,
                 title: 'B',
                 version: '1',
-                visualId: 'B_B_B_B_1',
+                visualId: 'B___B___B___B___1',
               },
             },
           },

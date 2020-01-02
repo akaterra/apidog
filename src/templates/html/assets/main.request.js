@@ -13,7 +13,7 @@ const request = (function () {
 
   function httpRequest(url, method, data, headers, config) {
     return fetch(url, {
-      body: method !== 'GET' ? data : void 0,
+      body: method !== 'GET' ? data : undefined,
       headers,
       method,
     });
