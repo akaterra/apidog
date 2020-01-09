@@ -4,10 +4,18 @@ const https = require('https');
 const qs = require('qs');
 const URL = require('url').URL;
 
+/**
+ * HTTP
+ */
+
 async function createAppHttp(env) {
   const express = require('express');
   const config = await getConfig(env);
   const app = env.expressConstructor ? env.expressConstructor() : express();
+
+  natsFlush();
+  rabbitmqFlush();
+  redisFlush();
 
   app.use((req, res, next) => {
     let data = '';
@@ -173,13 +181,14 @@ async function createAppHttp(env) {
 
         case 'nats':
           transportConfig = config['nats'] || {};
+          transportConfig.env = env;
 
           response = await natsSend(
             transportConfig,
             req.params['0'],
             req.rawBody,
             ['Content-Length', 'Content-Type']
-              .concat(config.amqp && config.amqp.allowHeaders || [])
+              .concat(config.nats && config.nats.allowHeaders || [])
               .reduce((acc, key) => {
                 acc[key] = req.header(key);
 
@@ -198,13 +207,14 @@ async function createAppHttp(env) {
 
         case 'natsrpc':
             transportConfig = config['natsrpc'] || config['nats'] || {};
+            transportConfig.env = env;
   
             response = await natsSendRpc(
               transportConfig,
               req.params['0'],
               req.rawBody,
               ['Content-Length', 'Content-Type']
-                .concat(config.amqp && config.amqp.allowHeaders || [])
+                .concat(config.nats && config.nats.allowHeaders || [])
                 .reduce((acc, key) => {
                   acc[key] = req.header(key);
   
@@ -223,6 +233,7 @@ async function createAppHttp(env) {
 
         case 'rabbitmq':
           transportConfig = config['rabbitmq'] || {};
+          transportConfig.env = env;
 
           response = await rabbitmqSend(
             transportConfig,
@@ -248,8 +259,35 @@ async function createAppHttp(env) {
 
         case 'rabbitmqrpc':
           transportConfig = config['rabbitmqrpc'] || config['rabbitmq'] || {};
+          transportConfig.env = env;
 
           response = await getRabbitmqRpcDriver(transportConfig.drivers && transportConfig.drivers.rpc || 'amqplibRpc')(
+            transportConfig,
+            req.params['0'],
+            req.rawBody,
+            ['Content-Length', 'Content-Type']
+              .concat(config.amqp && config.amqp.allowHeaders || [])
+              .reduce((acc, key) => {
+                acc[key] = req.header(key);
+
+                return acc;
+              }, {}),
+            req.query
+          );
+
+          for (const [key, val] of Object.entries(response.headers)) {
+            res.setHeader(key, val);
+          }
+
+          res.status(200).send(response.body);
+
+          break;
+
+        case 'redispub':
+          transportConfig = config['redispub'] || config['redis'] || {};
+          transportConfig.env = env;
+
+          response = await redisSend(
             transportConfig,
             req.params['0'],
             req.rawBody,
@@ -281,170 +319,27 @@ async function createAppHttp(env) {
     }
   });
 
-  // NATS
-
-  const natsConnections = {};
-
-  async function getNatsConnection(transportConfig, uri) {
-    if (uri.substr(0, 7) !== 'nats://') {
-      uri = `nats://default`;
-    }
-
-    uri = new URL(uri);
-
-    if (transportConfig[uri.hostname]) {
-      const configEntry = new URL(transportConfig[uri.hostname]);
-
-      uri.hostname = configEntry.hostname;
-      // uri.pathname = configEntry.pathname;
-      uri.port = configEntry.port;
-      uri.password = configEntry.password;
-      uri.username = configEntry.username;
-    }
-
-    uri.pathname = '';
-
-    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
-
-    if (!natsConnections[key]) {
-      natsConnections[key] = await (env && env.nats || require('nats')).connect(uri.toString());
-    }
-
-    return natsConnections[key];
-  }
-
-  async function natsSend(config, queue, data, headers, opts) {
-    const natsConnection = await getNatsConnection(config, queue);
-    const q = queue.substr(queue.lastIndexOf('/') + 1);
-    natsConnection.publish(q, data);
-
-    return {
-      body: `Message has been sent to Nats "${queue}" queue by apiDog proxy`,
-      headers: {},
-    };
-  }
-
-  async function natsSendRpc(config, queue, data, headers, opts) {
-    const natsConnection = await getNatsConnection(config, queue);
-    const q = queue.substr(queue.lastIndexOf('/') + 1);
-
-    return new Promise((resolve, reject) => natsConnection.requestOne(q, data, {}, config.timeout || 60000, (res) => {
-      res instanceof Error
-        ? reject(res)
-        : resolve({body: res, headers: {}});
-    }));
-  }
-
-  // AMQP
-
-  const amqpConnections = {};
-  const amqpChannels = {};
-
-  function getRabbitmqRpcDriver(name) {
-    switch (name) {
-      case 'amqplibRpc':
-        return rabbitmqSendRpcViaAmqplibRpcDriver;
-    }
-
-    throw new Error(`Unknown RabbitMQ RPC driver "${name}"`);
-  }
-
-  async function getAmqpConnection(transportConfig, uri) {
-    if (uri.substr(0, 7) !== 'amqp://') {
-      uri = `amqp://default`;
-    }
-
-    uri = new URL(uri);
-
-    if (transportConfig[uri.hostname]) {
-      const configEntry = new URL(transportConfig[uri.hostname]);
-
-      uri.hostname = configEntry.hostname;
-      uri.pathname = configEntry.pathname;
-      uri.port = configEntry.port;
-      uri.password = configEntry.password;
-      uri.username = configEntry.username;
-    }
-
-    uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
-
-    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
-
-    if (!amqpConnections[key]) {
-      amqpConnections[key] = await (env && env.amqplib || require('amqplib')).connect(uri.toString());
-    }
-
-    return amqpConnections[key];
-  }
-
-  async function getAmqpChannel(transportConfig, uri) {
-    if (uri.substr(0, 7) !== 'amqp://') {
-      uri = `amqp://default`;
-    }
-
-    uri = new URL(uri);
-
-    if (transportConfig[uri.hostname]) {
-      const configEntry = new URL(transportConfig[uri.hostname]);
-
-      uri.hostname = configEntry.hostname;
-      uri.pathname = configEntry.pathname;
-      uri.port = configEntry.port;
-      uri.password = configEntry.password;
-      uri.username = configEntry.username;
-    }
-
-    uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
-
-    const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
-
-    const connection = await getAmqpConnection(transportConfig, uri.toString());
-
-    amqpChannels[key] = await connection.createChannel();
-
-    return amqpChannels[key];
-  }
-
-  async function rabbitmqSend(transportConfig, queue, data, headers, opts) {
-    const amqpChannel = await getAmqpChannel(transportConfig, queue);
-    const q = queue.substr(queue.lastIndexOf('/') + 1);
-    const amqpQueue = await amqpChannel.assertQueue(q);
-    const status = await amqpChannel.sendToQueue(q, Buffer.from(data), {
-      headers: headers || {}, ...opts
-    });
-
-    return {
-      body: `Message has been sent to RabbitMQ "${queue}" queue by apiDog proxy`,
-      headers: {},
-    };
-  }
-
-  async function rabbitmqSendRpcViaAmqplibRpcDriver(transportConfig, queue, data, headers, opts) {
-    const amqpConnection = await getAmqpConnection(transportConfig, queue);
-    const q = queue.substr(queue.lastIndexOf('/') + 1);
-    const req = (env && env.amqplibRpc || require('amqplib-rpc')).request;
-    const res = await req(amqpConnection, q, data, {
-      sendOpts: { contentType: headers['Content-Type'], headers: headers || {}, ...opts },
-    });
-
-    return {
-      body: res.content.toString('utf8'),
-      headers: {...res.properties.headers, 'Content-Type': res.properties.contentType || 'text/html'},
-    };
-  }
-
   return app;
 }
+
+/**
+ * WebSocket
+ */
 
 async function createAppWebSocket(env) {
   const WebSocket = require('ws');
   const config = await getConfig(env);
+  const routes = {};
 
-  return {
+  natsFlush();
+  rabbitmqFlush();
+  redisFlush();
+
+  const app = {
     listen: (port, fn) => {
-      const app = env.webSocketServerConstructor ? (env.webSocketServerConstructor({ port })) : new WebSocket.Server({ port });
+      const wsServer = app.wsServer = env.webSocketServerConstructor ? (env.webSocketServerConstructor({ port })) : new WebSocket.Server({ port });
 
-      app.on('connection', (ws, req) => {
+      wsServer.on('connection', (ws, req) => {
         let uri = req.url.substr(1);
 
         if (uri.substr(0, 5) !== 'ws://') {
@@ -460,60 +355,102 @@ async function createAppWebSocket(env) {
           uri.port = configEntry.port;
         }
 
-        uri = uri.toString();
+        let route;
 
-        const remoteWs = env.webSocketConstructor ? env.webSocketConstructor(uri) : new WebSocket(uri);
+        if (uri.pathname in routes) {
+          route = routes[uri.pathname];
+        } else if (`/${uri.pathname.split('/', 2)[1]}` in routes) {
+          route = routes[`/${uri.pathname.split('/', 2)[1]}`];
+        }
 
-        let messageBuffer = [];
+        if (route) {
+          ws.on('disconnect', _ => {
+            console.info(`Incoming WebSocket connection closed: ${req.url}`);
 
-        remoteWs.onclose = _ => {
-          console.info(`Outgoing WebSocket connection closed: ${req.url}`);
+            // remoteWs.terminate();
+          });
 
-          ws.terminate();
-        };
+          ws.on('error', (err) => {
+            console.info(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
 
-        remoteWs.onerror = (err) => {
-          console.info(`Outgoing WebSocket connection error: ${req.url}, ${err.message}`);
+            // remoteWs.terminate();
+          });
 
-          ws.terminate();
-        };
+          route(ws, uri);
+        } else {
+          uri = uri.toString();
 
-        remoteWs.onmessage = (message) => {
-          console.info(`Outgoing WebSocket connection message: ${req.url}`);
+          const remoteWs = env.webSocketConstructor ? env.webSocketConstructor(uri) : new WebSocket(uri);
 
-          ws.send(message.data);
-        };
+          let messageBuffer = [];
 
-        remoteWs.onopen = _ => {
-          for (const message of messageBuffer) {
-            remoteWs.send(message);
-          }
-        };
+          remoteWs.onclose = _ => {
+            console.info(`Outgoing WebSocket connection closed: ${req.url}`);
 
-        ws.on('disconnect', _ => {
-          console.info(`Incoming WebSocket connection closed: ${req.url}`);
+            ws.terminate();
+          };
 
-          remoteWs.terminate();
-        });
+          remoteWs.onerror = (err) => {
+            console.info(`Outgoing WebSocket connection error: ${req.url}, ${err.message}`);
 
-        ws.on('error', (err) => {
-          console.info(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
+            ws.terminate();
+          };
 
-          remoteWs.terminate();
-        });
+          remoteWs.onmessage = (message) => {
+            console.info(`Outgoing WebSocket connection message: ${req.url}`);
 
-        ws.on('message', async (message) => {
-          console.info(`Incoming WebSocket connection message: ${req.url}`);
+            ws.send(message.data);
+          };
 
-          remoteWs.readyState === WebSocket.OPEN ? remoteWs.send(message) : messageBuffer.push(message);
-        });
+          remoteWs.onopen = _ => {
+            for (const message of messageBuffer) {
+              remoteWs.send(message);
+            }
+          };
+
+          ws.on('disconnect', _ => {
+            console.info(`Incoming WebSocket connection closed: ${req.url}`);
+
+            remoteWs.terminate();
+          });
+
+          ws.on('error', (err) => {
+            console.info(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
+
+            remoteWs.terminate();
+          });
+
+          ws.on('message', async (message) => {
+            console.info(`Incoming WebSocket connection message: ${req.url}`);
+
+            remoteWs.readyState === WebSocket.OPEN ? remoteWs.send(message) : messageBuffer.push(message);
+          });
+        }
       });
 
       if (fn) {
         fn();
       }
-    }
+
+      return app;
+    },
+    subscribe(route, fn) {
+      routes[route] = fn;
+
+      return app;
+    },
+    unsubscribe(route) {
+      delete routes[route];
+
+      return app;
+    },
   };
+
+  app.subscribe('/redissub', (ws, uri) => {
+    console.log('ok');
+  });
+
+  return app;
 }
 
 async function getConfig(env) {
@@ -525,6 +462,222 @@ async function getConfig(env) {
 
   return config;
 }
+
+/**
+ * amqp
+ */
+
+let amqpConnections;
+
+function rabbitmqFlush() {
+  amqpConnections = {connections: {}, channels: {}};
+}
+
+function getRabbitmqRpcDriver(name) {
+  switch (name) {
+    case 'amqplibRpc':
+      return rabbitmqSendRpcViaAmqplibRpcDriver;
+  }
+
+  throw new Error(`Unknown RabbitMQ RPC driver "${name}"`);
+}
+
+async function getAmqpConnection(config, uri) {
+  if (uri.substr(0, 7) !== 'amqp://') {
+    uri = `amqp://default`;
+  }
+
+  uri = new URL(uri);
+
+  if (config[uri.hostname]) {
+    const configEntry = new URL(config[uri.hostname]);
+
+    uri.hostname = configEntry.hostname;
+    uri.pathname = configEntry.pathname;
+    uri.port = configEntry.port;
+    uri.password = configEntry.password;
+    uri.username = configEntry.username;
+  }
+
+  uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
+
+  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+  if (!amqpConnections.connections[key]) {
+    amqpConnections.connections[key] = await (config.env && config.env.amqplib || require('amqplib')).connect(uri.toString());
+  }
+
+  return amqpConnections.connections[key];
+}
+
+async function getAmqpChannel(config, uri) {
+  if (uri.substr(0, 7) !== 'amqp://') {
+    uri = `amqp://default`;
+  }
+
+  uri = new URL(uri);
+
+  if (config[uri.hostname]) {
+    const configEntry = new URL(config[uri.hostname]);
+
+    uri.hostname = configEntry.hostname;
+    uri.pathname = configEntry.pathname;
+    uri.port = configEntry.port;
+    uri.password = configEntry.password;
+    uri.username = configEntry.username;
+  }
+
+  uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
+
+  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+  const connection = await getAmqpConnection(config, uri.toString());
+
+  amqpConnections.channels[key] = await connection.createChannel();
+
+  return amqpConnections.channels[key];
+}
+
+async function rabbitmqSend(config, queue, data, headers, opts) {
+  const amqpChannel = await getAmqpChannel(config, queue);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+  const amqpQueue = await amqpChannel.assertQueue(q);
+  const status = await amqpChannel.sendToQueue(q, Buffer.from(data), {
+    headers: headers || {}, ...opts
+  });
+
+  return {
+    body: `Message has been sent to RabbitMQ "${queue}" queue by apiDog proxy`,
+    headers: {},
+  };
+}
+
+async function rabbitmqSendRpcViaAmqplibRpcDriver(config, queue, data, headers, opts) {
+  const amqpConnection = await getAmqpConnection(config, queue);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+  const req = (config.env && config.env.amqplibRpc || require('amqplib-rpc')).request;
+  const res = await req(amqpConnection, q, data, {
+    sendOpts: { contentType: headers['Content-Type'], headers: headers || {}, ...opts },
+  });
+
+  return {
+    body: res.content.toString('utf8'),
+    headers: {...res.properties.headers, 'Content-Type': res.properties.contentType || 'text/html'},
+  };
+}
+
+/**
+ * nats
+ */
+
+let natsConnections;
+
+function natsFlush() {
+  natsConnections = {};
+}
+
+async function getNatsConnection(config, uri) {
+  if (uri.substr(0, 7) !== 'nats://') {
+    uri = `nats://default`;
+  }
+
+  uri = new URL(uri);
+
+  if (config[uri.hostname]) {
+    const configEntry = new URL(config[uri.hostname]);
+
+    uri.hostname = configEntry.hostname;
+    // uri.pathname = configEntry.pathname;
+    uri.port = configEntry.port;
+    uri.password = configEntry.password;
+    uri.username = configEntry.username;
+  }
+
+  uri.pathname = '';
+
+  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+  if (!natsConnections[key]) {
+    natsConnections[key] = await (config.env && config.env.nats || require('nats')).connect(uri.toString());
+  }
+
+  return natsConnections[key];
+}
+
+async function natsSend(config, queue, data, headers, opts) {
+  const natsConnection = await getNatsConnection(config, queue);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+  natsConnection.publish(q, data);
+
+  return {
+    body: `Message has been sent to Nats "${queue}" queue by apiDog proxy`,
+    headers: {},
+  };
+}
+
+async function natsSendRpc(config, queue, data, headers, opts) {
+  const natsConnection = await getNatsConnection(config, queue);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+
+  return new Promise((resolve, reject) => natsConnection.requestOne(q, data, {}, config.timeout || 60000, (res) => {
+    res instanceof Error
+      ? reject(res)
+      : resolve({body: res, headers: {}});
+  }));
+}
+
+/**
+ * redis
+ */
+
+let redisConnections;
+
+function redisFlush() {
+  redisConnections = {};
+}
+
+async function getRedisConnection(config, uri) {
+  if (uri.substr(0, 8) !== 'redis://') {
+    uri = `redis://default`;
+  }
+
+  uri = new URL(uri);
+
+  if (config[uri.hostname]) {
+    const configEntry = new URL(config[uri.hostname]);
+
+    uri.hostname = configEntry.hostname;
+    // uri.pathname = configEntry.pathname;
+    uri.port = configEntry.port;
+    uri.password = configEntry.password;
+    // uri.username = configEntry.username;
+  }
+
+  uri.pathname = '';
+
+  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+
+  if (!redisConnections[key]) {
+    redisConnections[key] = await (config.env && config.env.redis || require('redis')).createClient(uri.toString());
+  }
+
+  return redisConnections[key];
+}
+
+async function redisSend(config, queue, data, headers, opts) {
+  const redisConnection = await getRedisConnection(config, queue);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+  redisConnection.publish(q, data);
+
+  return {
+    body: `Message has been sent to Redis "${queue}" channel by apiDog proxy`,
+    headers: {},
+  };
+}
+
+/**
+ * bootstrap
+ */
 
 (async _ => {
   if (process.env.NODE_ENV !== 'test') {

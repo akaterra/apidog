@@ -1,4 +1,3 @@
-const request = require('supertest');
 const WebSocket = require('ws');
 
 describe('proxy websocket', () => {

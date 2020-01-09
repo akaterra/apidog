@@ -112,7 +112,7 @@ const main = (function () {
         const showHintEl = by.selector('button', controlPanelEl)[0];
 
         if (showHintEl) {
-          showHintEl.textContent = 'Show hints';
+          showHintEl.textContent = _(config.locale || 'en', 'showHints');
         }
       }
 
@@ -129,7 +129,7 @@ const main = (function () {
         const showHintEl = by.selector('button', controlPanelEl)[0];
 
         if (showHintEl) {
-          showHintEl.textContent = 'Hide hints';
+          showHintEl.textContent = _(config.locale || 'en', 'hideHints');
         }
       }
 

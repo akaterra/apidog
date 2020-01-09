@@ -49,6 +49,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '-l', '--locale' ],
+  {
+    help: 'Locale',
+  },
+);
+argumentParser.addArgument(
   [ '--ordered' ],
   {
     action: 'storeTrue', help: 'Process titles as ordered titles',
@@ -270,6 +276,7 @@ const envConfig = {
   keywords: config.keywords,
   i18n: require('./i18n'),
   logger: new utils.Logger(),
+  locale: args.locale || config.locale || 'en',
   private: argsPrivate,
   ordered: args.ordered,
   outputDir,

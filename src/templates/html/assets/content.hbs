@@ -9,7 +9,7 @@
             <div class="width-40 flex">
               <div class="flex-1">
                 <select class="width-100 input right color-blue" data-version-selector>
-                  <option value="null">All versions</option>
+                  <option value="null">{{_ 'allVersions'}}</option>
                   {{#each this.versions}}
                     <option value="{{@key}}">{{@key}}</option>
                   {{/each}}
@@ -17,7 +17,7 @@
               </div>
               <div class="flex-1">
                 <select class="width-100 input right color-blue" data-version-compare-to-selector>
-                  <option value="null">Compare to</option>
+                  <option value="null">{{_ 'compareTo'}}</option>
                   {{#each this.versions}}
                     <option value="{{@key}}">{{@key}}</option>
                   {{/each}}
@@ -27,7 +27,7 @@
                 <select class="width-100 input right color-blue" data-chapter-selector>
                   {{#each chaptersAsLists}}
                     {{#ifCond this.title '==' '$'}}
-                      <option value="{{../this.title}}">Main chapter</option>
+                      <option value="{{../this.title}}">{{_ 'mainChapter'}}</option>
                     {{else}}
                       {{#with (context 'definitions') as |definitions|}}
                         <option value="{{../../this.title}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</option>
@@ -124,14 +124,14 @@
                       </div>
                       <div class="flex-1">
                         <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
-                          <option value="null">Compare to</option>
+                          <option value="null">{{_ 'allVersions'}}</option>
                           {{#each this}}
                             <option value="{{this.version}}">{{this.version}}</option>
                           {{/each}}
                         </select>
                       </div>
                       <div class="flex-1">
-                        <button class="width-100 control flex-1 color-blue">Hide hints</button>
+                        <button class="width-100 control flex-1 color-blue">{{_ 'hideHints'}}</button>
                       </div>
                       <div class="flex-1"></div>
                     </div>
@@ -453,10 +453,10 @@
                     -->
 
                     {{#ifCond this.sampleRequest.length '!=' 0}}
-                      <div class="label">Send sample request</div>
+                      <div class="label">{{_ 'sendSampleRequest'}}</div>
 
                       {{#if ../this.sampleRequestProxy}}
-                        <div class="inner-label color-blue">Preset</div>
+                        <div class="inner-label color-blue">{{_ 'preset'}}</div>
 
                         <div class="section flex">
                           <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
@@ -480,7 +480,7 @@
                       {{/if}}
 
                       {{#if ../this.sampleRequestVariable.length}}
-                        <div class="inner-label color-green">Variable</div>
+                        <div class="inner-label color-green">{{_ 'variable'}}</div>
 
                         <div class="section flex">
                           {{#each ../this.sampleRequestVariable}}
@@ -656,23 +656,23 @@
                       {{/if}}
 
                       <div class="section">
-                        <button class="button margin-left-25" data-block-ssr-send>Send</button>
+                        <button class="button margin-left-25" data-block-ssr-send>{{_ 'send'}}</button>
                         {{#ifCond ../this.api.transport.name '==' 'websocket'}}
-                          <button class="button" data-block-ssr-ws-connect>Connect</button>
-                          <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
                         {{else ifCond ../this.api.transport.name '==' 'redisSub'}}
-                          <button class="button" data-block-ssr-ws-connect>Connect</button>
-                          <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
                         {{/ifCond}}
                       </div>
 
                       <div class="section hidden" data-block-ssr-error-response>
-                        <div class="label">Error response</div>
+                        <div class="label">{{_ 'errorResponse'}}</div>
                         <pre class="response big-badge bg-color-dark-red color-white mono"></pre>
                       </div>
 
                       <div class="section hidden" data-block-ssr-response>
-                        <div class="label">Response</div>
+                        <div class="label">{{_ 'response'}}</div>
                         <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
                       </div>
                     {{/ifCond}}
