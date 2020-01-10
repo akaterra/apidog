@@ -52,6 +52,12 @@ window.onload = () => {
   {{> to_upper_case.js }}
   Handlebars.registerHelper('toUpperCase', module.exports);
 
+  const qs = parseForm(document.location.search.substr(1));
+
+  if (qs.locale) {
+    config.locale = qs.locale;
+  }
+
   const templateParams = {
     chapters: chapters,
     chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
@@ -133,6 +139,10 @@ window.onload = () => {
   {{> ssr.hook.js }}
   {{> ssr.preset.js }}
   {{> ssr.variable.js }}
+
+  if (getRtl(config.locale)) {
+    cls.add('body', 'rtl');
+  }
 
   main.jumpToByHash(document.location.hash.substr(1));
 };

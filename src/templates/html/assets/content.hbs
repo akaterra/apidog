@@ -228,16 +228,16 @@
                         {{#if this.headers.length}}
                           {{#each this.headersGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params.list}}
                                 <div class="table">
@@ -255,7 +255,7 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -264,16 +264,16 @@
                         {{#if this.params.length}}
                           {{#each this.paramsGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params.list}}
                                 <div class="table">
@@ -316,16 +316,16 @@
                         {{#if this.paramValue.length}}
                           {{#each this.paramValueGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Value</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params}}
                                 <div class="table">
@@ -343,7 +343,7 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'parameterExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -359,9 +359,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each successes.list}}
                                 <div class="table">
@@ -395,9 +395,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Name</div>
-                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'name'}}</div>
+                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each errors.list}}
                                 <div class="table">
@@ -420,9 +420,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Value</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each errors}}
                                 <div class="table">
@@ -459,7 +459,7 @@
                         <div class="inner-label color-blue">{{_ 'preset'}}</div>
 
                         <div class="section flex">
-                          <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
+                          <label class="input-label width-25 color-blue" for="{{this.id}}">{{_ 'name'}}</label>
                           <input
                             class="input-param flex-1 color-blue"
                             id="{{../this.id}}_presetName"
@@ -528,7 +528,7 @@
                               />
                             </div>
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label flex-1">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label flex-1">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{/with}}
                           </div>
                           <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-headers-group="{{key}}">
@@ -587,7 +587,7 @@
                               />
                             </div>
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                             {{/with}}
                           </div>
                           <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
@@ -772,16 +772,16 @@
                         {{#if this.headers.length}}
                           {{#each this.headersGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params.list}}
                                 <div class="table">
@@ -799,7 +799,7 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -808,7 +808,7 @@
                         {{#if this.params.length}}
                           {{#each this.paramsGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
@@ -816,8 +816,8 @@
                             <div class="section">
                               <div class="table">
                                 <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params.list}}
                                 <div class="table">
@@ -860,16 +860,16 @@
                         {{#if this.paramValue.length}}
                           {{#each this.paramValueGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Value</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each params}}
                                 <div class="table">
@@ -903,9 +903,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">description</div>
                               </div>
                               {{#each successes.list}}
                                 <div class="table">
@@ -939,9 +939,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Name</div>
-                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">Type</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'name'}}</div>
+                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">description</div>
                               </div>
                               {{#each errors.list}}
                                 <div class="table">
@@ -964,9 +964,9 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Value</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each errors}}
                                 <div class="table">

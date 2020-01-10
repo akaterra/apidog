@@ -49,7 +49,7 @@ function requestWs(app) {
   return req;
 }
 
-describe('proxy redis', () => {
+xdescribe('proxy redis', () => {
   let app;
   let appWs;
   let env;
@@ -148,7 +148,7 @@ describe('proxy redis', () => {
       });
   });
 
-  fit('should process sub request', async () => {
+  it('should process sub request', async () => {
     await initRedisEnv({});
 
     const req = requestWs(appWs);

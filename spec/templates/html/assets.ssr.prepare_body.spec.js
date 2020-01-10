@@ -69,7 +69,7 @@ describe('template html assets SSR prepareBody', () => {
       { field: { name: 'x[0].f' }, group: null, type: { modifiers: { initial: 'isodate' }, name: 'isodate' } },
       { field: { name: 'x[0].g' }, group: null, type: { modifiers: { initial: 'number' }, name: 'number' } },
     ]);
-
+console.log(body.body)
     expect(body.body).toEqual({
       x: [
         {

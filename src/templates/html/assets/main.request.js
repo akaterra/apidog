@@ -1,16 +1,4 @@
 const request = (function () {
-  function parseUrl(url) {
-    const a = document.createElement("a");
-
-    a.url = url;
-
-    return {
-      fullPath: `${a.hostname}/${a.pathname || ''}`,
-      host: a.hostname,
-      path: a.pathname,
-    };
-  };
-
   function httpRequest(url, method, data, headers, config) {
     return fetch(url, {
       body: method !== 'GET' ? data : undefined,

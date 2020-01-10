@@ -5,7 +5,7 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
     paramsGroup = null;
   }
 
-  const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
+  const arrayIndexRegex = /.*[^\\]\[(.*)\]$/; // /.+(?<!\\)\[(.*?(?<!\\))]$/;
   const body = {
     body: {},
     type: 'params',
