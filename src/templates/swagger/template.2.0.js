@@ -111,7 +111,7 @@ module.exports = (config) => ({
               in: uriParams[param.field.name] ? 'query' : 'path',
               description: param.description && param.description.join('/n'),
               required: !param.field.isOptional,
-              type: param.type.name.toLowerCase(),
+              type: param.type.modifiers.initial.toLowerCase(),
             };
           }
 
