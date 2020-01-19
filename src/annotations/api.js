@@ -57,8 +57,8 @@ function parse(block, text) {
 
       break;
 
-    case 'nats':
-      blockApi.transport = { name: 'nats' };
+    case 'natspub':
+      blockApi.transport = { name: 'natspub' };
 
       break;
 
@@ -67,14 +67,24 @@ function parse(block, text) {
     
       break;
 
-    case 'rabbitmq':
-      blockApi.transport = { name: 'rabbitmq', exchange: transportTokens[1] };
+    case 'natssub':
+      blockApi.transport = { name: 'natssub' };
+  
+      break;
+
+    case 'rabbitmqpub':
+      blockApi.transport = { name: 'rabbitmqpub', exchange: transportTokens[1] };
 
       break;
 
     case 'rabbitmqrpc':
       blockApi.transport = { name: 'rabbitmqrpc', exchange: transportTokens[1] };
 
+      break;
+
+    case 'rabbitmqsub':
+      blockApi.transport = { name: 'rabbitmqsub', exchange: transportTokens[1] };
+  
       break;
 
     case 'redispub':
@@ -159,8 +169,9 @@ function validate(block, config) {
 
       break;
 
-    case 'nats':
+    case 'natspub':
     case 'natsrpc':
+    case 'natssub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
@@ -181,8 +192,9 @@ function validate(block, config) {
 
       break;
 
-    case 'rabbitmq':
+    case 'rabbitmqpub':
     case 'rabbitmqrpc':
+    case 'rabbitmqsub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;

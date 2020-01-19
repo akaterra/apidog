@@ -1,4 +1,5 @@
 const request = require('supertest');
+const requestWs = require('./lib/request_ws').requestWs;
 
 describe('proxy rabbitmq', () => {
   let app;
@@ -32,14 +33,20 @@ describe('proxy rabbitmq', () => {
       config: config || {},
     };
 
+    if (!env.config.rabbitmq) {
+      env.config.rabbitmq = {};
+    }
+
+    env.config.rabbitmq.allow = true;
+
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
   }
 
-  it('should process request', async () => {
+  it('should process pub request', async () => {
     await initAmqpEnv({});
 
     return request(app)
-      .post('/rabbitmq/queue')
+      .post('/rabbitmqpub/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',
@@ -52,11 +59,11 @@ describe('proxy rabbitmq', () => {
       });
   });
 
-  it('should process request with full uri', async () => {
+  it('should process pub request with full uri', async () => {
     await initAmqpEnv({});
 
     return request(app)
-      .post('/rabbitmq/amqp://username:password@host:9999/vhost/queue')
+      .post('/rabbitmqpub/amqp://username:password@host:9999/vhost/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',
@@ -69,11 +76,11 @@ describe('proxy rabbitmq', () => {
       });
   });
 
-  it('should process request with alias of uri', async () => {
+  it('should process pub request with alias of uri', async () => {
     await initAmqpEnv(undefined, {rabbitmq: {alias: 'amqp://a:b@c:1/e'}});
 
     return request(app)
-      .post('/rabbitmq/amqp://alias/queue')
+      .post('/rabbitmqpub/amqp://alias/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',

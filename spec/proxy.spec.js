@@ -1,4 +1,5 @@
 const request = require('supertest');
+const requestWs = require('./lib/request_ws').requestWs;
 
 describe('proxy', () => {
   let app;

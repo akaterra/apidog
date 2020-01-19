@@ -1,4 +1,5 @@
 const request = require('supertest');
+const requestWs = require('./lib/request_ws').requestWs;
 
 describe('proxy nats', () => {
   let app;
@@ -32,14 +33,20 @@ describe('proxy nats', () => {
       config: config || {},
     };
 
+    if (!env.config.nats) {
+      env.config.nats = {};
+    }
+
+    env.config.nats.allow = true;
+
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
   }
 
-  it('should process request', async () => {
+  it('should process pub request', async () => {
     await initNatsEnv({});
 
     return request(app)
-      .post('/nats/queue')
+      .post('/natspub/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',
@@ -52,11 +59,11 @@ describe('proxy nats', () => {
       });
   });
 
-  it('should process request with full uri', async () => {
+  it('should process pub request with full uri', async () => {
     await initNatsEnv({});
 
     return request(app)
-      .post('/nats/nats://username:password@host:9999/queue')
+      .post('/natspub/nats://username:password@host:9999/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',
@@ -69,11 +76,11 @@ describe('proxy nats', () => {
       });
   });
 
-  it('should process request with alias of uri', async () => {
+  it('should process pub request with alias of uri', async () => {
     await initNatsEnv(undefined, {nats: {alias: 'nats://a:b@c:1'}});
 
     return request(app)
-      .post('/nats/nats://alias/queue')
+      .post('/natspub/nats://alias/queue')
       .set('Content-Type', 'application/json')
       .send({
         test: 'test',
