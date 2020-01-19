@@ -19,12 +19,20 @@ module.exports = (config) => ({
       fs.writeFileSync(`${outputDir}/apidoc.min.js`, uglify.minify(handlebars.compile(apidocJsTemplate)(params)).code);
     }
 
-    const apidocJsI18n = fs.readFileSync(`${__dirname}/assets/apidoc.i18n.js`, {encoding: 'utf8'});
+    const apidocDataJsTemplate = fs.readFileSync(`${__dirname}/assets/apidoc.data.js`, {encoding: 'utf8'});
 
     if (process.env.NODE_ENV === 'test') {
-      fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, apidocJsI18n);
+      fs.writeFileSync(`${outputDir}/apidoc.data.min.js`, handlebars.compile(apidocDataJsTemplate)(params));
     } else {
-      fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, uglify.minify(apidocJsI18n).code);
+      fs.writeFileSync(`${outputDir}/apidoc.data.min.js`, uglify.minify(handlebars.compile(apidocDataJsTemplate)(params)).code);
+    }
+
+    const apidocJsI18nTemplate = fs.readFileSync(`${__dirname}/assets/apidoc.i18n.js`, {encoding: 'utf8'});
+
+    if (process.env.NODE_ENV === 'test') {
+      fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, handlebars.compile(apidocJsI18nTemplate)(params));
+    } else {
+      fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, uglify.minify(handlebars.compile(apidocJsI18nTemplate)(params)).code);
     }
 
     const template = fs.readFileSync(`${__dirname}/assets/content.hbs`, {encoding: 'utf8'});

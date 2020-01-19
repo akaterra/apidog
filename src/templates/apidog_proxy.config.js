@@ -30,6 +30,11 @@ module.exports = {
     },
   },
 
+  redis: {
+    allow: true,
+    default: 'redis://password@ip:6379'
+  },
+
   websocket: {
     allow: true,
     default: 'ws://ip:9999',

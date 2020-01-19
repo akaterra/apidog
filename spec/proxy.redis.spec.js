@@ -19,17 +19,22 @@ function requestWs(app) {
   const req = {
     pipes: [],
     do(fn) {
-      req.pipes.push(() => fn(ws));
+      req.pause().pipes.push(() => fn(ws));
 
       return req;
     },
     expect(fn) {
-      req.pipes.push(() => ws.$sendPromise.then((message) => fn(ws, message)))
+      req.pipes.push(() => ws.$sendPromise.then((message) => fn(message, ws)))
+
+      return req;
+    },
+    pause() {
+      req.pipes.push(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
       return req;
     },
     send(url) {
-      req.pipes.push(() => app.wsServer.emit('connection', ws, { url: `/redissub${url}` }));
+      req.pipes.push(() => app.wsServer.emit('connection', ws, { url }));
 
       return req;
     },
@@ -49,7 +54,7 @@ function requestWs(app) {
   return req;
 }
 
-xdescribe('proxy redis', () => {
+describe('proxy redis', () => {
   let app;
   let appWs;
   let env;
@@ -66,7 +71,7 @@ xdescribe('proxy redis', () => {
         },
         $publish(channel, message) {
           if (env.$redisHandlers.message) {
-            if (!env.$redisSubscribe || env.$redisSubscribe === channel) {
+            if (!env.$redisSubscribe || env.$redisSubscribe.channel === channel) {
               env.$redisHandlers.message(channel, message);
             }
           }
@@ -96,6 +101,10 @@ xdescribe('proxy redis', () => {
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
     appWs = (await require('../src/templates/apidog_proxy').createAppWebSocket(env)).listen(8008);
   }
+
+  afterEach(async () => {
+    await appWs.shutdown();
+  });
 
   it('should process pub request', async () => {
     await initRedisEnv({});
@@ -157,14 +166,11 @@ xdescribe('proxy redis', () => {
       .send('/redissub/channel', {
         test: 'test',
       })
-      .expect(res => {
-        console.log(123);
-        // expect(env.$redisPublish).toEqual({channel: 'channel', message: '{"test":"test"}'});
-        // expect(env.$redisClient.uri).toBe('redis://username:password@host:9999');
-        // expect(res.text).toBe('Message has been sent to Redis "redis://username:password@host:9999/channel" channel by apiDog proxy');
+      .do(() => {
+        env.redis.$publish('channel', 'response');
       })
-      .do((ws) => {
-        ws.send
+      .expect((res, ws) => {
+        expect(res).toBe('response');
       });
   });
 });

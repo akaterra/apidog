@@ -204,10 +204,30 @@ function validate(block, config) {
       break;
 
     case 'redispub':
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyRedisPub || config.sampleRequestProxyRedis || config.sampleRequestProxy;
+        }
+
+        if (!block.sampleRequestProxy) {
+          block.sampleRequest = [];
+
+          config.logger.warn(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        }
+
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          return sampleRequest === true
+            ? block.api.endpoint
+            : sampleRequest;
+        });
+      }
+
+      break;
+
     case 'redissub':
         if (block.sampleRequest.length) {
           if (!block.sampleRequestProxy) {
-            block.sampleRequestProxy = config.sampleRequestProxyRedis || config.sampleRequestProxy;
+            block.sampleRequestProxy = config.sampleRequestProxyRedisSub || config.sampleRequestProxyRedis || config.sampleRequestProxy;
           }
   
           if (!block.sampleRequestProxy) {

@@ -109,6 +109,18 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--sampleRequestProxy:redisPub' ],
+  {
+    help: 'URL of apiDog Redis PUB proxy to be used to pass requests through it',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:redisSub' ],
+  {
+    help: 'URL of apiDog Redis SUB proxy to be used to pass requests through it',
+  },
+);
+argumentParser.addArgument(
   [ '--sampleRequestProxy:ws', '--sampleRequestProxy:websocket' ],
   {
     help: 'URL of apiDog WebSocket proxy to be used to pass requests through it',
@@ -199,7 +211,7 @@ function loadTemplate(path, hbs) {
     realPath = `${__dirname}/src/templates/${realPath.substr(1)}`;
   }
 
-  for (const dirName of [`${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
+  for (const dirName of ['./src/assets', `${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
     const dir = fs.readdirSync(dirName);
 
     dir.forEach((dirEntry) => {
@@ -274,7 +286,6 @@ const envConfig = {
   author: config.author,
   description: args.description || config.description,
   keywords: config.keywords,
-  i18n: require('./i18n'),
   logger: new utils.Logger(),
   locale: args.locale || config.locale || 'en',
   private: argsPrivate,
@@ -284,6 +295,8 @@ const envConfig = {
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
   sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
   sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
+  sampleRequestProxyRedisPub: args['sampleRequestProxy:redisPub'] || config['sampleRequestProxy:redisPub'],
+  sampleRequestProxyRedisSub: args['sampleRequestProxy:redisSub'] || config['sampleRequestProxy:redisSub'],
   sampleRequestProxyWs: args['sampleRequestProxy:ws']
     || args['sampleRequestProxy:websocket']
     || config['sampleRequestProxy:ws']
@@ -389,7 +402,7 @@ if (!template.templateProcessor) {
 }
 
 if (args.withSampleRequestProxy) {
-  for (const file of ['apiDog_proxy.js', 'apiDog_proxy.config.js', 'package.json']) {
+  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
     if (!fs.existsSync(`${envConfig.outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/${file}`);
     }

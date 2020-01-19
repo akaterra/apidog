@@ -82,24 +82,11 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
-          api.showResponse(blockId, 'Waiting for response ...');
-
-          actualTransport = 'http';
-          actualOptions = requestOptions.http;
-
-          break;
-
         case 'nats':
         case 'natsrpc':
-          api.showResponse(blockId, 'Waiting for response ...');
-
-          actualTransport = 'http';
-          actualOptions = requestOptions.http;
-
-          break;
-
         case 'rabbitmq':
         case 'rabbitmqrpc':
+        case 'redispub':
           api.showResponse(blockId, 'Waiting for response ...');
 
           actualTransport = 'http';
@@ -107,6 +94,7 @@ const ssr = (function () {
 
           break;
 
+        case 'redissub':
         case 'websocket':
         case 'ws':
           // api.hideResponses(blockId);
@@ -134,7 +122,7 @@ const ssr = (function () {
 
           status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
         }).catch((e) => {
-          // emitResponse(el, text, contentType);
+          emitErrorResponse(el, e, contentType);
 
           api.showErrorResponse(blockId, e.message.text || e.message);
         });
@@ -186,6 +174,10 @@ const ssr = (function () {
     ee.emit('onSsrRequestPrepareParams', ...args);
   }
 
+  function emitErrorResponse(...args) {
+    ee.emit('onSsrErrorResponse', ...args);
+  }
+
   function emitResponse(...args) {
     ee.emit('onSsrResponse', ...args);
   }
@@ -210,26 +202,20 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
+        case 'nats':
+        case 'natsrpc':
+        case 'rabbitmq':
+        case 'rabbitmqrpc':
+        case 'redispub':
           return blockDescriptor.sampleRequestProxy
             ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
-        case 'nats':
-        case 'natsrpc':
-          return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
-            : false;
-
-        case 'rabbitmq':
-        case 'rabbitmqrpc':
-          return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
-            : false;
-
+        case 'redissub':
         case 'websocket':
         case 'ws':
           return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`
+            ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
           break;

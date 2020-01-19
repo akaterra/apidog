@@ -32,7 +32,11 @@
  */
 
 /**
- * @apiDefine WebSocket 4. WebSocket
+ * @apiDefine Redis 4. Redis
+ */
+
+/**
+ * @apiDefine WebSocket 5. WebSocket
  */
 
 // Sample chapter
@@ -146,6 +150,21 @@
 /**
  * @api {rabbitmqRpc} rpc RPC
  * @apiChapter RabbitMQ
+ * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+ // Redis chapter
+
+/**
+ * @api {redispub} publish Publish
+ * @apiChapter Redis
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+/**
+ * @api {redissub} subscribe Subscribe
+ * @apiChapter Redis
  * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */

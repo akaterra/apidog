@@ -130,7 +130,7 @@ Parameters:
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq" or "websocket" specifier provides a proxy for the specified transport
+* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :redisPub | :redisSub | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq", "redisPub", "redisSub" or "websocket" specifier provides a proxy for the specified transport
 
 * **-t, --template** - Alias of the built-in template or the directory where the custom template be load from
 
