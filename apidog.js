@@ -49,6 +49,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '-l', '--locale' ],
+  {
+    help: 'Locale',
+  },
+);
+argumentParser.addArgument(
   [ '--ordered' ],
   {
     action: 'storeTrue', help: 'Process titles as ordered titles',
@@ -100,6 +106,18 @@ argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmq' ],
   {
     help: 'URL of apiDog RabbitMQ proxy to be used to pass requests through it',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:redisPub' ],
+  {
+    help: 'URL of apiDog Redis PUB proxy to be used to pass requests through it',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:redisSub' ],
+  {
+    help: 'URL of apiDog Redis SUB proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
@@ -160,6 +178,8 @@ function loadConfig(dir) {
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    'sampleUrl:ws': configApidoc['sampleUrl:ws'] || configPackage.apidoc['sampleUrl:ws'],
+    templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
     url: configApidoc.url || configPackage.apidoc.url,
@@ -191,7 +211,7 @@ function loadTemplate(path, hbs) {
     realPath = `${__dirname}/src/templates/${realPath.substr(1)}`;
   }
 
-  for (const dirName of [`${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
+  for (const dirName of ['./src/assets', `${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
     const dir = fs.readdirSync(dirName);
 
     dir.forEach((dirEntry) => {
@@ -241,13 +261,33 @@ const config = loadConfig(argsInput[0]);
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 const outputDir = args.o || args.output;
+const definitions = {
+  file: {
+    description: [],
+    embeddedLines: [],
+    name: 'file',
+    title: 'File',
+  },
+  parametrizedBody: {
+    description: [],
+    embeddedLines: [],
+    name: 'parametrizedBody',
+    title: 'Parametrized body',
+  },
+  rawBody: {
+    description: [],
+    embeddedLines: [],
+    name: 'rawBody',
+    title: 'Raw body',
+  },
+}
 
 const envConfig = {
   author: config.author,
   description: args.description || config.description,
   keywords: config.keywords,
-  i18n: require('./i18n'),
   logger: new utils.Logger(),
+  locale: args.locale || config.locale || 'en',
   private: argsPrivate,
   ordered: args.ordered,
   outputDir,
@@ -255,11 +295,14 @@ const envConfig = {
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
   sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
   sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
+  sampleRequestProxyRedisPub: args['sampleRequestProxy:redisPub'] || config['sampleRequestProxy:redisPub'],
+  sampleRequestProxyRedisSub: args['sampleRequestProxy:redisSub'] || config['sampleRequestProxy:redisSub'],
   sampleRequestProxyWs: args['sampleRequestProxy:ws']
     || args['sampleRequestProxy:websocket']
     || config['sampleRequestProxy:ws']
     || config['sampleRequestProxy:websocket'],
   sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
+  sampleRequestUrlWs: config['sampleRequestUrl:ws'] || config['sampleUrl:ws'] || args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
   schema: {
     jsonschema: (args.jsonschema || []).reduce((acc, source) => {
       const jsonSchemaSpec = parseJsonschemaUtils.fetchSource(source);
@@ -271,6 +314,7 @@ const envConfig = {
       return acc;
     }, {}),
   },
+  templateOptions: config.templateOptions,
   title: args.title || config.title,
   transports: {
     http: {
@@ -284,7 +328,7 @@ const envConfig = {
 };
 
 let docBlocks = [];
-let linesInlineParser = [];
+let linesOfInlineParser = [];
 
 argsInput.forEach((argInput, index) => {
   let [_, parser, source] = argInput.match(/^(inline:)(.*)$/) || [];
@@ -295,7 +339,7 @@ argsInput.forEach((argInput, index) => {
 
   switch (parser.slice(0, -1) || argsParser) {
     case 'inline':
-      linesInlineParser.push(source);
+      linesOfInlineParser.push(source);
 
       argInput[index] = null;
 
@@ -303,8 +347,8 @@ argsInput.forEach((argInput, index) => {
   }
 });
 
-if (linesInlineParser.length) {
-  docBlocks = [parseBlockLines.parseBlockLines(linesInlineParser, undefined, envConfig)];
+if (linesOfInlineParser.length) {
+  docBlocks = [parseBlockLines.parseBlockLines(linesOfInlineParser, definitions, envConfig)];
 }
 
 argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
@@ -319,6 +363,7 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
           filter: (args.f || args.fileFilter || []).map((p) => new RegExp(p)),
           ignore: (args.f || args.fileIgnore || []).map((p) => new RegExp(p)).concat(loadGitIgnore(source)),
         },
+        definitions,
         envConfig
       ));
 
@@ -347,6 +392,7 @@ envConfig.templateProcessor = template.templateProcessor && template.templatePro
 const content = generate.generate(
   docBlocks,
   template.template,
+  definitions,
   envConfig,
   hbs,
 );
@@ -356,7 +402,7 @@ if (!template.templateProcessor) {
 }
 
 if (args.withSampleRequestProxy) {
-  for (const file of ['apiDog_proxy.js', 'apiDog_proxy.config.js', 'package.json']) {
+  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
     if (!fs.existsSync(`${envConfig.outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/${file}`);
     }

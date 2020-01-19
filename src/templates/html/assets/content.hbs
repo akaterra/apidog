@@ -9,7 +9,7 @@
             <div class="width-40 flex">
               <div class="flex-1">
                 <select class="width-100 input right color-blue" data-version-selector>
-                  <option value="null">All versions</option>
+                  <option value="null">{{_ 'allVersions'}}</option>
                   {{#each this.versions}}
                     <option value="{{@key}}">{{@key}}</option>
                   {{/each}}
@@ -17,7 +17,7 @@
               </div>
               <div class="flex-1">
                 <select class="width-100 input right color-blue" data-version-compare-to-selector>
-                  <option value="null">Compare to</option>
+                  <option value="null">{{_ 'compareTo'}}</option>
                   {{#each this.versions}}
                     <option value="{{@key}}">{{@key}}</option>
                   {{/each}}
@@ -27,7 +27,7 @@
                 <select class="width-100 input right color-blue" data-chapter-selector>
                   {{#each chaptersAsLists}}
                     {{#ifCond this.title '==' '$'}}
-                      <option value="{{../this.title}}">Main chapter</option>
+                      <option value="{{../this.title}}">{{_ 'mainChapter'}}</option>
                     {{else}}
                       {{#with (context 'definitions') as |definitions|}}
                         <option value="{{../../this.title}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</option>
@@ -71,10 +71,17 @@
                   <div class="left-padded top-padded bold smaller">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</div>
                 {{/with}}
               {{/ifCond}}
-              {{#each this.names}}
+              {{#each this.apis}}
                 <div data-family="{{this.[0].familyId}}">
                   {{#each this as |block index|}}
                     <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
+                  {{/each}}
+                </div>
+              {{/each}}
+              {{#each this.notes}}
+                <div data-family="{{this.[0].familyId}}">
+                  {{#each this as |block index|}}
+                    <a class="menu-item color-blue element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
                   {{/each}}
                 </div>
               {{/each}}
@@ -86,8 +93,25 @@
       <div class="width-80">
         <div class="sub-container">
           {{#each this.groups}}
+
+            {{#ifCond this.title '!=' '$'}}
+              <div class="section left-padded color-1 font-size-2 bold">
+                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+              </div>
+            {{/ifCond}}
+
+
             {{#each this.subgroups}}
-              {{#each this.names}}
+
+              {{#ifCond this.title '!=' '$'}}
+                <div class="section left-padded color-1 font-size-1 bold">
+                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+                </div>
+              {{/ifCond}}
+
+              <!-- apis -->
+
+              {{#each this.apis}}
                 <div class="block" data-family="{{this.0.familyId}}">
                   <div class="control-panel">
                     <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
@@ -100,14 +124,14 @@
                       </div>
                       <div class="flex-1">
                         <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
-                          <option value="null">Compare to</option>
+                          <option value="null">{{_ 'compareTo'}}</option>
                           {{#each this}}
                             <option value="{{this.version}}">{{this.version}}</option>
                           {{/each}}
                         </select>
                       </div>
                       <div class="flex-1">
-                        <button class="width-100 control flex-1 color-blue">Hide hints</button>
+                        <button class="width-100 control flex-1 color-blue">{{_ 'hideHints'}}</button>
                       </div>
                       <div class="flex-1"></div>
                     </div>
@@ -116,6 +140,7 @@
                     {{#ifCond index '==' 0}}
                       <a name="{{block.familyId}}"></a>
                     {{/ifCond}}
+                  <a name="{{block.id}}"></a>
                   <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
                     <div class="control-panel">
                       <div class="width-10 flex" data-block-control-panel="{{block.id}}">
@@ -130,7 +155,11 @@
                     </div>
                     <div class="hidden" data-block-compare-to-diff-content></div>
                     <div data-block-compare-to-content>
-                      <div class="section left-padded color-1 font-size-1 bold">
+
+                      <!-- title -->
+
+                      <div class="section left-padded color-1 font-size-1">
+                        <a class="section-title" href="#{{block.id}}">
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
@@ -143,12 +172,16 @@
                               {{this.version}}
                             </span>
                           </span>
-                        {{#if this.deprecated}}
-                          {{#ifCond this.deprecated '!=' true}}
-                            <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
-                          {{/ifCond}}
-                        {{/if}}
+                          {{#if this.deprecated}}
+                            {{#ifCond this.deprecated '!=' true}}
+                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                            {{/ifCond}}
+                          {{/if}}
+                        </a>
                       </div>
+
+                      <!-- title:end -->
+
                       <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
 
                       <div class="section flex">
@@ -195,21 +228,21 @@
                         {{#if this.headers.length}}
                           {{#each this.headersGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Header{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
-                              {{#each params}}
+                              {{#each params.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
                               {{/each}}
@@ -222,7 +255,7 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Header example{{/if}}</div>
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -231,33 +264,33 @@
                         {{#if this.params.length}}
                           {{#each this.paramsGroups as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Parameter{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
                                 <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
                               {{/if}}
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
-                              {{#each params}}
+                              {{#each params.list}}
                                 <div class="table">
                                   <div class="width-25 color-2 mono">
                                     {{pathLastKeyIndented this.field.name}}
                                     {{#if this.field}}
                                       {{#if this.field.isOptional}}
-                                        <span class="small sup mono color-3 optional">optional</span>{{else}}{{/if}}
+                                        <span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
                                     {{/if}}
                                   </div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">
                                     {{toHtml (join this.description true)}}
                                     {{#if this.type}}
                                       {{#if this.type.allowedValues}}
                                         <div class="{{#if this.description.length}}top-padded{{/if}}">
-                                          <div class="smaller color-3">Allowed values:</div>
+                                          <div class="smaller color-3">{{_ 'allowedValues'}}:</div>
                                           {{#each this.type.allowedValues}}
                                             <div class="smaller color-blue">{{this}}</div>
                                           {{/each}}
@@ -268,7 +301,7 @@
                                       {{#if this.field.defaultValue}}
                                         <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if
                                                 this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
-                                          <div class="smaller color-3">Default value:</div>
+                                          <div class="smaller color-3">{{_ 'defaultValue'}}:</div>
                                           <div class="smaller color-blue">{{this.field.defaultValue}}</div>
                                         </div>
                                       {{/if}}
@@ -280,12 +313,37 @@
                           {{/each}}
                         {{/if}}
 
+                        {{#if this.paramValue.length}}
+                          {{#each this.paramValueGroup as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
+                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each params}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
+                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
                         {{#if this.paramExample}}
                           {{#each this.paramExample}}
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Parameter example{{/if}}</div>
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'parameterExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -301,14 +359,14 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Field</div>
-                                <div class="width-15 bg-color-4 bold">Type</div>
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
-                              {{#each successes}}
+                              {{#each successes.list}}
                                 <div class="table">
-                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                  <div class="width-15 color-2 mono">{{this.type.name}}</div>
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                                  {{#if successes.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
                               {{/each}}
@@ -321,7 +379,7 @@
                             <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
                                                         'any'}} hidden{{/ifCond}}"
                                 data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}</div>
+                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}</div>
                               <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
                             </div>
                           {{/each}}
@@ -337,13 +395,38 @@
                             {{/with}}
                             <div class="section">
                               <div class="table">
-                                <div class="width-25 bg-color-4 bold">Name</div>
+                                <div class="width-25 bg-color-4 bold">{{_ 'name'}}</div>
+                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each errors.list}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                                  {{#if errors.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errorValue.length}}
+                          {{#each this.errorValueGroup as |errors key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Error value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
                                 <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">Description</div>
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
                               </div>
                               {{#each errors}}
                                 <div class="table">
-                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
                                   <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
                                   <div class="flex-1">{{toHtml (join this.description true)}}</div>
                                 </div>
@@ -370,20 +453,20 @@
                     -->
 
                     {{#ifCond this.sampleRequest.length '!=' 0}}
-                      <div class="label">Send sample request</div>
+                      <div class="label">{{_ 'sendSampleRequest'}}</div>
 
                       {{#if ../this.sampleRequestProxy}}
-                        <div class="inner-label color-blue">Preset</div>
+                        <div class="inner-label color-blue">{{_ 'preset'}}</div>
 
                         <div class="section flex">
-                          <label class="input-label width-25 color-blue" for="{{this.id}}">Name</label>
+                          <label class="input-label width-25 color-blue" for="{{this.id}}">{{_ 'name'}}</label>
                           <input
-                                  class="input-param flex-1 color-blue"
-                                  id="{{../this.id}}_presetName"
-                                  name="presetName"
-                                  type="text"
-                                  data-block-ssr-preset-name
-                                  value=""
+                            class="input-param flex-1 color-blue"
+                            id="{{../this.id}}_presetName"
+                            name="presetName"
+                            type="text"
+                            data-block-ssr-preset-name
+                            value=""
                           />
                           <select class="input-param flex-1 color-blue" data-block-ssr-preset-selector>
                             <option value="new">New</option>
@@ -397,21 +480,21 @@
                       {{/if}}
 
                       {{#if ../this.sampleRequestVariable.length}}
-                        <div class="inner-label color-green">Variable</div>
+                        <div class="inner-label color-green">{{_ 'variable'}}</div>
 
                         <div class="section flex">
                           {{#each ../this.sampleRequestVariable}}
-                            <label class="input-label width-25 color-green"
-                                   for="{{../../this.id}}_v_{{this.field.name}}"
-                                   title="{{this.field.name}}">{{this.field.name}}</label>
+                            <label class="input-label width-25 color-green" for="{{../../this.id}}_v_{{this.field.name}}" title="{{this.field.name}}">
+                              {{this.field.name}}
+                            </label>
                             <input
-                                    class="input-param flex-1 color-green"
-                                    id="{{../../this.id}}_v_{{this.field.name}}"
-                                    name="{{this.field.name}}"
-                                    type="text"
-                                    data-block-ssr-input-global-id="_v_{{this.field.name}}"
-                                    data-block-ssr-input="variable"
-                                    value="{{this.field.defaultValue}}"
+                              class="input-param flex-1 color-green"
+                              id="{{../../this.id}}_v_{{this.field.name}}"
+                              name="{{this.field.name}}"
+                              type="text"
+                              data-block-ssr-input-global-id="_v_{{this.field.name}}"
+                              data-block-ssr-input="variable"
+                              value="{{this.field.defaultValue}}"
                             />
                           {{/each}}
                         </div>
@@ -422,47 +505,65 @@
                       <div class="section flex">
                         <label class="input-label width-25 bold" for="{{this.id}}">Endpoint</label>
                         <input
-                                class="input-param flex-1"
-                                id="{{../this.id}}"
-                                name="endpoint"
-                                type="text"
-                                data-block-ssr-endpoint
-                                value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
+                          class="input-param flex-1"
+                          id="{{../this.id}}_endpoint"
+                          name="endpoint"
+                          type="text"
+                          data-block-ssr-endpoint
+                          value="{{first ../this.sampleRequest.[0] ../this.api.endpoint}}"
                         />
                       </div>
 
                       {{#if ../this.headers.length}}
+                        <div class="inner-label"><hr></div>
                         {{#each ../this.headersGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}</div>
-                          <div class="section">
-                            {{#each params}}
+                          <div class="flex">
+                            <div class="label width-25 right">
+                              <input
+                                type="radio"
+                                name="{{block.id}}_hgs"
+                                {{#if @first}} checked{{/if}}
+                                data-block-ssr-headers-group-selector="{{key}}"
+                                data-block-ssr-name="{{key}}"
+                              />
+                            </div>
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label flex-1">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                            {{/with}}
+                          </div>
+                          <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-headers-group="{{key}}">
+                            {{#each params.list}}
                               <div class="section flex">
-                                <label class="input-label width-25"
-                                       for="{{../../../this.id}}_h_{{this.field.name}}"
-                                       title="{{this.field.name}}">{{this.field.name}}</label>
+                                <label
+                                  class="input-label width-25"
+                                  for="{{block.id}}_h_{{this.field.name}}"
+                                  title="{{this.field.name}}"
+                                >
+                                  {{this.field.name}}
+                                </label>
                                 {{#if this.type.modifiers.enum}}
                                   <select
-                                          class="input-param flex-1"
-                                          id="{{../../../this.id}}_h_{{this.field.name}}"
-                                          name="{{this.field.name}}"
-                                          type="text"
-                                          data-block-ssr-input="header"
-                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                          value="{{this.field.defaultValue}}"
-                                  >
-                                    {{#each ../this.type.allowedValues}}
-                                      <option value="{{this}}">{{this}}</option>
-                                    {{/each}}
-                                  </select>
+                                    class="input-param flex-1"
+                                    id="{{block.id}}_h_{{this.field.name}}"
+                                    name="{{this.field.name}}"
+                                    type="text"
+                                    data-block-ssr-input="header"
+                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{this.field.name}}"
+                                    value="{{this.field.defaultValue}}"
+                                  >{{#if this.field.isOptional}}<option value=""></option>{{/if}}{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
                                 {{else}}
                                   <input
-                                          class="input-param flex-1"
-                                          id="{{../../../this.id}}_h_{{this.field.name}}"
-                                          name="{{this.field.name}}"
-                                          type="text"
-                                          data-block-ssr-input="header"
-                                          data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                          value="{{this.field.defaultValue}}"
+                                    class="input-param flex-1"
+                                    id="{{block.id}}_h_{{this.field.name}}"
+                                    name="{{this.field.name}}"
+                                    type="text"
+                                    data-block-ssr-input="header"
+                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{this.field.name}}"
+                                    value="{{this.field.defaultValue}}"
                                   />
                                 {{/if}}
                                 <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
@@ -473,54 +574,77 @@
                       {{/if}}
 
                       {{#if ../this.params.length}}
+                        <div class="inner-label"><hr></div>
                         {{#each ../this.paramsGroups as |params key|}}
-                          <div class="inner-label">{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}</div>
-                          <div class="section">
-                            {{#each params}}
+                          <div class="flex">
+                            <div class="label width-25 right">
+                              <input
+                                type="radio"
+                                name="{{block.id}}_pgs"
+                                {{#if @first}} checked{{/if}}
+                                data-block-ssr-params-group-selector="{{key}}"
+                                data-block-ssr-name="{{key}}"
+                              />
+                            </div>
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                            {{/with}}
+                          </div>
+                          <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
+                            {{#each params.list}}
                               {{#hook 'isNotContainerType' this.type.name}}
                                 <div class="section flex">
-                                  <label class="input-label width-25"
-                                         for="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                         title="{{../this.field.name}}">{{../this.field.name}}</label>
+                                  <label
+                                    class="input-label width-25"
+                                    for="{{block.id}}_p_{{../this.field.name}}"
+                                    title="{{../this.field.name}}"
+                                  >
+                                    {{../this.field.name}}
+                                  </label>
                                   {{#if ../this.type.modifiers.enum}}
                                     <select
-                                            class="input-param flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                    >
-                                      {{#each ../this.type.allowedValues}}
-                                        <option value="{{this}}">{{this}}</option>
-                                      {{/each}}
-                                    </select>
-                                  {{else ifCond ../this.type.name '==' 'ParametrizedBody'}}
+                                      class="input-param flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      value="{{this.field.defaultValue}}"
+                                    >{{#if ../this.field.isOptional}}<option value=""></option>{{/if}}{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+                                  {{else ifCond ../this.type.modifiers.initial '==' 'parametrizedbody'}}
                                     <textarea
-                                            class="input-param-raw-body flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            rows="10"
+                                      class="input-param-raw-body flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      rows="10"
                                     >{{../this.field.defaultValue}}</textarea>
-                                  {{else ifCond ../this.type.name '==' 'RawBody'}}
+                                  {{else ifCond ../this.type.modifiers.initial '==' 'rawbody'}}
                                     <textarea
-                                            class="input-param-raw-body flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            rows="10"
+                                      class="input-param-raw-body flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}"
+                                      rows="10"
                                     >{{../this.field.defaultValue}}</textarea>
                                   {{else}}
                                     <input
-                                            class="input-param flex-1"
-                                            id="{{../../../../this.id}}_p_{{../this.field.name}}"
-                                            name="{{../this.field.name}}"
-                                            type="{{#ifCond ../this.type.name '==' 'File'}}file{{else}}text{{/ifCond}}"
-                                            data-block-ssr-input="param"
-                                            data-block-ssr-input-global-id="_p_{{../this.field.name}}"
-                                            value="{{../this.field.defaultValue}}"
+                                      class="input-param flex-1"
+                                      id="{{block.id}}_p_{{../this.field.name}}"
+                                      name="{{../this.field.name}}"
+                                      type="{{#ifCond ../this.type.modifiers.initial '==' 'file'}}file{{else}}text{{/ifCond}}"
+                                      data-block-ssr-input="param"
+                                      data-block-ssr-input-global-id="_p_{{../this.field.name}}"
+                                      data-block-ssr-group="{{key}}"
+                                      data-block-ssr-name="{{../this.field.name}}" rows="10"
+                                      value="{{../this.field.defaultValue}}"
                                     />
                                   {{/if}}
                                   <span class="input-placeholder mono">{{../this.type.name}}</span>
@@ -532,23 +656,341 @@
                       {{/if}}
 
                       <div class="section">
-                        <button class="button margin-left-25" data-block-ssr-send>Send</button>
+                        <button class="button margin-left-25" data-block-ssr-send>{{_ 'send'}}</button>
                         {{#ifCond ../this.api.transport.name '==' 'websocket'}}
-                          <button class="button" data-block-ssr-ws-connect>Connect</button>
-                          <button class="button hidden" data-block-ssr-ws-disconnect>Disconnect</button>
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
+                        {{else ifCond ../this.api.transport.name '==' 'redissub'}}
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
                         {{/ifCond}}
                       </div>
 
                       <div class="section hidden" data-block-ssr-error-response>
-                        <div class="label">Error response</div>
+                        <div class="label">{{_ 'errorResponse'}}</div>
                         <pre class="response big-badge bg-color-dark-red color-white mono"></pre>
                       </div>
 
                       <div class="section hidden" data-block-ssr-response>
-                        <div class="label">Response</div>
+                        <div class="label">{{_ 'response'}}</div>
                         <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
                       </div>
                     {{/ifCond}}
+                  </div>
+                  {{/each}}
+                  <hr class="splitter">
+                </div>
+              {{/each}}
+
+              <!--
+              Notes
+              -->
+
+              {{#each this.notes}}
+                <div class="block" data-family="{{this.0.familyId}}">
+                  <div class="control-panel">
+                    <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-selector>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
+                          <option value="null">{{_ 'compareTo'}}</option>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <button class="width-100 control flex-1 color-blue" disabled>{{_ 'hideHints'}}</button>
+                      </div>
+                      <div class="flex-1"></div>
+                    </div>
+                  </div>
+                  {{#each this as |block index|}}
+                    {{#ifCond index '==' 0}}
+                      <a name="{{block.familyId}}"></a>
+                    {{/ifCond}}
+                  <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
+                    <div class="control-panel">
+                      <div class="width-10 flex" data-block-control-panel="{{block.id}}">
+                        <div class="flex-1">
+                          <select class="width-100 input right color-blue" data-block-content-type disabled>
+                            {{#each block.contentType}}
+                              <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hidden" data-block-compare-to-diff-content></div>
+                    <div data-block-compare-to-content>
+
+                      <!-- title -->
+
+                      <div class="section left-padded color-1 font-size-1 bold">
+                        <a class="section-title color-blue" href="#{{block.familyId}}">
+                          <span class="{{#if this.deprecated}}line-through{{/if}}">
+                            {{this.title}}
+                            <span class="color-3">
+                              {{#ifCond this.group.name '!=' '$'}}
+                                {{first ../this.group.title ../this.group.name}} /
+                              {{/ifCond}}
+                              {{#ifCond this.subgroup.name '!=' '$'}}
+                                {{first ../this.subgroup.title ../this.subgroup.name}} /
+                              {{/ifCond}}
+                              {{this.version}}
+                            </span>
+                          </span>
+                          {{#if this.deprecated}}
+                            {{#ifCond this.deprecated '!=' true}}
+                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                            {{/ifCond}}
+                          {{/if}}
+                        </a>
+                      </div>
+
+                      <!-- title:end -->
+
+                      <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
+
+                      <div data-block-hint="{{block.familyId}}">
+                        {{#if this.example}}
+                          {{#each this.example}}
+                            <div class="section">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'usageExample'}}{{/if}}:</div>
+                              <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
+                                      (join this.description true)}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.headers.length}}
+                          {{#each this.headersGroups as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each params.list}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.headerExample}}
+                          {{#each this.headerExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.params.length}}
+                          {{#each this.paramsGroups as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each params.list}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">
+                                    {{pathLastKeyIndented this.field.name}}
+                                    {{#if this.field}}
+                                      {{#if this.field.isOptional}}
+                                        <span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
+                                    {{/if}}
+                                  </div>
+                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">
+                                    {{toHtml (join this.description true)}}
+                                    {{#if this.type}}
+                                      {{#if this.type.allowedValues}}
+                                        <div class="{{#if this.description.length}}top-padded{{/if}}">
+                                          <div class="smaller color-3">{{_ 'allowedValues'}}:</div>
+                                          {{#each this.type.allowedValues}}
+                                            <div class="smaller color-blue">{{this}}</div>
+                                          {{/each}}
+                                        </div>
+                                      {{/if}}
+                                    {{/if}}
+                                    {{#if this.field}}
+                                      {{#if this.field.defaultValue}}
+                                        <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if
+                                                this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
+                                          <div class="smaller color-3">{{_ 'defaultValue'}}:</div>
+                                          <div class="smaller color-blue">{{this.field.defaultValue}}</div>
+                                        </div>
+                                      {{/if}}
+                                    {{/if}}
+                                  </div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.paramValue.length}}
+                          {{#each this.paramValueGroup as |params key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
+                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each params}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
+                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.paramExample}}
+                          {{#each this.paramExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'parameterExample'}}{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.successs.length}}
+                          {{#each this.successsGroups as |successes key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">description</div>
+                              </div>
+                              {{#each successes.list}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                                  {{#if successes.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.successExample}}
+                          {{#each this.successExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errors.length}}
+                          {{#each this.errorsGroups as |errors key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'name'}}</div>
+                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each errors.list}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
+                                  {{#if errors.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errorValue.length}}
+                          {{#each this.errorValueGroup as |errors key|}}
+                            {{#with (context 'definitions') as |definitions|}}
+                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'errorValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+                              {{#if (lookup definitions key 'description')}}
+                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+                              {{/if}}
+                            {{/with}}
+                            <div class="section">
+                              <div class="table">
+                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
+                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+                              </div>
+                              {{#each errors}}
+                                <div class="table">
+                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
+                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{/each}}
+                        {{/if}}
+
+                        {{#if this.errorExample}}
+                          {{#each this.errorExample}}
+                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
+                                                        'any'}} hidden{{/ifCond}}"
+                                data-block-example="{{../this.id}}_{{this.type}}">
+                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}</div>
+                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
+                            </div>
+                          {{/each}}
+                        {{/if}}
+                      </div>
+                    </div>
                   </div>
                   {{/each}}
                   <hr class="splitter">

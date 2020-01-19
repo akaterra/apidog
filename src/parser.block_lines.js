@@ -1,45 +1,49 @@
 const utils = require('./utils');
 
-const tokenParsers = {
-  '@api': require('./tokens/api.token'),
-  '@apiChapter': require('./tokens/api_chapter.token'),
-  '@apiContentType': require('./tokens/api_content_type.token'),
-  '@apiDefine': require('./tokens/api_define.token'),
-  '@apiDeprecated': require('./tokens/api_deprecated.token'),
-  '@apiDescription': require('./tokens/api_description.token'),
-  '@apiGroup': require('./tokens/api_group.token'),
-  '@apiError': require('./tokens/api_param.token').construct('error'),
-  '@apiErrorExample': require('./tokens/api_param_example.token').construct('error', '@errorExample'),
-  '@apiExample': require('./tokens/api_param_example.token').construct(void 0, '@example'),
-  '@apiFamily': require('./tokens/api_family.token'),
-  '@apiHeader': require('./tokens/api_param.token').construct('header'),
-  '@apiHeaderExample': require('./tokens/api_param_example.token').construct('header', '@headerExample'),
-  '@apiIgnore': require('./tokens/api_ignore.token'),
-  '@apiName': require('./tokens/api_name.token'),
-  '@apiParam': require('./tokens/api_param.token'),
-  '@apiParamExample': require('./tokens/api_param_example.token'),
-  '@apiParamPrefix': require('./tokens/api_param_prefix.token'),
-  '@apiPermission': require('./tokens/api_permission.token'),
-  '@apiPrivate': require('./tokens/api_private.token'),
-  '@apiSampleRequest': require('./tokens/api_sample_request.token'),
-  '@apiSampleRequestHook': require('./tokens/api_sample_request_hook.token'),
-  '@apiSampleRequestOption': require('./tokens/api_sample_request_option.token'),
-  '@apiSampleRequestProxy': require('./tokens/api_sample_request_proxy.token'),
-  '@apiSampleRequestVariable': require('./tokens/api_sample_request_variable.token'),
-  '@apiSr': require('./tokens/api_sample_request.token'),
-  '@apiSrHook': require('./tokens/api_sample_request_hook.token'),
-  '@apiSrOption': require('./tokens/api_sample_request_option.token'),
-  '@apiSrProxy': require('./tokens/api_sample_request_proxy.token'),
-  '@apiSrVariable': require('./tokens/api_sample_request_variable.token'),
-  '@apiSchema': require('./tokens/api_schema.token'),
-  '@apiSubgroup': require('./tokens/api_sub_group.token'),
-  '@apiSuccess': require('./tokens/api_param.token').construct('success'),
-  '@apiSuccessExample': require('./tokens/api_param_example.token').construct('success', '@successExample'),
-  '@apiUse': require('./tokens/api_use.token'),
-  '@apiVersion': require('./tokens/api_version.token'),
+const annotationParsers = {
+  '@api': require('./annotations/api'),
+  '@apiChapter': require('./annotations/api_chapter'),
+  '@apiContentType': require('./annotations/api_content_type'),
+  '@apiDefine': require('./annotations/api_define'),
+  '@apiDeprecated': require('./annotations/api_deprecated'),
+  '@apiDescription': require('./annotations/api_description'),
+  '@apiGroup': require('./annotations/api_group'),
+  '@apiError': require('./annotations/api_param').construct('error'),
+  '@apiErrorExample': require('./annotations/api_param_example').construct('error', '@errorExample'),
+  '@apiErrorValue': require('./annotations/api_param_value').construct('errorValue'),
+  '@apiExample': require('./annotations/api_param_example').construct(undefined, '@example'),
+  '@apiFamily': require('./annotations/api_family'),
+  '@apiHeader': require('./annotations/api_param').construct('header'),
+  '@apiHeaderExample': require('./annotations/api_param_example').construct('header', '@headerExample'),
+  '@apiHeaderValue': require('./annotations/api_param_value').construct('headerValue'),
+  '@apiIgnore': require('./annotations/api_ignore'),
+  '@apiName': require('./annotations/api_name'),
+  '@apiNote': require('./annotations/api_note'),
+  '@apiParam': require('./annotations/api_param'),
+  '@apiParamExample': require('./annotations/api_param_example'),
+  '@apiParamPrefix': require('./annotations/api_param_prefix'),
+  '@apiParamValue': require('./annotations/api_param_value'),
+  '@apiPermission': require('./annotations/api_permission'),
+  '@apiPrivate': require('./annotations/api_private'),
+  '@apiSampleRequest': require('./annotations/api_sample_request'),
+  '@apiSampleRequestHook': require('./annotations/api_sample_request_hook'),
+  '@apiSampleRequestOption': require('./annotations/api_sample_request_option'),
+  '@apiSampleRequestProxy': require('./annotations/api_sample_request_proxy'),
+  '@apiSampleRequestVariable': require('./annotations/api_sample_request_variable'),
+  '@apiSr': require('./annotations/api_sample_request'),
+  '@apiSrHook': require('./annotations/api_sample_request_hook'),
+  '@apiSrOption': require('./annotations/api_sample_request_option'),
+  '@apiSrProxy': require('./annotations/api_sample_request_proxy'),
+  '@apiSrVariable': require('./annotations/api_sample_request_variable'),
+  '@apiSchema': require('./annotations/api_schema'),
+  '@apiSubgroup': require('./annotations/api_sub_group'),
+  '@apiSuccess': require('./annotations/api_param').construct('success'),
+  '@apiSuccessExample': require('./annotations/api_param_example').construct('success', '@successExample'),
+  '@apiUse': require('./annotations/api_use'),
+  '@apiVersion': require('./annotations/api_version'),
 };
 
-function parseBlockLines(lines, definitions, config) {
+function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   if (!config) {
     config = {logger: utils.logger};
   }
@@ -52,31 +56,59 @@ function parseBlockLines(lines, definitions, config) {
 
   let lastTokenParser;
 
+  // think good before to change it to "lines.forEach" - amount of lines can be changed by @apiUse
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
 
-    if (config) {
-      config.logger.setLine(line);
-    }
-
-    const tokens = utils.strSplitBySpace(line.trim(), 1);
-
-    if (tokenParsers.hasOwnProperty(tokens[0])) {
-      lastTokenParser = tokenParsers[tokens[0]];
-
-      Object.assign(block, lastTokenParser.parse(block, tokens[1], line, index, lines, definitions, config));
-    } else {
-      if (config.logger && tokens[0].substr(0, 4) === '@api') {
-        config.logger.warn(`Possibly unknown token: ${tokens[0]}`);
+    if (line) {
+      if (config) {
+        config.logger.setLine(line);
       }
 
-      if (lastTokenParser && lastTokenParser.addDescription) {
-        Object.assign(block, lastTokenParser.addDescription(block, line, config));
+      /**
+       * Example:
+       * 
+       * @apiToken abc def
+       * 
+       * annotation = "@apiToken"
+       * text = "abc def"
+       */
+      const [annotation, text] = utils.strSplitBySpace(line.trim(), 1);
+
+      if (annotation) {
+        if (annotationParsers.hasOwnProperty(annotation)) {
+          lastTokenParser = annotationParsers[annotation];
+
+          // merge parsed properties with block properties
+          Object.assign(
+            block,
+            lastTokenParser.parse(
+              block,
+              text,
+              line,
+              index,
+              lines,
+              definitions,
+              config,
+              onlyDefinitions
+            )
+          );
+        } else {
+          // unknown annotation
+          if (config.logger && annotation.substr(0, 4) === '@api') {
+            config.logger.warn(`Possibly unknown annotation: ${annotation}`);
+          }
+
+          // add line of description (or another props) via last used annotation parser
+          if (lastTokenParser && lastTokenParser.addDescription) {
+            Object.assign(block, lastTokenParser.addDescription(block, line, config));
+          }
+        }
       }
     }
-  }
+  };
 
-  return block;
+  return onlyDefinitions ? {} : block;
 }
 
 module.exports = {

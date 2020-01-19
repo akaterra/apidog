@@ -30,6 +30,10 @@ module.exports = (config) => ({
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
+      if (!descriptor.api) {
+        return;
+      }
+
       const endpoint = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint)).pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
@@ -49,18 +53,18 @@ module.exports = (config) => ({
       } else {
         if (descriptor.successsGroups) {
           Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
-            responses[key] = {
+            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params),
+              schema: parserUtils.convertParamsToJsonSchema(params.list),
             };
           });
         }
 
         if (descriptor.errorsGroups) {
           Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
-            responses[key] = {
+            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params),
+              schema: parserUtils.convertParamsToJsonSchema(params.list),
             };
           });
         }
@@ -68,7 +72,11 @@ module.exports = (config) => ({
 
       let isBodyParamInitiated = false;
 
-      spec.paths[endpoint][descriptor.api.transport.method || 'get'] = {
+      if (!descriptor.api.transport.method) {
+        descriptor.api.transport.method = 'get';
+      }
+
+      spec.paths[endpoint][descriptor.api.transport.method] = {
         summary: descriptor.title,
         description: descriptor.description && descriptor.description.join('\n'),
         operationId: descriptor.id,
@@ -101,13 +109,16 @@ module.exports = (config) => ({
           return contentType;
         }),
         parameters: descriptor.params.map((param) => {
-          if (param.field.name in uriParams) {
+          const typeAllowedValues = param.type.allowedValues.filter(_ => _);
+
+          if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
             return {
               name: param.field.name,
-              in: uriParams[param.field.name] ? 'query' : 'path',
+              in: uriParams[param.field.name] === false ? 'path' : 'query',
               description: param.description && param.description.join('/n'),
               required: !param.field.isOptional,
-              type: param.type.name.toLowerCase(),
+              type: param.type.modifiers.initial.toLowerCase(),
+              enum: typeAllowedValues.length ? typeAllowedValues : undefined,
             };
           }
 
@@ -123,6 +134,7 @@ module.exports = (config) => ({
             description: '',
             required: true,
             schema: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams))),
+            enum: typeAllowedValues.length ? typeAllowedValues : undefined,
           };
         }).filter((parameter) => parameter),
         responses,

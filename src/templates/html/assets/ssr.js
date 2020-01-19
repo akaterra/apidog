@@ -2,6 +2,8 @@
  * Send sample request
  */
 const ssr = (function () {
+  const lastSelectedGroups = {};
+
   by.selector('[data-block]').forEach((el) => {
     const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
@@ -25,39 +27,42 @@ const ssr = (function () {
       },
     };
 
+    if (!lastSelectedGroups[blockId]) {
+      lastSelectedGroups[blockId] = {};
+    }
+
+    const blockSsrHeadersGroupSelectorCheckedEl = by.selector('[data-block-ssr-headers-group-selector]:checked', el)[0];
+
+    if (blockSsrHeadersGroupSelectorCheckedEl) {
+      lastSelectedGroups[blockId].headers = blockSsrHeadersGroupSelectorCheckedEl.dataset.blockSsrName;
+    }
+
+    for (const blockSsrHeadersGroupSelectorEl of by.selector('[data-block-ssr-headers-group-selector]', el)) {
+      on.click(blockSsrHeadersGroupSelectorEl, () => api.showHeadersGroup(blockId, blockSsrHeadersGroupSelectorEl.dataset.blockSsrName));
+    }
+
+    const blockSsrParamsGroupSelectorCheckedEl = by.selector('[data-block-ssr-params-group-selector]:checked', el)[0];
+
+    if (blockSsrParamsGroupSelectorCheckedEl) {
+      lastSelectedGroups[blockId].params = blockSsrParamsGroupSelectorCheckedEl.dataset.blockSsrName;
+    }
+
+    for (const blockSsrParamsGroupSelectorEl of by.selector('[data-block-ssr-params-group-selector]', el)) {
+      on.click(blockSsrParamsGroupSelectorEl, () => api.showParamsGroup(blockId, blockSsrParamsGroupSelectorEl.dataset.blockSsrName));
+    }
+
     on.click(blockSsrSendEl, () => {
-      const config = {};
       const contentType = api.getContentType(blockId);
-      const endpoint = api.getEndpoint(blockId);
-      const headers = api.getHeaders(blockId);
-      const params = api.getParams(blockId);
+      const headers = api.getHeadersByLastGroup(blockId);
+      const params = api.getParamsByLastGroup(blockId);
 
       emitRequestPrepareParams(el, {headers, params});
 
-      let {data, extra} = prepareBody(params, blockDescriptor.params);
-
-      if (extra) {
-        switch (extra.type) {
-          case 'file':
-            data = extra.value;
-
-            break;
-
-          case 'parametrizedBody':
-            data = extra.value;
-
-            break;
-
-          case 'rawBody':
-            data = extra.value;
-
-            break;
-        }
-      }
+      let {body, type} = prepareBody(params, blockDescriptor.params, lastSelectedGroups[blockId] && lastSelectedGroups[blockId].params || null);
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
         for (const ssrHook of blockDescriptor.sampleRequestHooks) {
-          data = sampleRequestHooks[ssrHook](data);
+          body = sampleRequestHooks[ssrHook](body);
         }
       }
 
@@ -77,24 +82,11 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
-          api.showResponse(blockId, 'Waiting for response ...');
-
-          actualTransport = 'http';
-          actualOptions = requestOptions.http;
-
-          break;
-
         case 'nats':
         case 'natsrpc':
-          api.showResponse(blockId, 'Waiting for response ...');
-
-          actualTransport = 'http';
-          actualOptions = requestOptions.http;
-
-          break;
-
         case 'rabbitmq':
         case 'rabbitmqrpc':
+        case 'redispub':
           api.showResponse(blockId, 'Waiting for response ...');
 
           actualTransport = 'http';
@@ -102,6 +94,7 @@ const ssr = (function () {
 
           break;
 
+        case 'redissub':
         case 'websocket':
         case 'ws':
           // api.hideResponses(blockId);
@@ -116,17 +109,22 @@ const ssr = (function () {
         actualTransport,
         actualEndpoint,
         blockDescriptor.api.transport.method || 'post',
-        data,
+        body,
+        type,
         headers,
         contentType,
         actualOptions
       );
 
       if (response instanceof Promise) {
-        response.then(({text}) => {
+        response.then(({status, text}) => {
           emitResponse(el, text, contentType);
 
-          api.showResponse(blockId, text);
+          status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
+        }).catch((e) => {
+          emitErrorResponse(el, e, contentType);
+
+          api.showErrorResponse(blockId, e.message.text || e.message);
         });
       }
     });
@@ -135,13 +133,23 @@ const ssr = (function () {
 
     if (blockSsrWsConnectEl) {
       on.click(blockSsrWsConnectEl, () => {
-        const endpoint = api.getEndpoint(blockId);
+        const contentType = api.getContentType(blockId);
+        const headers = api.getHeaders(blockId);
+        const params = api.getParams(blockId);
+  
+        emitRequestPrepareParams(el, {headers, params});
 
-        request.ws.connect(endpoint, {
+        const actualEndpoint = api.getActualEndpoint(blockId);
+
+        if (actualEndpoint === false) {
+          return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
+        }
+
+        request.ws.connect(prepareUrl(actualEndpoint, params), {
           onConnect: () => api.showWsDisconnect(blockId),
           onData: (ws, data) => api.showResponse(blockId, data),
           onDisconnect: () => api.showWsConnect(blockId),
-          onError: (ws, err) => api.showResponse(blockId, err),
+          onError: (ws, err) => api.showErrorResponse(blockId, err),
         });
       });
     }
@@ -150,9 +158,13 @@ const ssr = (function () {
 
     if (blockSsrWsDisconnectEl) {
       on.click(blockSsrWsDisconnectEl, () => {
-        const endpoint = api.getActualEndpoint(blockId);
+        const actualEndpoint = api.getActualEndpoint(blockId);
 
-        request.ws.disconnect(endpoint);
+        if (actualEndpoint === false) {
+          return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
+        }
+
+        request.ws.disconnect(actualEndpoint);
         api.showWsConnect(blockId);
       });
     }
@@ -160,6 +172,10 @@ const ssr = (function () {
 
   function emitRequestPrepareParams(...args) {
     ee.emit('onSsrRequestPrepareParams', ...args);
+  }
+
+  function emitErrorResponse(...args) {
+    ee.emit('onSsrErrorResponse', ...args);
   }
 
   function emitResponse(...args) {
@@ -186,26 +202,20 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
+        case 'nats':
+        case 'natsrpc':
+        case 'rabbitmq':
+        case 'rabbitmqrpc':
+        case 'redispub':
           return blockDescriptor.sampleRequestProxy
             ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
-        case 'nats':
-        case 'natsrpc':
-          return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
-            : false;
-
-        case 'rabbitmq':
-        case 'rabbitmqrpc':
-          return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
-            : false;
-
+        case 'redissub':
         case 'websocket':
         case 'ws':
           return blockDescriptor.sampleRequestProxy
-            ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${endpoint}`
+            ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
           break;
@@ -265,6 +275,19 @@ const ssr = (function () {
 
       return {};
     },
+    getHeadersByLastGroup(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector(`[data-block-ssr-input="header"][data-block-ssr-group="${lastSelectedGroups[blockId].headers}"]`, el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
     setHeaders(blockId, values) {
       const el = getBlockEl(blockId);
 
@@ -292,6 +315,19 @@ const ssr = (function () {
 
       return {};
     },
+    getParamsByLastGroup(blockId) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        return by.selector(`[data-block-ssr-input="param"][data-block-ssr-group="${lastSelectedGroups[blockId].params}"]`, el).reduce((acc, blockSsrInputEl) => {
+          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+
+          return acc;
+        }, {});
+      }
+
+      return {};
+    },
     setParams(blockId, values) {
       const el = getBlockEl(blockId);
 
@@ -301,6 +337,46 @@ const ssr = (function () {
             setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
           }
         });
+      }
+
+      return api;
+    },
+
+    showHeadersGroup(blockId, name) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        if (!lastSelectedGroups[blockId]) {
+          lastSelectedGroups[blockId] = {};
+        }
+  
+        if (name !== lastSelectedGroups[blockId].headers) {
+          cls.add(by.selector(`[data-block-ssr-headers-group="${lastSelectedGroups[blockId].headers}"]`, el), 'hidden');
+
+          lastSelectedGroups[blockId].headers = name;
+
+          cls.remove(by.selector(`[data-block-ssr-headers-group="${name}"]`, el), 'hidden');
+        }
+      }
+
+      return api;
+    },
+
+    showParamsGroup(blockId, name) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        if (!lastSelectedGroups[blockId]) {
+          lastSelectedGroups[blockId] = {};
+        }
+  
+        if (name !== lastSelectedGroups[blockId].params) {
+          cls.add(by.selector(`[data-block-ssr-params-group="${lastSelectedGroups[blockId].params}"]`, el), 'hidden');
+
+          lastSelectedGroups[blockId].params = name;
+
+          cls.remove(by.selector(`[data-block-ssr-params-group="${name}"]`, el), 'hidden');
+        }
       }
 
       return api;

@@ -16,14 +16,15 @@ Features:
   * Single pre-compiled HTML file with no external dependencies
   * Markdown file
   * Swagger specification file (v1.2, v2.0)
-* Server-side proxy
+* Server proxy
 * Send sample request plugin for html template:
     * Transports support:
         * HTTP/HTTPS
-        * Nats (via server-side proxy)
-        * Nats RPC (remote procedure call, via server-side proxy)
-        * RabbitMQ (via server-side proxy)
-        * RabbitMQ RPC (remote procedure call, via server-side proxy)
+        * Nats (via Server proxy)
+        * Nats RPC (remote procedure call, via Server proxy)
+        * RabbitMQ (via Server proxy)
+        * RabbitMQ RPC (remote procedure call, via Server proxy)
+        * Redis PUB/SUB (via Server proxy)
         * WebSocket/WebSocket Secure (W3C)
     * Content types support:
         * Form
@@ -38,15 +39,20 @@ Table of contents
 
 * Installation
 * CLI
-* Additional tokens
+* Additional annotations
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
-  * [@apiFamily](#apiFamily)
+  * [@apiErrorValue](#apierrorvalue)
+  * [@apiFamily](#apifamily)
+  * [@apiHeaderValue](#apiheadervalue)
+  * [@apiNote](#apinote)
   * [@apiParamPrefix](#apiparamprefix)
+  * [@apiParamValue](#apiparamvalue)
   * [@apiSchema](#apischema)
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
+  * [@apiSuccessValue](#apisuccessvalue)
 * Built-in templates
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
@@ -124,7 +130,7 @@ Parameters:
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq" or "websocket" specifier provides a proxy for the specified transport
+* **--sampleRequestProxy\[:http | :nats | :rabbitmq | :redisPub | :redisSub | :ws\]** - URL of apiDog proxy to be used to pass requests through it. "http", "nats", "rabbitmq", "redisPub", "redisSub" or "websocket" specifier provides a proxy for the specified transport
 
 * **-t, --template** - Alias of the built-in template or the directory where the custom template be load from
 
@@ -145,7 +151,7 @@ Parameters:
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 
-### Additional tokens
+### Additional annotations
 
 ##### @apiChapter
 
@@ -172,6 +178,24 @@ Can be defined multiply.
 Content type will be used as a filter of the **@apiExample** content having corresponding {type}.
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
+
+##### @apiErrorValue
+
+Format:
+```
+@apiErrorValue [{type}] value [description]
+```
+
+Describes custom error value.
+
+##### @apiErrorValue
+
+Format:
+```
+@apiHeaderValue [{type}] value [description]
+```
+
+Describes custom header value.
 
 ##### @apiFamily
 
@@ -217,6 +241,17 @@ Example:
 
 The second one is combined with the first and is shown under version.
 
+##### @apiNote
+
+Format:
+```
+@apiNote title
+```
+
+Adds note section that describes some additional information.
+
+Can be used with **@apiDescription**.
+
 ##### @apiParamPrefix
 
 Format:
@@ -251,6 +286,15 @@ Example:
  * @apiUse sharedParams
  */
 ```
+
+##### @apiParamValue
+
+Format:
+```
+@apiParamValue [{type}] value [description]
+```
+
+Describes custom parameter value.
 
 ##### @apiSchema
 
@@ -293,8 +337,8 @@ Format:
 
 Defines variable of the "Send sample request" plug-in that can be used globally via placeholders in the **@apiHeader** or **@apiParam** values.
 
-* **namespace** - name of the global bucket in which the variable value is placed
-* **responsePath** - path in the response data to the variable value, this value will be assigned to the variable authomatically after the response
+* **namespace** - name of the global bucket in which the variable value is stored
+* **responsePath** - path inside the response data to the variable value, this value will be assigned to the variable automatically after the response
 * **field** - variable name
 
 Example:
@@ -332,6 +376,15 @@ Format:
 
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
+
+##### @apiSuccessValue
+
+Format:
+```
+@apiSuccessValue [{type}] value [description]
+```
+
+Describes custom success value.
 
 
 ### Built-in templates
@@ -381,7 +434,7 @@ apidog -t @swagger.2.0
 
 Compiles to Swagger v2.0 specification JSON file.
 
-### Server-side proxy
+### Server proxy
 
 The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
 
@@ -447,10 +500,30 @@ Configuration file is a js script that by default exports the object with next p
     amqp://connectionA/queue
     ```
 
-  * **websocket** - WebSocket configuration section:
-    * **allow** - allowes proxing WebSocketrequests, also allows running of WebSocket proxy
-    * **proxyPort** - the port that the WebSocket proxy is listening on
-    * **[connection alias]** - connection URI or settings to be used if its alias is passed
+* **redis** - Redis configuration section:
+  * **allow** - allowes proxing Radis requests
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
+
+    Example:
+
+    ```js
+    module.exports = {
+      redis: {
+        connectionA: "redis://ip:6379",
+      },
+    }
+    ```
+
+    URI passed to the proxy:
+
+    ```
+    redis://connectionA/queue
+    ```
+
+* **websocket** - WebSocket configuration section:
+  * **allow** - allowes proxing WebSocket requests, also allows running of WebSocket proxy
+  * **proxyPort** - the port that the WebSocket proxy is listening on
+  * **[connection alias]** - connection URI or settings to be used if its alias is passed
 
     Example:
 
@@ -472,10 +545,10 @@ Configuration file is a js script that by default exports the object with next p
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
 
-##### Nats and RabbitMQ
-To make possible to send sample requests through the transports such as Nats and RabbitMQ the server-side proxy must be used.
+##### Nats, RabbitMQ, and Redis
+To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
 
-**@api** token format for Nats:
+**@api** annotation format for Nats:
 
 ```
 /**
@@ -483,7 +556,15 @@ To make possible to send sample requests through the transports such as Nats and
  */
 ```
 
-**@api** token format for RabbitMQ:
+**@api** annotation format for Nats RPC:
+
+```
+/**
+ * @api {natsRpc} endpoint
+ */
+```
+
+**@api** annotation format for RabbitMQ:
 
 ```
 /**
@@ -491,7 +572,7 @@ To make possible to send sample requests through the transports such as Nats and
  */
 ```
 
-**@api** token format for RabbitMQ RPC:
+**@api** annotation format for RabbitMQ RPC:
 
 ```
 /**
@@ -499,6 +580,22 @@ To make possible to send sample requests through the transports such as Nats and
  */
 ```
 
+**@api** annotation format for Redis PUB:
+
+```
+/**
+ * @api {redisPub} endpoint
+ */
+```
+
+**@api** annotation format for Redis SUB:
+
+```
+/**
+ * @api {redisSub} endpoint
+ */
+```
+
 ##### WebSocket and HTTP/HTTPS
 
-The WebSocket and HTTP/HTTPS requests also can be sent via server-side proxy optionally.
+The WebSocket and HTTP/HTTPS requests also can be sent via Server proxy optionally.

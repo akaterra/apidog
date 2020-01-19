@@ -1,4 +1,4 @@
-module.exports = (input, align) => {
+module.exports = (input, align, unsafe) => {
   const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
 
   if (!Array.isArray(input)) {
@@ -21,5 +21,11 @@ module.exports = (input, align) => {
     input = input.map((line) => line.substr(indentIndex));
   }
 
-  return input.map((line) => line || '').join('\n');
+  input = input.map((line) => line || '').join('\n');
+
+  if (unsafe) {
+    return new handlebars.SafeString(input);
+  }
+
+  return input;
 };

@@ -2,7 +2,7 @@ const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
 const parserUtils = require('./parser.utils');
 
-function generate(blocks, template, config, hbs) {
+function generate(blocks, template, definitions, config, hbs) {
   blocks = blocks.filter((block) => {
     if (block.private) {
       if (config) {
@@ -25,7 +25,7 @@ function generate(blocks, template, config, hbs) {
     return config ? !config.private : true;
   });
 
-  let [definitions, chapters] = generateSections(blocks, config);
+  let [, chapters] = generateSections(blocks, definitions, config);
 
   if (config.templateProcessor && config.templateProcessor.prepareChapters) {
     chapters = config.templateProcessor.prepareChapters(chapters);
@@ -33,6 +33,7 @@ function generate(blocks, template, config, hbs) {
 
   const total = {
     names: 0,
+    notes: 0,
   }
 
   const templateParams = {
@@ -41,15 +42,23 @@ function generate(blocks, template, config, hbs) {
     chapters,
     chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
+        id: `${chapterName}`,
         groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
+            id: `${chapterName}___${groupName}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                names: Object.entries(subgroup).map(([name, version]) => {
+                id: `${chapterName}___${groupName}__${subgroupName}`,
+                apis: Object.entries(subgroup).map(([name, version]) => {
                   total.names += 1;
 
-                  return Object.values(version);
-                }),
+                  return Object.values(version).filter((version) => version.api);
+                }).filter((apis) => apis.length),
+                notes: Object.entries(subgroup).map(([name, version]) => {
+                  total.notes += 1;
+
+                  return Object.values(version).filter((version) => version.note);
+                }).filter((notes) => notes.length),
                 title: subgroupName,
               }
             }),
@@ -81,25 +90,30 @@ function generate(blocks, template, config, hbs) {
       return acc;
     }, {}),
     keywords: config && config.keywords || [],
-    sections: Object.values(chapters).reduce((acc, chapter) => {
-      Object.values(chapter).forEach((group) => {
-        Object.values(group).forEach((subgroup) => {
-          Object.values(subgroup).forEach((name) => {
-            Object.values(name).forEach((version) => {
-              acc[version.id] = version;
-            });
-          });
-        });
-      });
-
-      return acc;
+    sections: parserUtils.enumChapters(chapters, ({descriptor}, acc) => {
+      acc[descriptor.id] = descriptor;
     }, {}),
+    // sections: Object.values(chapters).reduce((acc, chapter) => {
+    //   Object.values(chapter).forEach((group) => {
+    //     Object.values(group).forEach((subgroup) => {
+    //       Object.values(subgroup).forEach((name) => {
+    //         Object.values(name).forEach((version) => {
+    //           acc[version.id] = version;
+    //         });
+    //       });
+    //     });
+    //   });
+
+    //   return acc;
+    // }, {}),
     schemes: Object.values(chapters).reduce((acc, chapter) => {
       Object.values(chapter).forEach((group) => {
         Object.values(group).forEach((subgroup) => {
           Object.values(subgroup).forEach((name) => {
             Object.values(name).forEach((version) => {
-              acc[version.api.transport.name] = version.api.transport.name;
+              if (version.api) {
+                acc[version.api.transport.name] = version.api.transport.name;
+              }
             });
           });
         });
@@ -121,6 +135,7 @@ function generate(blocks, template, config, hbs) {
 
       return acc;
     }, {}),
+    templateOptions: config && config.templateOptions || {},
     title: config && config.title || 'No title',
     version: config && config.version || '0.0.1',
   };
@@ -134,8 +149,10 @@ function generate(blocks, template, config, hbs) {
   return (hbs || handlebars).compile(template)(templateParams);
 }
 
-function generateSections(blocks, config) {
-  const definitions = {};
+function generateSections(blocks, definitions, config) {
+  if (!definitions) {
+    definitions = {};
+  }
 
   function getDef(name) {
     return definitions[name]
@@ -150,7 +167,7 @@ function generateSections(blocks, config) {
   });
 
   blocks.forEach((block, index) => {
-    if (block.define || block.ignore || !block.api) {
+    if (block.define || block.ignore || (!block.api && !block.note)) {
       return;
     }
 
@@ -167,7 +184,15 @@ function generateSections(blocks, config) {
     }
 
     if (!block.family) {
-      block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+      if (block.api) {
+        block.family = `${block.api.endpoint}__${Object.values(block.api.transport || {}).join('_')}`;
+      } else {
+        block.family = block.title.toLowerCase().replace(' ', '_');
+      }
+    }
+
+    if (!block.params) {
+      block.params = [];
     }
 
     // if (!block.sampleRequest) {
@@ -182,7 +207,7 @@ function generateSections(blocks, config) {
       block.version = '0.0.1';
     }
 
-    if (!block.title) {
+    if (!block.title && !block.note) {
       block.title = block.api.endpoint;
     }
 
@@ -208,17 +233,19 @@ function generateSections(blocks, config) {
       }
     }
 
-    block.familyId = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}`;
-    block.id = `${block.chapter.name}_${block.group.name}_${block.subgroup.name}_${block.family}_${block.version}`;
-    block.visualId = `${getDef(block.chapter.name)}_${getDef(block.group.name)}_${getDef(block.subgroup.name)}_${block.title}_${block.version}`;
+    block.familyId = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}`;
+    block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
+    block.visualId = `${getDef(block.chapter.name)}___${getDef(block.group.name)}___${getDef(block.subgroup.name)}___${block.title}___${block.version}`;
 
     if (block.validate) {
-      blocks[index] = block.validate(block, config);
+      for (const validate of block.validate) {
+        blocks[index] = validate(block, config);
+      }
     }
   });
 
   const sections = fastSort(blocks).asc((block) => block.visualId).reduce((sections, block) => {
-    if (block.define || block.ignore || !block.api) {
+    if (block.define || block.ignore || (!block.api && !block.note)) {
       return sections;
     }
 

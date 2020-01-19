@@ -34,9 +34,8 @@ function has(obj, path) {
   return true;
 }
 
-const arrayIndexRegex = /.+(?<!\\)\[(.*?(?<!\\))]$/;
-
 function getByPath(obj, path) {
+  const arrayIndexRegex = /.*[^\\]\[(.*)\]$/; // /.+(?<!\\)\[(.*?(?<!\\))]$/;
   const pathKeys = path.split('.');
   const pathKeyTypes = [];
 
@@ -99,10 +98,27 @@ function parseForm(text) {
 }
 
 function parseXML(text) {
-  return text
+  return text;
+}
+
+function parseUrl(url) {
+  const a = document.createElement("a");
+
+  a.url = url;
+
+  return {
+    fullPath: `${a.hostname}/${a.pathname || ''}`,
+    host: a.hostname,
+    path: a.pathname,
+  };
+};
+
+function Raw(value) {
+  this.value = value;
 }
 
 if (typeof module !== 'undefined') {
   module.exports.parseForm = parseForm;
   module.exports.parseXML = parseXML;
+  module.exports.Raw = Raw;
 }

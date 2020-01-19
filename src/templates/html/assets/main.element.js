@@ -109,7 +109,9 @@ const on = {
 function getValue(el) {
   return el.options
     ? el.options[el.selectedIndex].value
-    : el.value;
+    : el.files
+      ? el.files[0]
+      : el.value;
 }
 
 function setValue(el, value) {

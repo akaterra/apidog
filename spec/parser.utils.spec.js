@@ -25,48 +25,55 @@ describe('parser.utils convertParamsToJsonSchema', () => {
         name: 'a',
       },
       type: {
-        name: 'String',
+        name: 'String', modifiers: {initial: 'string'},
       },
     }, {
       field: {
         name: 'b', isOptional: true,
       },
       type: {
-        name: 'Number', allowedValues: [1, 2, 3],
+        name: 'Number', allowedValues: [1, 2, 3], modifiers: {initial: 'number'},
       },
     }, {
       field: {
         name: 'c[]',
       },
       type: {
-        name: 'String'
+        name: 'String', modifiers: {initial: 'string'},
       },
     }, {
       field: {
         name: 'd[].a',
       },
       type: {
-        name: 'String'
+        name: 'String', modifiers: {initial: 'string'},
       },
     }, {
       field: {
         name: 'e',
       },
       type: {
-        name: 'Object',
+        name: 'Object', modifiers: {initial: 'object'},
       },
     }, {
       field: {
         name: 'f.a',
       },
       type: {
-        name: 'String',
+        name: 'String', modifiers: {initial: 'string'},
+      },
+    }, {
+      field: {
+        name: 'g',
+      },
+      type: {
+        name: 'String', modifiers: {initial: 'string', list: true},
       },
     }];
 
     expect(parserUtils.convertParamsToJsonSchema(params)).toEqual({
       type: 'object',
-      required: ['a', 'c', 'd', 'e', 'f'],
+      required: ['a', 'c', 'd', 'e', 'f', 'g'],
       properties: {
         a: {
           type: 'string',
@@ -104,6 +111,12 @@ describe('parser.utils convertParamsToJsonSchema', () => {
             a: {
               type: 'string',
             },
+          },
+        },
+        g: {
+          type: 'array',
+          items: {
+            type: 'string',
           },
         },
       },

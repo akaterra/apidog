@@ -29,13 +29,13 @@ Main chapter
         {{#with (context 'definitions') as |definitions|}}
   * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
           {{#with (context 'definitions') as |definitions|}}
     * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
           {{/with}}
         {{/each}}
       {{else}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
           {{#with (context 'definitions') as |definitions|}}
   * [{{../this.0.title}}](#{{toMdLink ../this.0.title ' ' (first (lookup definitions ../../../../../this.title 'title') ../../../../../this.title) ' (' (first (lookup definitions ../../../this.title 'title') ../../../this.title) ')'}})
           {{/with}}
@@ -48,11 +48,11 @@ Main chapter
         {{#with (context 'definitions') as |definitions|}}
 * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
   * {{this.0.title}}
         {{/each}}
       {{else}}
-        {{#each ../this.names}}
+        {{#each ../this.apis}}
 * {{this.0.title}}
         {{/each}}
       {{/ifCond}}
@@ -69,7 +69,7 @@ Main chapter
 ---
   {{/ifCond}}
   {{#each this.subgroups}}
-    {{#each this.names}}
+    {{#each this.apis}}
       {{#each this as |block index|}}
 
         {{#with (context 'definitions') as |definitions|}}
@@ -92,7 +92,7 @@ Main chapter
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-    {{#each params}}
+    {{#each params.list}}
 | {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
     {{/each}}
   {{/each}}
@@ -105,7 +105,7 @@ Main chapter
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-    {{#each params}}
+    {{#each params.list}}
 | {{this.field.name}}{{#if this.field.isOptional}}<sup> optional</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}}{{#if this.type}}{{#if this.type.allowedValues}}{{#if this.description.length}}<br><br>{{/if}}**Allowed values:**{{#each this.type.allowedValues}}<br>{{this}}{{/each}}{{/if}}{{/if}}{{#if this.field}}{{#if this.field.defaultValue}}{{#if this.description.length}}<br><br>{{else}}{{#if this.type}}{{#if this.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{this.field.defaultValue}}{{/if}}{{/if}} |
     {{/each}}
   {{/each}}
@@ -128,7 +128,7 @@ Main chapter
 **{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}:**
 
 ```{{this.type}}
-{{join this.description true}}
+{{join this.description true true}}
 ```
   {{/each}}
 {{/if}}

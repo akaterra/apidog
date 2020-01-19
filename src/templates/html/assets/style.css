@@ -1,432 +1,489 @@
 * {
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+[disabled] {
+  opacity: 0.25;
+}
+
+.rtl {
+  direction: rtl;
 }
 
 del.diffmod, .diffdel {
-    color: red !important;
-    font-weight: bold !important;
+  color: red !important;
+  font-weight: bold !important;
 }
 
 ins.diffmod, .diffins {
-    color: green !important;
-    font-weight: bold !important;
+  color: green !important;
+  font-weight: bold !important;
 }
 
 .container {
-    margin: 0 auto;
-    max-width: 1200px;
+  margin: 0 auto;
+  max-width: 85%;
+  min-width: 800px;
 }
 
 .sub-container {
-    padding: 1rem 0.5rem 0 0.5rem;
+  padding: 1rem 0.5rem 0 0.5rem;
 }
 
 .section {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  color: initial;
+  text-decoration: none;
+}
+
+.section-title:hover {
+  color: initial;
+  text-decoration: underline;
 }
 
 .splitter {
-    margin: 1.5rem 0;
+  margin: 1.5rem 0;
 }
 
 .padded {
-    padding: 0 0.5rem;
+  padding: 0 0.5rem;
 }
 
 .left-padded {
-    padding-left: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.right-padded {
+  padding-right: 0.5rem;
 }
 
 .top-padded {
-    padding-top: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 .margin-left-25 {
-    margin-left: 25%;
+  margin-left: 25%;
+}
+
+.rtl .margin-left-25 {
+  margin-left: 0;
+  margin-right: 25%;
 }
 
 .bold, .bold .diffmod {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .mono, .mono .diffmod {
-    font-family: monospace;
+  font-family: monospace;
 }
 
 .small {
-    font-size: small;
+  font-size: small;
 }
 
 .smaller {
-    font-size: smaller;
+  font-size: smaller;
 }
 
 .sup {
-    position: absolute;
+  position: absolute;
 }
 
 .right {
-    text-align: right;
+  text-align: right;
+}
+
+.rtl .right {
+  text-align: left;
 }
 
 .uppercase {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 .line-through {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .flex {
-    display: flex;
+  display: flex;
 }
 
 .flex-1 {
-    flex: 1;
+  flex: 1;
 }
 
 .flex-2 {
-    flex: 2;
+  flex: 2;
 }
 
 .flex-3 {
-    flex: 3;
+  flex: 3;
 }
 
 .flex-4 {
-    flex: 4;
+  flex: 4;
 }
 
 .flex-5 {
-    flex: 5;
+  flex: 5;
 }
 
 .flex-6 {
-    flex: 6;
+  flex: 6;
 }
 
 .flex-7 {
-    flex: 7;
+  flex: 7;
 }
 
 .flex-8 {
-    flex: 8;
+  flex: 8;
 }
 
 .flex-9 {
-    flex: 9;
+  flex: 9;
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .height-1 {
-    height: 1.25rem;
+  height: 1.25rem;
 }
 
 .height-2 {
-    height: 1.5rem;
+  height: 1.5rem;
 }
 
 .width-10 {
-    width: 10%;
+  width: 10%;
 }
 
 .width-15 {
-    width: 15%;
+  width: 15%;
 }
 
 .width-20 {
-    width: 20%;
+  width: 20%;
 }
 
 .width-25 {
-    width: 25%;
+  width: 25%;
 }
 
 .width-30 {
-    width: 30%;
+  width: 30%;
 }
 
 .width-40 {
-    width: 40%;
+  width: 40%;
 }
 
 .width-50 {
-    width: 50%;
+  width: 50%;
 }
 
 .width-60 {
-    width: 60%;
+  width: 60%;
 }
 
 .width-70 {
-    width: 70%;
+  width: 70%;
 }
 
 .width-80 {
-    width: 80%;
+  width: 80%;
 }
 
 .width-100 {
-    width: 100%;
+  width: 100%;
 }
 
 .bg-color-1 {
-    background-color: #383838;
+  background-color: #383838;
 }
 
 .bg-color-2 {
-    background-color: #707070;
+  background-color: #707070;
 }
 
 .bg-color-3 {
-    background-color: #a8a8a8;
+  background-color: #a8a8a8;
 }
 
 .bg-color-4 {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 .bg-color-black {
-    background-color: black !important;
+  background-color: black !important;
 }
 
 .bg-color-dark-blue {
-    background-color: darkblue !important;
+  background-color: darkblue !important;
 }
 
 .bg-color-blue {
-    background-color: blue !important;
+  background-color: blue !important;
 }
 
 .bg-color-dark-green {
-    background-color: darkgreen !important;
+  background-color: darkgreen !important;
 }
 
 .bg-color-green {
-    background-color: green !important;
+  background-color: green !important;
 }
 
 .bg-color-dark-orange {
-    background-color: darkorange !important;
+  background-color: darkorange !important;
 }
 
 .bg-color-orange {
-    background-color: orange !important;
+  background-color: orange !important;
 }
 
 .bg-color-dark-red {
-    background-color: darkred !important;
+  background-color: darkred !important;
 }
 
 .bg-color-red {
-    background-color: red !important;
+  background-color: red !important;
 }
 
 .bg-color-cyan {
-    background-color: cyan !important;
+  background-color: cyan !important;
 }
 
 .bg-color-dark-cyan {
-    background-color: darkslateblue;
+  background-color: darkslateblue;
 }
 
 .bg-color-white {
-    background-color: white !important;
+  background-color: white !important;
 }
 
 .color-1 {
-    color: #383838 !important;
+  color: #383838 !important;
 }
 
 .color-2 {
-    color: #707070 !important;
+  color: #707070 !important;
 }
 
 .color-3 {
-    color: #a8a8a8 !important;
+  color: #a8a8a8 !important;
 }
 
 .color-4 {
-    color: #e0e0e0 !important;
+  color: #e0e0e0 !important;
 }
 
 .color-blue {
-    color: blue !important;
+  color: blue !important;
 }
 
 .color-green {
-    color: green !important;
+  color: green !important;
 }
 
 .color-orange {
-    color: orange !important;
+  color: orange !important;
 }
 
 .color-red {
-    color: red !important;
+  color: red !important;
 }
 
 .color-white {
-    color: white !important;
+  color: white !important;
 }
 
 .font-size-1 {
-    font-size: 1.25rem !important;
+  font-size: 1.25rem !important;
 }
 
 .font-size-2 {
-    font-size: 1.5rem !important;
+  font-size: 1.5rem !important;
 }
 
 .font-size-3 {
-    font-size: 1.75rem !important;
+  font-size: 1.75rem !important;
 }
 
 .font-size-4 {
-    font-size: 2rem !important;
+  font-size: 2rem !important;
 }
 
 .badge {
-    border-radius: 0.25rem;
-    border-width: 0;
-    padding: 0 0.5rem;
+  border-radius: 0.25rem;
+  border-width: 0;
+  padding: 0 0.5rem;
 }
 
 .element-badge {
-    border-radius: 0.25rem;
-    border-width: 0;
-    padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border-width: 0;
+  padding: 0.25rem 0.5rem;
 }
 
 .big-badge {
-    border-radius: 0.25rem;
-    border-width: 0;
-    padding: 0.5rem;
+  border-radius: 0.25rem;
+  border-width: 0;
+  padding: 0.5rem;
 }
 
 .block {
-/ / padding: 1 rem 0;
+  //padding: 1 rem 0;
 }
 
 .table {
-    display: flex;
+  display: flex;
 }
 
 .table > *:not(.diffmod) {
-    box-sizing: border-box;
-    border: #e0e0e0 solid;
-    border-width: 0 1px 1px 0;
-    min-height: 1.5rem;
-    padding: 0.25rem 0.5rem;
+  box-sizing: border-box;
+  border: #e0e0e0 solid;
+  border-width: 0 1px 1px 0;
+  min-height: 1.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.rtl .table > *:not(.diffmod) {
+  border-width: 0 0 1px 1px;
 }
 
 .table > *:not(.diffmod):last-child {
-    border-right-width: 0;
+  border-right-width: 0;
+}
+
+.rtl .table > *:not(.diffmod):last-child {
+  border-left-width: 0;
 }
 
 .button {
-    border: 1px solid #e0e0e0;
-    color: #383838;
-    cursor: pointer;
-    font-size: 1rem;
-    height: 2rem;
-    padding: 0 1rem;
+  border: 1px solid #e0e0e0;
+  color: #383838;
+  cursor: pointer;
+  font-size: 1rem;
+  height: 2rem;
+  padding: 0 1rem;
 }
 
 .inner-label {
-    color: #383838;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    padding: 1rem 0 0 25%;
+  color: #383838;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  padding: 1rem 0.5rem 0 25%;
+}
+
+.rtl .inner-label {
+  padding: 1rem 25% 0 0.5rem;
 }
 
 .label {
-    color: #383838;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    padding: 1rem 0 0 0.5rem;
+  color: #383838;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  padding: 1rem 0.5rem 0 0.5rem;
 }
 
 .control {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    font-size: 0.75rem;
-    height: 1.5rem;
-    padding: 0 0.5rem;
+  background-color: #fcfcfc;
+  border: 1px solid #e0e0e0;
+  font-size: 0.75rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
 }
 
 .input {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    font-size: 0.75rem;
-    height: 1.5rem;
-    padding: 0 0.5rem;
+  background-color: #fcfcfc;
+  border: 1px solid #e0e0e0;
+  font-size: 0.75rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
 }
 
 .input-label {
-    color: #808080;
-    font-size: 1rem;
-    height: 1.5rem;
-    padding: 0.25rem 0.5rem;
-    text-align: right;
+  color: #808080;
+  font-size: 1rem;
+  height: 1.5rem;
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+}
+
+.rtl .input-label {
+  text-align: left;
 }
 
 .input-param {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    font: 1rem monospace;
-    height: 1.5rem;
-    padding: 0 0.5rem;
+  background-color: #fcfcfc;
+  border: 1px solid #e0e0e0;
+  font: 1rem monospace;
+  height: 1.5rem;
+  padding: 0 0.5rem;
 }
 
 .input-param-raw-body {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    font: 1rem monospace;
-    min-height: 1.5rem;
-    padding: 0 0.5rem;
+  background-color: #fcfcfc;
+  border: 1px solid #e0e0e0;
+  font: 1rem monospace;
+  min-height: 1.5rem;
+  padding: 0 0.5rem;
 }
 
 .input-placeholder {
-    background-color: #e0e0e0;
-    color: #808080;
-    font-size: 1rem;
-    height: 1.5rem;
-    padding: 0.25rem 0.5rem;
+  background-color: #e0e0e0;
+  color: #808080;
+  font-size: 1rem;
+  height: 1.5rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .response {
-    margin: 0;
-    white-space: pre-wrap;
-    width: 100%;
-    word-break: break-all;
-    word-wrap: break-word;
+  margin: 0;
+  white-space: pre-wrap;
+  width: 100%;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.rtl .response {
+  direction: ltr;
 }
 
 .menu-item {
-    color: #383838;
-    display: block;
-    text-decoration: none;
+  color: #383838;
+  display: block;
+  text-decoration: none;
 }
 
 .menu-item:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 .control-panel {
-    position: relative;
+  position: relative;
 }
 
 .control-panel > div {
-    position: absolute;
-    right: 0;
+  position: absolute;
+  right: 0;
+}
+
+.rtl .control-panel > div {
+  left: 0;
+  right: initial;
 }
 
 .optional {
-    padding: 0 0.25rem;
-    font-weight: bold;
+  padding: 0 0.25rem;
+  font-weight: bold;
 }

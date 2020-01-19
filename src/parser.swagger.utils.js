@@ -78,7 +78,7 @@ function resolveApiOperation(spec, operation, docBlock) {
   return docBlock;
 }
 
-function resolveModel(spec, token, model, prefix, docBlock) {
+function resolveModel(spec, annotation, model, prefix, docBlock) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -92,13 +92,13 @@ function resolveModel(spec, token, model, prefix, docBlock) {
   Object.entries(model.properties).forEach(([key, val]) => {
     const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
 
-    docBlock.push(`${token} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
+    docBlock.push(`${annotation} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
   });
 
   return docBlock;
 }
 
-function resolveModelByType(spec, token, type, prefix, docBlock) {
+function resolveModelByType(spec, annotation, type, prefix, docBlock) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -110,7 +110,7 @@ function resolveModelByType(spec, token, type, prefix, docBlock) {
   validateModelByType(spec, type);
 
   if (type in spec.models) {
-    return resolveModel(spec, token, spec.models[type], prefix, docBlock);
+    return resolveModel(spec, annotation, spec.models[type], prefix, docBlock);
   }
 
   throwError(`Model "${type}" is not defined`);

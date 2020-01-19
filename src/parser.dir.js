@@ -3,17 +3,25 @@ const path = require('path');
 const parserBlockLines = require('./parser.block_lines');
 const utils = require('./utils');
 
-function parseDir(dir, blocks, filter, config) {
+function parseDir(dir, blocks, filter, definitions, config) {
   if (!config) {
     config = {logger: utils.logger};
   }
 
+  if (!definitions) {
+    definitions = {};
+  }
+
   dir = path.resolve(dir);
 
-  return parseDirInternal(dir, blocks, filter, undefined, config);
+  // first pass - definitions only
+  parseDirInternal(dir, blocks, filter, definitions, config, true);
+
+  // second pass - resolve definitions
+  return parseDirInternal(dir, blocks, filter, definitions, config);
 }
 
-function parseDirInternal(dir, blocks, filter, definitions, config) {
+function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefinitions) {
   if (!blocks) {
     blocks = [];
   }
@@ -42,7 +50,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config) {
     const fsStat = fs.statSync(dir + '/' + dirEntry);
 
     if (fsStat.isDirectory()) {
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, filter, definitions, config);
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, filter, definitions, config, onlyDefinitions);
     } else if (fsStat.isFile()) {
       if (dirEntry.slice(-7) === '.min.js') {
         return blocks;
@@ -50,7 +58,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config) {
 
       const extensionIndex = dirEntry.lastIndexOf('.');
 
-      if (extensionIndex !== - 1) {
+      if (extensionIndex !== - 1 || dirEntry.toLowerCase() === 'apidoc') {
         const source = fs.readFileSync(`${dir}/${dirEntry}`, { encoding: 'utf8' });
 
         config.logger.setFile(`${dir}/${dirEntry}`);
@@ -63,22 +71,23 @@ function parseDirInternal(dir, blocks, filter, definitions, config) {
           case 'js':
           case 'php':
           case 'ts':
-            blocks = blocks.concat(parseJavaDocStyle(source, definitions, config));
+            blocks = blocks.concat(parseJavaDocStyle(source, definitions, config, onlyDefinitions));
 
             break;
 
           case 'lua':
-            blocks = blocks.concat(parseLua(source, definitions, config));
+            blocks = blocks.concat(parseLua(source, definitions, config, onlyDefinitions));
 
             break;
 
+          case 'apidoc':
           case 'py':
-            blocks = blocks.concat(parsePy(source, definitions, config));
+            blocks = blocks.concat(parsePy(source, definitions, config, onlyDefinitions));
 
             break;
 
           case 'rb':
-            blocks = blocks.concat(parseRuby(source, definitions, config));
+            blocks = blocks.concat(parseRuby(source, definitions, config, onlyDefinitions));
 
             break;
         }
@@ -91,80 +100,80 @@ function parseDirInternal(dir, blocks, filter, definitions, config) {
 
 const defaultCommentPrefixContent = [null, null];
 
-function parseJavaDocStyle(source, definitions, config) {
+function parseJavaDocStyle(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
-        return (line.match(/\s*\*(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions, config);
+        return (line.match(/\s*\*(\s)?(.*)/) || defaultCommentPrefixContent)[2];
+      }).filter((line) => line), definitions, config, onlyDefinitions);
     });
   }
 
   return [];
 }
 
-function parseLua(source, definitions, config) {
+function parseLua(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^\s*--\[\[[.\s\t\S\n\r]*?--\]\]/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions, config);
+      }), definitions, config, onlyDefinitions);
     });
   }
 
   return [];
 }
 
-function parsePerl(source, definitions, config) {
+function parsePerl(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^\s*#\*\*?[^!][.\s\t\S\n\r]*?#\*/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/#\s?(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions, config);
+      }).filter((line) => line), definitions, config, onlyDefinitions);
     });
   }
 
   return [];
 }
 
-function parsePy(source, definitions, config) {
+function parsePy(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^(\s*'{3}|\s*"{3})[^!][.\s\t\S\n\r]*?(\s*'{3}|\s*"{3})/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.substr(lines[0].indexOf(lines[0].match(/\S/)[0]));
-      }), definitions, config);
+      }), definitions, config, onlyDefinitions);
     });
   }
 
   return [];
 }
 
-function parseRuby(source, definitions, config) {
+function parseRuby(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^\s*=begin[.\s\t\S\n\r]*?=end/gm);
 
   if (blocks) {
-    return blocks.map(function (block) {
+    return blocks.map((block) => {
       const lines = block.trim().split('\n');
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return line.replace(/~+$/, '');
-      }), definitions, config);
+      }), definitions, config, onlyDefinitions);
     });
   }
 

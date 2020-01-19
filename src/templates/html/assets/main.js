@@ -5,15 +5,27 @@ const main = (function () {
   let lastSelectedVersions = {};
   let lastSelectedVersionsCompareTo = {};
 
-  on.change(by.selector('[data-chapter-selector]')[0], (chapterId) => {
+  function getChapterSelectorEl() {
+    return by.selector('[data-chapter-selector]')[0];
+  }
+
+  function getVerisionSelectorEl() {
+    return by.selector('[data-version-selector]')[0];
+  }
+
+  function getVerisionSelectorCompareToEl() {
+    return by.selector('[data-version-compare-to-selector]')[0];
+  }
+
+  on.change(getChapterSelectorEl(), (chapterId) => {
     api.showChapter(chapterId);
   });
 
-  on.change(by.selector('[data-version-selector]')[0], (version) => {
+  on.change(getVerisionSelectorEl(), (version) => {
     Object.keys(families).map((familyId) => api.showVersion(familyId, version === 'null' ? null : version));
   });
 
-  on.change(by.selector('[data-version-compare-to-selector]')[0], (versionCompareTo) => {
+  on.change(getVerisionSelectorCompareToEl(), (versionCompareTo) => {
     Object.keys(families).map((familyId) => api.showVersionComparedTo(familyId, versionCompareTo === 'null' ? null : versionCompareTo));
   });
 
@@ -68,7 +80,16 @@ const main = (function () {
   }
 
   const api = {
+    idFrom(...args) {
+      return args.join('___');
+    },
+    parseId(id) {
+      return id.split('___');
+    },
+
     showChapter(chapterId) {
+      setValue(getChapterSelectorEl(), chapterId);
+
       if (lastSelectedChapter) {
         cls.add(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
       }
@@ -91,7 +112,7 @@ const main = (function () {
         const showHintEl = by.selector('button', controlPanelEl)[0];
 
         if (showHintEl) {
-          showHintEl.textContent = 'Show hints';
+          showHintEl.textContent = _(config.locale || 'en', 'showHints');
         }
       }
 
@@ -108,7 +129,7 @@ const main = (function () {
         const showHintEl = by.selector('button', controlPanelEl)[0];
 
         if (showHintEl) {
-          showHintEl.textContent = 'Hide hints';
+          showHintEl.textContent = _(config.locale || 'en', 'hideHints');
         }
       }
 
@@ -130,6 +151,26 @@ const main = (function () {
       return api;
     },
 
+    jumpToByHash(hash) {
+      const [chapter, group, subgroup, family, version] = api.parseId(hash);
+
+      if (chapter) {
+        main.showChapter(chapter);
+
+        if (version) {
+          main.showVersion(api.idFrom(chapter, group, subgroup, family), version);
+        }
+      }
+
+      const aEl = by.selector(`a[name="${decodeURIComponent(hash)}"]`)[0];
+
+      if (aEl) {
+        window.scrollTo(0, aEl.offsetTop);
+      }
+
+      return api;
+    },
+
     showVersion(familyId, version) {
       const controlPanelEl = getControlPanelEl(familyId);
 
@@ -145,10 +186,10 @@ const main = (function () {
           )[0];
 
           if (blockControlPanelVersionCompareToSelectorEl) {
-            cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"]`)[0], 'hidden');
-            cls.add(by.selector(`[data-element-menu-item="${familyId}_${lastSelectedVersions[familyId]}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-block="${familyId}_${version}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-element-menu-item="${familyId}_${version}"]`)[0], 'hidden');
+            cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
+            cls.add(by.selector(`[data-element-menu-item="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
+            cls.remove(by.selector(`[data-block="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
+            cls.remove(by.selector(`[data-element-menu-item="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
 
             for (const el of by.selector(`[data-family="${familyId}"]`)) {
               cls.remove(el, 'hidden');
@@ -186,16 +227,16 @@ const main = (function () {
         }
 
         if (versionCompareTo !== null) {
-          cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0], 'hidden');
-          cls.remove(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+          cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
+          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
 
-          by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
-            by.selector(`[data-block="${familyId}_${versionCompareTo}"] [data-block-compare-to-content]`)[0].innerHTML,
-            by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0].innerHTML
+          by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
+            by.selector(`[data-block="${api.idFrom(familyId, versionCompareTo)}"] [data-block-compare-to-content]`)[0].innerHTML,
+            by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0].innerHTML
           );
         } else {
-          cls.remove(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-content]`)[0], 'hidden');
-          cls.add(by.selector(`[data-block="${familyId}_${lastSelectedVersions[familyId]}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
+          cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
         }
 
         const blockControlPanelVersionCompareToSelectorEl = by.selector(
