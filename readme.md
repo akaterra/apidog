@@ -188,7 +188,7 @@ Format:
 
 Describes custom error value.
 
-##### @apiErrorValue
+##### @apiHeaderValue
 
 Format:
 ```
@@ -398,6 +398,8 @@ apidog -t @html
 Complies to:
 
 * apidoc.html - main index file
+* apidoc.data.min.js - API data
+* apidoc.i18n.min.js - I18N translations
 * apidoc.min.js - bootstrap
 * apidoc.template.min.js - handlebars template
 * handlebars.min.js - handlebars bundle
