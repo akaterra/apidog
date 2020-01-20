@@ -211,7 +211,7 @@ function loadTemplate(path, hbs) {
     realPath = `${__dirname}/src/templates/${realPath.substr(1)}`;
   }
 
-  for (const dirName of ['./src/assets', `${realPath}/assets`, './src/helpers', `${realPath}/helpers`]) {
+  for (const dirName of [`${__dirname}/src/assets`, `${realPath}/assets`, `${__dirname}/src/helpers`, `${realPath}/helpers`]) {
     const dir = fs.readdirSync(dirName);
 
     dir.forEach((dirEntry) => {
@@ -221,7 +221,7 @@ function loadTemplate(path, hbs) {
         let content = fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'});
 
         if (content.substr(0, 4) === 'ref:') {
-          content = fs.readFileSync(content.substr(4), {encoding: 'utf8'});
+          content = fs.readFileSync(`${__dirname}/${content.substr(4)}`, {encoding: 'utf8'});
         }
 
         hbs.registerPartial(dirEntry, content);
@@ -230,7 +230,7 @@ function loadTemplate(path, hbs) {
     });
   }
 
-  for (const helpersDir of [`${realPath}/helpers`, './src/helpers']) {
+  for (const helpersDir of [`${__dirname}/src/helpers`, `${realPath}/helpers`]) {
     if (fs.existsSync(`${helpersDir}/index.js`)) {
       for (const [key, val] of Object.entries(require(`${helpersDir}/index.js`))) {
         hbs.registerHelper(key, val);
@@ -398,13 +398,21 @@ const content = generate.generate(
 );
 
 if (!template.templateProcessor) {
-  fs.writeFileSync(`${envConfig.outputDir}/apidoc.${template.config.extension || 'txt'}`, content);
+  if (!fs.existsSync(`${envConfig.outputDir}/apidoc`)) {
+    fs.mkdirSync(`${envConfig.outputDir}/apidoc`);
+  }
+
+  fs.writeFileSync(`${envConfig.outputDir}/apidoc/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
 if (args.withSampleRequestProxy) {
+  if (!fs.existsSync(`${envConfig.outputDir}/apidoc.proxy`)) {
+    fs.mkdirSync(`${envConfig.outputDir}/apidoc.proxy`);
+  }
+
   for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
-    if (!fs.existsSync(`${envConfig.outputDir}/${file}`) || args.withSampleRequestProxy === 'update') {
-      fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/${file}`);
+    if (!fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`) || args.withSampleRequestProxy === 'update') {
+      fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/apidoc.proxy/${file}`);
     }
   }
 }
