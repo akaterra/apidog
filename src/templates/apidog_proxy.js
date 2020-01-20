@@ -165,26 +165,10 @@ async function createAppHttp(env) {
     });
   });
 
-  app.options('/*', (req, res) => {
-    res.header(
-      'Access-Control-Allow-Headers',
-      config.cors && config.cors.allowHeaders
-        ? config.cors.allowHeaders
-        : '*'
-    );
-    res.header(
-      'Access-Control-Allow-Methods',
-      config.cors && config.cors.allowMethods
-        ? config.cors.allowMethods
-        : 'DELETE,GET,HEAD,INFO,OPTIONS,PATCH,POST,PUT'
-    );
-    res.header('Access-Control-Allow-Origin', '*');
-
-    res.status(200).send();
-  });
+  app.options('/*', corsMiddleware, (req, res) => res.status(200).send());
 
   if (config.allowPresets) {
-    app.get('/preset/:presetBlockId', async (req, res) => {
+    app.get('/preset/:presetBlockId', corsMiddleware, async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
       if (config.presetsDir) {
@@ -226,7 +210,7 @@ async function createAppHttp(env) {
       }
     });
 
-    app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
+    app.put('/preset/:presetBlockId/:presetName', corsMiddleware, async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
       if (config.presetsDir) {
