@@ -550,11 +550,11 @@ Configuration file is a js script that by default exports the object with next p
 ##### Nats, RabbitMQ, and Redis
 To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
 
-**@api** annotation format for Nats:
+**@api** annotation format for Nats PUB:
 
 ```
 /**
- * @api {nats} endpoint
+ * @api {natsPub} endpoint
  */
 ```
 
@@ -566,11 +566,11 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
-**@api** annotation format for RabbitMQ:
+**@api** annotation format for RabbitMQ PUB:
 
 ```
 /**
- * @api {rabbitmq[:exchange]} endpoint
+ * @api {rabbitmqPub[:exchange]} endpoint
  */
 ```
 
