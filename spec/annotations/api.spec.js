@@ -328,13 +328,13 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for nats', () => {
+  describe('when with provided config.sampleRequestUrl for nats pub', () => {
     it('should set sample request proxy', () => {
       const block = {
         api: {
           endpoint: 'endpoint',
           transport: {
-            name: 'nats',
+            name: 'natspub',
           },
         },
       };
@@ -354,7 +354,7 @@ describe('@api annotation validate', () => {
         api: {
           endpoint: 'endpoint',
           transport: {
-            name: 'nats',
+            name: 'natspub',
           },
         },
       };
@@ -412,13 +412,13 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for rabbitmq', () => {
+  describe('when with provided config.sampleRequestUrl for rabbitmq pub', () => {
     it('should set sample request proxy', () => {
       const block = {
         api: {
           endpoint: 'endpoint',
           transport: {
-            name: 'rabbitmq',
+            name: 'rabbitmqpub',
           },
         },
       };
@@ -438,7 +438,7 @@ describe('@api annotation validate', () => {
         api: {
           endpoint: 'endpoint',
           transport: {
-            name: 'rabbitmq',
+            name: 'rabbitmqpub',
           },
         },
       };

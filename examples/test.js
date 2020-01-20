@@ -126,7 +126,7 @@
 // Nats chapter
 
 /**
- * @api {nats} publish Publish
+ * @api {natspub} publish Publish
  * @apiChapter Nats
  * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
@@ -139,18 +139,31 @@
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
- // RabbitMQ chapter
+/**
+ * @api {natssub} subscribe Subscribe
+ * @apiChapter Nats
+ * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+// RabbitMQ chapter
 
 /**
- * @api {rabbitmq} publish Publish
+ * @api {rabbitmqpub} publish Publish
  * @apiChapter RabbitMQ
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
 /**
- * @api {rabbitmqRpc} rpc RPC
+ * @api {rabbitmqrpc} rpc RPC
  * @apiChapter RabbitMQ
  * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+/**
+ * @api {rabbitmqsub} subscribe Subscribe
+ * @apiChapter RabbitMQ
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -172,7 +185,7 @@
 // WebSocket chapter
 
 /**
- * @api {websocket} publish Publish
+ * @api {websocket} communicate Communicate
  * @apiChapter WebSocket
  * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1

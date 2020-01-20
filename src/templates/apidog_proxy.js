@@ -5,11 +5,11 @@ const qs = require('qs');
 const URL = require('url').URL;
 
 const reqTransportHandlers = {
-  nats: ['nats', natsSend],
-  natsRpc: ['nats', natsSendRpc],
-  rabbitmq: ['rabbitmq', rabbitmqSend],
-  rabbitmqRpc: ['rabbitmq', rabbitmqSendRpcViaAmqplibRpcDriver],
-  redisPub: ['redis', redisSend],
+  natsPub: ['nats', natsPublish],
+  natsRpc: ['nats', natsRPC],
+  rabbitmqPub: ['rabbitmq', rabbitmqPublish],
+  rabbitmqRpc: ['rabbitmq', rabbitmqRPCViaAmqplibRpcDriver],
+  redisPub: ['redis', redisPublish],
   // websocket: websocketSend,
 }
 
@@ -165,26 +165,10 @@ async function createAppHttp(env) {
     });
   });
 
-  app.options('/*', (req, res) => {
-    res.header(
-      'Access-Control-Allow-Headers',
-      config.cors && config.cors.allowHeaders
-        ? config.cors.allowHeaders
-        : '*'
-    );
-    res.header(
-      'Access-Control-Allow-Methods',
-      config.cors && config.cors.allowMethods
-        ? config.cors.allowMethods
-        : 'DELETE,GET,HEAD,INFO,OPTIONS,PATCH,POST,PUT'
-    );
-    res.header('Access-Control-Allow-Origin', '*');
-
-    res.status(200).send();
-  });
+  app.options('/*', corsMiddleware, (req, res) => res.status(200).send());
 
   if (config.allowPresets) {
-    app.get('/preset/:presetBlockId', async (req, res) => {
+    app.get('/preset/:presetBlockId', corsMiddleware, async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
       if (config.presetsDir) {
@@ -226,7 +210,7 @@ async function createAppHttp(env) {
       }
     });
 
-    app.put('/preset/:presetBlockId/:presetName', async (req, res) => {
+    app.put('/preset/:presetBlockId/:presetName', corsMiddleware, async (req, res) => {
       res.header('Access-Control-Allow-Origin', '*');
 
       if (config.presetsDir) {
@@ -246,14 +230,37 @@ async function createAppHttp(env) {
     });
   }
 
-  app.all('/http/*', corsMiddleware, reqHttpTransportHandler);
-  app.all('/https/*', corsMiddleware, reqHttpTransportHandler);
-  app.all('/nats/*', corsMiddleware, reqTransportHandler.bind(null, 'nats'));
-  app.all('/natsrpc/*', corsMiddleware, reqTransportHandler.bind(null, 'natsRpc'));
-  app.all('/rabbitmq/*', corsMiddleware, reqTransportHandler.bind(null, 'rabbitmq'));
-  app.all('/rabbitmqrpc/*', corsMiddleware, reqTransportHandler.bind(null, 'rabbitmqRpc'));
-  app.all('/redispub/*', corsMiddleware, reqTransportHandler.bind(null, 'redisPub'));
-  app.all('/websocket/*', corsMiddleware, reqTransportHandler.bind(null, 'websocket'));
+  if (config.http && config.http.allow) {
+    app.all('/http/*', corsMiddleware, reqHttpTransportHandler);
+  }
+
+  if (config.https && config.https.allow) {
+    app.all('/https/*', corsMiddleware, reqHttpTransportHandler);
+  }
+
+  if (config.nats && config.nats.allow) {
+    app.all('/natspub/*', corsMiddleware, reqTransportHandler.bind(null, 'natsPub'));
+  }
+
+  if (config.nats && config.nats.allow) {
+    app.all('/natsrpc/*', corsMiddleware, reqTransportHandler.bind(null, 'natsRpc'));
+  }
+  
+  if (config.rabbitmq && config.rabbitmq.allow) {
+    app.all('/rabbitmqpub/*', corsMiddleware, reqTransportHandler.bind(null, 'rabbitmqPub'));
+  }
+
+  if (config.rabbitmq && config.rabbitmq.allow) {
+    app.all('/rabbitmqrpc/*', corsMiddleware, reqTransportHandler.bind(null, 'rabbitmqRpc'));
+  }
+
+  if (config.redis && config.redis.allow) {
+    app.all('/redispub/*', corsMiddleware, reqTransportHandler.bind(null, 'redisPub'));
+  }
+
+  if (config.websocket && config.websocket.allow) {
+    app.all('/websocket/*', corsMiddleware, reqTransportHandler.bind(null, 'websocket'));
+  }
 
   app.all('/:transport/*', (req, res) => res.status(400).send(`Unknown transport "${req.params.transport.toLowerCase()}"`));
 
@@ -419,8 +426,6 @@ async function createAppWebSocket(env) {
     transportConfig = config.redis || {};
     transportConfig.env = env;
 
-    const redisConnection = getRedisConnection(transportConfig, uri.pathname.substr(10), 'sub');
-
     redisSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
       ws.send(data);
     }, undefined, 'sub');
@@ -477,7 +482,7 @@ async function getNatsConnection(config, uri) {
   return natsConnections[key];
 }
 
-async function natsSend(config, target, data, headers, opts) {
+async function natsPublish(config, target, data, headers, opts) {
   const natsConnection = await getNatsConnection(config, target);
   const q = target.substr(target.lastIndexOf('/') + 1);
   natsConnection.publish(q, data);
@@ -488,7 +493,7 @@ async function natsSend(config, target, data, headers, opts) {
   };
 }
 
-async function natsSendRpc(config, queue, data, headers, opts) {
+async function natsRPC(config, queue, data, headers, opts) {
   const natsConnection = await getNatsConnection(config, queue);
   const q = queue.substr(queue.lastIndexOf('/') + 1);
 
@@ -512,7 +517,7 @@ function rabbitmqFlush() {
 function getRabbitmqRpcDriver(name) {
   switch (name) {
     case 'amqplibRpc':
-      return rabbitmqSendRpcViaAmqplibRpcDriver;
+      return rabbitmqRPCViaAmqplibRpcDriver;
   }
 
   throw new Error(`Unknown RabbitMQ RPC driver "${name}"`);
@@ -574,7 +579,7 @@ async function getRabbitmqChannel(config, uri) {
   return rabbitmqConnections.channels[key];
 }
 
-async function rabbitmqSend(config, queue, data, headers, opts) {
+async function rabbitmqPublish(config, queue, data, headers, opts) {
   const amqpChannel = await getRabbitmqChannel(config, queue);
   const q = queue.substr(queue.lastIndexOf('/') + 1);
   const amqpQueue = await amqpChannel.assertQueue(q);
@@ -588,7 +593,7 @@ async function rabbitmqSend(config, queue, data, headers, opts) {
   };
 }
 
-async function rabbitmqSendRpcViaAmqplibRpcDriver(config, queue, data, headers, opts) {
+async function rabbitmqRPCViaAmqplibRpcDriver(config, queue, data, headers, opts) {
   const amqpConnection = await getRabbitmqConnection(config, queue);
   const q = queue.substr(queue.lastIndexOf('/') + 1);
   const req = (config.env && config.env.amqplibRpc || require('amqplib-rpc')).request;
@@ -640,7 +645,7 @@ async function getRedisConnection(config, uri, connectionFlag) {
   return redisConnections[key];
 }
 
-async function redisSend(config, channel, data, headers, opts, connectionFlag) {
+async function redisPublish(config, channel, data, headers, opts, connectionFlag) {
   const redisConnection = await getRedisConnection(config, channel, connectionFlag);
   const q = channel.substr(channel.lastIndexOf('/') + 1);
   redisConnection.publish(q, data);

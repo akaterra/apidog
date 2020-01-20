@@ -20,9 +20,9 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
     })
   });
 
-  it('should parse nats transport', () => {
+  it('should parse nats pub transport', () => {
     const lines = [
-      '@api {nats} url This is a title',
+      '@api {natspub} url This is a title',
     ];
 
     const block = parser.parseBlockLines(lines);
@@ -31,7 +31,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       api: {
         endpoint: 'url',
         title: 'This is a title',
-        transport: {name: 'nats'},
+        transport: {name: 'natspub'},
       },
       title: 'This is a title',
       validate: block.validate,
@@ -56,9 +56,9 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
     })
   });
 
-  it('should parse rabbitmq transport with exchange', () => {
+  it('should parse rabbitmq pub transport with exchange', () => {
     const lines = [
-      '@api {rabbitmq:exchange} url This is a title',
+      '@api {rabbitmqpub:exchange} url This is a title',
     ];
 
     const block = parser.parseBlockLines(lines);
@@ -67,7 +67,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       api: {
         endpoint: 'url',
         title: 'This is a title',
-        transport: {name: 'rabbitmq', exchange: 'exchange'},
+        transport: {name: 'rabbitmqpub', exchange: 'exchange'},
       },
       title: 'This is a title',
       validate: block.validate,

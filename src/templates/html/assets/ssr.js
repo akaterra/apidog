@@ -82,9 +82,9 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
-        case 'nats':
+        case 'natspub':
         case 'natsrpc':
-        case 'rabbitmq':
+        case 'rabbitmqpub':
         case 'rabbitmqrpc':
         case 'redispub':
           api.showResponse(blockId, 'Waiting for response ...');
@@ -94,9 +94,13 @@ const ssr = (function () {
 
           break;
 
+        case 'natssub':
+        case 'rabbitmqsub':
         case 'redissub':
         case 'websocket':
+        case 'websocketsecure':
         case 'ws':
+        case 'wss':
           // api.hideResponses(blockId);
 
           actualTransport = 'ws';
@@ -202,18 +206,22 @@ const ssr = (function () {
       switch (blockDescriptor.api.transport.name) {
         case 'http':
         case 'https':
-        case 'nats':
+        case 'natspub':
         case 'natsrpc':
-        case 'rabbitmq':
+        case 'rabbitmqpub':
         case 'rabbitmqrpc':
         case 'redispub':
           return blockDescriptor.sampleRequestProxy
             ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
+        case 'natssub':
+        case 'rabbitmqsub':
         case 'redissub':
         case 'websocket':
+        case 'websocketsecure':
         case 'ws':
+        case 'wss':
           return blockDescriptor.sampleRequestProxy
             ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;

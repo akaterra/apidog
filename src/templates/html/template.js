@@ -4,9 +4,13 @@ const uglify = require('uglify-es');
 
 module.exports = (config) => ({
   generate(hbs, config, params) {
-    const outputDir = config.outputDir;
+    const outputDir = `${config.outputDir}/apidoc`;
 
     delete config.schema;
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
 
     const styleCssTemplate = fs.readFileSync(`${__dirname}/assets/style.css`, {encoding: 'utf8'});
     fs.writeFileSync(`${outputDir}/style.css`, handlebars.compile(styleCssTemplate)(params));
