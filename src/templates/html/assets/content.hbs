@@ -3,7 +3,8 @@
     <div class="sub-container">
       <div class="control-panel">
         <div class="width-100 flex">
-          <div class="width-20"></div>
+          <div class="width-20">
+          </div>
           <div class="width-80 flex">
             <div class="width-60"></div>
             <div class="width-40 flex">
@@ -57,38 +58,43 @@
     {{/with}}
 
     <div class="flex">
+
+      <!-- menu -->
+
       <div class="width-20">
-        <div class="sub-container">
+        <div class="sub-container menu">
           {{#each this.groups}}
-            {{#ifCond this.title '!=' '$'}}
-              {{#with (context 'definitions') as |definitions|}}
-                <div class="element-badge bg-color-1 color-white bold">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</div>
-              {{/with}}
-            {{/ifCond}}
-            {{#each this.subgroups}}
+            <div class="menu-group">
               {{#ifCond this.title '!=' '$'}}
                 {{#with (context 'definitions') as |definitions|}}
-                  <div class="left-padded top-padded bold smaller">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</div>
+                  <a class="element-badge bg-color-1 color-white bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                 {{/with}}
               {{/ifCond}}
-              {{#each this.apis}}
-                <div data-family="{{this.[0].familyId}}">
-                  {{#each this as |block index|}}
-                    <a class="menu-item element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
+              {{#each this.subgroups}}
+                <div class="menu-subgroup">
+                  {{#ifCond this.title '!=' '$'}}
+                    {{#with (context 'definitions') as |definitions|}}
+                      <a class="left-padded bold smaller menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
+                    {{/with}}
+                  {{/ifCond}}
+                  {{#each this.apis}}
+                    {{#each this as |block index|}}
+                      <a class="left-padded menu-item{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.name}}</a>
+                    {{/each}}
+                  {{/each}}
+                  {{#each this.notes}}
+                    {{#each this as |block index|}}
+                      <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.name}}</a>
+                    {{/each}}
                   {{/each}}
                 </div>
               {{/each}}
-              {{#each this.notes}}
-                <div data-family="{{this.[0].familyId}}">
-                  {{#each this as |block index|}}
-                    <a class="menu-item color-blue element-badge{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}">{{this.name}}</a>
-                  {{/each}}
-                </div>
-              {{/each}}
-            {{/each}}
+            </div>
           {{/each}}
         </div>
       </div>
+
+      <!-- main content -->
 
       <div class="width-80">
         <div class="sub-container">
@@ -96,16 +102,23 @@
 
             {{#ifCond this.title '!=' '$'}}
               <div class="section left-padded color-1 font-size-2 bold">
-                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
+                  {{#with (context 'definitions') as |definitions|}}
+                    {{first (lookup definitions ../../this.title 'title') ../../this.title}}
+                  {{/with}}
+                </a>
               </div>
             {{/ifCond}}
-
 
             {{#each this.subgroups}}
 
               {{#ifCond this.title '!=' '$'}}
                 <div class="section left-padded color-1 font-size-1 bold">
-                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">{{../this.title}}</a>
+                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
+                    {{#with (context 'definitions') as |definitions|}}
+                      {{first (lookup definitions ../../this.title 'title') ../../this.title}}
+                    {{/with}}
+                  </a>
                 </div>
               {{/ifCond}}
 

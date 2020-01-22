@@ -459,14 +459,42 @@ ins.diffmod, .diffins {
   direction: ltr;
 }
 
+.menu {
+  margin-top: -0.5rem;
+}
+
+.menu-group {
+
+}
+
+.menu-subgroup {
+  padding-top: 0.5rem;
+}
+
+.menu-subgroup:last-child {
+  padding-bottom: 0.5rem;
+}
+
+.menu-subgroup>*:first-child {
+  padding-top: 0;
+}
+
+.menu-subgroup>*:last-child {
+  padding-bottom: 0;
+}
+
 .menu-item {
   color: #383838;
   display: block;
   text-decoration: none;
 }
 
+.menu-item {
+  padding-top: 0.25rem;
+}
+
 .menu-item:hover {
-  background-color: #e0e0e0;
+  text-decoration: underline;
 }
 
 .control-panel {

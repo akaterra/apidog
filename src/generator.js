@@ -48,7 +48,7 @@ function generate(blocks, template, definitions, config, hbs) {
             id: `${chapterName}___${groupName}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                id: `${chapterName}___${groupName}__${subgroupName}`,
+                id: `${chapterName}___${groupName}___${subgroupName}`,
                 apis: Object.entries(subgroup).map(([name, version]) => {
                   total.names += 1;
 
