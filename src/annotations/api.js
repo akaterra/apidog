@@ -218,7 +218,7 @@ function validate(block, config) {
     case 'redispub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyRedisPub || config.sampleRequestProxyRedis || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyRedis || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
