@@ -360,6 +360,10 @@ ins.diffmod, .diffins {
   border-width: 0 0 1px 1px;
 }
 
+.table > * {
+  line-height: 18px;
+}
+
 .table > *:not(.diffmod):last-child {
   border-right-width: 0;
 }
@@ -460,7 +464,7 @@ ins.diffmod, .diffins {
 }
 
 .menu {
-  margin-top: -0.5rem;
+
 }
 
 .menu-group {

@@ -64,6 +64,11 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
         config.logger.setFile(`${dir}/${dirEntry}`);
 
         switch (dirEntry.substr(extensionIndex + 1)) {
+          case 'apidoc':
+            blocks = blocks.concat(parseApidoc(source, definitions, config, onlyDefinitions));
+
+            break;
+
           case 'cs':
           case 'dart':
           case 'go':
@@ -80,7 +85,6 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
 
             break;
 
-          case 'apidoc':
           case 'py':
             blocks = blocks.concat(parsePy(source, definitions, config, onlyDefinitions));
 
@@ -99,6 +103,22 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
 }
 
 const defaultCommentPrefixContent = [null, null];
+
+function parseApidoc(source, definitions, config, onlyDefinitions) {
+  const blocks = source.split(/\n{2,}/gm);
+
+  if (blocks) {
+    return blocks.map((block) => {
+      const lines = block.trim().split('\n');
+
+      return parserBlockLines.parseBlockLines(lines.map((line) => {
+        return line.substr(lines[0].indexOf(lines[0].match(/\S/)[0]));
+      }), definitions, config, onlyDefinitions);
+    });
+  }
+
+  return [];
+}
 
 function parseJavaDocStyle(source, definitions, config, onlyDefinitions) {
   const blocks = source.match(/^\s*\/\*\*?[^!][.\s\t\S\n\r]*?\*\//gm);
@@ -184,6 +204,7 @@ module.exports = {
   normalizeDir(dir) {
     return dir;
   },
+  parseApidoc,
   parseDir,
   parseJavaDocStyle,
   parseLua,

@@ -192,6 +192,8 @@ function loadConfig(dir) {
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     output: configApidoc.output || configPackage.apidoc.output,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    'sampleRequestProxy:nats': configApidoc['sampleRequestProxy:nats'] || configPackage.apidoc['sampleRequestProxy:nats'],
+    'sampleRequestProxy:rabbitmq': configApidoc['sampleRequestProxy:rabbitmq'] || configPackage.apidoc['sampleRequestProxy:rabbitmq'],
     'sampleUrl:ws': configApidoc['sampleUrl:ws'] || configPackage.apidoc['sampleUrl:ws'],
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
