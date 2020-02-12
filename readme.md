@@ -454,6 +454,7 @@ Configuration file is a js script that by default exports the object with next p
 
 * **allowPresets** - enables presets support for the built-in HTML template particularly
 * **presetsDir** - directory where the presets are located
+* **publicDir** - directory from which the HTML template files will be served
 * **http** - HTTP/HTTPS configuration section:
   * **allow** - allowes proxing HTTP/HTTPS requests, also allows running of HTTP/HTTPS proxy
   * **allowHeaders** - list of allowed headers

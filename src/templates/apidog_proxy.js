@@ -164,10 +164,10 @@ async function createAppHttp(env) {
     }
   }
 
-  if (config.serveApidoc) {
-    console.log(`Serving apiDoc public files from ${config.serveApidoc} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
+  if (config.publicDir) {
+    console.log(`Serving apiDoc public files from ${config.publicDir} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
 
-    app.use('/public', express.static(`${__dirname}/${config.serveApidoc}`));
+    app.use('/public', express.static(`${__dirname}/${config.publicDir}`));
   }
 
   app.use((req, res, next) => {
