@@ -80,19 +80,23 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
           lastTokenParser = annotationParsers[annotation];
 
           // merge parsed properties with block properties
-          Object.assign(
-            block,
-            lastTokenParser.parse(
+          try {
+            Object.assign(
               block,
-              text,
-              line,
-              index,
-              lines,
-              definitions,
-              config,
-              onlyDefinitions
-            )
-          );
+              lastTokenParser.parse(
+                block,
+                text,
+                line,
+                index,
+                lines,
+                definitions,
+                config,
+                onlyDefinitions
+              )
+            );
+          } catch (e) {
+            config.logger.throw(e);
+          }
         } else {
           // unknown annotation
           if (config.logger && annotation.substr(0, 4) === '@api') {

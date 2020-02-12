@@ -4,6 +4,7 @@
 
 const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
+const path = require('path');
 const generate = require('./src/generator');
 const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
@@ -207,10 +208,18 @@ function loadGitIgnore(dir) {
     return fs.readFileSync(`${dir}/.gitignore`, {encoding: 'utf8'})
       .split('\n')
       .filter((ignore) => ignore.trim())
-      .map((ignore) => new RegExp(`^${dir}/${ignore
-        .replace(/\*\*/g, '.*')
-        .replace(/\*/g, '[^\\/]*')
-      }`));
+      .map((ignore) => new RegExp(`^${(dir + '/' + ignore).replace(/(\*{1,2}|\.)/g, (_, match) => {
+        switch (match) {
+          case '.':
+            return '\\.';
+
+          case '*':
+            return '[^\\/]*';
+
+          case '**':
+            return '.*';
+        }
+      })}`));
   }
 
   return [];
@@ -378,6 +387,8 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
 
   switch (parser.slice(0, -1) || argsParser) {
     case 'dir':
+      source = path.resolve(source);
+
       docBlocks = docBlocks.concat(parseDir.parseDir(
         source,
         [],
@@ -433,7 +444,7 @@ if (args.withSampleRequestProxy) {
   }
 
   for (const file of ['.gitignore', 'apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
-    const files = args.withSampleRequestProxy === true ? ['update'] : args.withSampleRequestProxy.split(',');
+    const files = args.withSampleRequestProxy === true ? [] : args.withSampleRequestProxy.split(',');
 
     if (files.includes('update') || files.includes(file) || !fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`)) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/apidoc.proxy/${file}`);

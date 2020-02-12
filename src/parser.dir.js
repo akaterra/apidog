@@ -8,6 +8,8 @@ function parseDir(dir, blocks, filter, definitions, config) {
     config = {logger: utils.logger};
   }
 
+  config.logger.info(`Files to be ignored: ${filter.ignore.join(', ')}`);
+
   if (!definitions) {
     definitions = {};
   }
