@@ -163,6 +163,6 @@ module.exports = (config) => ({
 
     spec.apis = Object.values(apis);
 
-    fs.writeFileSync(`${outputDir}/swagger1.json`, JSON.stringify(spec, undefined, 2));
+    fs.writeFileSync(`${outputDir}/swagger.1.2.json`, JSON.stringify(spec, undefined, 2));
   },
 });

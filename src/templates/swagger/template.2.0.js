@@ -141,6 +141,6 @@ module.exports = (config) => ({
       };
     });
 
-    fs.writeFileSync(`${outputDir}/swagger2.json`, JSON.stringify(spec, undefined, 2));
+    fs.writeFileSync(`${outputDir}/swagger.2.0.json`, JSON.stringify(spec, undefined, 2));
   },
 });
