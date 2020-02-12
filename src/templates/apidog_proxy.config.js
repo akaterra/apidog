@@ -1,6 +1,7 @@
 module.exports = {
   allowPresets: true,
   presetsDir: "presets",
+  serveApidoc: '../apidoc',
 
   http: {
     allow: true,

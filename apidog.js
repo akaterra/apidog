@@ -153,7 +153,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    help: 'Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+    action: 'storeConst', constant: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
   },
 );
 
@@ -432,8 +432,10 @@ if (args.withSampleRequestProxy) {
     fs.mkdirSync(`${envConfig.outputDir}/apidoc.proxy`);
   }
 
-  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
-    if (!fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`) || args.withSampleRequestProxy === 'update') {
+  for (const file of ['.gitignore', 'apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
+    const files = args.withSampleRequestProxy === true ? ['update'] : args.withSampleRequestProxy.split(',');
+
+    if (files.includes('update') || files.includes(file) || !fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`)) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/apidoc.proxy/${file}`);
     }
   }

@@ -1,8 +1,18 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
+
+if (process.env.NODE_ENV !== 'test') {
+  if (!fs.existsSync('./node_modules')) {
+    console.log("Installing dependencies...");
+
+    execSync('npm i');
+  }
+}
+
 const http = require('http');
 const https = require('https');
 const qs = require('qs');
-const URL = require('url').URL;
+const { URL } = require('url');
 
 const reqTransportHandlers = {
   natsPub: ['nats', natsPublish],
@@ -152,6 +162,12 @@ async function createAppHttp(env) {
 
       res.status(500).json(err.message);
     }
+  }
+
+  if (config.serveApidoc) {
+    console.log(`Serving apiDoc public files from ${config.serveApidoc} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
+
+    app.use('/public', express.static(`${__dirname}/${config.serveApidoc}`));
   }
 
   app.use((req, res, next) => {
@@ -442,6 +458,62 @@ async function getConfig(env) {
   }
 
   return config;
+}
+
+function getConfigHttpProxyHost(config) {
+  if (config.http) {
+    return config.http.proxyHost || '127.0.0.1';
+  }
+
+  if (config.https) {
+    return config.https.proxyHost || '127.0.0.1';
+  }
+
+  return '127.0.0.1';
+}
+
+function getConfigHttpProxyPort(config) {
+  if (config.http) {
+    return config.http.proxyPort || 8088;
+  }
+
+  if (config.https) {
+    return config.https.proxyPort || 8088;
+  }
+
+  return 8088;
+}
+
+function getConfigHttpBind(config) {
+  return `${getConfigHttpProxyHost(config)}:${getConfigHttpProxyPort(config)}`;
+}
+
+function getConfigWebsocketProxyHost(config) {
+  if (config.websocket) {
+    return config.websocket.proxyHost || '127.0.0.1';
+  }
+
+  if (config.websocketsecure) {
+    return config.websocketsecure.proxyHost || '127.0.0.1';
+  }
+
+  return '127.0.0.1';
+}
+
+function getConfigWebsocketProxyPort(config) {
+  if (config.websocket) {
+    return config.websocket.proxyPort || 8089;
+  }
+
+  if (config.websocketsecure) {
+    return config.websocketsecure.proxyPort || 8089;
+  }
+
+  return 8089;
+}
+
+function getConfigWebsocketBind(config) {
+  return `${getConfigWebsocketProxyHost(config)}:${getConfigWebsocketProxyPort(config)}`;
 }
 
 /**
@@ -741,17 +813,19 @@ async function websocketSendSilent(config, target, data, headers, opts) {
   if (process.env.NODE_ENV !== 'test') {
     const config = await getConfig();
 
-    if (config.websocket && config.websocket.allow) {
+    if ((config.websocket && config.websocket.allow) || (config.websocketsecure && config.websocketsecure.allow)) {
       (await createAppWebSocket({})).listen(
-        config.websocket.proxyPort || 8089,
-        _ => console.log(`ApiDog WebSocket proxy started on ${config.websocket.proxyPort || 8089}`)
+        getConfigWebsocketBind(config),
+        _ => console.log(`apiDog WebSocket proxy started on ${getConfigWebsocketBind(config)}`)
       );
     }
 
+    const bind = getConfigHttpProxyHost(config) === '127.0.0.1' ? [getConfigHttpProxyPort(config)] : [getConfigHttpProxyHost(config), getConfigHttpProxyPort(config)];
+
     if ((config.http && config.http.allow) || (config.https && config.https.allow)) {
       (await createAppHttp({})).listen(
-        config.http.proxyPort || 8088,
-        _ => console.log(`ApiDog HTTP proxy started on ${config.http.proxyPort || 8088}`)
+        ...bind,
+        _ => console.log(`apiDog HTTP proxy started on ${getConfigHttpBind(config)}`)
       );
     }
   }
