@@ -23,14 +23,14 @@ describe('template html assets SSR prepareBody', () => {
       'o[].a': 18,
       'o[].b': 19,
     }, [
-      { field: { name: 'h' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'i.j' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'k.d' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'l[0].m' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'm[0][1].n[0]' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'n[]' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'o[].a' }, group: null, type: { modifiers: {}, name: 'string[]' } },
-      { field: { name: 'o[].b' }, group: null, type: { modifiers: {}, name: 'string[]' } },
+      { field: { name: 'h' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'i.j' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'k.d' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'l[0].m' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'm[0][1].n[0]' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'n[]' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'o[].a' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
+      { field: { name: 'o[].b' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
     ]);
 
     expect(body.body).toEqual({

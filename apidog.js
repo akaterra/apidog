@@ -393,8 +393,10 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
         source,
         [],
         {
-          filter: (args.f || args.fileFilter || []).map((p) => new RegExp(p)),
-          ignore: (args.f || args.fileIgnore || []).map((p) => new RegExp(p)).concat(loadGitIgnore(source)),
+          filter: (args.f || args.fileFilter || [])
+            .map((p) => new RegExp(p)),
+          ignore: (args.f || args.fileIgnore || [])
+            .map((p) => new RegExp(p)).concat(loadGitIgnore(source)).concat([/.*apidoc\.proxy$/]),
         },
         definitions,
         envConfig

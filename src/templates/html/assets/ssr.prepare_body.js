@@ -57,7 +57,12 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
       }
     }
 
-    if (paramsDescriptor && paramsDescriptor.type.name.slice(-2) === '[]') {
+    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
+    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
+    const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
+    const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
+
+    if (typeIsList) {
       pathKeys.push(0);
 
       if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
@@ -68,46 +73,39 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
     }
 
     if (paramsDescriptor) {
-      if ((paramsDescriptor.type && paramsDescriptor.type.modifiers.none) || (paramsDescriptor.field && paramsDescriptor.field.isOptional)) {
+      if ((typeModifiers && typeModifiers.none) || typeIsOptional) {
         val = params[key] === '' ? undefined : params[key];
-      } else if (paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.null) {
+      } else if (typeModifiers && typeModifiers.null) {
         val = params[key] === '' ? null : params[key];
       }
     }
 
-    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
-    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
-
     if (val !== null && val !== undefined) {
-      if (typeIsList) {
+      switch (type) {
+        case 'array':
+          val = [];
 
-      } else {
-        switch (type) {
-          case 'array':
-            val = [];
+          break;
 
-            break;
+        case 'boolean':
+          val = val === '' ? undefined : (params[key] === '1' || params[key] === 'true');
 
-          case 'boolean':
-            val = val === '' ? undefined : (params[key] === '1' || params[key] === 'true');
+          break;
 
-            break;
+        case 'isodate':
+          val = val === '' ? undefined : new Date(params[key]).toISOString();
 
-          case 'isodate':
-            val = val === '' ? undefined : new Date(params[key]).toISOString();
+          break;
 
-            break;
+        case 'number':
+          val = val === '' ? undefined : Number(params[key]);
 
-          case 'number':
-            val = val === '' ? undefined : Number(params[key]);
+          break;
 
-            break;
+        case 'object':
+          val = {};
 
-          case 'object':
-            val = {};
-
-            break;
-        }
+          break;
       }
     }
 
