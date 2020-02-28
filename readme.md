@@ -287,7 +287,7 @@ Example:
  */
 ```
 
-The following declaration prefixes the previous one.
+Another subsequent declaration adds a prefix to the previous one.
 ".." returns to the previous prefix, empty value resets the prefix.
 
 Example:
