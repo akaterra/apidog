@@ -300,7 +300,7 @@ Example:
  * @apiParam {String} c As "body.a.b.c"
  * @apiParamPrefix ..
  * @apiParam {String} d As "body.d"
- * @apiParamRefix
+ * @apiParamPrefix
  * @apiParam {String} e As "e"
  */
 ```
