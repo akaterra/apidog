@@ -261,7 +261,7 @@ Format:
 
 Prefixes all following **@apiParam**s with prefix.
 
-This allows also to reuse lists of **apiParams** between different doc blocks.
+Allows to reuse lists of **apiParams** between different doc blocks.
 
 Example:
 ```
@@ -284,6 +284,24 @@ Example:
  * @apiDescription Parameters are prefixed by "payload" - payload.a, payload.b, payload.c
  * @apiParamPrefix payload.
  * @apiUse sharedParams
+ */
+```
+
+The following declaration prefixes the previous one.
+".." returns to the previous prefix, empty value resets the prefix.
+
+Example:
+```
+/**
+ * @api {post} test
+ * @apiParamPrefix body.
+ * @apiParam {String} a As "body.a"
+ * @apiParamPrefix b.
+ * @apiParam {String} c As "body.a.b.c"
+ * @apiParamPrefix ..
+ * @apiParam {String} d As "body.d"
+ * @apiParamRefix
+ * @apiParam {String} e As "e"
  */
 ```
 
