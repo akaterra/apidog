@@ -205,6 +205,7 @@ Format:
 ```
 
 Defines unique identifier of the doc block within its chapter, group and subgroup.
+
 It can be used to distinguish between several doc blocks with the same descriptors to show them separately or combine the different doc blocks under versioning.
 
 Example:
