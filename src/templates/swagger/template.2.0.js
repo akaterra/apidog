@@ -73,7 +73,7 @@ module.exports = (config) => ({
       let isBodyParamInitiated = false;
 
       if (!descriptor.api.transport.method) {
-        descriptor.api.transport.method = 'get';
+        descriptor.api.transport.method = 'post';
       }
 
       spec.paths[endpoint][descriptor.api.transport.method] = {
