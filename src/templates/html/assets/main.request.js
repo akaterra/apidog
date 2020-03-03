@@ -251,8 +251,8 @@ const request = (function () {
   request.http = {
     delete: (url) => request('http', url, 'delete'),
     get: (url) => request('http', url, 'get'),
-    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, contentType),
-    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, contentType),
+    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, undefined, contentType),
+    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, undefined, contentType),
     requestWithFormattedBody: (url, method, params, headers, contentType) => requestWithFormattedBody(
       'http',
       url,
