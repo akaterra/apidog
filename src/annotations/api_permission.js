@@ -22,6 +22,15 @@ function parse(block, text, line, index, lines, definitions) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.permission !== undefined) {
+    return block.permission.map((permission) => `@apiPermission${permission.name}`);
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

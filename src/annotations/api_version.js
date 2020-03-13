@@ -14,6 +14,15 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.version !== undefined) {
+    return `@apiVersion ${block.version}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

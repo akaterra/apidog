@@ -54,6 +54,7 @@ Table of contents
   * [@apiSubgroup](#apisubgroup)
   * [@apiSuccessValue](#apisuccessvalue)
 * Built-in templates
+  * [@apidoc](#apidoc)
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
@@ -137,6 +138,7 @@ Parameters:
   Default is "@html".
 
   Build-in templates:
+    * @apidoc
     * @html
     * @html.standalone
     * @md
@@ -407,6 +409,14 @@ Describes custom success value.
 
 
 ### Built-in templates
+
+##### @apidoc
+
+```sh
+apidog -t @apidoc
+```
+
+Compiles to apiDoc annotations text file where the doc blocks separated by two "\n".
 
 ##### @html (default)
 

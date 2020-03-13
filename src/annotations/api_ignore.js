@@ -10,6 +10,15 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.ignore !== undefined) {
+    return `@apiIgnore${block.ignore !== true ? ' ' + block.ignore : ''}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

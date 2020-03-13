@@ -18,6 +18,15 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.contentType !== undefined) {
+    return block.contentType.map((contentType) => `@apiContentType ${contentType}`);
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

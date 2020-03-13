@@ -1,6 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserSwaggerUtils = require('../../parser.swagger.utils');
+const parserSwaggerUtils = require('../../parser.swagger.1.2.utils');
 const URL = require('url').URL;
 
 module.exports = (config) => ({

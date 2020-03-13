@@ -45,6 +45,14 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.description !== undefined) {
+    return `@apiDescription ${block.description[0]}${block.description.slice(1).map((line) => '\n' + line)}`;
+  }
+
+  return null;
+}
+
 function validate(block, config) {
   switch (lastDescriptionType) {
     case 'markdown':
@@ -58,5 +66,6 @@ function validate(block, config) {
 module.exports = {
   addDescription,
   parse,
+  toApidocString,
   validate,
 };

@@ -6,8 +6,9 @@
 
 const get = require('lodash.get');
 const fs = require('fs');
+const parserJsonUtils = require('../parser.json.utils');
 const parserJsonschemaUtils = require('../parser.jsonschema.utils');
-const parserSwaggerUtils = require('../parser.swagger.utils');
+const parserSwaggerUtils = require('../parser.swagger.1.2.utils');
 const utils = require('../utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
@@ -33,6 +34,21 @@ function parse(block, text, line, index, lines, definitions, config) {
   const params = utils.strSplitBySpace(tokens[5] || '');
 
   switch (schema[0].toLowerCase()) {
+    case 'json':
+      if (params.length === 0) {
+        throw new Error(`@apiSchema "${schemaFile}" missing annotation definition`);
+      }
+
+      let jsonSpec = parserJsonschemaUtils.fetchSource(schemaFile);
+
+      lines.splice(index, 1, ...[''].concat(parserJsonUtils.convert(
+        jsonSpec,
+        params[0],
+        config,
+      )));
+
+      return block;
+
     case 'jsonschema':
       if (params.length === 0) {
         throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing annotation definition`);
@@ -54,7 +70,7 @@ function parse(block, text, line, index, lines, definitions, config) {
         tokens[2],
         params[0],
         jsonSchemaSpec,
-        config
+        config,
       )));
 
       return block;
@@ -83,7 +99,7 @@ function parse(block, text, line, index, lines, definitions, config) {
           swaggerSpec,
           swaggerApi,
           [],
-          [swaggerApiOperation]
+          [swaggerApiOperation],
         )[0]));
 
         return block;

@@ -1,6 +1,6 @@
-const parserSwaggerUtils = require('../src/parser.swagger.utils');
+const parserSwaggerUtils = require('../src/parser.swagger.1.2.utils');
 
-describe('parser.swagger.utils enumUriPlaceholders', () => {
+describe('parser.swagger.1.2.utils enumUriPlaceholders', () => {
   it('should enum', () => {
     const placeholders = {};
 

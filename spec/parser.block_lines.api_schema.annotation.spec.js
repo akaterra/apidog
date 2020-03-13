@@ -56,7 +56,7 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
     ]);
   });
 
-  it('should parse Swagger api operation by nickname', () => {
+  it('should parse Swagger v1.0 api operation by nickname', () => {
     const lines = [
       '@apiSchema (group) {swagger=./spec/sample/swagger.json#apis[0]} getResourceById',
     ];
@@ -73,7 +73,7 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
     ]);
   });
 
-  it('should parse Swagger model', () => {
+  it('should parse Swagger v1.0 model', () => {
     const lines = [
       '@apiSchema (group) {swagger=./spec/sample/swagger.json#models.Resource} @apiParam',
     ];
@@ -87,6 +87,23 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
       '@apiParam {Number} [field2] ',
       '@apiParam {String} [field3] Resource status',
       '@apiParam {Date} [field4] ',
+    ]);
+  });
+
+  it('should parse raw JSON', () => {
+    const lines = [
+      '@apiSchema (group) {json=./spec/sample/raw.json} @apiParam',
+    ];
+
+    parser.parseBlockLines(lines);
+
+    expect(lines).toEqual([
+      '',
+      '@apiParam {String} a="a a a"',
+      '@apiParam {Object} b',
+      '@apiParam {String[][]} b.a[0][0]=a',
+      '@apiParam {Number} b.b=1',
+      '@apiParam {Boolean} c=true',
     ]);
   });
 

@@ -1,5 +1,5 @@
 const parseBlockLines = require('./parser.block_lines');
-const parserSwaggerUtils = require('./parser.swagger.utils');
+const parserSwaggerUtils = require('./parser.swagger.1.2.utils');
 const utils = require('./utils');
 
 function parseSwaggerFile(source, config) {

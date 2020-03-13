@@ -115,6 +115,23 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   return onlyDefinitions ? {} : block;
 }
 
+function toApidocBlockLines(block) {
+  let lines = [];
+
+  for (const annotationParser of Object.values(annotationParsers)) {
+    if (annotationParser.toApidocString) {
+      const annotationString = annotationParser.toApidocString(block);
+
+      if (annotationString) {
+        lines = lines.concat(Array.isArray(annotationString) ? annotationString : [annotationString]);
+      }
+    }
+  }
+
+  return lines;
+}
+
 module.exports = {
   parseBlockLines,
+  toApidocBlockLines,
 };

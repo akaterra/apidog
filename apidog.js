@@ -10,7 +10,7 @@ const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
 const parseJsonschemaUtils = require('./src/parser.jsonschema.utils');
 const parseSwagger = require('./src/parser.swagger');
-const parseSwaggerUtils = require('./src/parser.swagger.utils');
+const parseSwaggerUtils = require('./src/parser.swagger.1.2.utils');
 const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({

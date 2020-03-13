@@ -31,20 +31,41 @@ function construct(name, fullName) {
       block[annotationName] = [];
     }
 
-    const blockParamExample = {};
+    const blockExample = {};
 
-    block[annotationName].push(blockParamExample);
+    block[annotationName].push(blockExample);
 
-    blockParamExample.description = [];
-    blockParamExample.type = tokens[2] || 'form';
-    blockParamExample.title = tokens[3] ? tokens[3].trim() : null;
+    blockExample.description = [];
+    blockExample.type = tokens[2] || 'form';
+    blockExample.title = tokens[3] ? tokens[3].trim() : null;
 
     return block;
+  }
+
+  function toApidocString(block) {
+    if (block[annotationName] !== undefined) {
+      return block[annotationName].map((example) => {
+        const args = [];
+
+        if (example.type) {
+          args.push(`{${example.type}}`);
+        }
+
+        if (example.title) {
+          args.push(example.title);
+        }
+
+        return `@apiParamExample ${args.join(' ')}${example.description.map((line) => '\n' + line)}`;
+      });
+    }
+  
+    return null;
   }
 
   return {
     addDescription,
     parse,
+    toApidocString,
   };
 }
 
@@ -54,4 +75,5 @@ module.exports = {
   addDescription: paramExample.addDescription,
   construct,
   parse: paramExample.parse,
+  toApidocString: paramExample.toApidocString,
 };
