@@ -44,19 +44,21 @@ function construct(name, fullName) {
 
   function toApidocString(block) {
     if (block[annotationName] !== undefined) {
-      return block[annotationName].map((example) => {
+      return block[annotationName].map((annotation) => {
         const args = [];
 
-        if (example.type) {
-          args.push(`{${example.type}}`);
+        if (annotation.type) {
+          args.push(`{${annotation.type}}`);
         }
 
-        if (example.title) {
-          args.push(example.title);
+        if (annotation.title) {
+          args.push(annotation.title);
         }
 
-        return `@apiParamExample ${args.join(' ')}${example.description.map((line) => '\n' + line)}`;
-      });
+        const apiAnnotation = `@api${annotationName.charAt(0).toUpperCase()}${annotationName.slice(1)}`;
+
+        return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description];
+      }).flat(1);
     }
   
     return null;

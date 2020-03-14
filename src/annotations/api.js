@@ -121,6 +121,20 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.api !== undefined) {
+    const args = [
+      `{${Object.values(block.api.transport).join(':')}}`,
+      block.api.endpoint,
+      block.api.title,
+    ];
+
+    return `@api ${args.join(' ')}`;
+  }
+
+  return null;
+}
+
 function validate(block, config) {
   if (block.sampleRequest === undefined) {
     if (config.sampleRequestUrl || config.sampleRequestUrlWs) {
@@ -302,5 +316,6 @@ function validate(block, config) {
 
 module.exports = {
   parse,
+  toApidocString,
   validate,
 };

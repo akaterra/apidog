@@ -5,12 +5,12 @@
 const utils = require('../utils');
 
 function construct(name, usePrefix) {
-  const paramsGroupsName = `${name}sGroups`;
-  const paramsName = `${name}s`;
-  const paramsPrefixName = `${name}Prefix`;
+  const annotationGroupsName = `${name}sGroups`;
+  const annotationName = `${name}s`;
+  const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {
-    block[paramsName][block[paramsName].length - 1].description.push(text);
+    block[annotationName][block[annotationName].length - 1].description.push(text);
 
     return block;
   }
@@ -22,17 +22,17 @@ function construct(name, usePrefix) {
       throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
-    if (!block[paramsName]) {
-      block[paramsName] = [];
+    if (!block[annotationName]) {
+      block[annotationName] = [];
     }
 
-    if (!block[paramsGroupsName]) {
-      block[paramsGroupsName] = {};
+    if (!block[annotationGroupsName]) {
+      block[annotationGroupsName] = {};
     }
 
     const blockParam = {};
 
-    block[paramsName].push(blockParam);
+    block[annotationName].push(blockParam);
 
     const tokens = regex.exec(text);
 
@@ -51,7 +51,7 @@ function construct(name, usePrefix) {
       field = {
         defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : null,
         isOptional: !!tokens[6],
-        name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldName : fieldName,
+        name: usePrefix && block[annotationPrefixName] ? block[annotationPrefixName] + fieldName : fieldName,
       }
     }
 
@@ -94,22 +94,57 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (!block[paramsGroupsName][group || '$']) {
-      block[paramsGroupsName][group || '$'] = {isTyped: false, list: []};
+    if (!block[annotationGroupsName][group || '$']) {
+      block[annotationGroupsName][group || '$'] = {isTyped: false, list: []};
     }
 
     if (type) {
-      block[paramsGroupsName][group || '$'].isTyped = true;
+      block[annotationGroupsName][group || '$'].isTyped = true;
     }
 
-    block[paramsGroupsName][group || '$'].list.push(blockParam);
+    block[annotationGroupsName][group || '$'].list.push(blockParam);
 
     return block;
+  }
+
+  function toApidocString(block) {
+    if (block[annotationName] !== undefined) {
+      return block[annotationName].map((annotation) => {
+        const args = [];
+
+        if (annotation.group) {
+          args.push(`(${annotation.group})`);
+        }
+
+        if (annotation.type) {
+          const t = annotation.type;
+
+          args.push(`{${t.name}${t.allowedValues.length ? '=' + t.allowedValues.map(utils.quote).join(',') : ''}}`);
+        }
+
+        if (annotation.field) {
+          const f = annotation.field;
+
+          args.push(`${f.isOptional ? '' : '['}${f.name}${f.defaultValue ? '=' + utils.quote(f.defaultValue) : ''}${f.isOptional ? '' : ']'}`);
+        }
+
+        if (annotation.description.length) {
+          args.push(annotation.description[0]);
+        }
+
+        const apiAnnotation = `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+
+        return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description.slice(1)];
+      }).flat(1);
+    }
+  
+    return null;
   }
 
   return {
     addDescription,
     parse,
+    toApidocString,
   };
 }
 
@@ -119,4 +154,5 @@ module.exports = {
   addDescription: param.addDescription,
   construct,
   parse: param.parse,
+  toApidocString: param.toApidocString,
 };
