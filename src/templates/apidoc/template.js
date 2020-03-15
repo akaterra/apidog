@@ -6,7 +6,6 @@ module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
     const apidocBlocks = params.blocks
-      .filter((block) => block.api || block.note)
       .map((block) => parseBlockLines.toApidocBlockLines(block))
       .filter((block) => block.length)
       .map((block) => block.join('\n'))

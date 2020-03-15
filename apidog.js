@@ -64,7 +64,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '-o', '--output' ],
   {
-    help: 'Output directory where apidoc.html and additional files will be written',
+    help: 'Output directory where the apiDoc compiled files will be written',
   },
 );
 argumentParser.addArgument(
