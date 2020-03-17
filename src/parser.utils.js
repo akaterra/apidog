@@ -75,6 +75,21 @@ const paramTypeToFormat = {
   uuid: true,
 };
 
+function convertSimpleTypeToJsonSchema(type) {
+  return {
+    type: type in paramTypeToFormat
+      ? paramTypeToFormat[type] === true
+        ? 'string'
+        : paramTypeToFormat[type]
+      : type,
+    format: type in paramTypeToFormat
+      ? paramTypeToFormat[type] === true
+        ? type
+        : paramTypeToFormat[type]
+      : undefined,
+  };
+}
+
 function convertParamsToJsonSchema(params) {
   const jsonSchema = {
     type: 'object',
@@ -213,4 +228,5 @@ module.exports = {
   enumChaptersNotes,
   enumUriPlaceholders,
   convertParamsToJsonSchema,
+  convertSimpleTypeToJsonSchema,
 };
