@@ -163,6 +163,12 @@ module.exports = (config) => ({
 
     spec.apis = Object.values(apis);
 
-    fs.writeFileSync(`${outputDir}/swagger.1.2.json`, JSON.stringify(spec, undefined, 2));
+    const content = JSON.stringify(spec, undefined, 2);
+
+    if (outputDir === 'stdout') {
+      return content;
+    } else {
+      fs.writeFileSync(`${outputDir}/swagger.1.2.json`, JSON.stringify(spec, undefined, 2));
+    }
   },
 });

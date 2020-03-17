@@ -432,12 +432,17 @@ const content = generate.generate(
   hbs,
 );
 
-if (!template.templateProcessor) {
-  if (!fs.existsSync(`${envConfig.outputDir}/apidoc`)) {
-    fs.mkdirSync(`${envConfig.outputDir}/apidoc`);
+if (content) {
+  if (envConfig.outputDir === 'stdout') {
+    process.stdout.write(content);
+  } else {
+    if (!fs.existsSync(`${envConfig.outputDir}/apidoc`)) {
+      fs.mkdirSync(`${envConfig.outputDir}/apidoc`);
+    }
+  
+    fs.writeFileSync(`${envConfig.outputDir}/apidoc/apidoc.${template.config.extension || 'txt'}`, content);
   }
 
-  fs.writeFileSync(`${envConfig.outputDir}/apidoc/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
 if (args.withSampleRequestProxy) {

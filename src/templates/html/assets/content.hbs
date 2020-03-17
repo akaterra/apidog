@@ -605,7 +605,7 @@
                           </div>
                           <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
                             {{#each params.list}}
-                              {{#hook 'isNotContainerType' this.type.name}}
+                              {{#hook 'isNotContainerType' this.type}}
                                 <div class="section flex">
                                   <label
                                     class="input-label width-25"

@@ -26,21 +26,21 @@ const ssrVariable = (function () {
 
     Object.entries(headers).forEach(([key, val]) => {
       if (typeof val === 'string') {
-        headers[key] = val.replace(/@(\w+)/g, (_, sub) => {
-          const [ns, key] = sub.split(':', 1);
+        headers[key] = val.replace(/^@(\w+)|(?!\\).@(\w+)/g, (a, sub1, sub2, sub3, sub4) => {
+          const [ns, key] = (sub2 || sub1).split(':', 1);
 
           return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-        });
+        }).replace(/\\@/g, _ => '@');
       }
     });
 
     Object.entries(params).forEach(([key, val]) => {
       if (typeof val === 'string') {
-        params[key] = val.replace(/@(\w+)/g, (_, sub) =>{
-          const [ns, key] = sub.split(':', 1);
+        params[key] = val.replace(/^@(\w+)|(?!\\).@(\w+)/g, (a, sub1, sub2, sub3, sub4) => {
+          const [ns, key] = (sub2 || sub1).split(':', 1);
 
           return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-        });
+        }).replace(/\\@/g, _ => '@');
       }
     });
   });

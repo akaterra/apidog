@@ -3,11 +3,9 @@ module.exports = (op, ...args) => {
 
   switch (op) {
     case 'isNotContainerType':
-      return args[0] && args[0].toLowerCase() !== 'array' && args[0].toLowerCase() !== 'object'
-        ? options.fn(this)
-        : args[0]
-          ? options.inverse(this)
-          : options.fn(this);
+      return args[0] && (args[0].modifiers && args[0].modifiers.object)
+        ? options.inverse(this)
+        : options.fn(this);
 
     default:
       return options.fn(this);

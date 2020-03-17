@@ -385,7 +385,7 @@ ins.diffmod, .diffins {
   color: #383838;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  padding: 1rem 0.5rem 0 25%;
+  padding: 1rem 0 0 25%;
 }
 
 .rtl .inner-label {

@@ -58,19 +58,19 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
     }
 
     const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
-    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
+    const typeIsList = pathKeyTypes[pathKeyTypes.length - 1] === 'a' || pathKeyTypes[pathKeyTypes.length - 1] === 'i';
     const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
     const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
 
-    if (typeIsList) {
-      pathKeys.push(0);
+    // if (typeIsList) {
+    //   pathKeys.push('0');
 
-      if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
-        pathKeyTypes[pathKeyTypes.length - 1] = 'a';
-      }
+    //   if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
+    //     pathKeyTypes[pathKeyTypes.length - 1] = 'a';
+    //   }
 
-      pathKeyTypes.push('i');
-    }
+    //   pathKeyTypes.push('i');
+    // }
 
     if (paramsDescriptor) {
       if ((typeModifiers && typeModifiers.none) || typeIsOptional) {

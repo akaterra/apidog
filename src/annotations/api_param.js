@@ -63,7 +63,7 @@ function construct(name, usePrefix) {
         modifiers: typeName.split(':').reduce((acc, val, ind) => {
           val = val.toLowerCase();
 
-          if (val.slice(-2) === '[]') {
+          while (val.slice(-2) === '[]') {
             acc.list = true;
 
             val = val.substr(0, val.length - 2);
