@@ -13,7 +13,7 @@ function parse(block, text) {
     block.contentType = [];
   }
 
-  block.contentType.push(text);
+  block.contentType = block.contentType.concat(utils.strSplitByComma(text));
 
   return block;
 }

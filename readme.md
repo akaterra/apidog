@@ -53,6 +53,7 @@ Table of contents
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
   * [@apiSuccessValue](#apisuccessvalue)
+  * [@apiTag](#apitag)
 * Built-in templates
   * [@apidoc](#apidoc)
   * [@html (default)](#html-default)
@@ -60,6 +61,7 @@ Table of contents
   * [@md](#md)
   * [@swagger.1.2](#swagger12)
   * [@swagger.2.0](#swagger20)
+  * [@swagger.3.0](#swagger30)
 * @html template "Send sample request" plug-in
 
 ### Installation
@@ -407,6 +409,14 @@ Format:
 
 Describes custom success value.
 
+##### @apiTag
+
+Format:
+```
+@apiTag tag1,tag2,tag3
+```
+
+Defines tags. Can be multiple.
 
 ### Built-in templates
 
@@ -464,6 +474,14 @@ apidog -t @swagger.2.0
 ```
 
 Compiles to Swagger v2.0 specification JSON file.
+
+##### @swagger.3.0
+
+```sh
+apidog -t @swagger.3.0
+```
+
+Compiles to Swagger v3.0 specification JSON file.
 
 ### Server proxy
 

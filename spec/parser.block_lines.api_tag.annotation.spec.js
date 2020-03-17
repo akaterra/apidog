@@ -1,20 +1,20 @@
 const parser = require('../src/parser.block_lines');
 
-describe('parser.block_lines parseBlockLines @apiContentType annotation', () => {
+describe('parser.block_lines parseBlockLines @apiTag annotation', () => {
   it('should parse', () => {
     const lines = [
-      '@apiContentType contentType1',
-      '@apiContentType contentType2,contentType3',
+      '@apiTag tag1',
+      '@apiTag tag2,tag3',
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      contentType: ['contentType1', 'contentType2', 'contentType3'],
+      tag: ['tag1', 'tag2', 'tag3'],
     });
   });
 
   it('should raise error on malformed definition', () => {
     const lines = [
-      '@apiContentType',
+      '@apiTag',
     ];
 
     expect(() => parser.parseBlockLines(lines)).toThrow();

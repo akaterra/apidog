@@ -5,7 +5,15 @@
 const utils = require('../utils');
 
 function parse(block, text) {
-  block.private = text ? utils.strSplitByComma(text) : true;
+  if (!block.private) {
+    block.private = [];
+  }
+
+  if (text) {
+    block.private = block.private.concat(utils.strSplitByComma(text));
+  } else {
+    block.private = true;
+  }
 
   return block;
 }
