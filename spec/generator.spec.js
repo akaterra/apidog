@@ -11,9 +11,7 @@ const hbs = () => {
         return '';
       }
     },
-    registerHelper(name, fn) {
-
-    },
+    registerHelper(name, fn) {},
   };
 
   return hbsInstance;
