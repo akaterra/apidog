@@ -56,14 +56,14 @@ function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, 
         break;
 
       case 'array':
-        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.item.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
+        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.items.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
 
         if (val.description) {
           docBlock.push(val.description);
         }
 
-        if (val.item.properties) {
-          resolveDefinition(val.item, group, `${prefix}${key}[].`, annotation, docBlock, rootSpec, config);
+        if (val.items.properties) {
+          resolveDefinition(val.items, group, `${prefix}${key}[].`, annotation, docBlock, rootSpec, config);
         }
 
         break;

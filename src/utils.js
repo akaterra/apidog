@@ -112,9 +112,9 @@ class Logger {
   }
 
   throw(error) {
-    error = String(error);
+    console.warn(this.generateMessage(String(error)));
 
-    throw new Error(this.generateMessage(error));
+    throw error
   }
 
   generateMessage(message) {

@@ -43,7 +43,7 @@
     },
     "e": {
       "type": "array",
-      "item": {
+      "items": {
         "type": "object",
         "required": [
           "b"
