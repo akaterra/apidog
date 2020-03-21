@@ -3,7 +3,7 @@ function quote(val) {
     return `"${val.replace(/"/g, '\\"')}"`;
   }
 
-  return val;
+  return String(val);
 }
 
 function strSplitBy(str, splitter, limit, trim) {

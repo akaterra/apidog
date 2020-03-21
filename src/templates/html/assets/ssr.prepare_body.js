@@ -62,21 +62,17 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
     const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
     const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
 
-    // if (typeIsList) {
-    //   pathKeys.push('0');
-
-    //   if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
-    //     pathKeyTypes[pathKeyTypes.length - 1] = 'a';
-    //   }
-
-    //   pathKeyTypes.push('i');
-    // }
-
     if (paramsDescriptor) {
-      if ((typeModifiers && typeModifiers.none) || typeIsOptional) {
-        val = params[key] === '' ? undefined : params[key];
-      } else if (typeModifiers && typeModifiers.null) {
-        val = params[key] === '' ? null : params[key];
+      if (val === '') {
+        if (typeModifiers && typeModifiers.none || typeIsOptional) {
+          return
+        }
+      }
+
+      if (val === '' || val === 'null') {
+        if (typeModifiers && typeModifiers.null) {
+          val = null;
+        }
       }
     }
 
@@ -94,6 +90,11 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
 
         case 'isodate':
           val = val === '' ? undefined : new Date(params[key]).toISOString();
+
+          break;
+
+        case 'null':
+          val = val !== 'null' ? undefined : null;
 
           break;
 

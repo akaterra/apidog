@@ -44,17 +44,6 @@ function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, 
     const paramTitle = val.title ? ` ${val.title}` : '';
 
     switch (val.type) {
-      case 'boolean':
-      case 'number':
-      case 'string':
-        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          docBlock.push(val.description);
-        }
-
-        break;
-
       case 'array':
         docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.items.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
 
@@ -77,6 +66,15 @@ function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, 
 
         if (val.properties) {
           resolveDefinition(val, group, `${prefix}${key}.`, annotation, docBlock, rootSpec, config);
+        }
+
+        break;
+
+      default:
+        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
+
+        if (val.description) {
+          docBlock.push(val.description);
         }
 
         break;
@@ -123,9 +121,22 @@ function resolveRef(spec, obj, config) {
 }
 
 function resolveType(type, isEnum) {
+  if (Array.isArray(type)) {
+    if (type.length > 1) {
+      if (type.includes('null')) {
+        type = type.filter((t) => t !== 'null').concat(['null']);
+      }
+    }
+
+    return isEnum ? `${type.map(_ => resolveType(_)).join(':')}:Enum` : type.map(_ => resolveType(_)).join(':');
+  }
+
   switch (type) {
     case 'boolean':
       return isEnum ? 'Boolean:Enum' : 'Boolean';
+
+    case 'null':
+      return 'Null';
 
     case 'number':
       return isEnum ? 'Number:Enum' : 'Number';
