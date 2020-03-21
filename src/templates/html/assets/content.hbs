@@ -74,7 +74,7 @@
                 <div class="menu-subgroup">
                   {{#ifCond this.title '!=' '$'}}
                     {{#with (context 'definitions') as |definitions|}}
-                      <a class="left-padded bold smaller menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
+                      <a class="bold smaller menu-subgroup__header menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                     {{/with}}
                   {{/ifCond}}
                   {{#each this.apis}}

@@ -487,6 +487,11 @@ ins.diffmod, .diffins {
   padding-bottom: 0;
 }
 
+.menu-subgroup__header {
+  border-bottom: 1px #e0e0e0 solid;
+  margin: 0 0.5rem;
+}
+
 .menu-item {
   color: #383838;
   display: block;

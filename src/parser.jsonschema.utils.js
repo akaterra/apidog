@@ -39,7 +39,7 @@ function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, 
 
     const paramDefault = val.default ? `=${utils.quote(val.default)}` : '';
     const paramIsRequired = required.indexOf(key) !== - 1;
-    const paramEnum = val.enum ? `=${[].concat(paramIsRequired ? [] : ['""'], val.enum).map(utils.quote).join(',')}` : '';
+    const paramEnum = val.enum ? `=${[].concat(val.enum).map(utils.quote).join(',')}` : '';
     const paramKey = paramIsRequired ? `${prefix}${key}${paramDefault}` : `[${prefix}${key}${paramDefault}]`;
     const paramTitle = val.title ? ` ${val.title}` : '';
 
