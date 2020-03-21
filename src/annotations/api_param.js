@@ -64,7 +64,7 @@ function construct(name, usePrefix) {
           val = val.toLowerCase();
 
           while (val.slice(-2) === '[]') {
-            acc.list = true;
+            acc.list = acc.list ? acc.list + 1 : 1;
 
             val = val.substr(0, val.length - 2);
           }

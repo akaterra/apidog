@@ -25,13 +25,14 @@ function resolveInternal(json, annotation, docBlocks, prefix, config) {
         }
 
         type += '[]';
-        key += '[0]';
 
         if (!Array.isArray(val)) {
           type = `${resolveType(val)}${type}`;
 
           break;
         }
+
+        key += '[0]';
       }
     } else {
       type = resolveType(val);

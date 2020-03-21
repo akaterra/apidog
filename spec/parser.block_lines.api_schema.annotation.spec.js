@@ -33,11 +33,11 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
       '@apiParam (group) {Number} e[].b=5',
       '@apiParam (group) {Boolean} [e[].c]',
       'Description',
-      '@apiParam (group) {Boolean:Enum="",a,b,c,"Hello, world!"} [f]',
+      '@apiParam (group) {Boolean:Enum=a,b,c,"Hello, world!"} [f]',
       '@apiParam (group) {Boolean:Enum=a,b,c,"Hello, world!"} g',
-      '@apiParam (group) {Number:Enum="",a,b,c,"Hello, world!"} [h]',
+      '@apiParam (group) {Number:Enum=a,b,c,"Hello, world!"} [h]',
       '@apiParam (group) {Number:Enum=a,b,c,"Hello, world!"} i',
-      '@apiParam (group) {String:Enum="",a,b,c,"Hello, world!"} [j]',
+      '@apiParam (group) {String:Enum=a,b,c,"Hello, world!"} [j]',
       '@apiParam (group) {String:Enum=a,b,c,"Hello, world!"} k',
       '@apiParam (group) {Number} [x=5]',
     ]);
@@ -101,7 +101,7 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
       '',
       '@apiParam {String} a="a a a"',
       '@apiParam {Object} b',
-      '@apiParam {String[][]} b.a[0][0]=a',
+      '@apiParam {String[][]} b.a[0]=a',
       '@apiParam {Number} b.b=1',
       '@apiParam {Boolean} c=true',
     ]);

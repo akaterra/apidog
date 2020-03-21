@@ -58,9 +58,25 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
     }
 
     const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
-    const typeIsList = pathKeyTypes[pathKeyTypes.length - 1] === 'a' || pathKeyTypes[pathKeyTypes.length - 1] === 'i';
+    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
     const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
     const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
+
+    if (typeIsList) {
+      let typeIsListCounter = typeIsList === true ? 1 : typeIsList;
+
+      while (typeIsListCounter) {
+        pathKeys.push('0');
+
+        if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
+          pathKeyTypes[pathKeyTypes.length - 1] = 'a';
+        }
+
+        pathKeyTypes.push('i');
+
+        typeIsListCounter -= 1;
+      }
+    }
 
     if (paramsDescriptor) {
       if (val === '') {
@@ -158,9 +174,9 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
                 break;
 
               case 'i':
-                let ind = key === '' ? - 1 : parseInt(key);
+                let ind = key === '' ? -1 : parseInt(key);
 
-                if (ind === - 1) {
+                if (ind === -1) {
                   if (!bodyNode.length) {
                     bodyNode.push(undefined);
                   }
