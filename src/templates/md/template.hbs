@@ -85,8 +85,8 @@ Main chapter
 {{/ifCond}}
 
 
-{{#if this.headers.length}}
-  {{#each this.headersGroups as |params key|}}
+{{#if this.header.length}}
+  {{#each this.headerGroup as |params key|}}
 
 **{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:**
 
@@ -98,8 +98,8 @@ Main chapter
   {{/each}}
 {{/if}}
 
-{{#if this.params.length}}
-  {{#each this.paramsGroups as |params key|}}
+{{#if this.param.length}}
+  {{#each this.paramGroup as |params key|}}
 
 **{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:**
 

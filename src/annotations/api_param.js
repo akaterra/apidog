@@ -5,8 +5,9 @@
 const utils = require('../utils');
 
 function construct(name, usePrefix) {
-  const annotationGroupsName = `${name}sGroups`;
-  const annotationName = `${name}s`;
+  const annotationGroupName = `${name}Group`;
+  const annotationGroupVariantsName = `${name}GroupVariant`;
+  const annotationName = `${name}`;
   const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {
@@ -26,8 +27,12 @@ function construct(name, usePrefix) {
       block[annotationName] = [];
     }
 
-    if (!block[annotationGroupsName]) {
-      block[annotationGroupsName] = {};
+    if (!block[annotationGroupName]) {
+      block[annotationGroupName] = {};
+    }
+
+    if (!block[annotationGroupVariantsName]) {
+      block[annotationGroupVariantsName] = {};
     }
 
     const blockParam = {};
@@ -94,15 +99,27 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (!block[annotationGroupsName][group || '$']) {
-      block[annotationGroupsName][group || '$'] = {isTyped: false, list: []};
+    if (!block[annotationGroupName][group || '$']) { // @todo use null
+      block[annotationGroupName][group || '$'] = {isTyped: false, list: []};
+    }
+
+    if (!block[annotationGroupVariantsName][group]) {
+      block[annotationGroupVariantsName][group] = {map: {}};
+    }
+
+    if (blockParam.field) {
+      if (!block[annotationGroupVariantsName][group].map[blockParam.field.name]) {
+        block[annotationGroupVariantsName][group].map[blockParam.field.name] = [];
+      }
+
+      block[annotationGroupVariantsName][group].map[blockParam.field.name].push(block[annotationName].length - 1);
     }
 
     if (type) {
-      block[annotationGroupsName][group || '$'].isTyped = true;
+      block[annotationGroupName][group || '$'].isTyped = true;
     }
 
-    block[annotationGroupsName][group || '$'].list.push(blockParam);
+    block[annotationGroupName][group || '$'].list.push(blockParam);
 
     return block;
   }

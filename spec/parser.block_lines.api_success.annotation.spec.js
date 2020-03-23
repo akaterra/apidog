@@ -1,7 +1,7 @@
 const parser = require('../src/parser.block_lines');
 
 describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
-  it('should parse multiple errors', () => {
+  it('should parse multiple', () => {
     const lines = [
       '@apiSuccess A_B.C',
       '@apiSuccess A_B.C This is a description',
@@ -20,7 +20,7 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      successs: [{ // 0
+      success: [{ // 0
         description: [],
         field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
@@ -91,7 +91,7 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
         group: 'isNotTyped',
         type:null,
       }],
-      successsGroups: {
+      successGroup: {
         $: {
           isTyped: true,
           list: [{ // 0
@@ -174,6 +174,11 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
             type: null,
           }],
         },
+      },
+      successGroupVariant: {
+        null: { map: { 'A_B.C': [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11 ] } },
+        groupA: { map: { 'A_B.C': [ 8, 12 ] } },
+        isNotTyped: { map: { 'A_B.C': [ 13 ] } },
       },
     });
   });

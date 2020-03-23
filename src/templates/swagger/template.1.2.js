@@ -69,8 +69,8 @@ module.exports = (config) => ({
 
       const responses = [];
 
-      if (descriptor.successsGroups) {
-        Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
+      if (descriptor.successGroup) {
+        Object.entries(descriptor.successGroup).forEach(([key, params]) => {
           responses.push({
             code: key,
             message: 'No description',
@@ -79,8 +79,8 @@ module.exports = (config) => ({
         });
       }
 
-      if (descriptor.errorsGroups) {
-        Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
+      if (descriptor.errorGroup) {
+        Object.entries(descriptor.errorGroup).forEach(([key, params]) => {
           responses.push({
             code: key,
             message: 'No description',
@@ -96,7 +96,7 @@ module.exports = (config) => ({
         summary: descriptor.title,
         notes: descriptor.description && descriptor.description.join('\n'),
         nickname: descriptor.id,
-        parameters: descriptor.params.map((param) => {
+        parameters: descriptor.param.map((param) => {
           if (param.field.name in uriParams) {
             return {
               name: param.field.name,

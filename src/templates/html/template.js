@@ -39,12 +39,22 @@ module.exports = (config) => ({
       fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, uglify.minify(handlebars.compile(apidocJsI18nTemplate)(params)).code);
     }
 
-    const template = fs.readFileSync(`${__dirname}/assets/content.hbs`, {encoding: 'utf8'});
+    const apidocTemplateContent = [];
+
+    for (const templateName of [[
+      'template.content', 'templateContent',
+    ], [
+      'template.content.group', 'templateContentGroup',
+    ]]) {
+      const template = fs.readFileSync(`${__dirname}/assets/${templateName[0]}.hbs`, {encoding: 'utf8'});
+
+      apidocTemplateContent.push(`const ${templateName[1]} = \`${template}\`;`);
+    }
 
     if (process.env.NODE_ENV === 'test') {
-      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, `const templateContent = \`${template}\``);
+      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, apidocTemplateContent.join('\n'));
     } else {
-      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(`const templateContent = \`${template}\``).code);
+      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(apidocTemplateContent.join('\n')).code);
     }
 
     const apidocHtmlTemplate = fs.readFileSync(`${__dirname}/template.hbs`, {encoding: 'utf8'});

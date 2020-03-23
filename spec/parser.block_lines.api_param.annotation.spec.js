@@ -20,7 +20,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      params: [{ // 0
+      param: [{ // 0
         description: [],
         field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
@@ -91,7 +91,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         group: 'isNotTyped',
         type:null,
       }],
-      paramsGroups: {
+      paramGroup: {
         $: {
           isTyped: true,
           list: [{ // 0
@@ -175,6 +175,11 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
           }],
         },
       },
+      paramGroupVariant: {
+        null: { map: { 'A_B.C': [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11 ] } },
+        groupA: { map: { 'A_B.C': [ 8, 12 ] } },
+        isNotTyped: { map: { 'A_B.C': [ 13 ] } },
+      },
     });
   });
 
@@ -184,7 +189,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam A_B.C',
     ];
 
-    expect(parser.parseBlockLines(lines).params).toEqual([
+    expect(parser.parseBlockLines(lines).param).toEqual([
       {
         description: [],
         field: { defaultValue: null, isOptional: false, name: 'prefix.A_B.C' },

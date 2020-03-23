@@ -33,19 +33,28 @@ function parse(block, text, line, index, lines, definitions, config) {
   const [schemaFile, schemaPath] = schema[1].split('#', 2);
   const params = utils.strSplitBySpace(tokens[5] || '');
 
+  let conv;
+
   switch (schema[0].toLowerCase()) {
     case 'json':
       if (params.length === 0) {
-        throw new Error(`@apiSchema "${schemaFile}" missing annotation definition`);
+        throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing annotation definition`);
       }
 
       let jsonSpec = parserJsonschemaUtils.fetchSource(schemaFile);
+      let json = jsonSpec;
 
-      lines.splice(index, 1, ...[''].concat(parserJsonUtils.convert(
-        jsonSpec,
-        params[0],
-        config,
-      )));
+      if (schemaPath) {
+        json = get(json, schemaPath, parse);
+
+        if (json === parse) {
+          throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" path not exists`);
+        }
+      }
+
+      conv = parserJsonUtils.convert(json, params[0], config);
+
+      lines.splice(index, 1, ...[''].concat(conv));
 
       return block;
 
@@ -65,13 +74,9 @@ function parse(block, text, line, index, lines, definitions, config) {
         }
       }
 
-      lines.splice(index, 1, ...[''].concat(parserJsonschemaUtils.convert(
-        jsonSchema,
-        tokens[2],
-        params[0],
-        jsonSchemaSpec,
-        config,
-      )));
+      conv = parserJsonschemaUtils.convert(jsonSchema, tokens[2], params[0], jsonSchemaSpec, config);
+
+      lines.splice(index, 1, ...[''].concat(conv));
 
       return block;
 

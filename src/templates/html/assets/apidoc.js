@@ -118,6 +118,7 @@ window.onload = () => {
 
   Handlebars.registerHelper('context', (name) => templateParams[name]);
   Handlebars.registerHelper('_', (key) => _(config.locale || 'en', key));
+  Handlebars.registerPartial('contentGroup', templateContentGroup);
 
   const html = Handlebars.compile(templateContent)(templateParams);
 

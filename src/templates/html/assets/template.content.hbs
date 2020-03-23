@@ -238,8 +238,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.headers.length}}
-                          {{#each this.headersGroups as |params key|}}
+                        {{#if this.header.length}}
+                          {{#each this.headerGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -274,8 +274,9 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.params.length}}
-                          {{#each this.paramsGroups as |params key|}}
+                        {{#if this.param.length}}
+                          {{>contentGroup this.paramGroupVariant}}
+                          {{#each this.paramGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -362,8 +363,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.successs.length}}
-                          {{#each this.successsGroups as |successes key|}}
+                        {{#if this.success.length}}
+                          {{#each this.successGroup as |successes key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -398,8 +399,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.errors.length}}
-                          {{#each this.errorsGroups as |errors key|}}
+                        {{#if this.error.length}}
+                          {{#each this.errorGroup as |errors key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -527,9 +528,9 @@
                         />
                       </div>
 
-                      {{#if ../this.headers.length}}
+                      {{#if ../this.header.length}}
                         <div class="inner-label"><hr></div>
-                        {{#each ../this.headersGroups as |params key|}}
+                        {{#each ../this.headerGroup as |params key|}}
                           <div class="flex">
                             <div class="label width-25 right">
                               <input
@@ -586,9 +587,9 @@
                         {{/each}}
                       {{/if}}
 
-                      {{#if ../this.params.length}}
+                      {{#if ../this.param.length}}
                         <div class="inner-label"><hr></div>
-                        {{#each ../this.paramsGroups as |params key|}}
+                        {{#each ../this.paramGroup as |params key|}}
                           <div class="flex">
                             <div class="label width-25 right">
                               <input
@@ -782,8 +783,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.headers.length}}
-                          {{#each this.headersGroups as |params key|}}
+                        {{#if this.header.length}}
+                          {{#each this.headerGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -818,8 +819,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.params.length}}
-                          {{#each this.paramsGroups as |params key|}}
+                        {{#if this.param.length}}
+                          {{#each this.paramGroup as |params key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -906,8 +907,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.successs.length}}
-                          {{#each this.successsGroups as |successes key|}}
+                        {{#if this.success.length}}
+                          {{#each this.successGroup as |successes key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}
@@ -942,8 +943,8 @@
                           {{/each}}
                         {{/if}}
 
-                        {{#if this.errors.length}}
-                          {{#each this.errorsGroups as |errors key|}}
+                        {{#if this.error.length}}
+                          {{#each this.errorGroup as |errors key|}}
                             {{#with (context 'definitions') as |definitions|}}
                               <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
                               {{#if (lookup definitions key 'description')}}

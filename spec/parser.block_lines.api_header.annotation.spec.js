@@ -20,7 +20,7 @@ describe('parser.block_lines parseBlockLines @apiHeader', () => {
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual({
-      headers: [{ // 0
+      header: [{ // 0
         description: [],
         field: { defaultValue: null, isOptional: false, name: 'A_B.C' },
         group: null,
@@ -91,7 +91,7 @@ describe('parser.block_lines parseBlockLines @apiHeader', () => {
         group: 'isNotTyped',
         type:null,
       }],
-      headersGroups: {
+      headerGroup: {
         $: {
           isTyped: true,
           list: [{ // 0
@@ -174,6 +174,11 @@ describe('parser.block_lines parseBlockLines @apiHeader', () => {
             type: null,
           }],
         },
+      },
+      headerGroupVariant: {
+        null: { map: { 'A_B.C': [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11 ] } },
+        groupA: { map: { 'A_B.C': [ 8, 12 ] } },
+        isNotTyped: { map: { 'A_B.C': [ 13 ] } },
       },
     });
   });

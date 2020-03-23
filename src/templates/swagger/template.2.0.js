@@ -48,11 +48,11 @@ module.exports = (config) => ({
 
       const responses = {};
 
-      if (!descriptor.successsGroups && !descriptor.errorsGroups) {
+      if (!descriptor.successGroup && !descriptor.errorGroup) {
         responses['default'] = {description: 'No description'};
       } else {
-        if (descriptor.successsGroups) {
-          Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
+        if (descriptor.successGroup) {
+          Object.entries(descriptor.successGroup).forEach(([key, params]) => {
             responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
               description: 'No description',
               schema: parserUtils.convertParamsToJsonSchema(params.list),
@@ -60,8 +60,8 @@ module.exports = (config) => ({
           });
         }
 
-        if (descriptor.errorsGroups) {
-          Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
+        if (descriptor.errorGroup) {
+          Object.entries(descriptor.errorGroup).forEach(([key, params]) => {
             responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
               description: 'No description',
               schema: parserUtils.convertParamsToJsonSchema(params.list),
@@ -108,7 +108,7 @@ module.exports = (config) => ({
 
           return contentType;
         }),
-        parameters: descriptor.params.map((param) => {
+        parameters: descriptor.param.map((param) => {
           const typeAllowedValues = param.type.allowedValues.filter(_ => _);
 
           if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
@@ -133,7 +133,7 @@ module.exports = (config) => ({
             in: 'body',
             description: '',
             required: true,
-            schema: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams))),
+            schema: parserUtils.convertParamsToJsonSchema(descriptor.param.filter((param) => !(param.field.name in uriParams))),
             enum: typeAllowedValues.length ? typeAllowedValues : undefined,
           };
         }).filter((parameter) => parameter),

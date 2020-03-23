@@ -11,6 +11,10 @@ function convert(json, annotation, config) {
 }
 
 function resolveInternal(json, annotation, docBlocks, prefix, config) {
+  if (!json || typeof json !== 'object') {
+    return 
+  }
+
   Object.entries(json).forEach(([key, val]) => {
     let type;
 
@@ -32,7 +36,7 @@ function resolveInternal(json, annotation, docBlocks, prefix, config) {
           break;
         }
 
-        key += '[0]';
+        // key += '[0]';
       }
     } else {
       type = resolveType(val);

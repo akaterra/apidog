@@ -24,7 +24,8 @@
 <div class="splash">"{{title}}" {{description}} {{version}} apiDoc is loading ...</div>
 </body>
 <script>
-  const templateContent = `{{> content.hbs.content }}`;
+  const templateContent = `{{> template.content.hbs }}`;
+  const templateContentGroup = `{{> template.content.group.hbs }}`;
 
   (function () {
     {{> handlebars.js }}

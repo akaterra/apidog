@@ -1,4 +1,4 @@
-function prepareBody(params, paramsDescriptors, paramsGroup) {
+function prepareBody(params, paramDescriptors, paramsGroup) {
   if (paramsGroup === '$') {
     paramsGroup = null; // :( refactor
   } else if (!paramsGroup) {
@@ -12,7 +12,7 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
   };
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    const paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
 
     if (paramsDescriptor && paramsDescriptor.type) {
       switch (paramsDescriptor.type.modifiers.initial) {
@@ -25,7 +25,7 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
   });
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    const paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
     const pathKeys = key.split('.');
     const pathKeyTypes = [];
 

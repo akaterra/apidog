@@ -58,7 +58,7 @@ const ssr = (function () {
 
       emitRequestPrepareParams(el, {headers, params});
 
-      let {body, type} = prepareBody(params, blockDescriptor.params, lastSelectedGroups[blockId] && lastSelectedGroups[blockId].params || null);
+      let {body, type} = prepareBody(params, blockDescriptor.param, lastSelectedGroups[blockId] && lastSelectedGroups[blockId].params || null);
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
         for (const ssrHook of blockDescriptor.sampleRequestHooks) {

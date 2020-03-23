@@ -47,7 +47,7 @@ function strSplitBySpace(str, limit) {
   return strSplitBy(str, ' ', limit);
 }
 
-function strSplitByQuotedTokens(str) {
+function strSplitByQuotedTokens(str, splitter = ',') {
   return str.match(/(".*?(?<!\\)"|[^",\s]+)(?=\s*,|\s*$)/g).map((term) => term.replace(/^"(.*)"$/, '$1'));
 }
 
