@@ -44,7 +44,7 @@ module.exports = (config) => ({
     for (const templateName of [[
       'template.content', 'templateContent',
     ], [
-      'template.content.group', 'templateContentGroup',
+      'template.content.param-group', 'templateContentParamGroup',
     ]]) {
       const template = fs.readFileSync(`${__dirname}/assets/${templateName[0]}.hbs`, {encoding: 'utf8'});
 

@@ -2,12 +2,12 @@ module.exports = (obj, ...args) => {
   const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
 
   for (let i = 0; i < args.length - 1; i += 1) {
-    obj = obj[args[i]];
-
     if (!obj) {
       break;
     }
+
+    obj = obj[args[i]];
   }
 
-  return obj && new handlebars.SafeString(obj);
+  return obj ? (typeof obj === 'string' ? new handlebars.SafeString(obj) : obj) : undefined;
 };

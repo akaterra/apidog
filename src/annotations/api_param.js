@@ -104,7 +104,7 @@ function construct(name, usePrefix) {
     }
 
     if (!block[annotationGroupVariantsName][group]) {
-      block[annotationGroupVariantsName][group] = {map: {}};
+      block[annotationGroupVariantsName][group] = {isTyped: false, map: {}};
     }
 
     if (blockParam.field) {
@@ -116,7 +116,8 @@ function construct(name, usePrefix) {
     }
 
     if (type) {
-      block[annotationGroupName][group || '$'].isTyped = true;
+      block[annotationGroupName][group || '$'].isTyped = true; // @deprecated
+      block[annotationGroupVariantsName][group].isTyped = true;
     }
 
     block[annotationGroupName][group || '$'].list.push(blockParam);
