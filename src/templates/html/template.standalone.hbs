@@ -24,8 +24,13 @@
 <div class="splash">"{{title}}" {{description}} {{version}} apiDoc is loading ...</div>
 </body>
 <script>
-  const templateContent = `{{> template.content.hbs }}`;
-  const templateContentParamGroup = `{{> template.content.param-group.hbs }}`;
+  const templates = {
+    templateContent: `{{> template.content.hbs }}`,
+    contentParamExample: `{{> template.content.param_example.hbs }}`,
+    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs }}`,
+    contentParamValueGroup: `{{> template.content.param_value_group.hbs }}`,
+    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs }}`,
+  };
 
   (function () {
     {{> handlebars.js }}

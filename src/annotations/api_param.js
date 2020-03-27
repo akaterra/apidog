@@ -7,7 +7,7 @@ const utils = require('../utils');
 function construct(name, usePrefix) {
   const annotationGroupName = `${name}Group`;
   const annotationGroupVariantsName = `${name}GroupVariant`;
-  const annotationName = `${name}`;
+  const annotationName = name;
   const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {

@@ -4,33 +4,45 @@
 
 const utils = require('../utils');
 
-function parse(block, text) {
-  if (!block.paramPrefixStack) {
-    block.paramPrefixStack = [];
-  }
+function construct(name) {
+  const annotationName = name;
+  const annotationStackName = `${name}Stack`;
 
-  if (!text) {
-    block.paramPrefix = undefined;
-    block.paramPrefixStack = [];
-  } else {
-    if (text === '..') {
-      if (block.paramPrefixStack.length) {
-        block.paramPrefix = block.paramPrefixStack.pop();
-      } else {
-        block.paramPrefix = undefined;
-      }
-    } else {
-      if (block.paramPrefix) {
-        block.paramPrefixStack.push(block.paramPrefix);
-      }
-
-      block.paramPrefix = block.paramPrefix ? block.paramPrefix + text : text;
+  function parse(block, text) {
+    if (!block[annotationStackName]) {
+      block[annotationStackName] = [];
     }
+
+    if (!text) {
+      block[annotationName] = undefined;
+      block[annotationStackName] = [];
+    } else {
+      if (text === '..') {
+        if (block[annotationStackName].length) {
+          block[annotationName] = block[annotationStackName].pop();
+        } else {
+          block[annotationName] = undefined;
+        }
+      } else {
+        if (block[annotationName]) {
+          block[annotationStackName].push(block[annotationName]);
+        }
+
+        block[annotationName] = block[annotationName] ? block[annotationName] + text : text;
+      }
+    }
+
+    return block;
   }
 
-  return block;
+  return {
+    parse,
+  };
 }
 
+const paramPrefix = construct('paramPrefix');
+
 module.exports = {
-  parse: parse,
+  construct,
+  parse: paramPrefix.parse,
 };

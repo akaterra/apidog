@@ -125,7 +125,7 @@ async function createAppHttp(env) {
       });
 
       proxyReq.on('error', (err) => {
-        res.status(503).jsonp("Service unavailable");
+        res.status(503).send("Service unavailable");
       });
 
       proxyReq.write(req.rawBody);
@@ -133,7 +133,7 @@ async function createAppHttp(env) {
     } catch (err) {
       console.error(err);
 
-      res.status(500).json(err.message);
+      res.status(500).send(err.message);
     }
   }
 
@@ -160,7 +160,7 @@ async function createAppHttp(env) {
     } catch (err) {
       console.error(err);
 
-      res.status(500).json(err.message);
+      res.status(500).send(err.message);
     }
   }
 
@@ -235,13 +235,13 @@ async function createAppHttp(env) {
 
         fs.writeFile(`${config.presetsDir}/${presetBlockId}__${presetName}.json`, req.rawBody, (err) => {
           if (err) {
-            res.status(500).json(err.message);
+            res.status(500).send(err.message);
           } else {
             res.status(204).send();
           }
         });
       } else {
-        res.status(501).json('Preset directory is not configured');
+        res.status(501).send('Preset directory is not configured');
       }
     });
   }
