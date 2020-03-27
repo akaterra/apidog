@@ -17,9 +17,9 @@ function construct(name, fullName) {
   const regex = /^({(.+)})?(.+)?/;
 
   function parse(block, text, line, index, lines, embeddedLines) {
-    if (!text) {
-      throw new Error(`${fullName} malformed`);
-    }
+    // if (!text) {
+    //   throw new Error(`${fullName} malformed`);
+    // }
 
     const tokens = regex.exec(text);
 

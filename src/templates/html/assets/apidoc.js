@@ -118,9 +118,10 @@ window.onload = () => {
 
   Handlebars.registerHelper('context', (name) => templateParams[name]);
   Handlebars.registerHelper('_', (key) => _(config.locale || 'en', key));
-  Handlebars.registerPartial('contentParamGroup', templateContentParamGroup);
 
-  const html = Handlebars.compile(templateContent)(templateParams);
+  Object.entries(templates).forEach(([key, val]) => Handlebars.registerPartial(key, val));
+
+  const html = Handlebars.compile(templates.content)(templateParams);
 
   document.body.innerHTML = html;
 

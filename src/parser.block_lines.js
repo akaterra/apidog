@@ -39,6 +39,7 @@ const annotationParsers = {
   '@apiSubgroup': require('./annotations/api_sub_group'),
   '@apiSuccess': require('./annotations/api_param').construct('success'),
   '@apiSuccessExample': require('./annotations/api_param_example').construct('success', '@successExample'),
+  '@apiSuccessValue': require('./annotations/api_param_value').construct('successValue'),
   '@apiTag': require('./annotations/api_tag'),
   '@apiUse': require('./annotations/api_use'),
   '@apiVersion': require('./annotations/api_version'),

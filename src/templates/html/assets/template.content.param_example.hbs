@@ -1,0 +1,6 @@
+{{#each example as |example|}}
+    <div class="section{{#ifCond ../contentType '!=' 'any' example.type '!=' ../contentType.[0] example.type '!=' 'any'}} hidden{{/ifCond}}" data-block-example="{{../id}}_{{example.type}}">
+        <div class="label{{#if ../color}} {{../color}}{{/if}}">{{#if example.title}}{{example.title}}{{else}}{{_ ../defaultName}}{{/if}}</div>
+        <pre class="response big-badge bg-color-2 color-white mono">{{join example.description true}}</pre>
+    </div>
+{{/each}}

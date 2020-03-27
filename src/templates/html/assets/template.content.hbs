@@ -228,124 +228,67 @@
                       {{/if}}
 
                       <div data-block-hint="{{block.familyId}}">
-                        {{#if this.example}}
-                          {{#each this.example}}
-                            <div class="section">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:</div>
-                              <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
-                            </div>
-                          {{/each}}
+
+                        <!-- usage example -->
+
+                        {{#if this.example.length}}
+                          {{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
                         {{/if}}
+
+                        <!-- header -->
 
                         {{#if this.header.length}}
-                          {{> contentParamGroup groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
+                          {{> contentParamGroupVariant groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
                         {{/if}}
 
-                        {{#if this.headerExample}}
-                          {{#each this.headerExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.headerValue.length}}
+                          {{> contentParamValueGroup group=this.headerValueGroup defaultName='headerValue'}}
                         {{/if}}
+
+                        {{#if this.headerExample.length}}
+                          {{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                        {{/if}}
+
+                        <!-- param -->
 
                         {{#if this.param.length}}
-                          {{> contentParamGroup groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
+                          {{> contentParamGroupVariant groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
                         {{/if}}
 
                         {{#if this.paramValue.length}}
-                          {{#each this.paramValueGroup as |params key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
-                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each params}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
-                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamValueGroup group=this.paramValueGroup defaultName='parameterValue'}}
                         {{/if}}
 
-                        {{#if this.paramExample}}
-                          {{#each this.paramExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'parameterExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.paramExample.length}}
+                          {{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
                         {{/if}}
+
+                        <!-- success -->
 
                         {{#if this.success.length}}
-                          {{> contentParamGroup groupVariant=this.successGroupVariant param=this.success defaultName='success200'}}
+                          {{> contentParamGroupVariant groupVariant=this.successGroupVariant param=this.success defaultName='success200' color='color-green'}}
                         {{/if}}
 
-                        {{#if this.successExample}}
-                          {{#each this.successExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.successValue.length}}
+                          {{> contentParamValueGroup group=this.successValueGroup defaultName='successValue' color='color-green'}}
                         {{/if}}
+
+                        {{#if this.successExample.length}}
+                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                        {{/if}}
+
+                        <!-- error -->
 
                         {{#if this.error.length}}
-                          {{> contentParamGroup groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx'}}
+                          {{> contentParamGroupVariant groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx' color='color-red'}}
                         {{/if}}
 
                         {{#if this.errorValue.length}}
-                          {{#each this.errorValueGroup as |errors key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Error value{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
-                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each errors}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
-                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamValueGroup group=this.errorValueGroup defaultName='errorValue' color='color-red'}}
                         {{/if}}
 
-                        {{#if this.errorExample}}
-                          {{#each this.errorExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.errorExample.length}}
+                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
                         {{/if}}
                       </div>
                     </div>
@@ -661,235 +604,67 @@
                       <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
 
                       <div data-block-hint="{{block.familyId}}">
-                        {{#if this.example}}
-                          {{#each this.example}}
-                            <div class="section">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'usageExample'}}{{/if}}:</div>
-                              <pre class="response big-badge bg-color-dark-green color-white mono">{{toHtml
-                                      (join this.description true)}}</pre>
-                            </div>
-                          {{/each}}
+
+                        <!-- usage example -->
+
+                        {{#if this.example.length}}
+                          {{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
                         {{/if}}
+
+                        <!-- header -->
 
                         {{#if this.header.length}}
-                          {{#each this.headerGroup as |params key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each params.list}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{this.field.name}}</div>
-                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamGroupVariant groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
                         {{/if}}
 
-                        {{#if this.headerExample}}
-                          {{#each this.headerExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'headerExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.headerValue.length}}
+                          {{> contentParamValueGroup group=this.headerValueGroup defaultName='headerValue'}}
                         {{/if}}
+
+                        {{#if this.headerExample.length}}
+                          {{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                        {{/if}}
+
+                        <!-- param -->
 
                         {{#if this.param.length}}
-                          {{#each this.paramGroup as |params key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameter'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
-                                {{#if params.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each params.list}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">
-                                    {{pathLastKeyIndented this.field.name}}
-                                    {{#if this.field}}
-                                      {{#if this.field.isOptional}}
-                                        <span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
-                                    {{/if}}
-                                  </div>
-                                  {{#if params.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
-                                  <div class="flex-1">
-                                    {{toHtml (join this.description true)}}
-                                    {{#if this.type}}
-                                      {{#if this.type.allowedValues}}
-                                        <div class="{{#if this.description.length}}top-padded{{/if}}">
-                                          <div class="smaller color-3">{{_ 'allowedValues'}}:</div>
-                                          {{#each this.type.allowedValues}}
-                                            <div class="smaller color-blue">{{this}}</div>
-                                          {{/each}}
-                                        </div>
-                                      {{/if}}
-                                    {{/if}}
-                                    {{#if this.field}}
-                                      {{#if this.field.defaultValue}}
-                                        <div class="{{#if this.description.length}}top-padded{{else}}{{#if this.type}}{{#if
-                                                this.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
-                                          <div class="smaller color-3">{{_ 'defaultValue'}}:</div>
-                                          <div class="smaller color-blue">{{this.field.defaultValue}}</div>
-                                        </div>
-                                      {{/if}}
-                                    {{/if}}
-                                  </div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamGroupVariant groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
                         {{/if}}
 
                         {{#if this.paramValue.length}}
-                          {{#each this.paramValueGroup as |params key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'parameterValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
-                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each params}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
-                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamValueGroup group=this.paramValueGroup defaultName='parameterValue'}}
                         {{/if}}
 
-                        {{#if this.paramExample}}
-                          {{#each this.paramExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label">{{#if this.title}}{{this.title}}{{else}}{{_ 'parameterExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.paramExample.length}}
+                          {{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
                         {{/if}}
+
+                        <!-- success -->
 
                         {{#if this.success.length}}
-                          {{#each this.successGroup as |successes key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Success 200{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
-                                {{#if successes.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">description</div>
-                              </div>
-                              {{#each successes.list}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                                  {{#if successes.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamGroupVariant groupVariant=this.successGroupVariant param=this.success defaultName='success200' color='color-green'}}
                         {{/if}}
 
-                        {{#if this.successExample}}
-                          {{#each this.successExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-green">{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.successValue.length}}
+                          {{> contentParamValueGroup group=this.successValueGroup defaultName='successValue' color='color-green'}}
                         {{/if}}
+
+                        {{#if this.successExample.length}}
+                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                        {{/if}}
+
+                        <!-- error -->
 
                         {{#if this.error.length}}
-                          {{#each this.errorGroup as |errors key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}Error 4xx{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'name'}}</div>
-                                {{#if errors.isTyped}}<div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>{{/if}}
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each errors.list}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.field.name}}</div>
-                                  {{#if errors.isTyped}}<div class="width-15 color-2 mono">{{this.type.name}}</div>{{/if}}
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamGroupVariant groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx' color='color-red'}}
                         {{/if}}
 
                         {{#if this.errorValue.length}}
-                          {{#each this.errorValueGroup as |errors key|}}
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label">{{#ifCond key '==' '$'}}{{_ 'errorValue'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                              {{#if (lookup definitions key 'description')}}
-                                <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
-                              {{/if}}
-                            {{/with}}
-                            <div class="section">
-                              <div class="table">
-                                <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
-                                <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
-                                <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
-                              </div>
-                              {{#each errors}}
-                                <div class="table">
-                                  <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
-                                  <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
-                                  <div class="flex-1">{{toHtml (join this.description true)}}</div>
-                                </div>
-                              {{/each}}
-                            </div>
-                          {{/each}}
+                          {{> contentParamValueGroup group=this.errorValueGroup defaultName='errorValue' color='color-red'}}
                         {{/if}}
 
-                        {{#if this.errorExample}}
-                          {{#each this.errorExample}}
-                            <div class="section{{#ifCond this.type '!=' ../this.contentType.[0] this.type '!='
-                                                        'any'}} hidden{{/ifCond}}"
-                                data-block-example="{{../this.id}}_{{this.type}}">
-                              <div class="label color-red">{{#if this.title}}{{this.title}}{{else}}Error example{{/if}}</div>
-                              <pre class="response big-badge bg-color-2 color-white mono">{{join this.description true}}</pre>
-                            </div>
-                          {{/each}}
+                        {{#if this.errorExample.length}}
+                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
                         {{/if}}
                       </div>
                     </div>

@@ -1,0 +1,22 @@
+{{#each group as |group key|}}
+    {{#with (context 'definitions') as |definitions|}}
+        <div class="label{{#if ../../color}} {{../../color}}{{/if}}">{{#ifCond key '==' '$'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+        {{#if (lookup definitions key 'description')}}
+        <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+        {{/if}}
+    {{/with}}
+    <div class="section">
+        <div class="table">
+            <div class="width-25 bg-color-4 bold">{{_ 'value'}}</div>
+            <!-- <div class="width-15 bg-color-4 bold">Type</div> -->
+            <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+        </div>
+        {{#each group as |value|}}
+            <div class="table">
+                <div class="width-25 color-2 mono">{{pathLastKeyIndented this.value}}</div>
+                <!-- <div class="width-15 color-2 mono">{{this.type.name}}</div> -->
+                <div class="flex-1">{{toHtml (join this.description true)}}</div>
+            </div>
+        {{/each}}
+    </div>
+{{/each}}

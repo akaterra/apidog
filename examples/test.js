@@ -106,9 +106,26 @@
  * @apiContentType xml
  * @apiGroup group1
  * @apiSubgroup subgroup1
+ * 
+ * @apiExample
+ * a
+ * @apiExample
+ * b
+ * 
+ * @apiHeader {String} a
+ * @apiHeader {String} b
+ * @apiHeaderValue value1 value 1
+ * @apiHeaderExample {any} Header example:
+ * param1=param1
+ * 
  * @apiParam {String} id Id
+ * @apiParam {Number} id Id
+ * @apiParam {Boolean} id Id
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
- *
+ * @apiParamValue value1 value 1
+ * @apiParamExample {any} Body example:
+ * param1=param1
+ * 
  * @apiParamExample {form} Body example:
  * param1=param1
  *
@@ -118,6 +135,44 @@
  * }
  *
  * @apiParamExample {xml} Body example:
+ * <xml>
+ *   <body param1="param1" />
+ * </xml>
+ * 
+ * @apiSuccess {String} a
+ * @apiSuccess {String} b
+ * @apiSuccessValue value1 value 1
+ * @apiSuccessExample {any} Success example:
+ * param1=param1
+ * 
+ * @apiSuccessExample {form} Success example:
+ * param1=param1
+ *
+ * @apiSuccessExample {json} Success example:
+ * {
+ *   "param1": "param1"
+ * }
+ *
+ * @apiSuccessExample {xml} Success example:
+ * <xml>
+ *   <body param1="param1" />
+ * </xml>
+ * 
+ * @apiError {String} a
+ * @apiError {String} b
+ * @apiErrorValue value1 value 1
+ * @apiErrorExample {any} Error example:
+ * param1=param1
+ * 
+ * @apiErrorExample {form} Error example:
+ * param1=param1
+ *
+ * @apiErrorExample {json} Error example:
+ * {
+ *   "param1": "param1"
+ * }
+ *
+ * @apiErrorExample {xml} Error example:
  * <xml>
  *   <body param1="param1" />
  * </xml>
