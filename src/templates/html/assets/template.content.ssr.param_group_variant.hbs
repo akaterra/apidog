@@ -1,0 +1,82 @@
+{{#each groupVariant as |groupVariant key|}}
+    <div class="flex">
+        <div class="label width-25 right">
+            <input
+            type="radio"
+            name="{{../id}}_pgs"
+            {{#if @first}} checked{{/if}}
+            data-block-ssr-params-group-selector="{{key}}"
+            data-block-ssr-name="{{key}}"
+            />
+        </div>
+        {{#with (context 'definitions') as |definitions|}}
+            <div class="label">{{#ifCond key '==' 'null'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+        {{/with}}
+    </div>
+    <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-params-group="{{key}}">
+        {{#each groupVariant.map as |paramIds|}}
+            {{#each paramIds as |paramId|}}
+                {{#with (first (lookup ../../param paramId) (lookup ../../../param paramId)) as |p|}} <!-- why ??? -->
+                    {{#hook 'isNotContainerType' p.type}}
+                        <div class="section flex">
+                            <label
+                                class="input-label width-25"
+                                for="{{../../id}}_p_{{p.field.name}}"
+                                title="{{p.field.name}}"
+                            >
+                                {{p.field.name}}
+                            </label>
+                            {{#if p.type.modifiers.enum}}
+                                <select
+                                    class="input-param flex-1"
+                                    id="{{../../../../../id}}_p_{{p.field.name}}"
+                                    name="{{p.field.name}}"
+                                    data-block-ssr-input="param"
+                                    data-block-ssr-input-global-id="_p_{{p.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{p.field.name}}"
+                                    value="{{p.field.defaultValue}}"
+                                >{{#if p.field.isOptional}}<option value=""></option>{{/if}}{{#each p.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+                            {{else ifCond p.type.modifiers.initial '==' 'parametrizedbody'}}
+                                <textarea
+                                    class="input-param-raw-body flex-1"
+                                    id="{{../../../../../id}}_p_{{p.field.name}}"
+                                    name="{{p.field.name}}"
+                                    data-block-ssr-input="param"
+                                    data-block-ssr-input-global-id="_p_{{p.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{p.field.name}}"
+                                    rows="10"
+                                >{{p.field.defaultValue}}</textarea>
+                            {{else ifCond p.type.modifiers.initial '==' 'rawbody'}}
+                                <textarea
+                                    class="input-param-raw-body flex-1"
+                                    id="{{../../../../../id}}_p_{{p.field.name}}"
+                                    name="{{p.field.name}}"
+                                    data-block-ssr-input="param"
+                                    data-block-ssr-input-global-id="_p_{{p.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{p.field.name}}"
+                                    rows="10"
+                                >{{p.field.defaultValue}}</textarea>
+                            {{else}}
+                                <input
+                                    class="input-param flex-1"
+                                    id="{{../../../../../id}}_p_{{p.field.name}}"
+                                    name="{{p.field.name}}"
+                                    type="{{#ifCond p.type.modifiers.initial '==' 'file'}}file{{else}}text{{/ifCond}}"
+                                    data-block-ssr-input="param"
+                                    data-block-ssr-input-global-id="_p_{{p.field.name}}"
+                                    data-block-ssr-group="{{key}}"
+                                    data-block-ssr-name="{{p.field.name}}" rows="10"
+                                    value="{{p.field.defaultValue}}"
+                                />
+                            {{/if}}
+                            <span class="input-placeholder mono">{{p.type.name}}</span>
+                        </div>
+                    {{/hook}}
+                {{/with}}
+            {{/each}}
+        {{/each}}
+    </div>
+{{/each}}

@@ -49,6 +49,8 @@ module.exports = (config) => ({
       'template.content.param_group_variant', 'contentParamGroupVariant',
     ], [
       'template.content.param_value_group', 'contentParamValueGroup',
+    ], [
+      'template.content.ssr.param_group_variant', 'contentSsrParamGroupVariant',
     ]]) {
       const template = fs.readFileSync(`${__dirname}/assets/${templateName[0]}.hbs`, {encoding: 'utf8'});
 
