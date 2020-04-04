@@ -1,3 +1,15 @@
+function forEach(iterable, fn, ...args) {
+  let index = 0;
+
+  for (const value of iterable) {
+    if (fn(value, index, iterable.length !== undefined && iterable.length === index + 1, ...args) === false) {
+      break;
+    }
+
+    index += 1;
+  }
+}
+
 function quote(val) {
   if (typeof val === 'string' && val.indexOf(' ') !== - 1) {
     return `"${val.replace(/"/g, '\\"')}"`;
@@ -45,6 +57,10 @@ function strSplitByComma(str, limit) {
 
 function strSplitBySpace(str, limit) {
   return strSplitBy(str, ' ', limit);
+}
+
+function strSplitByEscaped(str, splitter = '.') {
+  return str.split(new RegExp(`(?<!\\\\)\\${splitter}`, 'g')).map((term) => term.replace('\\', ''));
 }
 
 function strSplitByQuotedTokens(str, splitter = ',') {
@@ -123,12 +139,14 @@ class Logger {
 }
 
 module.exports = {
+  forEach,
   quote,
   strExtractByCurlyBrackets,
   strExtractByBrackets,
   strExtractByRoundBrackets,
   strSplitBy,
   strSplitByComma,
+  strSplitByEscaped,
   strSplitByQuotedTokens,
   strSplitBySpace,
   Logger,

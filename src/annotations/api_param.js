@@ -103,16 +103,28 @@ function construct(name, usePrefix) {
       block[annotationGroupName][group || '$'] = {isTyped: false, list: []};
     }
 
+    block[annotationGroupName][group || '$'].list.push(block[annotationName].length - 1);
+
     if (!block[annotationGroupVariantsName][group]) {
-      block[annotationGroupVariantsName][group] = {isTyped: false, map: {}};
+      block[annotationGroupVariantsName][group] = {isTyped: false, prop: {}};
     }
 
     if (blockParam.field) {
-      if (!block[annotationGroupVariantsName][group].map[blockParam.field.name]) {
-        block[annotationGroupVariantsName][group].map[blockParam.field.name] = [];
-      }
+      let root = block[annotationGroupVariantsName][group].prop;
 
-      block[annotationGroupVariantsName][group].map[blockParam.field.name].push(block[annotationName].length - 1);
+      utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (elm, ind, isLast) => {
+        const withoutArrayIndex = elm.replace(/(\[.*\])+$/g, '');
+
+        if (!root[withoutArrayIndex]) {
+          root[withoutArrayIndex] = [];
+        }
+
+        if (isLast || root[withoutArrayIndex].length === 0) {
+          root[withoutArrayIndex].push({ list: [ block[annotationName].length - 1 ], prop: {} });
+        } else {
+          root = root[withoutArrayIndex][root[withoutArrayIndex].length - 1].prop;
+        }
+      });
     }
 
     if (type) {
@@ -120,7 +132,8 @@ function construct(name, usePrefix) {
       block[annotationGroupVariantsName][group].isTyped = true;
     }
 
-    block[annotationGroupName][group || '$'].list.push(blockParam);
+    // block[annotationGroupName][group || '$'].list.push(blockParam);
+    // block[annotationGroupName][group || '$'].list.push(block[annotationName].length - 1);
 
     return block;
   }

@@ -2,7 +2,7 @@
     {{#with (context 'definitions') as |definitions|}}
         <div class="label{{#if ../../color}} {{../../color}}{{/if}}">{{#ifCond key '==' '$'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
         {{#if (lookup definitions key 'description')}}
-        <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
         {{/if}}
     {{/with}}
     <div class="section">

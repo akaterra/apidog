@@ -238,7 +238,7 @@
                         <!-- header -->
 
                         {{#if this.header.length}}
-                          {{> contentParamGroupVariant groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
+                          {{> contentParamGroup group=this.headerGroup param=this.header defaultName='header'}}
                         {{/if}}
 
                         {{#if this.headerValue.length}}
@@ -252,7 +252,7 @@
                         <!-- param -->
 
                         {{#if this.param.length}}
-                          {{> contentParamGroupVariant groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
+                          {{> contentParamGroup group=this.paramGroup param=this.param defaultName='parameter'}}
                         {{/if}}
 
                         {{#if this.paramValue.length}}
@@ -266,7 +266,7 @@
                         <!-- success -->
 
                         {{#if this.success.length}}
-                          {{> contentParamGroupVariant groupVariant=this.successGroupVariant param=this.success defaultName='success200' color='color-green'}}
+                          {{> contentParamGroup group=this.successGroup param=this.success defaultName='success200' color='color-green'}}
                         {{/if}}
 
                         {{#if this.successValue.length}}
@@ -280,7 +280,7 @@
                         <!-- error -->
 
                         {{#if this.error.length}}
-                          {{> contentParamGroupVariant groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx' color='color-red'}}
+                          {{> contentParamGroup group=this.errorGroup param=this.error defaultName='error4xx' color='color-red'}}
                         {{/if}}
 
                         {{#if this.errorValue.length}}
@@ -369,7 +369,7 @@
                                 name="{{block.id}}_hgs"
                                 {{#if @first}} checked{{/if}}
                                 data-block-ssr-headers-group-selector="{{key}}"
-                                data-block-ssr-name="{{key}}"
+                                data-block-ssr-input-name="{{key}}"
                               />
                             </div>
                             {{#with (context 'definitions') as |definitions|}}
@@ -395,7 +395,7 @@
                                     data-block-ssr-input="header"
                                     data-block-ssr-input-global-id="_h_{{this.field.name}}"
                                     data-block-ssr-group="{{key}}"
-                                    data-block-ssr-name="{{this.field.name}}"
+                                    data-block-ssr-input-name="{{this.field.name}}"
                                     value="{{this.field.defaultValue}}"
                                   >{{#if this.field.isOptional}}<option value=""></option>{{/if}}{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
                                 {{else}}
@@ -407,7 +407,7 @@
                                     data-block-ssr-input="header"
                                     data-block-ssr-input-global-id="_h_{{this.field.name}}"
                                     data-block-ssr-group="{{key}}"
-                                    data-block-ssr-name="{{this.field.name}}"
+                                    data-block-ssr-input-name="{{this.field.name}}"
                                     value="{{this.field.defaultValue}}"
                                   />
                                 {{/if}}

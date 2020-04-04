@@ -1,0 +1,90 @@
+<div
+    class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}"
+    data-block-ssr-input-group-variant-section="{{index}}"
+    data-block-ssr-refer="{{field}}"
+>
+    {{#each groupVariantSection.prop as |prop|}}
+        <div class="section flex">
+            {{#with (first (lookup ../param prop.[0].list.[0]) (lookup ../../param prop.[0].list.[0])) as |param|}} <!-- ??? -->
+                <label
+                    class="input-label width-25"
+                    for="{{../../id}}_p_{{param.field.name}}"
+                    title="{{p.field.name}}"
+                >
+                    {{param.field.name}}
+                </label>
+            {{/with}}
+            {{#each prop as |p|}}
+                {{#with (first (lookup ../../param p.list.[0]) (lookup ../../../param p.list.[0])) as |param|}} <!-- ??? -->
+                    {{#if param.type.modifiers.enum}}
+                        <select
+                            class="input-param flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                            id="{{../../../../id}}_p_{{param.field.name}}"
+                            name="{{param.field.name}}"
+                            data-block-ssr-group="{{../../../../group}}"
+                            data-block-ssr-input="param"
+                            data-block-ssr-input-global-id="_p_{{param.field.name}}"
+                            data-block-ssr-input-group-variant-param-index="{{p.list.[0]}}"
+                            data-block-ssr-refer="{{param.field.name}}"
+                            value="{{param.field.defaultValue}}"
+                        >{{#if param.field.isOptional}}<option value=""></option>{{/if}}{{#each param.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+                    {{else ifCond param.type.modifiers.initial '==' 'parametrizedbody'}}
+                        <textarea
+                            class="input-param-raw-body flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                            id="{{../../../../id}}_p_{{param.field.name}}"
+                            name="{{param.field.name}}"
+                            data-block-ssr-group="{{../../../../group}}"
+                            data-block-ssr-input="param"
+                            data-block-ssr-input-global-id="_p_{{param.field.name}}"
+                            data-block-ssr-input-group-variant-param-index="{{p.list.[0]}}"
+                            data-block-ssr-refer="{{param.field.name}}"
+                            rows="10"
+                        >{{param.field.defaultValue}}</textarea>
+                    {{else ifCond param.type.modifiers.initial '==' 'rawbody'}}
+                        <textarea
+                            class="input-param-raw-body flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                            id="{{../../../../id}}_p_{{param.field.name}}"
+                            name="{{param.field.name}}"
+                            data-block-ssr-group="{{../../../../group}}"
+                            data-block-ssr-input="param"
+                            data-block-ssr-input-global-id="_p_{{param.field.name}}"
+                            data-block-ssr-input-group-variant-param-index="{{p.list.[0]}}"
+                            data-block-ssr-refer="{{param.field.name}}"
+                            rows="10"
+                        >{{param.field.defaultValue}}</textarea>
+                    {{else}}
+                        <input
+                            class="input-param flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                            id="{{../../../../id}}_p_{{param.field.name}}"
+                            name="{{param.field.name}}"
+                            type="{{#ifCond param.type.modifiers.initial '==' 'file'}}file{{else}}text{{/ifCond}}"
+                            data-block-ssr-group="{{../../../../group}}"
+                            data-block-ssr-input="param"
+                            data-block-ssr-input-global-id="_p_{{param.field.name}}"
+                            data-block-ssr-input-group-variant-param-index="{{p.list.[0]}}"
+                            data-block-ssr-refer="{{param.field.name}}"
+                            value="{{param.field.defaultValue}}"
+                        />
+                    {{/if}}
+                {{/with}}
+            {{/each}}
+            {{#each prop as |p|}}
+                {{#with (first (lookup ../../param p.list.[0]) (lookup ../../../param p.list.[0])) as |param|}} <!-- ??? -->
+                    <span class="input-placeholder mono">{{#ifCond prop.length '>' 1}}<input
+                        type="radio"
+                        name="{{../../../../id}}_{{param.field.name}}_gvss"
+                        {{#if @first}}checked{{/if}}
+                        data-block-ssr-group="{{../../../../group}}"
+                        data-block-ssr-input-group-variant-section-selector="{{@index}}"
+                        data-block-ssr-refer="{{param.field.name}}"
+                    />{{/ifCond}}{{param.type.name}}</span>
+                {{/with}}
+            {{/each}}
+        </div>
+        {{#with (first (lookup ../param prop.[0].list.[0]) (lookup ../../param prop.[0].list.[0])) as |param|}} <!-- ??? -->
+            {{#each prop as |p|}}
+                {{> contentSsrParamGroupVariantSection groupVariantSection=p param=../../../param id=../../../id group=../../../group field=param.field.name index=@index}}
+            {{/each}}
+        {{/with}}
+    {{/each}}
+</div>

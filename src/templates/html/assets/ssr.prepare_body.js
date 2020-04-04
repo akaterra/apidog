@@ -12,7 +12,14 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
   };
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    let paramsDescriptor;
+
+    if (Array.isArray(val)) {
+      paramsDescriptor = paramDescriptors && paramDescriptors[val[1]];
+      val = val[0];
+    } else {
+      paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    }
 
     if (paramsDescriptor && paramsDescriptor.type) {
       switch (paramsDescriptor.type.modifiers.initial) {
@@ -25,7 +32,15 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
   });
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    let paramsDescriptor;
+
+    if (Array.isArray(val)) {
+      paramsDescriptor = paramDescriptors && paramDescriptors[val[1]];
+      val = val[0];
+    } else {
+      paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    }
+
     const pathKeys = key.split('.');
     const pathKeyTypes = [];
 

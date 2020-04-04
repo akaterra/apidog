@@ -7,6 +7,10 @@
   opacity: 0.25;
 }
 
+input[type="radio"] {
+  margin: 0.1rem;
+}
+
 .rtl {
   direction: rtl;
 }
@@ -451,6 +455,14 @@ ins.diffmod, .diffins {
   padding: 0.25rem 0.5rem;
 }
 
+.rtl .input-placeholder>input[type="radio"] {
+  margin: 0 0 0 0.25rem;
+}
+
+.input-placeholder>input[type="radio"] {
+  margin: 0 0.25rem 0 0;
+}
+
 .response {
   margin: 0;
   white-space: pre-wrap;
@@ -472,11 +484,7 @@ ins.diffmod, .diffins {
 }
 
 .menu-subgroup {
-  padding-top: 0.5rem;
-}
-
-.menu-subgroup:last-child {
-  padding-bottom: 0.5rem;
+  margin: 0.75rem 0;
 }
 
 .menu-subgroup>*:first-child {
@@ -488,7 +496,6 @@ ins.diffmod, .diffins {
 }
 
 .menu-subgroup__header {
-  border-bottom: 1px #e0e0e0 solid;
   margin: 0 0.5rem;
 }
 

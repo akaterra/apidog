@@ -5,7 +5,7 @@
 
 const utils = require('../utils');
 
-function construct(name, fullName) {
+function construct(name) {
   const annotationName = name ? `${name}Example` : 'example';
 
   function addDescription(block, text) {
@@ -24,7 +24,7 @@ function construct(name, fullName) {
     const tokens = regex.exec(text);
 
     if (!tokens) {
-      throw new Error(`${fullName} malformed`);
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
     if (!block[annotationName]) {

@@ -19,7 +19,7 @@
                     {{#with (first (lookup ../../param paramId) (lookup ../../../param paramId)) as |p|}} <!-- why ??? -->
                         <div class="width-25 color-2 mono">
                             {{#ifCond @index '==' 0}}
-                                {{pathLastKeyIndented p.field.name}}
+                                {{p.field.name}}
                                 {{#if p.field}}
                                     {{#if p.field.isOptional}}
                                     <span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
