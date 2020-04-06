@@ -108,6 +108,11 @@
                   {{/with}}
                 </a>
               </div>
+              {{#with (lookup (context 'definitions') ../this.title 'description') as |description|}}
+                {{#if description}}
+                  <div class="section left-padded color-2">{{toHtml (join description true)}}</div>
+                {{/if}}
+              {{/with}}
             {{/ifCond}}
 
             {{#each this.subgroups}}
@@ -120,6 +125,11 @@
                     {{/with}}
                   </a>
                 </div>
+                {{#with (lookup (context 'definitions') ../this.title 'description') as |description|}}
+                  {{#if description}}
+                    <div class="section left-padded color-2">{{toHtml (join description true)}}</div>
+                  {{/if}}
+                {{/with}}
               {{/ifCond}}
 
               <!-- apis -->

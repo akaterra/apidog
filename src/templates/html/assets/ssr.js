@@ -135,7 +135,7 @@ const ssr = (function () {
 
       if (el) {
         return by.selector(`[data-block-ssr-class="${CLASS}"]`, el).reduce((acc, blockSsrInputEl) => {
-          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
+          acc[blockSsrInputEl.dataset.blockSsrBlockIndex] = getValue(blockSsrInputEl);
 
           return acc;
         }, {});
@@ -189,8 +189,8 @@ const ssr = (function () {
 
       if (el) {
         by.selector(`[data-block-ssr-class="${cls}"]`, el).forEach((blockSsrInputEl) => {
-          if (blockSsrInputEl.name in values) {
-            setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
+          if (blockSsrInputEl.dataset.blockSsrBlockIndex in values) {
+            setValue(blockSsrInputEl, values[blockSsrInputEl.dataset.blockSsrBlockIndex]);
           }
         });
       }
@@ -495,8 +495,8 @@ const ssr = (function () {
     if (blockSsrWsConnectEl) {
       on.click(blockSsrWsConnectEl, () => {
         const contentType = api.getContentType(blockId);
-        const headers = api.getHeaders(blockId);
-        const params = api.getParams(blockId);
+        const headers = api.getHeadersByLastGroup(blockId);
+        const params = api.getParamsByLastGroup(blockId);
   
         emitRequestPrepareParams(el, {headers, params});
 
