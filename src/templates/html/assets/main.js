@@ -70,7 +70,7 @@ const main = (function () {
       lastSelectedContentType[id] = value;
 
       for (const el of by.selector(`[data-block-example="${id}_${lastSelectedContentType[id]}"]`)) {
-        cls.remove(el, 'hidden');
+        cls.rem(el, 'hidden');
       }
     });
   });
@@ -96,7 +96,7 @@ const main = (function () {
   
       lastSelectedChapter = chapterId;
   
-      cls.remove(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
+      cls.rem(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
 
       return api;
     },
@@ -123,7 +123,7 @@ const main = (function () {
 
       if (controlPanelEl) {
         by.selector(`[data-block-hint="${familyId}"]`).forEach((el) => {
-          cls.remove(el, 'hidden');
+          cls.rem(el, 'hidden');
         });
 
         const showHintEl = by.selector('button', controlPanelEl)[0];
@@ -188,11 +188,11 @@ const main = (function () {
           if (blockControlPanelVersionCompareToSelectorEl) {
             cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
             cls.add(by.selector(`[data-element-menu-item="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-block="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-element-menu-item="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
+            cls.rem(by.selector(`[data-block="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
+            cls.rem(by.selector(`[data-element-menu-item="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
 
             for (const el of by.selector(`[data-family="${familyId}"]`)) {
-              cls.remove(el, 'hidden');
+              cls.rem(el, 'hidden');
             }
 
             lastSelectedVersions[familyId] = version;
@@ -228,14 +228,14 @@ const main = (function () {
 
         if (versionCompareTo !== null) {
           cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
-          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+          cls.rem(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
 
           by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
             by.selector(`[data-block="${api.idFrom(familyId, versionCompareTo)}"] [data-block-compare-to-content]`)[0].innerHTML,
             by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0].innerHTML
           );
         } else {
-          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
+          cls.rem(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
           cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
         }
 

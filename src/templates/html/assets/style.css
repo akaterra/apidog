@@ -7,6 +7,10 @@
   opacity: 0.25;
 }
 
+input[type="checkbox"] {
+  margin: 0;
+}
+
 input[type="radio"] {
   margin: 0.1rem;
 }

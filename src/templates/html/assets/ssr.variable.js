@@ -11,7 +11,7 @@ const ssrVariable = (function () {
 
     api.set();
 
-    by.selector('[data-block-ssr-input="variable"]', el).forEach((blockSsrInputEl) => {
+    by.selector('[data-block-ssr-class="variable"]', el).forEach((blockSsrInputEl) => {
       const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable
         .find((variable) => variable.field.name === blockSsrInputEl.name);
 
@@ -110,7 +110,7 @@ const ssrVariable = (function () {
     },
 
     getNsValues(blockId) {
-      return by.selector(`[data-block="${blockId}"] [data-block-ssr-input="variable"]`).reduce((acc, blockSsrInputEl) => {
+      return by.selector(`[data-block="${blockId}"] [data-block-ssr-class="variable"]`).reduce((acc, blockSsrInputEl) => {
         const blockDescriptor = sections[blockId];
 
         const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable

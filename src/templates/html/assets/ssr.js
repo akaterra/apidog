@@ -28,36 +28,30 @@ const ssr = (function () {
     return by.selector(`[data-block="${blockId}"] [data-block-ssr-endpoint]`)[0];
   }
 
-  function getLastSelectedGroupHeader(blockId) {
+  function getLastSelectedGroup(blockId, cls) {
     if (!lastSelectedGroup[blockId]) {
       lastSelectedGroup[blockId] = {};
     }
 
-    return lastSelectedGroup[blockId].header !== undefined ? lastSelectedGroup[blockId].header : null;
+    return lastSelectedGroup[blockId][cls] !== undefined ? lastSelectedGroup[blockId][cls] : null;
   }
 
-  function getLastSelectedGroupParam(blockId) {
+  function getLastSelectedGroupInputsGroupVariant(blockId, cls) {
     if (!lastSelectedGroup[blockId]) {
       lastSelectedGroup[blockId] = {};
     }
 
-    return lastSelectedGroup[blockId].param !== undefined ? lastSelectedGroup[blockId].param : null;
-  }
+    const alias = `${cls}GroupVariant`;
 
-  function getLastSelectedGroupParamGroupVariant(blockId) {
-    if (!lastSelectedGroup[blockId]) {
-      lastSelectedGroup[blockId] = {};
+    if (!lastSelectedGroup[blockId][alias]) {
+      lastSelectedGroup[blockId][alias] = {};
     }
 
-    if (!lastSelectedGroup[blockId].paramGroupVariant) {
-      lastSelectedGroup[blockId].paramGroupVariant = {};
+    if (!lastSelectedGroup[blockId][alias][lastSelectedGroup[blockId][cls] || null]) {
+      lastSelectedGroup[blockId][alias][lastSelectedGroup[blockId][cls] || null] = {};
     }
 
-    if (!lastSelectedGroup[blockId].paramGroupVariant[lastSelectedGroup[blockId].param || null]) {
-      lastSelectedGroup[blockId].paramGroupVariant[lastSelectedGroup[blockId].param || null] = {};
-    }
-
-    return lastSelectedGroup[blockId].paramGroupVariant[lastSelectedGroup[blockId].param || null];
+    return lastSelectedGroup[blockId][alias][lastSelectedGroup[blockId][cls] || null];
   }
 
   const api = {
@@ -136,11 +130,11 @@ const ssr = (function () {
       return sections[blockId];
     },
 
-    getHeaders(blockId) {
+    getInputs(blockId, CLASS) {
       const el = getBlockEl(blockId);
 
       if (el) {
-        return by.selector('[data-block-ssr-input="header"]', el).reduce((acc, blockSsrInputEl) => {
+        return by.selector(`[data-block-ssr-class="${CLASS}"]`, el).reduce((acc, blockSsrInputEl) => {
           acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
 
           return acc;
@@ -149,66 +143,26 @@ const ssr = (function () {
 
       return {};
     },
-    getHeadersByLastGroup(blockId) {
+    getInputsByLastGroup(blockId, CLASS) {
       const el = getBlockEl(blockId);
 
-      if (el) {
-        return by.selector(`[data-block-ssr-input="header"][data-block-ssr-group="${lastSelectedGroup[blockId].header}"]`, el).reduce((acc, blockSsrInputEl) => {
-          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
-
-          return acc;
-        }, {});
-      }
-
-      return {};
-    },
-    setHeaders(blockId, values) {
-      const el = getBlockEl(blockId);
-
-      if (el) {
-        by.selector('[data-block-ssr-input="header"]', el).forEach((blockSsrInputEl) => {
-          if (blockSsrInputEl.name in values) {
-            setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
-          }
-        });
-      }
-
-      return api;
-    },
-
-    getParams(blockId) {
-      const el = getBlockEl(blockId);
-
-      if (el) {
-        return by.selector('[data-block-ssr-input="param"]', el).reduce((acc, blockSsrInputEl) => {
-          acc[blockSsrInputEl.name] = getValue(blockSsrInputEl);
-
-          return acc;
-        }, {});
-      }
-
-      return {};
-    },
-    getParamsByLastGroup(blockId) {
-      const el = getBlockEl(blockId);
-
-      if (el) {
-        const groupParamGroupVariant = getLastSelectedGroupParamGroupVariant(blockId);
-        const groupVariant = api.getDescriptor(blockId).paramGroupVariant[getLastSelectedGroupParam(blockId)];
-        const param = api.getDescriptor(blockId).param;
+      if (el && api.getDescriptor(blockId)[`${CLASS}GroupVariant`]) {
+        const groupInputsGroupVariant = getLastSelectedGroupInputsGroupVariant(blockId, CLASS);
+        const groupVariant = api.getDescriptor(blockId)[`${CLASS}GroupVariant`][getLastSelectedGroup(blockId, CLASS)];
+        const param = api.getDescriptor(blockId)[CLASS];
         const value = {};
 
         function map(prop) {
           Object.values(prop).forEach((prop) => {
             prop.some((prop, propIndex) => {
-              if (groupParamGroupVariant[param[prop.list[0]].field.name] === undefined) {
-                groupParamGroupVariant[param[prop.list[0]].field.name] = 0;
+              if (groupInputsGroupVariant[param[prop.list[0]].field.name] === undefined) {
+                groupInputsGroupVariant[param[prop.list[0]].field.name] = 0;
               }
 
-              if (param[prop.list[0]] && groupParamGroupVariant[param[prop.list[0]].field.name] === propIndex) {
+              if (param[prop.list[0]] && groupInputsGroupVariant[param[prop.list[0]].field.name] === propIndex) {
                 value[param[prop.list[0]].field.name] = [
                   getValue(
-                    by.selector(`[data-block-ssr-input="param"][data-block-ssr-input-group-variant-param-index="${prop.list[0]}"]`, el)[0],
+                    by.selector(`[data-block-ssr-class="${CLASS}"][data-block-ssr-group-variant-param-index="${prop.list[0]}"]`, el)[0],
                   ),
                   prop.list[0],
                 ];
@@ -230,11 +184,11 @@ const ssr = (function () {
 
       return {};
     },
-    setParams(blockId, values) {
+    setInputs(blockId, cls, values) {
       const el = getBlockEl(blockId);
 
       if (el) {
-        by.selector('[data-block-ssr-input="param"]', el).forEach((blockSsrInputEl) => {
+        by.selector(`[data-block-ssr-class="${cls}"]`, el).forEach((blockSsrInputEl) => {
           if (blockSsrInputEl.name in values) {
             setValue(blockSsrInputEl, values[blockSsrInputEl.name]);
           }
@@ -243,8 +197,28 @@ const ssr = (function () {
 
       return api;
     },
+ 
+    getHeaders(blockId) {
+      return api.getInputs(blockId, 'header');
+    },
+    getHeadersByLastGroup(blockId) {
+      return api.getInputsByLastGroup(blockId, 'header');
+    },
+    setHeaders(blockId, values) {
+      return api.setInputs(blockId, 'header', values);
+    },
 
-    showHeadersGroup(blockId, name) {
+    getParams(blockId) {
+      return api.getInputs(blockId, 'param');
+    },
+    getParamsByLastGroup(blockId) {
+      return api.getInputsByLastGroup(blockId, 'param');
+    },
+    setParams(blockId, values) {
+      return api.setInputs(blockId, 'param', values);
+    },
+
+    showInputsGroup(blockId, CLASS, group) {
       const el = getBlockEl(blockId);
 
       if (el) {
@@ -252,36 +226,51 @@ const ssr = (function () {
           lastSelectedGroup[blockId] = {};
         }
   
-        if (name !== lastSelectedGroup[blockId].header) {
-          cls.add(by.selector(`[data-block-ssr-headers-group="${lastSelectedGroup[blockId].header}"]`, el), 'hidden');
+        if (group !== lastSelectedGroup[blockId][CLASS]) {
+          cls.add(by.selector(`[data-block-ssr-group-selectable="${lastSelectedGroup[blockId][CLASS]}_${CLASS}"]`, el), 'hidden');
 
-          lastSelectedGroup[blockId].header = name;
+          lastSelectedGroup[blockId][CLASS] = group;
 
-          cls.remove(by.selector(`[data-block-ssr-headers-group="${name}"]`, el), 'hidden');
+          cls.rem(by.selector(`[data-block-ssr-group-selectable="${lastSelectedGroup[blockId][CLASS]}_${CLASS}"]`, el), 'hidden');
         }
       }
 
       return api;
     },
-
-    showParamsGroup(blockId, name) {
+    showInputsGroupVariant(blockId, CLASS, field, index) {
       const el = getBlockEl(blockId);
 
       if (el) {
-        if (!lastSelectedGroup[blockId]) {
-          lastSelectedGroup[blockId] = {};
-        }
-  
-        if (name !== lastSelectedGroup[blockId].param) {
-          cls.add(by.selector(`[data-block-ssr-params-group="${lastSelectedGroup[blockId].param}"]`, el), 'hidden');
+        const groupVariant = getLastSelectedGroupInputsGroupVariant(blockId, CLASS);
 
-          lastSelectedGroup[blockId].param = name;
+        cls.add(
+          by.selector(`[data-block-ssr-group-variant-selectable="${field}_${groupVariant[field] || 0}_${CLASS}"]`, el),
+          'hidden',
+        );
 
-          cls.remove(by.selector(`[data-block-ssr-params-group="${name}"]`, el), 'hidden');
-        }
+        groupVariant[field] = index;
+
+        cls.rem(
+          by.selector(`[data-block-ssr-group-variant-selectable="${field}_${groupVariant[field]}_${CLASS}"]`, el),
+          'hidden',
+        );
       }
 
       return api;
+    },
+
+    showHeadersGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'header', group);
+    },
+    showParamsGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'header', field, index);
+    },
+
+    showParamsGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'param', group);
+    },
+    showParamsGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'param', field, index);
     },
 
     hideResponses(blockId) {
@@ -311,7 +300,7 @@ const ssr = (function () {
       const el = getBlockEl(blockId);
 
       if (el) {
-        cls.remove(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
+        cls.rem(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
         by.selector('[data-block-ssr-error-response]>pre', el)[0].textContent = text;
       }
 
@@ -321,7 +310,7 @@ const ssr = (function () {
       const el = getBlockEl(blockId);
 
       if (el) {
-        cls.remove(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
+        cls.rem(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
         by.selector('[data-block-ssr-response]>pre', el)[0].textContent = text;
       }
 
@@ -331,7 +320,7 @@ const ssr = (function () {
       const el = getBlockEl(blockId);
 
       if (el) {
-        cls.remove(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
+        cls.rem(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
         cls.add(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
       }
       
@@ -342,7 +331,7 @@ const ssr = (function () {
 
       if (el) {
         cls.add(by.selector('[data-block-ssr-ws-connect]', el)[0], 'hidden');
-        cls.remove(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
+        cls.rem(by.selector('[data-block-ssr-ws-disconnect]', el)[0], 'hidden');
       }
 
       return api;
@@ -387,45 +376,35 @@ const ssr = (function () {
       lastSelectedGroup[blockId] = {};
     }
 
-    const blockSsrHeadersGroupSelectorCheckedEl = by.selector('[data-block-ssr-headers-group-selector]:checked', el)[0];
+    const blockSsrHeadersGroupSelectorCheckedEl = by.selector('[data-block-ssr-class="header"][data-block-ssr-group-selector]:checked', el)[0];
 
     if (blockSsrHeadersGroupSelectorCheckedEl) {
-      lastSelectedGroup[blockId].header = blockSsrHeadersGroupSelectorCheckedEl.dataset.blockSsrRefer;
+      lastSelectedGroup[blockId].header = blockSsrHeadersGroupSelectorCheckedEl.dataset.blockSsrGroup;
     }
 
-    for (const subEl of by.selector('[data-block-ssr-headers-group-selector]', el)) {
-      on.click(subEl, () => api.showHeadersGroup(blockId, subEl.dataset.blockSsrRefer));
+    for (const subEl of by.selector('[data-block-ssr-class="header"][data-block-ssr-group-selector]', el)) {
+      on.click(subEl, () => api.showHeadersGroup(blockId, subEl.dataset.blockSsrField));
     }
 
-    const blockSsrParamsGroupSelectorCheckedEl = by.selector('[data-block-ssr-params-group-selector]:checked', el)[0];
+    const blockSsrParamsGroupSelectorCheckedEl = by.selector('[data-block-ssr-class="param"][data-block-ssr-group-selector]:checked', el)[0];
 
     if (blockSsrParamsGroupSelectorCheckedEl) {
-      lastSelectedGroup[blockId].param = blockSsrParamsGroupSelectorCheckedEl.dataset.blockSsrRefer;
+      lastSelectedGroup[blockId].param = blockSsrParamsGroupSelectorCheckedEl.dataset.blockSsrGroup;
     }
 
-    for (const subEl of by.selector('[data-block-ssr-params-group-selector]', el)) {
-      on.click(subEl, () => api.showParamsGroup(blockId, subEl.dataset.blockSsrRefer));
+    for (const subEl of by.selector('[data-block-ssr-class="param"][data-block-ssr-group-selector]', el)) {
+      on.click(subEl, () => api.showParamsGroup(blockId, subEl.dataset.blockSsrGroup));
     }
 
-    for (const subEl of by.selector('[data-block-ssr-input-group-variant-section-selector]', el)) {
+    for (const subEl of by.selector('[data-block-ssr-group-variant-selector]', el)) {
       on.click(
         subEl,
         () => {
-          const groupVariant = getLastSelectedGroupParamGroupVariant(blockId);
-          const blockSsrGroupVariantSectionSelector = subEl.dataset.blockSsrInputGroupVariantSectionSelector;
-          const blockSsrRefer = subEl.dataset.blockSsrRefer;
-
-          cls.add(
-            by.selector(`[data-block-ssr-refer="${blockSsrRefer}"][data-block-ssr-input-group-variant-section="${groupVariant[blockSsrRefer] || 0}"]`, el)[0],
-            'hidden',
-          );
-
-          groupVariant[subEl.dataset.blockSsrRefer] = blockSsrGroupVariantSectionSelector;
-
-          cls.remove(
-            by.selector(`[data-block-ssr-refer="${blockSsrRefer}"][data-block-ssr-input-group-variant-section="${groupVariant[blockSsrRefer]}"]`, el)[0],
-            'hidden',
-          );
+          api.showParamsGroupVariant(
+            blockId,
+            subEl.dataset.blockSsrField,
+            parseInt(subEl.dataset.blockSsrGroupVariantIndex),
+          )
         });
     }
 

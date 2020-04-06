@@ -17,7 +17,7 @@
             <div class="table">
                 {{#with (first (lookup ../../param paramId) (lookup ../../../param paramId)) as |p|}} <!-- why ??? -->
                     <div class="width-25 color-2 mono">
-                        {{p.field.name}}
+                        {{pathLastKeyIndented p.field.name}}
                         {{#if p.field.isOptional}}<span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
                     </div>
                     {{#if group.isTyped}}<div class="width-15 color-2 mono">{{p.type.name}}</div>{{/if}}

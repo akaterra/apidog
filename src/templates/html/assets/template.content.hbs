@@ -27,7 +27,7 @@
               <div class="flex-2">
                 <select class="width-100 input right color-blue" data-chapter-selector>
                   {{#each chaptersAsLists}}
-                    {{#ifCond this.title '==' '$'}}
+                    {{#ifCond this.title '==' 'null'}}
                       <option value="{{../this.title}}">{{_ 'mainChapter'}}</option>
                     {{else}}
                       {{#with (context 'definitions') as |definitions|}}
@@ -65,14 +65,14 @@
         <div class="sub-container menu">
           {{#each this.groups}}
             <div class="menu-group">
-              {{#ifCond this.title '!=' '$'}}
+              {{#ifCond this.title '!=' 'null'}}
                 {{#with (context 'definitions') as |definitions|}}
                   <a class="element-badge bg-color-1 color-white bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                 {{/with}}
               {{/ifCond}}
               {{#each this.subgroups}}
                 <div class="menu-subgroup">
-                  {{#ifCond this.title '!=' '$'}}
+                  {{#ifCond this.title '!=' 'null'}}
                     {{#with (context 'definitions') as |definitions|}}
                       <a class="bold smaller menu-subgroup__header menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                     {{/with}}
@@ -100,7 +100,7 @@
         <div class="sub-container">
           {{#each this.groups}}
 
-            {{#ifCond this.title '!=' '$'}}
+            {{#ifCond this.title '!=' 'null'}}
               <div class="section left-padded color-1 font-size-2 bold">
                 <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
                   {{#with (context 'definitions') as |definitions|}}
@@ -112,7 +112,7 @@
 
             {{#each this.subgroups}}
 
-              {{#ifCond this.title '!=' '$'}}
+              {{#ifCond this.title '!=' 'null'}}
                 <div class="section left-padded color-1 font-size-1 bold">
                   <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
                     {{#with (context 'definitions') as |definitions|}}
@@ -176,10 +176,10 @@
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
-                              {{#ifCond this.group.name '!=' '$'}}
+                              {{#ifCond this.group.name '!=' 'null'}}
                                 {{first ../this.group.title ../this.group.name}} /
                               {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' '$'}}
+                              {{#ifCond this.subgroup.name '!=' 'null'}}
                                 {{first ../this.subgroup.title ../this.subgroup.name}} /
                               {{/ifCond}}
                               {{this.version}}
@@ -329,16 +329,16 @@
 
                         <div class="section flex">
                           {{#each ../this.sampleRequestVariable}}
-                            <label class="input-label width-25 color-green" for="{{../../this.id}}_v_{{this.field.name}}" title="{{this.field.name}}">
+                            <label class="input-label width-25 color-green" for="{{../../this.id}}_{{this.field.name}}_variable" title="{{this.field.name}}">
                               {{this.field.name}}
                             </label>
                             <input
                               class="input-param flex-1 color-green"
-                              id="{{../../this.id}}_v_{{this.field.name}}"
+                              id="{{../../this.id}}_{{this.field.name}}_variable"
                               name="{{this.field.name}}"
                               type="text"
-                              data-block-ssr-input-global-id="_v_{{this.field.name}}"
-                              data-block-ssr-input="variable"
+                              data-block-ssr-class="variable"
+                              data-block-ssr-input-global-id="_{{this.field.name}}_variable"
                               value="{{this.field.defaultValue}}"
                             />
                           {{/each}}
@@ -361,66 +361,24 @@
 
                       {{#if ../this.header.length}}
                         <div class="inner-label"><hr></div>
-                        {{#each ../this.headerGroup as |params key|}}
-                          <div class="flex">
-                            <div class="label width-25 right">
-                              <input
-                                type="radio"
-                                name="{{block.id}}_hgs"
-                                {{#if @first}} checked{{/if}}
-                                data-block-ssr-headers-group-selector="{{key}}"
-                                data-block-ssr-input-name="{{key}}"
-                              />
-                            </div>
-                            {{#with (context 'definitions') as |definitions|}}
-                              <div class="label flex-1">{{#ifCond key '==' '$'}}{{_ 'header'}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
-                            {{/with}}
-                          </div>
-                          <div class="section{{#if @first}}{{else}} hidden{{/if}}" data-block-ssr-headers-group="{{key}}">
-                            {{#each params.list}}
-                              <div class="section flex">
-                                <label
-                                  class="input-label width-25"
-                                  for="{{block.id}}_h_{{this.field.name}}"
-                                  title="{{this.field.name}}"
-                                >
-                                  {{this.field.name}}
-                                </label>
-                                {{#if this.type.modifiers.enum}}
-                                  <select
-                                    class="input-param flex-1"
-                                    id="{{block.id}}_h_{{this.field.name}}"
-                                    name="{{this.field.name}}"
-                                    type="text"
-                                    data-block-ssr-input="header"
-                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                    data-block-ssr-group="{{key}}"
-                                    data-block-ssr-input-name="{{this.field.name}}"
-                                    value="{{this.field.defaultValue}}"
-                                  >{{#if this.field.isOptional}}<option value=""></option>{{/if}}{{#each ../this.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
-                                {{else}}
-                                  <input
-                                    class="input-param flex-1"
-                                    id="{{block.id}}_h_{{this.field.name}}"
-                                    name="{{this.field.name}}"
-                                    type="text"
-                                    data-block-ssr-input="header"
-                                    data-block-ssr-input-global-id="_h_{{this.field.name}}"
-                                    data-block-ssr-group="{{key}}"
-                                    data-block-ssr-input-name="{{this.field.name}}"
-                                    value="{{this.field.defaultValue}}"
-                                  />
-                                {{/if}}
-                                <!-- <span class="input-placeholder mono">{{this.type.name}}</span> -->
-                              </div>
-                            {{/each}}
-                          </div>
-                        {{/each}}
+                        {{> contentSsrParamGroupVariant
+                          class='header'
+                          defaultName='header'
+                          groupVariant=../this.headerGroupVariant
+                          id=block.id
+                          param=../this.header
+                        }}
                       {{/if}}
 
                       {{#if ../this.param.length}}
                         <div class="inner-label"><hr></div>
-                        {{> contentSsrParamGroupVariant groupVariant=../this.paramGroupVariant param=../this.param defaultName='parameter' id=block.id}}
+                        {{> contentSsrParamGroupVariant
+                          class='param'
+                          defaultName='parameter'
+                          groupVariant=../this.paramGroupVariant
+                          id=block.id
+                          param=../this.param
+                        }}
                       {{/if}}
 
                       <div class="section">
@@ -505,10 +463,10 @@
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
-                              {{#ifCond this.group.name '!=' '$'}}
+                              {{#ifCond this.group.name '!=' 'null'}}
                                 {{first ../this.group.title ../this.group.name}} /
                               {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' '$'}}
+                              {{#ifCond this.subgroup.name '!=' 'null'}}
                                 {{first ../this.subgroup.title ../this.subgroup.name}} /
                               {{/ifCond}}
                               {{this.version}}

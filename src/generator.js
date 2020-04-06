@@ -172,7 +172,7 @@ function generateSections(blocks, definitions, config) {
     }
 
     if (!block.chapter) {
-      block.chapter = {description: [], name: '$', title: null};
+      block.chapter = {description: [], name: 'null', title: null};
     }
 
     if (!block.contentType) {
@@ -180,7 +180,7 @@ function generateSections(blocks, definitions, config) {
     }
 
     if (!block.group) {
-      block.group = {description: [], name: '$', title: null};
+      block.group = {description: [], name: 'null', title: null};
     }
 
     if (!block.family) {
@@ -200,7 +200,7 @@ function generateSections(blocks, definitions, config) {
     // }
 
     if (!block.subgroup) {
-      block.subgroup = {description: [], name: '$', title: null};
+      block.subgroup = {description: [], name: 'null', title: null};
     }
 
     if (!block.version) {

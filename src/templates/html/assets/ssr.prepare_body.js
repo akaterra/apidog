@@ -115,12 +115,12 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'boolean':
-          val = val === '' ? undefined : (params[key] === '1' || params[key] === 'true');
+          val = val === '' ? undefined : (val === true || val === 'true' || val === '1');
 
           break;
 
         case 'isodate':
-          val = val === '' ? undefined : new Date(params[key]).toISOString();
+          val = val === '' ? undefined : new Date(val).toISOString();
 
           break;
 
@@ -130,7 +130,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'number':
-          val = val === '' ? undefined : Number(params[key]);
+          val = val === '' ? undefined : Number(val);
 
           break;
 

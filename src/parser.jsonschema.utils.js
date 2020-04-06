@@ -7,13 +7,13 @@ function convert(spec, group, annotation, rootSpec, config) {
   return resolveDefinition(spec, group, '', '', annotation, [], rootSpec, config);
 }
 
-function resolvePropertiesDefinition(properties, group, prefix, annotation, docBlock, rootSpec, config) {
+function resolvePropertiesDefinition(properties, group, prefix, annotation, docBlock, rootSpec, config, required) {
   Object.entries(properties).forEach(([prop, spec]) => {
-    resolveDefinition(spec, group, prefix, prop, annotation, docBlock, rootSpec, config);
+    resolveDefinition(spec, group, prefix, prop, annotation, docBlock, rootSpec, config, required);
   });
 }
 
-function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootSpec, config) {
+function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootSpec, config, required) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -32,7 +32,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
 
   const paramDefault = spec.default ? `=${utils.quote(spec.default)}` : '';
   const paramGroup = group ? `(${group}) ` : '';
-  const paramIsRequired = spec.required ? spec.required.indexOf(key) !== - 1 : false;
+  const paramIsRequired = required ? required.includes(key) : false;
   const paramEnum = spec.enum ? `=${[].concat(spec.enum).map(utils.quote).join(',')}` : '';
   const paramKey = paramIsRequired ? `${prefix}${key}${paramDefault}` : `[${prefix}${key}${paramDefault}]`;
   const paramTitle = spec.title ? ` ${spec.title}` : '';
@@ -62,7 +62,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
             }
           }
 
-          resolveDefinition(combinedSpec, group, `${[prefix, key].filter(_ => _).join('.')}[].`, '', annotation, docBlock, rootSpec, config);
+          resolveDefinition(combinedSpec, group, `${[prefix, key].filter(_ => _).join('.')}[].`, '', annotation, docBlock, rootSpec, config, spec.required);
         });
       }
 
@@ -92,7 +92,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
             }
           }
 
-          resolvePropertiesDefinition(combinedSpec.properties, group, [prefix, key].filter(_ => _).join('.'), annotation, docBlock, rootSpec, config);
+          resolvePropertiesDefinition(combinedSpec.properties, group, [prefix, key].filter(_ => _).join('.'), annotation, docBlock, rootSpec, config, spec.required);
         });
       }
 
