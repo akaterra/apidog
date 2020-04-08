@@ -25,11 +25,13 @@
 </body>
 <script>
   const templates = {
-    templateContent: `{{> template.content.hbs }}`,
-    contentParamExample: `{{> template.content.param_example.hbs }}`,
-    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs }}`,
-    contentParamValueGroup: `{{> template.content.param_value_group.hbs }}`,
-    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs }}`,
+    content: `{{> template.content.hbs.content }}`,
+    contentParamExample: `{{> template.content.param_example.hbs.content }}`,
+    contentParamGroup: `{{> template.content.param_group.hbs.content }}`,
+    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs.content }}`,
+    contentParamValueGroup: `{{> template.content.param_value_group.hbs.content }}`,
+    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs.content }}`,
+    contentSsrParamGroupVariantSection: `{{> template.content.ssr.param_group_variant.section.hbs.content }}`,
   };
 
   (function () {

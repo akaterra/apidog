@@ -65,8 +65,18 @@ ins.diffmod, .diffins {
   padding-left: 0.5rem;
 }
 
+.rtl .left-padded {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
 .right-padded {
   padding-right: 0.5rem;
+}
+
+.rtl .right-padded {
+  padding-left: 0.5rem;
+  padding-right: 0;
 }
 
 .top-padded {

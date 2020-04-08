@@ -53,26 +53,26 @@ module.exports = (config) => ({
       if (!descriptor.successGroup && !descriptor.errorGroup) {
         responses['default'] = {description: 'No description'};
       } else {
-        if (descriptor.successGroup) {
-          Object.entries(descriptor.successGroup).forEach(([key, params]) => {
-            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
+        if (descriptor.successGroupVariant) {
+          Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
-                  schema: parserUtils.convertParamsToJsonSchema(params.list),
+                  schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
                 },
               },
             };
           });
         }
 
-        if (descriptor.errorGroup) {
-          Object.entries(descriptor.errorGroup).forEach(([key, params]) => {
-            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
+        if (descriptor.errorGroupVariant) {
+          Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
-                  schema: parserUtils.convertParamsToJsonSchema(params.list),
+                  schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
                 },
               },
             };
@@ -118,37 +118,37 @@ module.exports = (config) => ({
 
         //   return contentType;
         // }),
-        parameters: descriptor.param.map((param) => {
-          const typeAllowedValues = param.type.allowedValues.filter(_ => _);
+        // parameters: descriptor.param.map((param) => {
+        //   const typeAllowedValues = param.type.allowedValues.filter(_ => _);
 
-          if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
-            return {
-              name: param.field.name,
-              in: uriParams[param.field.name] === false ? 'path' : 'query',
-              description: param.description && param.description.join('/n'),
-              required: !param.field.isOptional,
-              schema: {
-                ...parserUtils.convertSimpleTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
-                enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-              },
-            };
-          }
+        //   if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
+        //     return {
+        //       name: param.field.name,
+        //       in: uriParams[param.field.name] === false ? 'path' : 'query',
+        //       description: param.description && param.description.join('/n'),
+        //       required: !param.field.isOptional,
+        //       schema: {
+        //         ...parserUtils.convertSimpleTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
+        //         enum: typeAllowedValues.length ? typeAllowedValues : undefined,
+        //       },
+        //     };
+        //   }
 
-          if (bodyParam) {
-            return null;
-          }
+        //   if (bodyParam) {
+        //     return null;
+        //   }
 
-          bodyParam =  {
-            name: 'body',
-            in: 'body',
-            description: '',
-            required: true,
-            schema: parserUtils.convertParamsToJsonSchema(descriptor.param.filter((param) => !(param.field.name in uriParams))),
-            enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-          };
+        //   bodyParam =  {
+        //     name: 'body',
+        //     in: 'body',
+        //     description: '',
+        //     required: true,
+        //     schema: parserUtils.convertParamsToJsonSchema(descriptor.param.filter((param) => !(param.field.name in uriParams))),
+        //     enum: typeAllowedValues.length ? typeAllowedValues : undefined,
+        //   };
 
-          return null;
-        }).filter((parameter) => parameter),
+        //   return null;
+        // }).filter((parameter) => parameter),
         responses,
       };
 

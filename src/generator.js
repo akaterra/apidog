@@ -1,6 +1,7 @@
 const fastSort = require('fast-sort');
 const handlebars = require('handlebars');
 const parserUtils = require('./parser.utils');
+const _ = require('./assets/i18n')._;
 
 function generate(blocks, template, definitions, config, hbs) {
   blocks = blocks.filter((block) => {
@@ -141,6 +142,7 @@ function generate(blocks, template, definitions, config, hbs) {
   };
 
   hbs.registerHelper('context', (name) => templateParams[name]);
+  hbs.registerHelper('_', (key) => _(config.locale || 'en', key));
 
   if (config.templateProcessor) {
     return config.templateProcessor.generate(hbs || handlebars, config, templateParams);
@@ -172,7 +174,7 @@ function generateSections(blocks, definitions, config) {
     }
 
     if (!block.chapter) {
-      block.chapter = {description: [], name: 'null', title: null};
+      block.chapter = {description: [], name: null, title: null};
     }
 
     if (!block.contentType) {
@@ -180,7 +182,7 @@ function generateSections(blocks, definitions, config) {
     }
 
     if (!block.group) {
-      block.group = {description: [], name: 'null', title: null};
+      block.group = {description: [], name: null, title: null};
     }
 
     if (!block.family) {
@@ -194,10 +196,6 @@ function generateSections(blocks, definitions, config) {
     if (!block.params) {
       block.params = [];
     }
-
-    // if (!block.sampleRequest) {
-    //   block.sampleRequest = [block.api.endpoint];
-    // }
 
     if (!block.subgroup) {
       block.subgroup = {description: [], name: 'null', title: null};

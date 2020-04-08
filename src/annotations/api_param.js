@@ -99,11 +99,11 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (!block[annotationGroupName][group || 'null']) { // @todo use null
-      block[annotationGroupName][group || 'null'] = {isTyped: false, list: []};
+    if (!block[annotationGroupName][group || null]) { // @todo use null
+      block[annotationGroupName][group || null] = {isTyped: false, list: []};
     }
 
-    block[annotationGroupName][group || 'null'].list.push(block[annotationName].length - 1);
+    block[annotationGroupName][group || null].list.push(block[annotationName].length - 1);
 
     if (!block[annotationGroupVariantsName][group]) {
       block[annotationGroupVariantsName][group] = {isTyped: false, prop: {}};
@@ -128,8 +128,8 @@ function construct(name, usePrefix) {
     }
 
     if (type) {
-      block[annotationGroupName][group || 'null'].isTyped = true; // @deprecated
-      block[annotationGroupVariantsName][group].isTyped = true;
+      block[annotationGroupName][group || null].isTyped = true; // @deprecated
+      block[annotationGroupVariantsName][group || null].isTyped = true;
     }
 
     // block[annotationGroupName][group || '$'].list.push(blockParam);
