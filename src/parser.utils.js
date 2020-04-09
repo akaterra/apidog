@@ -75,7 +75,7 @@ const paramTypeToFormat = {
   uuid: true,
 };
 
-function convertSimpleTypeToJsonSchema(type) {
+function convertParamTypeToJsonSchema(type) {
   return {
     type: type in paramTypeToFormat
       ? paramTypeToFormat[type] === true
@@ -100,15 +100,20 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
   }
 
   Object.entries(paramGroupVariant).forEach(([propKey, propVariants]) => {
-    const anyOf = propVariants.map((propVariant) => {
-      let param = paramDescriptors[propVariant.list[0]];
-      let paramJsonSchema = {
+    const oneOf = propVariants.map((propVariant) => {
+      const param = paramDescriptors[propVariant.list[0]];
+
+      if (!param) {
+        return;
+      }
+
+      const paramJsonSchema = {
         type: 'object',
         required: [],
         properties: {},
       };
 
-      if (!param.field.isOptional) {
+      if (!param.field.isOptional && !jsonSchema.required.includes(propKey)) {
         jsonSchema.required.push(propKey);
       }
 
@@ -141,18 +146,28 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
           paramJsonSchemaRef.enum = param.type.allowedValues;
         }
 
-        paramJsonSchemaRef.type =  param.type.modifiers.null ? [paramType, null]  : paramType;
+        paramJsonSchemaRef.type = param.type.modifiers.null ? [paramType, null]  : paramType;
       } else {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
-    });
+    }).filter(_ => _);
 
-    if (anyOf.length === 1) {
-      jsonSchema.properties[propKey] = anyOf[0];
+    if (oneOf.length === 1) {
+      jsonSchema.properties[propKey] = oneOf[0];
     } else {
-      jsonSchema.properties[propKey] = { anyOf };
+      const oneOfVariants = [
+        ...oneOf.filter((oneOf) => oneOf.type !== 'array'),
+        ...oneOf.some((oneOf) => oneOf.type === 'array')
+          ? [{
+            type: 'array',
+            items: { oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => oneOf.items) },
+          }]
+          : []
+      ];
+
+      jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }
   });
 
@@ -286,5 +301,5 @@ module.exports = {
   enumUriPlaceholders,
   convertParamGroupVariantToJsonSchema,
   convertParamsToJsonSchema,
-  convertSimpleTypeToJsonSchema,
+  convertParamTypeToJsonSchema,
 };

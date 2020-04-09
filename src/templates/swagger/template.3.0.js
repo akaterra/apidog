@@ -17,17 +17,6 @@ module.exports = (config) => ({
       servers: [{
         url: '/',
       }],
-      // schemes: Object.values(params.schemes).map((scheme) => {
-      //   switch (scheme) {
-      //     case 'websocket':
-      //       return 'ws';
-
-      //     case 'websocketsequre':
-      //       return 'wss';
-      //   }
-
-      //   return scheme;
-      // }),
       paths: {},
     };
 
@@ -50,7 +39,7 @@ module.exports = (config) => ({
 
       const responses = {};
 
-      if (!descriptor.successGroup && !descriptor.errorGroup) {
+      if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
         responses['default'] = {description: 'No description'};
       } else {
         if (descriptor.successGroupVariant) {
@@ -80,101 +69,91 @@ module.exports = (config) => ({
         }
       }
 
-      let bodyParam = null;
-
       if (!descriptor.api.transport.method) {
         descriptor.api.transport.method = 'post';
       }
 
       const methodDescriptor = spec.paths[endpoint][descriptor.api.transport.method] = {
         summary: descriptor.title,
-        description: descriptor.description && descriptor.description.join('\n'),
         operationId: descriptor.id,
-        // consumes: descriptor.contentType.map((contentType) => {
-        //   switch (contentType) {
-        //     case 'form':
-        //       return 'application/x-www-form-urlencoded';
-
-        //     case 'json':
-        //       return 'application/json';
-
-        //     case 'xml':
-        //       return 'application/xml';
-        //   }
-
-        //   return contentType;
-        // }),
-        // produces: descriptor.contentType.map((contentType) => {
-        //   switch (contentType) {
-        //     case 'form':
-        //       return 'application/x-www-form-urlencoded';
-
-        //     case 'json':
-        //       return 'application/json';
-
-        //     case 'xml':
-        //       return 'application/xml';
-        //   }
-
-        //   return contentType;
-        // }),
-        // parameters: descriptor.param.map((param) => {
-        //   const typeAllowedValues = param.type.allowedValues.filter(_ => _);
-
-        //   if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
-        //     return {
-        //       name: param.field.name,
-        //       in: uriParams[param.field.name] === false ? 'path' : 'query',
-        //       description: param.description && param.description.join('/n'),
-        //       required: !param.field.isOptional,
-        //       schema: {
-        //         ...parserUtils.convertSimpleTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
-        //         enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-        //       },
-        //     };
-        //   }
-
-        //   if (bodyParam) {
-        //     return null;
-        //   }
-
-        //   bodyParam =  {
-        //     name: 'body',
-        //     in: 'body',
-        //     description: '',
-        //     required: true,
-        //     schema: parserUtils.convertParamsToJsonSchema(descriptor.param.filter((param) => !(param.field.name in uriParams))),
-        //     enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-        //   };
-
-        //   return null;
-        // }).filter((parameter) => parameter),
         responses,
       };
 
-      if (bodyParam) {
-        methodDescriptor.requestBody = {
-          content: descriptor.contentType.reduce((acc, contentType) => {
-            switch (contentType) {
-              case 'form':
-                acc['application/x-www-form-urlencoded'] = { schema: bodyParam.schema };
+      if (descriptor.description) {
+        methodDescriptor.description = descriptor.description.join('\n');
+      }
 
-                break;
+      if (descriptor.paramGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
-              case 'json':
-                acc['application/json'] = { schema: bodyParam.schema };
+        if (groupVariantKey) {
+          const notBodyParamIndexes = [];
 
-                break;
+          methodDescriptor.parameters = descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
+            const param = descriptor.param[paramIndex];
 
-              case 'xml':
-                acc['application/xml'] = { schema: bodyParam.schema };
+            if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get')) {
+              notBodyParamIndexes.push(paramIndex);
 
-                break;
+              return {
+                name: param.field.name,
+                in: uriParams[param.field.name] === false ? 'path' : 'query',
+                description: param.description && param.description.join('/n'),
+                required: !param.field.isOptional,
+                schema: {
+                  ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
+                  enum: param.type.allowedValues.length
+                    ? param.type.allowedValues
+                    : undefined,
+                },
+              };
             }
 
-            return acc;
-          }, {}),
-        };
+            return null;
+          }).filter(_ => _);
+
+          const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
+
+          if (bodyParams.length) {
+            methodDescriptor.requestBody = {
+              content: descriptor.contentType.reduce((acc, contentType) => {
+                switch (contentType) {
+                  case 'form':
+                    acc['application/x-www-form-urlencoded'] = {
+                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
+                        descriptor.paramGroupVariant[groupVariantKey].prop,
+                        bodyParams,
+                      ),
+                    };
+    
+                    break;
+    
+                  case 'json':
+                    acc['application/json'] = {
+                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
+                        descriptor.paramGroupVariant[groupVariantKey].prop,
+                        bodyParams,
+                      ),
+                    };
+    
+                    break;
+    
+                  case 'xml':
+                    acc['application/xml'] = {
+                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
+                        descriptor.paramGroupVariant[groupVariantKey].prop,
+                        bodyParams,
+                      ),
+                    };
+    
+                    break;
+                }
+    
+                return acc;
+              }, {}),
+            };
+          }
+        }
       }
     });
 
