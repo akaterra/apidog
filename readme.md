@@ -15,7 +15,7 @@ Features:
   * Minimalistic HTML file with dynamic assets loading
   * Single pre-compiled HTML file with no external dependencies
   * Markdown file
-  * Swagger specification file (v1.2, v2.0)
+  * Swagger specification file (v2.0, v3.0)
 * Server proxy
 * Send sample request plugin for html template:
     * Transports support:
@@ -59,7 +59,6 @@ Table of contents
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
-  * [@swagger.1.2](#swagger12)
   * [@swagger.2.0](#swagger20)
   * [@swagger.3.0](#swagger30)
 * @html template "Send sample request" plug-in
@@ -144,8 +143,8 @@ Parameters:
     * @html
     * @html.standalone
     * @md
-    * @swagger.1.2
     * @swagger.2.0
+    * @swagger.3.0
 
 * **--title** - Custom title that will be used as a title of the generated documentation
 
@@ -458,14 +457,6 @@ apidog -t @md
 ```
 
 Compiles to markdown file.
-
-##### @swagger.1.2
-
-```sh
-apidog -t @swagger.1.2
-```
-
-Compiles to Swagger v1.2 specification JSON file.
 
 ##### @swagger.2.0
 
