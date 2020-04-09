@@ -83,7 +83,7 @@
                                 data-block-ssr-param-type="{{param.type.modifiers.initial}}"
                                 value=""
                                 checked
-                            />Undefined</span>
+                            />{{_ 'undefined'}}</span>
                             <span class="input-param-radio {{#if @first}}{{else}} hidden{{/if}}"><input
                                 id="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
                                 name="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
@@ -98,7 +98,7 @@
                                 data-block-ssr-param-type="{{param.type.modifiers.initial}}"
                                 value="true"
                                 {{#if param.field.defaultValue}}checked{{/if}}
-                            />True</span>
+                            />{{_ 'true'}}</span>
                             <span class="input-param-radio {{#if @first}}{{else}} hidden{{/if}}"><input
                                 id="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
                                 name="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
@@ -113,7 +113,7 @@
                                 data-block-ssr-param-type="{{param.type.modifiers.initial}}"
                                 value="false"
                                 {{#ifCond param.field.defaultValue '==' false}}checked{{/ifCond}}
-                            />False</span>
+                            />{{_ 'false'}}</span>
                         </div>
                     {{else ifCond param.type.modifiers.initial '==' 'null'}}
                         <div class="flex flex-1" data-block-ssr-group-variant-selectable="{{param.field.name}}_{{@index}}_{{../../../../class}}">
@@ -131,7 +131,7 @@
                                 data-block-ssr-param-type="{{param.type.modifiers.initial}}"
                                 value=""
                                 checked
-                            />Undefined</span>
+                            />{{_ 'undefined'}}</span>
                             <span class="input-param-radio {{#if @first}}{{else}} hidden{{/if}}"><input
                                 id="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
                                 name="{{../../../../id}}_{{param.field.name}}_{{../../../../class}}_{{@index}}"
