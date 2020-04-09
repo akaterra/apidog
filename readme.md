@@ -31,6 +31,7 @@ Features:
         * JSON
         * XML
     * Nested typed params
+    * Type variants
     * Presets (saved requests)
     * Variables
 
