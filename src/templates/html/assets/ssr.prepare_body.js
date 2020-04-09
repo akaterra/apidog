@@ -101,7 +101,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
       }
 
       if (val === '' || val === 'null') {
-        if (typeModifiers && typeModifiers.null) {
+        if (typeModifiers && typeModifiers.nullable) {
           val = null;
         }
       }
@@ -115,7 +115,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'boolean':
-          val = val === '' ? undefined : (val === true || val === 'true' || val === '1');
+          val = val === '' ? undefined : (val === true || val === 'true');
 
           break;
 
@@ -125,7 +125,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'null':
-          val = val !== 'null' ? undefined : null;
+          val = (val !== true && val !== 'true' && val !== null && val !== 'null') ? undefined : null;
 
           break;
 

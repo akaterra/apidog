@@ -54,7 +54,7 @@ function construct(name, usePrefix) {
       const [fieldName, fieldDefaultValues] = utils.strSplitBy(field, '=', 1);
 
       field = {
-        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : null,
+        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : undefined,
         isOptional: !!tokens[6],
         name: usePrefix && block[annotationPrefixName] ? block[annotationPrefixName] + fieldName : fieldName,
       }

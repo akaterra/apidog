@@ -135,7 +135,18 @@ const ssr = (function () {
 
       if (el) {
         return by.selector(`[data-block-ssr-class="${CLASS}"]`, el).reduce((acc, blockSsrInputEl) => {
-          acc[blockSsrInputEl.dataset.blockSsrBlockIndex] = getValue(blockSsrInputEl);
+          switch (blockSsrInputEl.dataset.blockSsrParamType) {
+            case 'boolean':
+            case 'null':
+              if (blockSsrInputEl.checked) {
+                acc[blockSsrInputEl.dataset.blockSsrBlockIndex] = getValue(blockSsrInputEl);
+              }
+
+              break;
+
+            default:
+              acc[blockSsrInputEl.dataset.blockSsrBlockIndex] = getValue(blockSsrInputEl);
+          }
 
           return acc;
         }, {});
@@ -160,12 +171,26 @@ const ssr = (function () {
               }
 
               if (param[prop.list[0]] && groupInputsGroupVariant[param[prop.list[0]].field.name] === propIndex) {
-                value[param[prop.list[0]].field.name] = [
-                  getValue(
-                    by.selector(`[data-block-ssr-class="${CLASS}"][data-block-ssr-group-variant-param-index="${prop.list[0]}"]`, el)[0],
-                  ),
-                  prop.list[0],
-                ];
+                switch (param[prop.list[0]].type.modifiers.initial) {
+                  case 'boolean':
+                  case 'null':
+                    value[param[prop.list[0]].field.name] = [
+                      getValue(
+                        by.selector(`[data-block-ssr-class="${CLASS}"][data-block-ssr-group-variant-param-index="${prop.list[0]}"]:checked`, el)[0],
+                      ),
+                      prop.list[0],
+                    ];
+
+                    break;
+
+                  default:
+                    value[param[prop.list[0]].field.name] = [
+                      getValue(
+                        by.selector(`[data-block-ssr-class="${CLASS}"][data-block-ssr-group-variant-param-index="${prop.list[0]}"]`, el)[0],
+                      ),
+                      prop.list[0],
+                    ];
+                  }
   
                 map(prop.prop);
   
@@ -190,7 +215,16 @@ const ssr = (function () {
       if (el) {
         by.selector(`[data-block-ssr-class="${cls}"]`, el).forEach((blockSsrInputEl) => {
           if (blockSsrInputEl.dataset.blockSsrBlockIndex in values) {
-            setValue(blockSsrInputEl, values[blockSsrInputEl.dataset.blockSsrBlockIndex]);
+            switch (blockSsrInputEl.dataset.blockSsrParamType) {
+              case 'boolean':
+              case 'null':
+                setValue(by.selector(`[data-block-ssr-block-index="${blockSsrInputEl.dataset.blockSsrBlockIndex}"][value="${values[blockSsrInputEl.dataset.blockSsrBlockIndex]}"]`, el)[0], true);
+
+                break;
+
+              default:
+                setValue(blockSsrInputEl, values[blockSsrInputEl.dataset.blockSsrBlockIndex]);
+            }
           }
         });
       }

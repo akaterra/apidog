@@ -109,6 +109,10 @@ const on = {
 };
 
 function getValue(el) {
+  if (!el) {
+    return;
+  }
+
   if (el.type && el.type === 'checkbox') {
     return el.checked;
   }
@@ -125,7 +129,11 @@ function getValue(el) {
 }
 
 function setValue(el, value) {
-  if (el.type && el.type === 'checkbox') {
+  if (!el) {
+    return;
+  }
+
+  if (el.type && (el.type === 'checkbox' || el.type === 'radio')) {
     el.checked = !!value;
   } else if (el.options) {
     Array.prototype.some.call(el.options, (option, i) => {

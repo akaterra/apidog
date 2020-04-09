@@ -12,7 +12,7 @@ input[type="checkbox"] {
 }
 
 input[type="radio"] {
-  margin: 0.1rem;
+  margin: 0;
 }
 
 .rtl {
@@ -452,6 +452,23 @@ ins.diffmod, .diffins {
   height: 1.5rem;
   padding: 0 0.5rem;
 }
+
+.input-param-radio {
+  background-color: transparent;
+  color: #808080;
+  font: 1rem monospace;
+  height: 1.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.rtl .input-param-radio>input[type="radio"] {
+  margin: 0 0 0 0.25rem;
+}
+
+.input-param-radio>input[type="radio"] {
+  margin: 0 0.25rem 0 0;
+}
+
 
 .input-param-raw-body {
   background-color: #fcfcfc;
