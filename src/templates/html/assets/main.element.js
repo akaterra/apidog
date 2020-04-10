@@ -152,12 +152,17 @@ function setValue(el, value) {
   }
 }
 
+function isVisible(el) {
+  return el.offsetHeight > 0;
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     by,
     cls,
     getValue,
     setValue,
+    isVisible,
     on,
   };
 }

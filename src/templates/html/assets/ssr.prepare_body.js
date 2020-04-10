@@ -95,8 +95,8 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
     if (paramsDescriptor) {
       if (val === '') {
-        if (typeModifiers && typeModifiers.none || typeIsOptional) {
-          return
+        if (typeModifiers && typeModifiers.none) {
+          return;
         }
       }
 
@@ -115,22 +115,22 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'boolean':
-          val = val === '' ? undefined : (val === true || val === 'true');
+          val = val === true || val === 'true';
 
           break;
 
         case 'isodate':
-          val = val === '' ? undefined : new Date(val).toISOString();
+          val = new Date(val).toISOString();
 
           break;
 
         case 'null':
-          val = (val !== true && val !== 'true' && val !== null && val !== 'null') ? undefined : null;
+          val = null;
 
           break;
 
         case 'number':
-          val = val === '' ? undefined : Number(val);
+          val = Number(val);
 
           break;
 

@@ -146,7 +146,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
           paramJsonSchemaRef.enum = param.type.allowedValues;
         }
 
-        paramJsonSchemaRef.type = param.type.modifiers.null ? [paramType, null]  : paramType;
+        paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null]  : paramType;
       } else {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
       }
