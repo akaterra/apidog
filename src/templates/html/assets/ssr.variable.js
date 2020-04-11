@@ -4,7 +4,7 @@
 const ssrVariable = (function () {
   let presets = {};
 
-  ssr.onRequestPrepareParams((el, {headers, params}) => {
+  ssr.onRequestPrepareParams((el, { headers, params }) => {
     const blockId = el.dataset.block;
 
     const blockDescriptor = sections[blockId];
@@ -24,7 +24,7 @@ const ssrVariable = (function () {
       }
     });
 
-    Object.entries(headers).forEach(([key, val]) => {
+    Object.entries(headers).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
         headers[key] = val.replace(/@(\w+)/g, (_, sub, ind) => {
           if (ind > 0 && val[ind - 1] === '\\') {
@@ -38,7 +38,7 @@ const ssrVariable = (function () {
       }
     });
 
-    Object.entries(params).forEach(([key, val]) => {
+    Object.entries(params).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
         params[key] = val.replace(/@(\w+)/g, (_, sub, ind) => {
           if (ind > 0 && val[ind - 1] === '\\') {
