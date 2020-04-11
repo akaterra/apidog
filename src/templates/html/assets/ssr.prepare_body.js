@@ -115,7 +115,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           break;
 
         case 'boolean':
-          val = val === true || val === 'true';
+          val = val === true || val === 'true' || val === 1 || val === '1';
 
           break;
 

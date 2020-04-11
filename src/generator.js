@@ -198,7 +198,7 @@ function generateSections(blocks, definitions, config) {
     }
 
     if (!block.subgroup) {
-      block.subgroup = {description: [], name: 'null', title: null};
+      block.subgroup = {description: [], name: null, title: null};
     }
 
     if (!block.version) {

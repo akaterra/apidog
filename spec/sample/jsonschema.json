@@ -95,6 +95,7 @@
   },
   "definitions": {
     "test": {
+      "type": "object",
       "properties": {
         "x": {
           "$ref": "#/properties/c",

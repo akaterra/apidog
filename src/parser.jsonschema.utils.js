@@ -34,7 +34,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
   const paramGroup = group ? `(${group}) ` : '';
   const paramIsRequired = required ? required.includes(key) : false;
   const paramEnum = spec.enum ? `=${[].concat(spec.enum).map(utils.quote).join(',')}` : '';
-  const paramKey = paramIsRequired ? `${prefix}${key}${paramDefault}` : `[${prefix}${key}${paramDefault}]`;
+  const paramKey = paramIsRequired ? `${prefix ? prefix + '.' : ''}${key}${paramDefault}` : `[${prefix ? prefix + '.' : ''}${key}${paramDefault}]`;
   const paramTitle = spec.title ? ` ${spec.title}` : '';
 
   switch (spec.type) {
@@ -67,7 +67,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
           resolveDefinition(
             combinedSpec,
             group,
-            `${[prefix, key].filter(_ => _).join('.')}[].`, '',
+            `${[prefix, key].filter(_ => _).join('.')}[]`, '',
             annotation,
             docBlock,
             rootSpec,
@@ -108,7 +108,7 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
           resolvePropertiesDefinition(
             combinedSpec.properties,
             group,
-            [prefix, key].filter(_ => _).join('.'),
+            `${[prefix, key].filter(_ => _).join('.')}`,
             annotation,
             docBlock,
             rootSpec,
