@@ -26,7 +26,7 @@ const ssrVariable = (function () {
 
     Object.entries(headers).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
-        headers[key] = val.replace(/@(\w+)/g, (_, sub, ind) => {
+        headers[key][0] = val.replace(/@(\w+)/g, (_, sub, ind) => {
           if (ind > 0 && val[ind - 1] === '\\') {
             return val;
           }
@@ -40,7 +40,7 @@ const ssrVariable = (function () {
 
     Object.entries(params).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
-        params[key] = val.replace(/@(\w+)/g, (_, sub, ind) => {
+        params[key][0] = val.replace(/@(\w+)/g, (_, sub, ind) => {
           if (ind > 0 && val[ind - 1] === '\\') {
             return val;
           }
