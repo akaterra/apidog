@@ -113,7 +113,7 @@ function construct(name, usePrefix) {
       let root = block[annotationGroupVariantsName][group].prop;
 
       utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (elm, ind, isLast) => {
-        const withoutArrayIndex = elm.replace(/(\[.*\])+$/g, '');
+        const withoutArrayIndex = elm.replace(/(\[\])+$/g, '');
 
         if (!root[withoutArrayIndex]) {
           root[withoutArrayIndex] = [];
