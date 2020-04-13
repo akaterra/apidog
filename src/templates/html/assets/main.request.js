@@ -202,6 +202,9 @@ const request = (function () {
         break;
     }
 
+    // insert placeholders
+    url = prepareUrl(url, body);
+
     // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
       if (!type || type === 'params') {
@@ -226,9 +229,6 @@ const request = (function () {
         }
       }
     }
-
-    // insert placeholders
-    url = prepareUrl(url, body);
 
     // insert rest of data as query parameters in case of http GET method
     if (method === 'GET') {
