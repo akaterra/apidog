@@ -186,10 +186,10 @@
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
-                              {{#ifCond this.group.name '!=' 'null'}}
+                              {{#ifCond this.group.name '!=' null}}
                                 {{first ../this.group.title ../this.group.name}} /
                               {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' 'null'}}
+                              {{#ifCond this.subgroup.name '!=' null}}
                                 {{first ../this.subgroup.title ../this.subgroup.name}} /
                               {{/ifCond}}
                               {{this.version}}
@@ -473,10 +473,10 @@
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
                             {{this.title}}
                             <span class="color-3">
-                              {{#ifCond this.group.name '!=' 'null'}}
+                              {{#ifCond this.group.name '!=' null}}
                                 {{first ../this.group.title ../this.group.name}} /
                               {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' 'null'}}
+                              {{#ifCond this.subgroup.name '!=' null}}
                                 {{first ../this.subgroup.title ../this.subgroup.name}} /
                               {{/ifCond}}
                               {{this.version}}

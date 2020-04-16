@@ -6,7 +6,7 @@
 {{#each this.chaptersAsLists}}
   {{#with (context 'definitions') as |definitions|}}
     {{#ifCond ../this.title '==' null}}
-Main chapter
+{{_ 'mainChapter'}}
 ---
 
     {{else}}
@@ -63,17 +63,17 @@ Main chapter
 {{/each}}
 
 {{#each this.chaptersAsLists}}
-{{#each this.groups}}
-  {{#ifCond this.title '!=' null}}
+  {{#each this.groups}}
+    {{#ifCond this.title '!=' null}}
 {{../this.title}}
 ---
   {{/ifCond}}
-  {{#each this.subgroups}}
-    {{#each this.apis}}
+  {{#each this.subgroups as |subgroup|}}
+    {{#each this.apis as |api|}}
       {{#each this as |block index|}}
 
         {{#with (context 'definitions') as |definitions|}}
-### {{../this.title}} {{first (lookup definitions ../../../../this.title 'title') ../../../../this.title}} ({{first (lookup definitions ../../../this.title 'title') ../../../this.title}})
+### {{apiTitle ../api.title (first (lookup definitions ../group.title 'title') ../group.title) (first (lookup definitions ../subgroup.title 'title') ../subgroup.title) ../api.version}}
         {{/with}}
 {{join this.description true}}
 
@@ -88,7 +88,7 @@ Main chapter
 {{#if this.header.length}}
   {{#each this.headerGroup as |group key|}}
 
-**{{#ifCond key '==' null}}{{_ 'header'}}{{else}}{{key}}{{/ifCond}}:**
+**{{#ifCond key '==' null}}{{_ 'header'}}{{else}}{{key}}{{/ifCond}}**
 
 | {{_ 'field'}} | {{_ 'type'}} | {{_ 'description'}} |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ Main chapter
 {{#if this.param.length}}
   {{#each this.paramGroup as |group key|}}
 
-**{{#ifCond key '==' null}}{{_ 'parameter'}}{{else}}{{key}}{{/ifCond}}:**
+**{{#ifCond key '==' null}}{{_ 'parameter'}}{{else}}{{key}}{{/ifCond}}**
 
 | {{_ 'field'}} | {{_ 'type'}} | {{_ 'description'}} |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ Main chapter
 {{#if this.example}}
   {{#each this.example}}
 
-**{{#if this.title}}{{this.title}}{{else}}{{_ 'usageExample'}}{{/if}}:**
+**{{#if this.title}}{{this.title}}{{else}}{{_ 'usageExample'}}{{/if}}**
 
 ```{{this.type}}
 {{join this.description true}}
@@ -129,7 +129,7 @@ Main chapter
 {{#if this.successExample}}
   {{#each this.successExample}}
 
-**{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}:**
+**{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}**
 
 ```{{this.type}}
 {{join this.description true true}}
@@ -137,8 +137,8 @@ Main chapter
   {{/each}}
 {{/if}}
 
+        {{/each}}
       {{/each}}
     {{/each}}
   {{/each}}
-{{/each}}
 {{/each}}

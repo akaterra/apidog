@@ -36,7 +36,7 @@
                                 data-block-ssr-param-type="{{param.type.modifiers.initial}}"
                                 data-block-ssr-selectable="groupVariant"
                                 value="{{param.field.defaultValue}}"
-                            >{{#if param.field.isOptional}}<option value=""></option>{{/if}}{{#each param.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
+                            >{{#each param.type.allowedValues}}<option value="{{this}}">{{this}}</option>{{/each}}</select>
                         {{else ifCond param.type.modifiers.initial '==' 'parametrizedbody'}}
                             <textarea
                                 class="input-param-raw-body flex-1{{#if @first}}{{else}} hidden{{/if}}"
