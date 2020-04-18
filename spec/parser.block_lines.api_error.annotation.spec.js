@@ -97,10 +97,156 @@ describe('parser.block_lines parseBlockLines @apiError annotation', () => {
         isNotTyped: { isTyped: false, list: [ 13 ]},
       },
       errorGroupVariant: {
-        null: Object({ isTyped: true, prop: Object({ A_B: [ Object({ list: [ 0 ], prop: Object({ C: [ Object({ list: [ 1 ], prop: Object({  }) }), Object({ list: [ 2 ], prop: Object({  }) }), Object({ list: [ 3 ], prop: Object({  }) }), Object({ list: [ 4 ], prop: Object({  }) }), Object({ list: [ 5 ], prop: Object({  }) }), Object({ list: [ 6 ], prop: Object({  }) }), Object({ list: [ 7 ], prop: Object({  }) }), Object({ list: [ 9 ], prop: Object({  }) }), Object({ list: [ 10 ], prop: Object({  }) }), Object({ list: [ 11 ], prop: Object({  }) }) ] }) }) ], C: [ Object({ list: [ 0 ], prop: Object({  }) }) ] }) }),
-        groupA: Object({ isTyped: true, prop: Object({ A_B: [ Object({ list: [ 8 ], prop: Object({ C: [ Object({ list: [ 12 ], prop: Object({  }) }) ] }) }) ], C: [ Object({ list: [ 8 ], prop: Object({  }) }) ] }) }),
-        isNotTyped: Object({ isTyped: false, prop: Object({ A_B: [ Object({ list: [ 13 ], prop: Object({  }) }) ], C: [ Object({ list: [ 13 ], prop: Object({  }) }) ] }) }),
-      },
+        "null": {
+          "isTyped": true,
+          "prop": {
+            "A_B": [
+              {
+                "list": [
+                  null
+                ],
+                "parent": null,
+                "prop": {
+                  "C": [
+                    {
+                      "list": [
+                        0
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        1
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        2
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        3
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        4
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        5
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        6
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        7
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        9
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        10
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        11
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "groupA": {
+          "isTyped": true,
+          "prop": {
+            "A_B": [
+              {
+                "list": [
+                  null
+                ],
+                "parent": null,
+                "prop": {
+                  "C": [
+                    {
+                      "list": [
+                        8
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        12
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "isNotTyped": {
+          "isTyped": false,
+          "prop": {
+            "A_B": [
+              {
+                "list": [
+                  null
+                ],
+                "parent": null,
+                "prop": {
+                  "C": [
+                    {
+                      "list": [
+                        13
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
     });
   });
 });

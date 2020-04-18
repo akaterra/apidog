@@ -99,7 +99,7 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (!block[annotationGroupName][group || null]) { // @todo use null
+    if (!block[annotationGroupName][group || null]) {
       block[annotationGroupName][group || null] = { isTyped: false, list: [] };
     }
 
@@ -112,18 +112,40 @@ function construct(name, usePrefix) {
     if (blockParam.field) {
       let root = block[annotationGroupVariantsName][group].prop;
 
-      utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (elm, ind, isLast) => {
-        const withoutArrayIndex = elm.replace(/(\[\])+$/g, '');
+      utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (key, ind, isLast) => {
+        const keysExtra = [];
+        const keys = [key.replace(/(\[(\d*)\])+$/g, (_1, _2, keyMatch) => {
+          keysExtra.push(keyMatch);
 
-        if (!root[withoutArrayIndex]) {
-          root[withoutArrayIndex] = [];
-        }
+          return '';
+        })].concat(keysExtra);
+        const keysRoot = root;
 
-        if (isLast || root[withoutArrayIndex].length === 0) {
-          root[withoutArrayIndex].push({ list: [ block[annotationName].length - 1 ], prop: {} });
-        } else {
-          root = root[withoutArrayIndex][root[withoutArrayIndex].length - 1].prop;
-        }
+        utils.forEach(keys, (subKey, subInd, subIsLast) => {
+          if (!root[subKey]) {
+            root[subKey] = [];
+          }
+
+          if ((isLast && subIsLast) || root[subKey].length === 0) {
+            // last pushed param descriptor
+            const list = isLast && subIsLast
+              ? [ block[annotationName].length - 1 ]
+              : keysRoot[keys[0]][keysRoot[keys[0]].length - 1] && keysRoot[keys[0]][keysRoot[keys[0]].length - 1].list || [ null ];
+
+            // parent is not null when key is not last therefore has no its own param descriptor (list[0])
+            const parent = isLast && subIsLast
+              ? null
+              : list[0];
+
+            const variant = { list, parent, prop: {} };
+
+            root[subKey].push(variant);
+
+            root = variant.prop;
+          } else {
+            root = root[subKey][root[subKey].length - 1].prop;
+          }
+        });
       });
     }
 
@@ -131,9 +153,6 @@ function construct(name, usePrefix) {
       block[annotationGroupName][group || null].isTyped = true; // @deprecated
       block[annotationGroupVariantsName][group || null].isTyped = true;
     }
-
-    // block[annotationGroupName][group || '$'].list.push(blockParam);
-    // block[annotationGroupName][group || '$'].list.push(block[annotationName].length - 1);
 
     return block;
   }
