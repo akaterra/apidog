@@ -103,9 +103,9 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
             "A_B": [
               {
                 "list": [
-                  null
+                  0
                 ],
-                "parent": null,
+                "parent": 0,
                 "prop": {
                   "C": [
                     {
@@ -197,9 +197,9 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
             "A_B": [
               {
                 "list": [
-                  null
+                  8
                 ],
-                "parent": null,
+                "parent": 8,
                 "prop": {
                   "C": [
                     {
@@ -228,9 +228,9 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
             "A_B": [
               {
                 "list": [
-                  null
+                  13
                 ],
-                "parent": null,
+                "parent": 13,
                 "prop": {
                   "C": [
                     {
