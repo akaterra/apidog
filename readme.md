@@ -63,6 +63,7 @@ Table of contents
   * [@swagger.2.0](#swagger20)
   * [@swagger.3.0](#swagger30)
 * @html template "Send sample request" plug-in
+  * [Type variants](#type-variants)
 
 ### Installation
 
@@ -586,6 +587,22 @@ Configuration file is a js script that by default exports the object with next p
 ### @html template "Send sample request" plug-in
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
+
+##### Type variants
+
+"Send sample request" plug-in allows to define multiple type variants for the specified field.
+This can be useful when some part of the request data structure should be various.
+
+```
+@apiParam {Type1} field
+@apiParam {Number} field.a
+@apiParam {Type2} field
+@apiParam {String} field.b
+```
+
+Now the "field" will have two options of type to select:
+  * First with the subfield "a" with type "Number"
+  * Second with the subfield "b" with type "String"
 
 ##### Nats, RabbitMQ, and Redis
 To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
