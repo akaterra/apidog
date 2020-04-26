@@ -251,6 +251,7 @@ function loadTemplate(path, hbs) {
 
         hbs.registerPartial(dirEntry, content);
         hbs.registerPartial(dirEntry + '.content', content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}'));
+        hbs.registerPartial(dirEntry + '.base64', Buffer.from(fs.readFileSync(`${dirName}/${dirEntry}`)).toString('base64'));
       }
     });
   }

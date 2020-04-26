@@ -8,6 +8,7 @@ module.exports = {
   lookup: require('./lookup'),
   pathLastKeyIndented: require('./path_last_key_indented'),
   setVar: require('./set_var'),
+  toBase64: require('./to_base64'),
   toHtml: require('./to_html'),
   toJson: require('./to_json'),
   toLowerCase: require('./to_lower_case'),
