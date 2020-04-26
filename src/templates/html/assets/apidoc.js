@@ -6,14 +6,6 @@ const HtmlDiff = (function () {
   return module.exports && module.exports.default;
 })();
 
-const SocketIO = (function () {
-  const module = {};
-
-  {{> socket.io-client.js }}
-
-  return module.exports && module.exports.default;
-})();
-
 {{> main.func.js }}
 {{> compile_body_form.js }}
 {{> compile_body_xml.js }}
