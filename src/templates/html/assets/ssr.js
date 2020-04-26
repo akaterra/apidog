@@ -495,7 +495,7 @@ const ssr = (function () {
           break;
 
         case 'socketio':
-          actualTransport = 'ws';
+          actualTransport = 'socketio';
           actualOptions = requestOptions.websocket;
 
           break;

@@ -27,8 +27,8 @@ const request = (function () {
         }
 
         if (config.onData) {
-          socketIoConnections[parsedUrl.fullPath].on('eventClient', function (msg) {
-            config.onData(socketIoConnections[parsedUrl.fullPath], msg.data);
+          socketIoConnections[parsedUrl.fullPath].on('message', function (msg) {
+            config.onData(socketIoConnections[parsedUrl.fullPath], msg);
           });
         }
 
@@ -40,7 +40,7 @@ const request = (function () {
 
         if (config.onError) {
           socketIoConnections[parsedUrl.fullPath].on('error', (err) => {
-            config.onError(socketIoConnections[parsedUrl.fullPath], 'Network error');
+            config.onError(socketIoConnections[parsedUrl.fullPath], `Network error: ${err}`);
           });
         }
       }
@@ -112,7 +112,7 @@ const request = (function () {
 
         if (config.onError) {
           wsConnections[parsedUrl.fullPath].onerror = (err) => {
-            config.onError(wsConnections[parsedUrl.fullPath], 'Network error');
+            config.onError(wsConnections[parsedUrl.fullPath], `Network error: ${err}`);
           };
         }
       }
