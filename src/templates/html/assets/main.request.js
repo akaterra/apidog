@@ -7,6 +7,78 @@ const request = (function () {
     });
   }
 
+  const socketIoConnections = {};
+
+  function socketIoConnect(url, config) {
+    const parsedUrl = parseUrl(url);
+
+    if (!(parsedUrl.fullPath in socketIoConnections) || !socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath] = io.connect(url);
+
+      if (config) {
+        if (config.onConnect) {
+          socketIoConnections[parsedUrl.fullPath].on('connect', () => {
+            config.onConnect(socketIoConnections[parsedUrl.fullPath]);
+
+            if (config.onReady) {
+              config.onReady(socketIoConnections[parsedUrl.fullPath]);
+            }
+          });
+        }
+
+        if (config.onData) {
+          socketIoConnections[parsedUrl.fullPath].on('eventClient', function (msg) {
+            config.onData(socketIoConnections[parsedUrl.fullPath], msg.data);
+          });
+        }
+
+        if (config.onDisconnect) {
+          socketIoConnections[parsedUrl.fullPath].on('disconnect', () => {
+            config.onDisconnect(socketIoConnections[parsedUrl.fullPath]);
+          });
+        }
+
+        if (config.onError) {
+          socketIoConnections[parsedUrl.fullPath].on('error', (err) => {
+            config.onError(socketIoConnections[parsedUrl.fullPath], 'Network error');
+          });
+        }
+      }
+    } else {
+      if (config) {
+        if (config.onReady) {
+          config.onReady(socketIoConnections[parsedUrl.fullPath]);
+        }
+      }
+    }
+
+    return socketIoConnections[parsedUrl.fullPath];
+  }
+
+  function socketIoDisconnect(url) {
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in socketIoConnections && socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath].close();
+    }
+  }
+
+  function socketIoIsConnected(url) {
+    const parsedUrl = parseUrl(url);
+
+    return parsedUrl.fullPath in socketIoConnections && (
+      socketIoConnections[parsedUrl.fullPath].connected
+    );
+  }
+
+  function socketIoPublish(url, data, headers) {
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in socketIoConnections && socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath].send(data);
+    }
+  }
+
   const wsConnections = {};
 
   function wsConnect(url, config) {
@@ -127,6 +199,21 @@ const request = (function () {
           }
 
           throw error;
+        });
+
+      case 'socketio':
+        return socketIoConnect(url, {
+          onConnect: config && config.onConnect,
+          onData: config && config.onData,
+          onDisconnect: config && config.onDisconnect,
+          onError: config && config.onError,
+          onReady: (ws) => {
+            if (config && config.onReady) {
+              config.onReady(ws);
+            }
+
+            socketIoPublish(url, body, headers);
+          },
         });
 
       case 'ws':
@@ -259,6 +346,20 @@ const request = (function () {
       method,
       params,
       headers,
+      contentType
+    ),
+  };
+  request.socketio = {
+    disconnect: socketIoDisconnect,
+    connect: socketIoConnect,
+    isConnected: socketIoIsConnected,
+    publish: (url, params, contentType) => requestWithFormattedBody('socketio', url, 'socketio', params, undefined, contentType),
+    requestWithFormattedBody: (url, params, contentType) => requestWithFormattedBody(
+      'socketio',
+      url,
+      'socketio',
+      params,
+      undefined,
       contentType
     ),
   };

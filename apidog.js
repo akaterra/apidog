@@ -154,7 +154,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    action: 'storeConst', constant: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+    defaultValue: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
   },
 );
 

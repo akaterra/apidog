@@ -593,6 +593,7 @@ Configuration file is a js script that by default exports the object with next p
 "Send sample request" plug-in allows to define multiple type variants for the specified field.
 This can be useful when some part of the request data structure should be various.
 
+Example:
 ```
 @apiParam {Type1} field
 @apiParam {Number} field.a

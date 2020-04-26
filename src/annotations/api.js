@@ -97,6 +97,11 @@ function parse(block, text) {
   
         break;
 
+    case 'socketio':
+      blockApi.transport = { name: 'socketio' };
+
+      break;
+
     case 'test':
       blockApi.transport = { name: 'test' };
 
@@ -271,6 +276,7 @@ function validate(block, config) {
   
         break;
 
+    case 'socketio':
     case 'websocket':
     case 'ws':
       if (block.sampleRequest.length) {

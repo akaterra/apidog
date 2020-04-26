@@ -3,7 +3,15 @@ const HtmlDiff = (function () {
 
   {{> htmldiff.js }}
 
-  return module.exports.default;
+  return module.exports && module.exports.default;
+})();
+
+const SocketIO = (function () {
+  const module = {};
+
+  {{> socket.io-client.js }}
+
+  return module.exports && module.exports.default;
 })();
 
 {{> main.func.js }}

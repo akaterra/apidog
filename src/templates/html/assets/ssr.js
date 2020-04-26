@@ -124,7 +124,10 @@ const ssr = (function () {
             ? `${blockDescriptor.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://')}/${blockDescriptor.api.transport.name}/${endpoint}`
             : endpoint;
 
-          break;
+        case 'socketio':
+          return blockDescriptor.sampleRequestProxy
+            ? `${blockDescriptor.sampleRequestProxy}/${blockDescriptor.api.transport.name}/${endpoint}`
+            : endpoint;
       }
 
       return null;
@@ -490,6 +493,12 @@ const ssr = (function () {
           actualOptions = requestOptions.websocket;
 
           break;
+
+        case 'socketio':
+          actualTransport = 'ws';
+          actualOptions = requestOptions.websocket;
+
+          break;
       }
 
       const response = request.requestWithFormattedBody(
@@ -532,12 +541,25 @@ const ssr = (function () {
           return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
         }
 
-        request.ws.connect(prepareUrl(actualEndpoint, params), {
-          onConnect: () => api.showWsDisconnect(blockId),
-          onData: (ws, data) => api.showResponse(blockId, data),
-          onDisconnect: () => api.showWsConnect(blockId),
-          onError: (ws, err) => api.showErrorResponse(blockId, err),
-        });
+        switch (blockDescriptor.api.transport.name) {
+          case 'socketio':
+            request.socketio.connect(prepareUrl(actualEndpoint, params), {
+              onConnect: () => api.showWsDisconnect(blockId),
+              onData: (ws, data) => api.showResponse(blockId, data),
+              onDisconnect: () => api.showWsConnect(blockId),
+              onError: (ws, err) => api.showErrorResponse(blockId, err),
+            });
+
+            break;
+
+          default:
+            request.ws.connect(prepareUrl(actualEndpoint, params), {
+              onConnect: () => api.showWsDisconnect(blockId),
+              onData: (ws, data) => api.showResponse(blockId, data),
+              onDisconnect: () => api.showWsConnect(blockId),
+              onError: (ws, err) => api.showErrorResponse(blockId, err),
+            });
+        }
       });
     }
 
@@ -551,7 +573,16 @@ const ssr = (function () {
           return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
         }
 
-        request.ws.disconnect(actualEndpoint);
+        switch (blockDescriptor.api.transport.name) {
+          case 'socketio':
+            request.socketio.disconnect(actualEndpoint);
+
+            break;
+
+          default:
+            request.ws.disconnect(actualEndpoint);
+        }
+
         api.showWsConnect(blockId);
       });
     }

@@ -9,7 +9,7 @@ module.exports = (op, ...args) => {
       break;
 
     case 'isNotContainerType':
-      pass = !(args[0] && args[0].modifiers && (args[0].modifiers.object || args[0].modifiers.list));
+      pass = !(args[0] && args[0].modifiers && args[0].modifiers.object);
 
       break;
 

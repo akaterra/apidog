@@ -438,6 +438,15 @@ async function createAppWebSocket(env) {
     },
   };
 
+  app.subscribe('/natssub', (ws, uri) => {
+    transportConfig = config.redis || {};
+    transportConfig.env = env;
+
+    natsSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
+      ws.send(data);
+    }, undefined);
+  });
+
   app.subscribe('/redissub', (ws, uri) => {
     transportConfig = config.redis || {};
     transportConfig.env = env;
@@ -563,6 +572,16 @@ async function natsPublish(config, target, data, headers, opts) {
     body: `Message has been sent to Nats "${target}" queue by apiDog proxy`,
     headers: {},
   };
+}
+
+async function natsSubscribe(config, target, fn, opts, connectionFlag) {
+  const natsConnection = await getNatsConnection(config, target);
+  const q = queue.substr(queue.lastIndexOf('/') + 1);
+  natsConnection.subscribe(q, (message) => {
+    fn(message);
+  });
+
+  return true;
 }
 
 async function natsRPC(config, queue, data, headers, opts) {
