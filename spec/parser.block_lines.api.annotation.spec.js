@@ -92,6 +92,24 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
     })
   });
 
+  it('should parse socket io transport', () => {
+    const lines = [
+      '@api {socketio} url This is a title',
+    ];
+
+    const block = parser.parseBlockLines(lines);
+
+    expect(parser.parseBlockLines(lines)).toEqual({
+      api: {
+        endpoint: 'url',
+        title: 'This is a title',
+        transport: {name: 'socketio'},
+      },
+      title: 'This is a title',
+      validate: block.validate,
+    })
+  });
+
   it('should raise error on malformed', () => {
     const lines = [
       '@api',

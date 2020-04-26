@@ -25,6 +25,7 @@ Features:
         * RabbitMQ (via Server proxy)
         * RabbitMQ RPC (remote procedure call, via Server proxy)
         * Redis PUB/SUB (via Server proxy)
+        * Socket.IO
         * WebSocket/WebSocket Secure (W3C)
     * Content types support:
         * Form
