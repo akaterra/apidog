@@ -482,16 +482,16 @@ async function createAppWebSocket(env) {
 
     natsSubscribe(transportConfig, uri.pathname.substr(9), async (data) => {
       ws.send(data);
-    }, undefined);
+    }, undefined).catch((error) => ws.send(error.message));
   });
 
   app.subscribe('/rabbitmqsub', (ws, uri) => {
-    transportConfig = config.redis || {};
+    transportConfig = config.rabbitmq || {};
     transportConfig.env = env;
 
-    rabbitmqSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
-      ws.send(data.content);
-    }, undefined);
+    rabbitmqSubscribe(transportConfig, uri.pathname.substr(13), async (data) => {
+      ws.send(data);
+    }, undefined).catch((error) => ws.send(error.message));
   });
 
   app.subscribe('/redissub', (ws, uri) => {
@@ -500,7 +500,7 @@ async function createAppWebSocket(env) {
 
     redisSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
       ws.send(data);
-    }, undefined, 'sub');
+    }, undefined, 'sub').catch((error) => ws.send(error.message));
   });
 
   return app;
@@ -749,8 +749,8 @@ async function rabbitmqSubscribe(config, target, fn, opts, connectionFlag) {
   const amqpChannel = await getRabbitmqChannel(config, target);
   const q = target.substr(target.lastIndexOf('/') + 1);
   amqpChannel.consume(q, (message) => {
-    fn(message);
-  });
+    fn(message.content.toString('utf8'));
+  }, {noAck: true});
 
   return true;
 }
@@ -897,7 +897,7 @@ async function websocketSendSilent(config, target, data, headers, opts) {
 
     if ((config.websocket && config.websocket.allow) || (config.websocketsecure && config.websocketsecure.allow)) {
       (await createAppWebSocket({})).listen(
-        getConfigWebsocketBind(config),
+        getConfigWebsocketProxyPort(config),
         _ => logger.info(`apiDog WebSocket proxy started on ${getConfigWebsocketBind(config)}`)
       );
     }

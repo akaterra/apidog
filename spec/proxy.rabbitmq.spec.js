@@ -18,7 +18,7 @@ describe('proxy rabbitmq', () => {
         },
         $publish(queue, message) {
           if (env.$rabbitmqSubscriptions[queue]) {
-            env.$rabbitmqSubscriptions[queue].fn(message);
+            env.$rabbitmqSubscriptions[queue].fn({content: message});
           }
 
           return env;
@@ -29,8 +29,8 @@ describe('proxy rabbitmq', () => {
             assertQueue(queue) {
               env.$amqplibAssertQueue = {queue};
             },
-            consume(queue, fn) {
-              env.$rabbitmqSubscriptions[queue] = {fn};
+            consume(queue, fn, opts) {
+              env.$rabbitmqSubscriptions[queue] = {fn, opts};
             },
             createChannel() {
               return env.$amqplibConnection;
