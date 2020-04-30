@@ -396,10 +396,16 @@
                         {{#ifCond ../this.api.transport.name '==' 'websocket'}}
                           <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
                           <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
-                        {{else ifCond ../this.api.transport.name '==' 'socketio'}}
+                        {{else ifCond ../this.api.transport.name '==' 'natssub'}}
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
+                        {{else ifCond ../this.api.transport.name '==' 'rabbitmqsub'}}
                           <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
                           <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
                         {{else ifCond ../this.api.transport.name '==' 'redissub'}}
+                          <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
+                          <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
+                        {{else ifCond ../this.api.transport.name '==' 'socketio'}}
                           <button class="button" data-block-ssr-ws-connect>{{_ 'connect'}}</button>
                           <button class="button hidden" data-block-ssr-ws-disconnect>{{_ 'disconnect'}}</button>
                         {{/ifCond}}

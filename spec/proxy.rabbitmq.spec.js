@@ -7,24 +7,44 @@ describe('proxy rabbitmq', () => {
 
   async function initAmqpEnv(response, config) {
     env = {
+      $response: response,
+      $rabbitmqHandlers: {},
+      $rabbitmqSubscriptions: {},
       amqplib: {
-        connect: (uri) => {
-          env.$amqplibConnection = {
-            assertQueue: (queue) => env.$amqplibAssertQueue = {queue},
-            createChannel: () => env.$amqplibConnection,
-            sendToQueue: (queue, data, opts) => {
-              env.$amqplibSent = {queue, data, opts};
+        $setResponse(response) {
+          env.$response = response;
 
-              return response;
-            },
+          return env;
+        },
+        $publish(queue, message) {
+          if (env.$rabbitmqSubscriptions[queue]) {
+            env.$rabbitmqSubscriptions[queue].fn(message);
+          }
+
+          return env;
+        },
+        connect(uri) {
+          env.$amqplibConnection = {
             uri,
+            assertQueue(queue) {
+              env.$amqplibAssertQueue = {queue};
+            },
+            consume(queue, fn) {
+              env.$rabbitmqSubscriptions[queue] = {fn};
+            },
+            createChannel() {
+              return env.$amqplibConnection;
+            },
+            sendToQueue(queue, data, opts) {
+              env.$amqplibSent = {queue, data, opts};
+            },
           };
 
           return env.$amqplibConnection;
         }
       },
       amqplibRpc: {
-        request: (connection, queue, data, opts) => {
+        request(connection, queue, data, opts) {
           env.$amqplibRpcRequest = {connection, queue, data, opts};
 
           return response;
@@ -40,7 +60,12 @@ describe('proxy rabbitmq', () => {
     env.config.rabbitmq.allow = true;
 
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
+    appWs = (await require('../src/templates/apidog_proxy').createAppWebSocket(env)).listen(8008);
   }
+
+  afterEach(async () => {
+    await appWs.shutdown();
+  });
 
   it('should process pub request', async () => {
     await initAmqpEnv({});
@@ -124,6 +149,23 @@ describe('proxy rabbitmq', () => {
         expect(env.$amqplibRpcRequest.queue).toBe('queue');
         expect(env.$amqplibConnection.uri).toBe('amqp://username:password@host:9999/vhost');
         expect(res.text).toBe('data');
+      });
+  });
+
+  it('should process sub request', async () => {
+    await initAmqpEnv({});
+
+    const req = requestWs(appWs);
+
+    return req
+      .send('/rabbitmqsub/channel', {
+        test: 'test',
+      })
+      .do(() => {
+        env.amqplib.$publish('channel', 'response');
+      })
+      .expect((res, ws) => {
+        expect(res).toBe('response');
       });
   });
 });

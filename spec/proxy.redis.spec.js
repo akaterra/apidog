@@ -17,10 +17,8 @@ describe('proxy redis', () => {
           return env;
         },
         $publish(channel, message) {
-          if (env.$redisHandlers.message) {
-            if (!env.$redisSubscribe || env.$redisSubscribe.channel === channel) {
-              env.$redisHandlers.message(channel, message);
-            }
+          if (env.$redisHandlers.message && (!env.$redisSubscribe || env.$redisSubscribe.channel === channel)) {
+            env.$redisHandlers.message(channel, message);
           }
 
           return env;

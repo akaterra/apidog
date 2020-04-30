@@ -14,19 +14,20 @@ Features:
 * Templates for:
   * Minimalistic HTML file with dynamic assets loading
   * Single pre-compiled HTML file with no external dependencies
+  * apidoc.apidoc text file
   * Markdown file
   * Swagger specification file (v2.0, v3.0)
 * Server proxy
 * Send sample request plugin for html template:
     * Transports support:
-        * HTTP/HTTPS
-        * Nats (via Server proxy)
+        * HTTP/HTTPS (via Server proxy only HTTP)
+        * Nats PUB/SUB (via Server proxy)
         * Nats RPC (remote procedure call, via Server proxy)
-        * RabbitMQ (via Server proxy)
+        * RabbitMQ PUS/SUB (via Server proxy)
         * RabbitMQ RPC (remote procedure call, via Server proxy)
         * Redis PUB/SUB (via Server proxy)
         * Socket.IO
-        * WebSocket/WebSocket Secure (W3C)
+        * WebSocket/WebSocket Secure (W3C) (via Server proxy only WebSocket)
     * Content types support:
         * Form
         * JSON
@@ -44,6 +45,7 @@ Table of contents
 * Additional annotations
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
+  * [@apiErrorPrefix](#apierrorprefix)
   * [@apiErrorValue](#apierrorvalue)
   * [@apiFamily](#apifamily)
   * [@apiHeaderValue](#apiheadervalue)
@@ -54,6 +56,7 @@ Table of contents
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
+  * [@apiSuccessPrefix](#apisuccessprefix)
   * [@apiSuccessValue](#apisuccessvalue)
   * [@apiTag](#apitag)
 * Built-in templates
@@ -402,6 +405,59 @@ Format:
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
 
+##### @apiSuccessPrefix
+
+Format:
+```
+@apiSuccessPrefix prefix
+```
+
+Prefixes all following **@apiSuccess**s with prefix.
+
+Allows to reuse lists of **apiSuccess** between different doc blocks.
+
+Example:
+```
+/**
+ * @apiDefine sharedParams
+ * @apiSuccess a
+ * @apiSuccess b
+ * @apiSuccess c
+ */
+
+/**
+ * @api {post} test1
+ * @apiDescription Parameters are prefixed by "body" - body.a, body.b, body.c
+ * @apiSuccessPrefix body.
+ * @apiUse sharedParams
+ */
+
+/**
+ * @api {post} test2
+ * @apiDescription Parameters are prefixed by "payload" - payload.a, payload.b, payload.c
+ * @apiSuccessPrefix payload.
+ * @apiUse sharedParams
+ */
+```
+
+Another subsequent declaration adds a prefix to the previous one.
+".." returns to the previous prefix, empty value resets the prefix.
+
+Example:
+```
+/**
+ * @api {post} test
+ * @apiSuccessPrefix body.
+ * @apiSuccess {String} a As "body.a"
+ * @apiSuccessPrefix b.
+ * @apiSuccess {String} c As "body.a.b.c"
+ * @apiSuccessPrefix ..
+ * @apiSuccess {String} d As "body.d"
+ * @apiSuccessPrefix
+ * @apiSuccess {String} e As "e"
+ */
+```
+
 ##### @apiSuccessValue
 
 Format:
@@ -635,6 +691,14 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
+**@api** annotation format for Nats SUB:
+
+```
+/**
+ * @api {natsSub} endpoint
+ */
+```
+
 **@api** annotation format for RabbitMQ PUB:
 
 ```
@@ -651,6 +715,14 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
+**@api** annotation format for RabbitMQ SUB:
+
+```
+/**
+ * @api {rabbitmqSub[:exchange]} endpoint
+ */
+```
+
 **@api** annotation format for Redis PUB:
 
 ```
@@ -664,6 +736,22 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
 ```
 /**
  * @api {redisSub} endpoint
+ */
+```
+
+**@api** annotation format for Socket.IO:
+
+```
+/**
+ * @api {sockeio} endpoint
+ */
+```
+
+**@api** annotation format for WebSocket:
+
+```
+/**
+ * @api {webSocket} endpoint
  */
 ```
 

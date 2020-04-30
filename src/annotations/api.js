@@ -190,7 +190,6 @@ function validate(block, config) {
 
     case 'natspub':
     case 'natsrpc':
-    case 'natssub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
@@ -211,12 +210,53 @@ function validate(block, config) {
 
       break;
 
+    case 'natssub':
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyNatsSub || config.sampleRequestProxy;
+        }
+
+        if (!block.sampleRequestProxy) {
+          block.sampleRequest = [];
+
+          config.logger.warn(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        } else {
+          block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+            return sampleRequest === true
+              ? block.api.endpoint
+              : sampleRequest;
+          });
+        }
+      }
+
+      break;
+
     case 'rabbitmqpub':
     case 'rabbitmqrpc':
-    case 'rabbitmqsub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
           block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
+        }
+
+        if (!block.sampleRequestProxy) {
+          block.sampleRequest = [];
+
+          config.logger.warn(`Proxy must be used for ${block.api.transport.name.toUpperCase()} sample requests`);
+        }
+
+        block.sampleRequest = block.sampleRequest.map((sampleRequest) => {
+          return sampleRequest === true
+            ? block.api.endpoint
+            : sampleRequest;
+        });
+      }
+
+      break;
+
+    case 'rabbitmqsub':
+      if (block.sampleRequest.length) {
+        if (!block.sampleRequestProxy) {
+          block.sampleRequestProxy = config.sampleRequestProxyRabbitmqSub || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
