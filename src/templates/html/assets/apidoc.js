@@ -140,6 +140,10 @@ window.onload = () => {
   }
 
   main.jumpToByHash(document.location.hash.substr(1));
+
+  if (qs.version) {
+    main.showVersion(qs.version);
+  }
 };
 
 function enumChapters(chapters, fn, acc) {
