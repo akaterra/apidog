@@ -1,6 +1,6 @@
 {
-  "name": "apidog",
-  "version": "0.0.4",
+  "name": "@akaterra.co/apidog",
+  "version": "0.0.5",
   "description": "apiDog is a API documentation generator alternative to the apiDoc",
   "main": "start.js",
   "bin": "apidog",

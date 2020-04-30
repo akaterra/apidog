@@ -72,7 +72,7 @@ Table of contents
 ### Installation
 
 ```sh
-npm i apidog -g
+npm i @akaterra.co/apidog -g
 ```
 
 ### CLI
