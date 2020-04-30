@@ -443,6 +443,7 @@ Complies to:
 * apidoc.i18n.min.js - I18N translations
 * apidoc.min.js - bootstrap
 * apidoc.template.min.js - handlebars template
+* favicon.png
 * handlebars.min.js - Handlebars bundle
 * socket.io.js - Socket.IO bundle
 
