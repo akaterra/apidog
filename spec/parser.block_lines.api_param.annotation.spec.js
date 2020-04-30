@@ -19,8 +19,6 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam (isNotTyped) A_B.C This is a description',
     ];
 
-    console.log(JSON.stringify(parser.parseBlockLines(lines).paramGroupVariant,undefined,2))
-
     expect(parser.parseBlockLines(lines)).toEqual({
       param: [{ // 0
         description: [],

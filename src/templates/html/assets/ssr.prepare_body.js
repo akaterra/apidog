@@ -152,10 +152,10 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
           if (typeIndex === pathKeys.length - 1) {
             if (Array.isArray(bodyNode)) {
-              let ind = key === '' ? - 1 : parseInt(key);
+              let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
-              if (ind === - 1) {
-                if (!bodyNode.length) {
+              if (ind < 0) {
+                if (ind === -1 || !bodyNode.length) {
                   bodyNode.push(undefined);
                 }
 
@@ -182,20 +182,20 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
           } else {
             switch (type) {
               case 'a':
-                if (!(key in bodyNode) || !Array.isArray(bodyNode[key])) {
+                if (!Array.isArray(bodyNode[key]) || !(key in bodyNode) ) {
                   bodyNode[key] = [];
                 }
 
                 break;
 
               case 'i':
-                let ind = key === '' ? -1 : parseInt(key);
+                let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
-                if (ind === -1) {
-                  if (!bodyNode.length) {
+                if (ind < 0) {
+                  if (ind === -1 || !bodyNode.length) {
                     bodyNode.push(undefined);
                   }
-
+  
                   ind = bodyNode.length - 1;
                   key = String(ind);
                 }
@@ -212,7 +212,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
                   fillCount -= 1;
                 }
 
-                if (!(key in bodyNode) || bodyNode[key] === undefined) {
+                if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
                   bodyNode[key] = pathKeyTypes[typeIndex + 1] === 'i' ? [] : {};
                 }
 
