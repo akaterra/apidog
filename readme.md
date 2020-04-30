@@ -445,6 +445,10 @@ Complies to:
 * apidoc.template.min.js - handlebars template
 * handlebars.min.js - handlebars bundle
 
+Supports nav jumping to a chapter, group, subgroup and block version.
+Supports locale selection (en, he, ru) via "locale=..." query string param.
+Supports version selection via "version=..." query string param.
+
 ##### @html.standalone
 
 ```sh
@@ -452,6 +456,7 @@ apidog -t @html.standalone
 ```
 
 Compiles to standalone html file without external dependencies.
+
 Supports nav jumping to a chapter, group, subgroup and block version.
 Supports locale selection (en, he, ru) via "locale=..." query string param.
 Supports version selection via "version=..." query string param.
