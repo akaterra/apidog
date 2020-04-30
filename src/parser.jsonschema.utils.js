@@ -33,7 +33,6 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
   const paramDefault = spec.default ? `=${utils.quote(spec.default)}` : '';
   const paramGroup = group ? `(${group}) ` : '';
   const paramIsRequired = required ? required.includes(key) : false;
-  const paramEnum = spec.enum ? `=${[].concat(spec.enum).map(utils.quote).join(',')}` : '';
   const paramKey = paramIsRequired ? `${prefix ? prefix + '.' : ''}${key}${paramDefault}` : `[${prefix ? prefix + '.' : ''}${key}${paramDefault}]`;
   const paramTitle = spec.title ? ` ${spec.title}` : '';
 
@@ -56,6 +55,8 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
 
           if (key) {
             for (const type of resolveType(combinedSpec.type, combinedSpec.enum)) {
+              const paramEnum = combinedSpec.enum ? `=${[].concat(combinedSpec.enum).map(utils.quote).join(',')}` : '';
+
               docBlock.push(`${annotation} ${paramGroup}{${type}[]${paramEnum}} ${paramKey}${paramTitle}`);
             }
         
@@ -97,6 +98,8 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
 
           if (key) {
             for (const type of resolveType(combinedSpec.type, combinedSpec.enum)) {
+              const paramEnum = combinedSpec.enum ? `=${[].concat(combinedSpec.enum).map(utils.quote).join(',')}` : '';
+
               docBlock.push(`${annotation} ${paramGroup}{${type}${paramEnum}} ${paramKey}${paramTitle}`);
             }
         
@@ -121,15 +124,32 @@ function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootS
       break;
 
     default:
-      if (key) {
-        for (const type of resolveType(spec.type, spec.enum)) {
-          docBlock.push(`${annotation} ${paramGroup}{${type}${paramEnum}} ${paramKey}${paramTitle}`);
-        }
-    
-        if (spec.description) {
-          docBlock.push(spec.description);
-        }
+      const { anyOf, oneOf, ...rest } = spec;
+      const specVariants = [].concat(anyOf || []).concat(oneOf || []);
+
+      if (!specVariants.length) {
+        specVariants.push({});
       }
+
+      specVariants.forEach((anyOf) => {
+        if (anyOf.$ref) {
+          resolveRef(rootSpec, anyOf, config);
+        }
+
+        const combinedSpec = { ...anyOf, ...rest };
+
+        if (key) {
+          for (const type of resolveType(combinedSpec.type, combinedSpec.enum)) {
+            const paramEnum = combinedSpec.enum ? `=${[].concat(combinedSpec.enum).map(utils.quote).join(',')}` : '';
+
+            docBlock.push(`${annotation} ${paramGroup}{${type}${paramEnum}} ${paramKey}${paramTitle}`);
+          }
+      
+          if (spec.description) {
+            docBlock.push(spec.description);
+          }
+        }
+      });
   }
 
   return docBlock;
