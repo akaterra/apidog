@@ -163,7 +163,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
                 key = String(ind);
               }
 
-              if (ind < 0) {
+              if (isNaN(ind) || ind < 0) {
                 throw new Error(`Invalid array index ${key}`);
               }
 
@@ -200,7 +200,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
                   key = String(ind);
                 }
 
-                if (ind < 0) {
+                if (isNaN(ind) || ind < 0) {
                   throw new Error(`Invalid array index ${key}`);
                 }
 
