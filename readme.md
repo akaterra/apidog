@@ -443,7 +443,8 @@ Complies to:
 * apidoc.i18n.min.js - I18N translations
 * apidoc.min.js - bootstrap
 * apidoc.template.min.js - handlebars template
-* handlebars.min.js - handlebars bundle
+* handlebars.min.js - Handlebars bundle
+* socket.io.js - Socket.IO bundle
 
 Supports nav jumping to a chapter, group, subgroup and block version.
 Supports locale selection (en, he, ru) via "locale=..." query string param.
