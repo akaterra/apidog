@@ -5,7 +5,7 @@
   <meta name="description" content="{{description}}">
   <meta name="keywords" content="{{joinWithComma keywords}}">
   <title>"{{title}}" {{description}} {{version}}</title>
-  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" href="data:image/png;base64,{{> favicon.png.base64}}" />
   <style>
     {{> style.css }}
   </style>
@@ -24,10 +24,24 @@
 <div class="splash">"{{title}}" {{description}} {{version}} apiDoc is loading ...</div>
 </body>
 <script>
-  const templateContent = `{{> content.hbs.content }}`;
+  const templates = {
+    content: `{{> template.content.hbs.content }}`,
+    contentParamExample: `{{> template.content.param_example.hbs.content }}`,
+    contentParamGroup: `{{> template.content.param_group.hbs.content }}`,
+    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs.content }}`,
+    contentParamValueGroup: `{{> template.content.param_value_group.hbs.content }}`,
+    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs.content }}`,
+    contentSsrParamGroupVariantSection: `{{> template.content.ssr.param_group_variant.section.hbs.content }}`,
+  };
 
   (function () {
     {{> handlebars.js }}
+ 
+  })();
+
+  (function () {
+    {{> socket.io-client.js }}
+  
   })();
 
   {{> apidoc.data.js }}

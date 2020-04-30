@@ -4,14 +4,14 @@
 const ssrVariable = (function () {
   let presets = {};
 
-  ssr.onRequestPrepareParams((el, {headers, params}) => {
+  ssr.onRequestPrepareParams((el, { headers, params }) => {
     const blockId = el.dataset.block;
 
     const blockDescriptor = sections[blockId];
 
     api.set();
 
-    by.selector('[data-block-ssr-input="variable"]', el).forEach((blockSsrInputEl) => {
+    by.selector('[data-block-ssr-class="variable"]', el).forEach((blockSsrInputEl) => {
       const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable
         .find((variable) => variable.field.name === blockSsrInputEl.name);
 
@@ -24,23 +24,31 @@ const ssrVariable = (function () {
       }
     });
 
-    Object.entries(headers).forEach(([key, val]) => {
+    Object.entries(headers).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
-        headers[key] = val.replace(/@(\w+)/g, (_, sub) => {
+        headers[key][0] = val.replace(/@(\w+)/g, (_, sub, ind) => {
+          if (ind > 0 && val[ind - 1] === '\\') {
+            return val;
+          }
+
           const [ns, key] = sub.split(':', 1);
 
           return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-        });
+        }).replace(/\\@/g, _ => '@');
       }
     });
 
-    Object.entries(params).forEach(([key, val]) => {
+    Object.entries(params).forEach(([key, [val,]]) => {
       if (typeof val === 'string') {
-        params[key] = val.replace(/@(\w+)/g, (_, sub) =>{
+        params[key][0] = val.replace(/@(\w+)/g, (_, sub, ind) => {
+          if (ind > 0 && val[ind - 1] === '\\') {
+            return val;
+          }
+
           const [ns, key] = sub.split(':', 1);
 
           return presets[key ? ns : null] && presets[key ? ns : null][key || ns] || '';
-        });
+        }).replace(/\\@/g, _ => '@');
       }
     });
   });
@@ -102,7 +110,7 @@ const ssrVariable = (function () {
     },
 
     getNsValues(blockId) {
-      return by.selector(`[data-block="${blockId}"] [data-block-ssr-input="variable"]`).reduce((acc, blockSsrInputEl) => {
+      return by.selector(`[data-block="${blockId}"] [data-block-ssr-class="variable"]`).reduce((acc, blockSsrInputEl) => {
         const blockDescriptor = sections[blockId];
 
         const blockDescriptorSsrVariable = blockDescriptor.sampleRequestVariable

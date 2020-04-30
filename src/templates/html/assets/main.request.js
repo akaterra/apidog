@@ -7,6 +7,78 @@ const request = (function () {
     });
   }
 
+  const socketIoConnections = {};
+
+  function socketIoConnect(url, config) {
+    const parsedUrl = parseUrl(url);
+
+    if (!(parsedUrl.fullPath in socketIoConnections) || !socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath] = io.connect(url);
+
+      if (config) {
+        if (config.onConnect) {
+          socketIoConnections[parsedUrl.fullPath].on('connect', () => {
+            config.onConnect(socketIoConnections[parsedUrl.fullPath]);
+
+            if (config.onReady) {
+              config.onReady(socketIoConnections[parsedUrl.fullPath]);
+            }
+          });
+        }
+
+        if (config.onData) {
+          socketIoConnections[parsedUrl.fullPath].on('message', function (msg) {
+            config.onData(socketIoConnections[parsedUrl.fullPath], msg);
+          });
+        }
+
+        if (config.onDisconnect) {
+          socketIoConnections[parsedUrl.fullPath].on('disconnect', () => {
+            config.onDisconnect(socketIoConnections[parsedUrl.fullPath]);
+          });
+        }
+
+        if (config.onError) {
+          socketIoConnections[parsedUrl.fullPath].on('error', (err) => {
+            config.onError(socketIoConnections[parsedUrl.fullPath], `Network error: ${err}`);
+          });
+        }
+      }
+    } else {
+      if (config) {
+        if (config.onReady) {
+          config.onReady(socketIoConnections[parsedUrl.fullPath]);
+        }
+      }
+    }
+
+    return socketIoConnections[parsedUrl.fullPath];
+  }
+
+  function socketIoDisconnect(url) {
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in socketIoConnections && socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath].close();
+    }
+  }
+
+  function socketIoIsConnected(url) {
+    const parsedUrl = parseUrl(url);
+
+    return parsedUrl.fullPath in socketIoConnections && (
+      socketIoConnections[parsedUrl.fullPath].connected
+    );
+  }
+
+  function socketIoPublish(url, data, headers) {
+    const parsedUrl = parseUrl(url);
+
+    if (parsedUrl.fullPath in socketIoConnections && socketIoIsConnected(url)) {
+      socketIoConnections[parsedUrl.fullPath].send(data);
+    }
+  }
+
   const wsConnections = {};
 
   function wsConnect(url, config) {
@@ -40,7 +112,7 @@ const request = (function () {
 
         if (config.onError) {
           wsConnections[parsedUrl.fullPath].onerror = (err) => {
-            config.onError(wsConnections[parsedUrl.fullPath], 'Network error');
+            config.onError(wsConnections[parsedUrl.fullPath], `Network error`);
           };
         }
       }
@@ -129,6 +201,21 @@ const request = (function () {
           throw error;
         });
 
+      case 'socketio':
+        return socketIoConnect(url, {
+          onConnect: config && config.onConnect,
+          onData: config && config.onData,
+          onDisconnect: config && config.onDisconnect,
+          onError: config && config.onError,
+          onReady: (ws) => {
+            if (config && config.onReady) {
+              config.onReady(ws);
+            }
+
+            socketIoPublish(url, body, headers);
+          },
+        });
+
       case 'ws':
         return wsConnect(url, {
           onConnect: config && config.onConnect,
@@ -202,6 +289,9 @@ const request = (function () {
         break;
     }
 
+    // insert placeholders
+    url = prepareUrl(url, body);
+
     // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
       if (!type || type === 'params') {
@@ -227,9 +317,6 @@ const request = (function () {
       }
     }
 
-    // insert placeholders
-    url = prepareUrl(url, body);
-
     // insert rest of data as query parameters in case of http GET method
     if (method === 'GET') {
       if (body) {
@@ -251,14 +338,28 @@ const request = (function () {
   request.http = {
     delete: (url) => request('http', url, 'delete'),
     get: (url) => request('http', url, 'get'),
-    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, contentType),
-    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, contentType),
+    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, undefined, contentType),
+    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, undefined, contentType),
     requestWithFormattedBody: (url, method, params, headers, contentType) => requestWithFormattedBody(
       'http',
       url,
       method,
       params,
       headers,
+      contentType
+    ),
+  };
+  request.socketio = {
+    disconnect: socketIoDisconnect,
+    connect: socketIoConnect,
+    isConnected: socketIoIsConnected,
+    publish: (url, params, contentType) => requestWithFormattedBody('socketio', url, 'socketio', params, undefined, contentType),
+    requestWithFormattedBody: (url, params, contentType) => requestWithFormattedBody(
+      'socketio',
+      url,
+      'socketio',
+      params,
+      undefined,
       contentType
     ),
   };

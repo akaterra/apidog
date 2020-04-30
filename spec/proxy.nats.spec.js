@@ -8,15 +8,33 @@ describe('proxy nats', () => {
   async function initNatsEnv(response, config) {
     env = {
       $response: response,
+      $natsHandlers: {},
+      $natsSubscriptions: {},
       nats: {
-        $setResponse: (response) => {
+        $setResponse(response) {
           env.$response = response;
 
           return env;
         },
-        connect: (uri) => {
+        $publish(queue, message) {
+          if (env.$natsSubscriptions[queue]) {
+            env.$natsSubscriptions[queue].fn(message);
+          }
+
+          return env;
+        },
+        connect(uri) {
           env.$natsConnection = {
-            publish: (queue, data) => env.$natsPublish = {queue, data},
+            uri,
+            on(event, fn) {
+              env.$natsHandlers[event] = fn;
+            },
+            publish(queue, data) {
+              env.$natsPublish = {queue, data}
+            },
+            subscribe(queue, fn) {
+              env.$natsSubscriptions[queue] = {fn};
+            },
             requestOne: (queue, data, opts, timeout, fn) => {
               env.$natsRequestOne = {queue, data, timeout, opts, fn};
 
@@ -24,7 +42,6 @@ describe('proxy nats', () => {
                 fn(env.$response);
               }
             },
-            uri,
           };
 
           return env.$natsConnection;
@@ -40,7 +57,12 @@ describe('proxy nats', () => {
     env.config.nats.allow = true;
 
     app = await require('../src/templates/apidog_proxy').createAppHttp(env);
+    appWs = (await require('../src/templates/apidog_proxy').createAppWebSocket(env)).listen(8008);
   }
+
+  afterEach(async () => {
+    await appWs.shutdown();
+  });
 
   it('should process pub request', async () => {
     await initNatsEnv({});
@@ -124,6 +146,23 @@ describe('proxy nats', () => {
         expect(env.$natsRequestOne.queue).toBe('queue');
         expect(env.$natsConnection.uri).toBe('nats://username:password@host:9999');
         expect(res.text).toBe('data');
+      });
+  });
+
+  it('should process sub request', async () => {
+    await initNatsEnv();
+
+    const req = requestWs(appWs);
+
+    return req
+      .send('/natssub/channel', {
+        test: 'test',
+      })
+      .do(() => {
+        env.nats.$publish('channel', 'response');
+      })
+      .expect((res, ws) => {
+        expect(res).toBe('response');
       });
   });
 });

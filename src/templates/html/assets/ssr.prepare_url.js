@@ -1,4 +1,5 @@
 function prepareUrl(url, params) {
+
   return url.replace(/:\w+/g, (key) => {
     if (has(params, key.substr(1))) {
       const value = get(params, key.substr(1));

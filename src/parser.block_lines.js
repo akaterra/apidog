@@ -8,13 +8,14 @@ const annotationParsers = {
   '@apiDeprecated': require('./annotations/api_deprecated'),
   '@apiDescription': require('./annotations/api_description'),
   '@apiGroup': require('./annotations/api_group'),
-  '@apiError': require('./annotations/api_param').construct('error'),
-  '@apiErrorExample': require('./annotations/api_param_example').construct('error', '@errorExample'),
+  '@apiError': require('./annotations/api_param').construct('error', true),
+  '@apiErrorExample': require('./annotations/api_param_example').construct('error'),
+  '@apiErrorPrefix': require('./annotations/api_param_prefix').construct('errorPrefix'),
   '@apiErrorValue': require('./annotations/api_param_value').construct('errorValue'),
-  '@apiExample': require('./annotations/api_param_example').construct(undefined, '@example'),
+  '@apiExample': require('./annotations/api_param_example').construct(),
   '@apiFamily': require('./annotations/api_family'),
   '@apiHeader': require('./annotations/api_param').construct('header'),
-  '@apiHeaderExample': require('./annotations/api_param_example').construct('header', '@headerExample'),
+  '@apiHeaderExample': require('./annotations/api_param_example').construct('header'),
   '@apiHeaderValue': require('./annotations/api_param_value').construct('headerValue'),
   '@apiIgnore': require('./annotations/api_ignore'),
   '@apiName': require('./annotations/api_name'),
@@ -37,8 +38,11 @@ const annotationParsers = {
   '@apiSrVariable': require('./annotations/api_sample_request_variable'),
   '@apiSchema': require('./annotations/api_schema'),
   '@apiSubgroup': require('./annotations/api_sub_group'),
-  '@apiSuccess': require('./annotations/api_param').construct('success'),
-  '@apiSuccessExample': require('./annotations/api_param_example').construct('success', '@successExample'),
+  '@apiSuccess': require('./annotations/api_param').construct('success', true),
+  '@apiSuccessExample': require('./annotations/api_param_example').construct('success'),
+  '@apiSuccessPrefix': require('./annotations/api_param_prefix').construct('successPrefix'),
+  '@apiSuccessValue': require('./annotations/api_param_value').construct('successValue'),
+  '@apiTag': require('./annotations/api_tag'),
   '@apiUse': require('./annotations/api_use'),
   '@apiVersion': require('./annotations/api_version'),
 };
@@ -80,19 +84,23 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
           lastTokenParser = annotationParsers[annotation];
 
           // merge parsed properties with block properties
-          Object.assign(
-            block,
-            lastTokenParser.parse(
+          try {
+            Object.assign(
               block,
-              text,
-              line,
-              index,
-              lines,
-              definitions,
-              config,
-              onlyDefinitions
-            )
-          );
+              lastTokenParser.parse(
+                block,
+                text,
+                line,
+                index,
+                lines,
+                definitions,
+                config,
+                onlyDefinitions
+              )
+            );
+          } catch (e) {
+            config.logger.throw(e);
+          }
         } else {
           // unknown annotation
           if (config.logger && annotation.substr(0, 4) === '@api') {
@@ -111,6 +119,23 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   return onlyDefinitions ? {} : block;
 }
 
+function toApidocBlockLines(block) {
+  let lines = [];
+
+  for (const annotationParser of Object.values(annotationParsers)) {
+    if (annotationParser.toApidocString) {
+      const annotationString = annotationParser.toApidocString(block);
+
+      if (annotationString) {
+        lines = lines.concat(Array.isArray(annotationString) ? annotationString : [annotationString]);
+      }
+    }
+  }
+
+  return lines;
+}
+
 module.exports = {
   parseBlockLines,
+  toApidocBlockLines,
 };

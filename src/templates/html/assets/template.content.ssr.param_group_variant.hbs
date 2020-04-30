@@ -1,0 +1,34 @@
+{{#each groupVariant as |groupVariant group|}}
+    <div class="flex">
+        <div class="label width-25 right">
+            <input
+                type="radio"
+                name="{{../id}}_{{../class}}_gs"
+                {{#if @first}}checked{{/if}}
+                data-block-ssr-class="{{../class}}"
+                data-block-ssr-group="{{group}}"
+                data-block-ssr-group-selector="{{group}}_{{../class}}"
+            />
+        </div>
+        {{#with (context 'definitions') as |definitions|}}
+            <div class="label">{{#ifCond group '==' 'null'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions group 'title') group}}{{/ifCond}}</div>
+        {{/with}}
+    </div>
+    <div
+        class="section{{#if @first}}{{else}} hidden{{/if}}" 
+        data-block-ssr-class="{{../class}}"
+        data-block-ssr-group="{{group}}"
+        data-block-ssr-selectable="group"
+    >
+        {{> contentSsrParamGroupVariantSection
+            class=../class
+            defaultName=../defaultName
+            field=null
+            group=group
+            groupVariantSection=groupVariant
+            id=../id
+            index=0
+            param=../param
+        }}
+    </div>
+{{/each}}

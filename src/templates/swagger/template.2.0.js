@@ -1,6 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserSwaggerUtils = require('../../parser.swagger.utils');
+const parserSwaggerUtils = require('../../parser.swagger.1.2.utils');
 const URL = require('url').URL;
 
 module.exports = (config) => ({
@@ -48,23 +48,23 @@ module.exports = (config) => ({
 
       const responses = {};
 
-      if (!descriptor.successsGroups && !descriptor.errorsGroups) {
+      if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
         responses['default'] = {description: 'No description'};
       } else {
-        if (descriptor.successsGroups) {
-          Object.entries(descriptor.successsGroups).forEach(([key, params]) => {
-            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
+        if (descriptor.successGroupVariant) {
+          Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params.list),
+              schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
             };
           });
         }
 
-        if (descriptor.errorsGroups) {
-          Object.entries(descriptor.errorsGroups).forEach(([key, params]) => {
-            responses[key === '$' ? 'default' : /^\d\d\d$/.test(key) ? key : `x-${key}`] = {
+        if (descriptor.errorGroupVariant) {
+          Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
-              schema: parserUtils.convertParamsToJsonSchema(params.list),
+              schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
             };
           });
         }
@@ -73,10 +73,10 @@ module.exports = (config) => ({
       let isBodyParamInitiated = false;
 
       if (!descriptor.api.transport.method) {
-        descriptor.api.transport.method = 'get';
+        descriptor.api.transport.method = 'post';
       }
 
-      spec.paths[endpoint][descriptor.api.transport.method] = {
+      const methodDescriptor = spec.paths[endpoint][descriptor.api.transport.method] = {
         summary: descriptor.title,
         description: descriptor.description && descriptor.description.join('\n'),
         operationId: descriptor.id,
@@ -108,39 +108,60 @@ module.exports = (config) => ({
 
           return contentType;
         }),
-        parameters: descriptor.params.map((param) => {
-          const typeAllowedValues = param.type.allowedValues.filter(_ => _);
-
-          if (param.field.name in uriParams || descriptor.api.transport.method === 'get') {
-            return {
-              name: param.field.name,
-              in: uriParams[param.field.name] === false ? 'path' : 'query',
-              description: param.description && param.description.join('/n'),
-              required: !param.field.isOptional,
-              type: param.type.modifiers.initial.toLowerCase(),
-              enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-            };
-          }
-
-          if (isBodyParamInitiated) {
-            return null;
-          }
-
-          isBodyParamInitiated = true;
-
-          return {
-            name: 'body',
-            in: 'body',
-            description: '',
-            required: true,
-            schema: parserUtils.convertParamsToJsonSchema(descriptor.params.filter((param) => !(param.field.name in uriParams))),
-            enum: typeAllowedValues.length ? typeAllowedValues : undefined,
-          };
-        }).filter((parameter) => parameter),
         responses,
       };
+
+      if (descriptor.paramGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
+
+        if (groupVariantKey) {
+          const notBodyParamIndexes = [];
+
+          methodDescriptor.parameters = descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
+            const param = descriptor.param[paramIndex];
+
+            if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get')) {
+              notBodyParamIndexes.push(paramIndex);
+
+              return {
+                name: param.field.name,
+                in: uriParams[param.field.name] === false ? 'path' : 'query',
+                description: param.description && param.description.join('/n'),
+                required: !param.field.isOptional,
+                ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
+                enum: param.type.allowedValues.length
+                  ? param.type.allowedValues
+                  : undefined,
+              };
+            }
+
+            return null;
+          }).filter(_ => _);
+
+          const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
+
+          if (bodyParams.length) {
+            methodDescriptor.parameters.push({
+              name: 'body',
+              in: 'body',
+              description: '',
+              required: true,
+              schema: parserUtils.convertParamGroupVariantToJsonSchema(
+                descriptor.paramGroupVariant[groupVariantKey].prop,
+                bodyParams,
+              ),
+            });
+          }
+        }
+      }
     });
 
-    fs.writeFileSync(`${outputDir}/swagger2.json`, JSON.stringify(spec, undefined, 2));
+    const content = JSON.stringify(spec, undefined, 2);
+
+    if (outputDir === 'stdout') {
+      return content;
+    } else {
+      fs.writeFileSync(`${outputDir}/swagger.2.0.json`, JSON.stringify(spec, undefined, 2));
+    }
   },
 });

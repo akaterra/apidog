@@ -39,12 +39,32 @@ module.exports = (config) => ({
       fs.writeFileSync(`${outputDir}/apidoc.i18n.min.js`, uglify.minify(handlebars.compile(apidocJsI18nTemplate)(params)).code);
     }
 
-    const template = fs.readFileSync(`${__dirname}/assets/content.hbs`, {encoding: 'utf8'});
+    const apidocTemplateContent = ['const templates = {};'];
+
+    for (const templateName of [[
+      'template.content', 'content',
+    ], [
+      'template.content.param_example', 'contentParamExample',
+    ], [
+      'template.content.param_group_variant', 'contentParamGroupVariant',
+    ], [
+      'template.content.param_group', 'contentParamGroup',
+    ], [
+      'template.content.param_value_group', 'contentParamValueGroup',
+    ], [
+      'template.content.ssr.param_group_variant', 'contentSsrParamGroupVariant',
+    ], [
+      'template.content.ssr.param_group_variant.section', 'contentSsrParamGroupVariantSection',
+    ]]) {
+      const template = fs.readFileSync(`${__dirname}/assets/${templateName[0]}.hbs`, {encoding: 'utf8'});
+
+      apidocTemplateContent.push(`templates.${templateName[1]} = \`${template}\`;`);
+    }
 
     if (process.env.NODE_ENV === 'test') {
-      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, `const templateContent = \`${template}\``);
+      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, apidocTemplateContent.join('\n'));
     } else {
-      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(`const templateContent = \`${template}\``).code);
+      fs.writeFileSync(`${outputDir}/apidoc.template.min.js`, uglify.minify(apidocTemplateContent.join('\n')).code);
     }
 
     const apidocHtmlTemplate = fs.readFileSync(`${__dirname}/template.hbs`, {encoding: 'utf8'});
@@ -53,7 +73,10 @@ module.exports = (config) => ({
     const handlebarsJs = fs.readFileSync(`${__dirname}/../../../node_modules/handlebars/dist/handlebars.min.js`, {encoding: 'utf8'});
     fs.writeFileSync(`${outputDir}/handlebars.min.js`, handlebarsJs);
 
-    const favicon = fs.readFileSync(`${__dirname}/assets/favicon.ico`);
-    fs.writeFileSync(`${outputDir}/favicon.ico`, favicon);
+    const socketIoJs = fs.readFileSync(`${__dirname}/../../../node_modules/socket.io-client/dist/socket.io.js`, {encoding: 'utf8'});
+    fs.writeFileSync(`${outputDir}/socket.io.js`, socketIoJs);
+
+    const favicon = fs.readFileSync(`${__dirname}/assets/favicon.png`);
+    fs.writeFileSync(`${outputDir}/favicon.png`, favicon);
   }
 });

@@ -5,8 +5,8 @@
 
 {{#each this.chaptersAsLists}}
   {{#with (context 'definitions') as |definitions|}}
-    {{#ifCond ../this.title '==' '$'}}
-Main chapter
+    {{#ifCond ../this.title '==' null}}
+{{_ 'mainChapter'}}
 ---
 
     {{else}}
@@ -20,12 +20,12 @@ Main chapter
     {{/if}}
   {{/with}}
 {{#each this.groups}}
-  {{#ifCond this.title '!=' '$'}}
+  {{#ifCond this.title '!=' null}}
     {{#with (context 'definitions') as |definitions|}}
 * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
     {{/with}}
     {{#each ../this.subgroups}}
-      {{#ifCond this.title '!=' '$'}}
+      {{#ifCond this.title '!=' null}}
         {{#with (context 'definitions') as |definitions|}}
   * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
@@ -44,7 +44,7 @@ Main chapter
     {{/each}}
   {{else}}
     {{#each ../this.subgroups}}
-      {{#ifCond this.title '!=' '$'}}
+      {{#ifCond this.title '!=' null}}
         {{#with (context 'definitions') as |definitions|}}
 * {{first (lookup definitions ../../this.title 'title') ../../this.title}}
         {{/with}}
@@ -63,17 +63,17 @@ Main chapter
 {{/each}}
 
 {{#each this.chaptersAsLists}}
-{{#each this.groups}}
-  {{#ifCond this.title '!=' '$'}}
+  {{#each this.groups}}
+    {{#ifCond this.title '!=' null}}
 {{../this.title}}
 ---
   {{/ifCond}}
-  {{#each this.subgroups}}
-    {{#each this.apis}}
+  {{#each this.subgroups as |subgroup|}}
+    {{#each this.apis as |api|}}
       {{#each this as |block index|}}
 
         {{#with (context 'definitions') as |definitions|}}
-### {{../this.title}} {{first (lookup definitions ../../../../this.title 'title') ../../../../this.title}} ({{first (lookup definitions ../../../this.title 'title') ../../../this.title}})
+### {{apiTitle ../api.title (first (lookup definitions ../group.title 'title') ../group.title) (first (lookup definitions ../subgroup.title 'title') ../subgroup.title) ../api.version}}
         {{/with}}
 {{join this.description true}}
 
@@ -85,28 +85,32 @@ Main chapter
 {{/ifCond}}
 
 
-{{#if this.headers.length}}
-  {{#each this.headersGroups as |params key|}}
+{{#if this.header.length}}
+  {{#each this.headerGroup as |group key|}}
 
-**{{#ifCond key '==' '$'}}Header{{else}}{{key}}{{/ifCond}}:**
+**{{#ifCond key '==' null}}{{_ 'header'}}{{else}}{{key}}{{/ifCond}}**
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-    {{#each params.list}}
-| {{this.field.name}} | {{this.type.name}} | {{join this.description}} |
+| {{_ 'field'}} | {{_ 'type'}} | {{_ 'description'}} |
+| --- | --- | --- |
+    {{#each group.list as |paramIndex|}}
+      {{#with (lookup ../../this.param paramIndex) as |param|}}
+| {{param.field.name}}{{#if param.field.isOptional}}<sup> optional</sup>{{else}}{{/if}} | {{param.type.name}} | {{join param.description}}{{#if param.type}}{{#if param.type.allowedValues}}{{#if param.description.length}}<br><br>{{/if}}**Allowed values:**{{#each param.type.allowedValues}}<br>{{param}}{{/each}}{{/if}}{{/if}}{{#if param.field}}{{#if param.field.defaultValue}}{{#if param.description.length}}<br><br>{{else}}{{#if param.type}}{{#if param.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{param.field.defaultValue}}{{/if}}{{/if}} |
+      {{/with}}
     {{/each}}
   {{/each}}
 {{/if}}
 
-{{#if this.params.length}}
-  {{#each this.paramsGroups as |params key|}}
+{{#if this.param.length}}
+  {{#each this.paramGroup as |group key|}}
 
-**{{#ifCond key '==' '$'}}Parameter{{else}}{{key}}{{/ifCond}}:**
+**{{#ifCond key '==' null}}{{_ 'parameter'}}{{else}}{{key}}{{/ifCond}}**
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-    {{#each params.list}}
-| {{this.field.name}}{{#if this.field.isOptional}}<sup> optional</sup>{{else}}{{/if}} | {{this.type.name}} | {{join this.description}}{{#if this.type}}{{#if this.type.allowedValues}}{{#if this.description.length}}<br><br>{{/if}}**Allowed values:**{{#each this.type.allowedValues}}<br>{{this}}{{/each}}{{/if}}{{/if}}{{#if this.field}}{{#if this.field.defaultValue}}{{#if this.description.length}}<br><br>{{else}}{{#if this.type}}{{#if this.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{this.field.defaultValue}}{{/if}}{{/if}} |
+| {{_ 'field'}} | {{_ 'type'}} | {{_ 'description'}} |
+| --- | --- | --- |
+    {{#each group.list as |paramIndex|}}
+      {{#with (lookup ../../this.param paramIndex) as |param|}}
+| {{param.field.name}}{{#if param.field.isOptional}}<sup> optional</sup>{{else}}{{/if}} | {{param.type.name}} | {{join param.description}}{{#if param.type}}{{#if param.type.allowedValues}}{{#if param.description.length}}<br><br>{{/if}}**Allowed values:**{{#each param.type.allowedValues}}<br>{{param}}{{/each}}{{/if}}{{/if}}{{#if param.field}}{{#if param.field.defaultValue}}{{#if param.description.length}}<br><br>{{else}}{{#if param.type}}{{#if param.type.allowedValues}}<br><br>{{/if}}{{/if}}{{/if}}**Default value:**<br>{{param.field.defaultValue}}{{/if}}{{/if}} |
+      {{/with}}
     {{/each}}
   {{/each}}
 {{/if}}
@@ -114,7 +118,7 @@ Main chapter
 {{#if this.example}}
   {{#each this.example}}
 
-**{{#if this.title}}{{this.title}}{{else}}Usage example{{/if}}:**
+**{{#if this.title}}{{this.title}}{{else}}{{_ 'usageExample'}}{{/if}}**
 
 ```{{this.type}}
 {{join this.description true}}
@@ -125,7 +129,7 @@ Main chapter
 {{#if this.successExample}}
   {{#each this.successExample}}
 
-**{{#if this.title}}{{this.title}}{{else}}Success example{{/if}}:**
+**{{#if this.title}}{{this.title}}{{else}}{{_ 'successExample'}}{{/if}}**
 
 ```{{this.type}}
 {{join this.description true true}}
@@ -133,8 +137,8 @@ Main chapter
   {{/each}}
 {{/if}}
 
+        {{/each}}
       {{/each}}
     {{/each}}
   {{/each}}
-{{/each}}
 {{/each}}

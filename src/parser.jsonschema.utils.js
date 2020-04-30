@@ -4,10 +4,16 @@ const utils = require('./utils');
 function convert(spec, group, annotation, rootSpec, config) {
   validateInternal(spec, config);
 
-  return resolveDefinition(spec, group, '', annotation, [], rootSpec, config);
+  return resolveDefinition(spec, group, '', '', annotation, [], rootSpec, config);
 }
 
-function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, config) {
+function resolvePropertiesDefinition(properties, group, prefix, annotation, docBlock, rootSpec, config, required) {
+  Object.entries(properties).forEach(([prop, spec]) => {
+    resolveDefinition(spec, group, prefix, prop, annotation, docBlock, rootSpec, config, required);
+  });
+}
+
+function resolveDefinition(spec, group, prefix, key, annotation, docBlock, rootSpec, config, required) {
   if (!docBlock) {
     docBlock = [];
   }
@@ -24,64 +30,107 @@ function resolveDefinition(spec, group, prefix, annotation, docBlock, rootSpec, 
     resolveRef(rootSpec, spec, config);
   }
 
-  if (!spec.properties || typeof spec.properties !== 'object') {
-    return docBlock;
-  }
-
-  const required = spec.required || [];
-
+  const paramDefault = spec.default ? `=${utils.quote(spec.default)}` : '';
   const paramGroup = group ? `(${group}) ` : '';
+  const paramIsRequired = required ? required.includes(key) : false;
+  const paramEnum = spec.enum ? `=${[].concat(spec.enum).map(utils.quote).join(',')}` : '';
+  const paramKey = paramIsRequired ? `${prefix ? prefix + '.' : ''}${key}${paramDefault}` : `[${prefix ? prefix + '.' : ''}${key}${paramDefault}]`;
+  const paramTitle = spec.title ? ` ${spec.title}` : '';
 
-  Object.entries(spec.properties).forEach(([key, val]) => {
-    if (val.$ref) {
-      resolveRef(rootSpec, val, config);
-    }
+  switch (spec.type) {
+    case 'array':
+      if (spec.items) {
+        const { anyOf, oneOf, ...rest } = spec.items;
+        const specVariants = [].concat(anyOf || []).concat(oneOf || []);
 
-    const paramDefault = val.default ? `=${utils.quote(val.default)}` : '';
-    const paramIsRequired = required.indexOf(key) !== - 1;
-    const paramEnum = val.enum ? `=${[].concat(paramIsRequired ? [] : ['""'], val.enum).map(utils.quote).join(',')}` : '';
-    const paramKey = paramIsRequired ? `${prefix}${key}${paramDefault}` : `[${prefix}${key}${paramDefault}]`;
-    const paramTitle = val.title ? ` ${val.title}` : '';
-
-    switch (val.type) {
-      case 'boolean':
-      case 'number':
-      case 'string':
-        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type, val.enum)}${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          docBlock.push(val.description);
+        if (!specVariants.length) {
+          specVariants.push({});
         }
 
-        break;
+        specVariants.forEach((anyOf) => {
+          if (anyOf.$ref) {
+            resolveRef(rootSpec, anyOf, config);
+          }
 
-      case 'array':
-        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.item.type)}[]${paramEnum}} ${paramKey}${paramTitle}`);
+          const combinedSpec = { ...anyOf, ...rest };
 
-        if (val.description) {
-          docBlock.push(val.description);
+          if (key) {
+            for (const type of resolveType(combinedSpec.type, combinedSpec.enum)) {
+              docBlock.push(`${annotation} ${paramGroup}{${type}[]${paramEnum}} ${paramKey}${paramTitle}`);
+            }
+        
+            if (spec.description) {
+              docBlock.push(spec.description);
+            }
+          }
+
+          resolveDefinition(
+            combinedSpec,
+            group,
+            `${[prefix, key].filter(_ => _).join('.')}[]`, '',
+            annotation,
+            docBlock,
+            rootSpec,
+            config,
+            spec.required,
+          );
+        });
+      }
+
+      break;
+
+    case 'object':
+      if (spec.properties) {
+        const { anyOf, oneOf, ...rest } = spec;
+        const specVariants = [].concat(anyOf || []).concat(oneOf || []);
+
+        if (!specVariants.length) {
+          specVariants.push({});
         }
 
-        if (val.item.properties) {
-          resolveDefinition(val.item, group, `${prefix}${key}[].`, annotation, docBlock, rootSpec, config);
+        specVariants.forEach((anyOf) => {
+          if (anyOf.$ref) {
+            resolveRef(rootSpec, anyOf, config);
+          }
+
+          const combinedSpec = { ...anyOf, ...rest };
+
+          if (key) {
+            for (const type of resolveType(combinedSpec.type, combinedSpec.enum)) {
+              docBlock.push(`${annotation} ${paramGroup}{${type}${paramEnum}} ${paramKey}${paramTitle}`);
+            }
+        
+            if (spec.description) {
+              docBlock.push(spec.description);
+            }
+          }
+
+          resolvePropertiesDefinition(
+            combinedSpec.properties,
+            group,
+            `${[prefix, key].filter(_ => _).join('.')}`,
+            annotation,
+            docBlock,
+            rootSpec,
+            config,
+            spec.required,
+          );
+        });
+      }
+
+      break;
+
+    default:
+      if (key) {
+        for (const type of resolveType(spec.type, spec.enum)) {
+          docBlock.push(`${annotation} ${paramGroup}{${type}${paramEnum}} ${paramKey}${paramTitle}`);
         }
-
-        break;
-
-      case 'object':
-        docBlock.push(`${annotation} ${paramGroup}{${resolveType(val.type)}${paramEnum}} ${paramKey}${paramTitle}`);
-
-        if (val.description) {
-          docBlock.push(val.description);
+    
+        if (spec.description) {
+          docBlock.push(spec.description);
         }
-
-        if (val.properties) {
-          resolveDefinition(val, group, `${prefix}${key}.`, annotation, docBlock, rootSpec, config);
-        }
-
-        break;
-    }
-  });
+      }
+  }
 
   return docBlock;
 }
@@ -123,21 +172,28 @@ function resolveRef(spec, obj, config) {
 }
 
 function resolveType(type, isEnum) {
-  switch (type) {
-    case 'boolean':
-      return isEnum ? 'Boolean:Enum' : 'Boolean';
-
-    case 'number':
-      return isEnum ? 'Number:Enum' : 'Number';
-
-    case 'object':
-      return 'Object';
-
-    case 'string':
-      return isEnum ? 'String:Enum' : 'String';
-  }
-
-  return 'String';
+  return (Array.isArray(type) ? type : [type]).map((type) => {
+    if (type) {
+      switch (type.toLowerCase()) {
+        case 'boolean':
+          return isEnum ? 'Boolean:Enum' : 'Boolean';
+    
+        case 'null':
+          return 'Null';
+    
+        case 'number':
+          return isEnum ? 'Number:Enum' : 'Number';
+    
+        case 'object':
+          return 'Object';
+    
+        case 'string':
+          return isEnum ? 'String:Enum' : 'String';
+      }
+    }
+  
+    return isEnum ? 'String:Enum' : 'String';
+  });
 }
 
 function throwError(message) {

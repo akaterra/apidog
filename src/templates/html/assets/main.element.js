@@ -6,7 +6,7 @@ const by = {
     return by.selector(selector, el, true);
   },
   selector(selector, el, sanitize) {
-    return Array.prototype.slice.call((el || document).querySelectorAll(sanitize
+    const els = Array.prototype.slice.call((el || document).querySelectorAll(sanitize
       ? selector
         .replace(/\./g, '\\.')
         .replace(/\[/g, '\\[')
@@ -16,6 +16,12 @@ const by = {
         .replace(/:/g, '\\:')
       : selector
     ));
+
+    if (els.length === 0) {
+      console.warn(`Elements by selector ${selector} were not found`)
+    }
+
+    return els;
   },
 };
 
@@ -25,11 +31,9 @@ const cls = {
       el = [el];
     }
 
-    el.forEach((el) => {
-      if (typeof el === 'string') {
-        el = by.selector(el)[0];
-      }
+    el = el.map((el) => typeof el === 'string' ? by.selector(el) : el).flat();
 
+    el.forEach((el) => {
       if (!el) {
         return;
       }
@@ -50,16 +54,14 @@ const cls = {
 
     return cls;
   },
-  remove(el, cls) {
+  rem(el, cls) {
     if (!Array.isArray(el)) {
       el = [el];
     }
 
-    el.forEach((el) => {
-      if (typeof el === 'string') {
-        el = by.selector(el)[0];
-      }
+    el = el.map((el) => typeof el === 'string' ? by.selector(el) : el).flat();
 
+    el.forEach((el) => {
       if (!el) {
         return;
       }
@@ -81,7 +83,7 @@ const cls = {
     return cls;
   },
   replace(el, clsOld, clsNew) {
-    cls.remove(el, clsOld);
+    cls.rem(el, clsOld);
 
     cls.add(el, clsNew);
 
@@ -107,15 +109,33 @@ const on = {
 };
 
 function getValue(el) {
-  return el.options
-    ? el.options[el.selectedIndex].value
-    : el.files
-      ? el.files[0]
-      : el.value;
+  if (!el) {
+    return;
+  }
+
+  if (el.type && el.type === 'checkbox') {
+    return el.checked;
+  }
+
+  if (el.options) {
+    return el.options[el.selectedIndex].value;
+  }
+
+  if (el.files) {
+    return el.files[0];
+  }
+
+  return el.value;
 }
 
 function setValue(el, value) {
-  if (el.options) {
+  if (!el) {
+    return;
+  }
+
+  if (el.type && (el.type === 'checkbox' || el.type === 'radio')) {
+    el.checked = !!value;
+  } else if (el.options) {
     Array.prototype.some.call(el.options, (option, i) => {
       if (getValue(option) === value) {
         el.selectedIndex = i;
@@ -125,9 +145,15 @@ function setValue(el, value) {
 
       return false;
     });
+  } else if (el.files) {
+
   } else {
     el.value = value;
   }
+}
+
+function isVisible(el) {
+  return el.offsetHeight > 0;
 }
 
 if (typeof module !== 'undefined') {
@@ -136,6 +162,7 @@ if (typeof module !== 'undefined') {
     cls,
     getValue,
     setValue,
+    isVisible,
     on,
   };
 }

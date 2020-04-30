@@ -75,6 +75,105 @@ const paramTypeToFormat = {
   uuid: true,
 };
 
+function convertParamTypeToJsonSchema(type) {
+  return {
+    type: type in paramTypeToFormat
+      ? paramTypeToFormat[type] === true
+        ? 'string'
+        : paramTypeToFormat[type]
+      : type,
+    format: type in paramTypeToFormat
+      ? paramTypeToFormat[type] === true
+        ? type
+        : paramTypeToFormat[type]
+      : undefined,
+  };
+}
+
+function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptors, jsonSchema) {
+  if (!jsonSchema) {
+    jsonSchema = {
+      type: 'object',
+      required: [],
+      properties: {},
+    };
+  }
+
+  Object.entries(paramGroupVariant).forEach(([propKey, propVariants]) => {
+    const oneOf = propVariants.map((propVariant) => {
+      const param = paramDescriptors[propVariant.list[0]];
+
+      if (!param) {
+        return;
+      }
+
+      const paramJsonSchema = {
+        type: 'object',
+        required: [],
+        properties: {},
+      };
+
+      if (!param.field.isOptional && !jsonSchema.required.includes(propKey)) {
+        jsonSchema.required.push(propKey);
+      }
+
+      let paramJsonSchemaRef = paramJsonSchema;
+
+      if (param.type.modifiers.list) {
+        for (let i = 0; i < param.type.modifiers.list; i += 1) {
+          paramJsonSchemaRef.type = 'array';
+          paramJsonSchemaRef.items = {
+            type: 'object',
+            required: [],
+            properties: {},
+          }
+          paramJsonSchemaRef = paramJsonSchemaRef.items;
+        }
+      }
+
+      let paramType = param.type.modifiers.initial.toLowerCase();
+
+      if (paramType in paramTypeToFormat) {
+        paramJsonSchemaRef.format = paramTypeToFormat[paramType] !== true
+          ? paramTypeToFormat[paramType]
+          : paramType;
+
+        paramType = 'string';
+      }
+
+      if (paramType === 'boolean' || paramType === 'null' || paramType === 'number' || paramType === 'string') {
+        if (param.type.allowedValues && param.type.allowedValues.length) {
+          paramJsonSchemaRef.enum = param.type.allowedValues;
+        }
+
+        paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null]  : paramType;
+      } else {
+        convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
+      }
+
+      return removeEmptyRequiredAndProperties(paramJsonSchema);
+    }).filter(_ => _);
+
+    if (oneOf.length === 1) {
+      jsonSchema.properties[propKey] = oneOf[0];
+    } else {
+      const oneOfVariants = [
+        ...oneOf.filter((oneOf) => oneOf.type !== 'array'),
+        ...oneOf.some((oneOf) => oneOf.type === 'array')
+          ? [{
+            type: 'array',
+            items: { oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => oneOf.items) },
+          }]
+          : []
+      ];
+
+      jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
+    }
+  });
+
+  return removeEmptyRequiredAndProperties(jsonSchema);
+}
+
 function convertParamsToJsonSchema(params) {
   const jsonSchema = {
     type: 'object',
@@ -127,18 +226,6 @@ function convertParamsToJsonSchema(params) {
             nodeProperties.type = 'object';
             nodeProperties.properties = {};
             nodeProperties = nodeProperties.properties
-          // } else if (type === 'boolean' || type === 'null' || type === 'number' || type === 'string') {
-          //   nodeProperties.type = type;
-
-          //   if (param.type.allowedValues && param.type.allowedValues.length) {
-          //     nodeProperties.enum = param.type.allowedValues;
-          //   }
-          // } else if (type === 'date' || type === 'datetime' || type === 'file' || type === 'uuid') {
-          //   nodeProperties.type = 'string';
-
-          //   if (param.type.allowedValues && param.type.allowedValues.length) {
-          //     nodeProperties.enum = param.type.allowedValues;
-          //   }
           } else {
             if (type in paramTypeToFormat) {
               nodeProperties.format = paramTypeToFormat[type] !== true
@@ -212,5 +299,7 @@ module.exports = {
   enumChaptersApis,
   enumChaptersNotes,
   enumUriPlaceholders,
+  convertParamGroupVariantToJsonSchema,
   convertParamsToJsonSchema,
+  convertParamTypeToJsonSchema,
 };

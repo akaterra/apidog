@@ -1,0 +1,56 @@
+{{#each groupVariant as |groupVariant key|}}
+    {{#with (context 'definitions') as |definitions|}}
+        <div class="label{{#if ../../color}} {{../../color}}{{/if}}">{{#ifCond key '==' 'null'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
+        {{#if (lookup definitions key 'description')}}
+            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+        {{/if}}
+    {{/with}}
+    <div class="section">
+        <div class="table">
+            <div class="width-25 bg-color-4 bold">{{_ 'field'}}</div>
+                {{#if groupVariant.isTyped}}
+                    <div class="width-15 bg-color-4 bold">{{_ 'type'}}</div>
+                {{/if}}
+            <div class="flex-1 bg-color-4 bold">{{_ 'description'}}</div>
+        </div>
+        {{#each groupVariant.map as |paramIds|}}
+            {{#each paramIds as |paramId|}}
+                <div class="table">
+                    {{#with (first (lookup ../../param paramId) (lookup ../../../param paramId)) as |p|}} <!-- why ??? -->
+                        <div class="width-25 color-2 mono">
+                            {{#ifCond @index '==' 0}}
+                                {{p.field.name}}
+                                {{#if p.field}}
+                                    {{#if p.field.isOptional}}
+                                    <span class="small sup mono color-3 optional">{{_ 'optional'}}</span>{{else}}{{/if}}
+                                {{/if}}
+                            {{/ifCond}}
+                        </div>
+                        {{#if groupVariant.isTyped}}<div class="width-15 color-2 mono">{{p.type.name}}</div>{{/if}}
+                        <div class="flex-1">
+                            {{toHtml (join p.description true)}}
+                            {{#if p.type}}
+                                {{#if p.type.allowedValues}}
+                                    <div class="{{#if p.description.length}}top-padded{{/if}}">
+                                        <div class="smaller color-3">{{_ 'allowedValues'}}:</div>
+                                        {{#each p.type.allowedValues}}
+                                            <div class="smaller color-blue">{{this}}</div>
+                                        {{/each}}
+                                    </div>
+                                {{/if}}
+                            {{/if}}
+                            {{#if p.field}}
+                                {{#if p.field.defaultValue}}
+                                    <div class="{{#if p.description.length}}top-padded{{else}}{{#if p.type}}{{#if p.type.allowedValues}}top-padded{{/if}}{{/if}}{{/if}}">
+                                        <div class="smaller color-3">{{_ 'defaultValue'}}:</div>
+                                        <div class="smaller color-blue">{{p.field.defaultValue}}</div>
+                                    </div>
+                                {{/if}}
+                            {{/if}}
+                        </div>
+                    {{/with}}
+                </div>
+            {{/each}}
+        {{/each}}
+    </div>
+{{/each}}

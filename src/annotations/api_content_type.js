@@ -13,11 +13,20 @@ function parse(block, text) {
     block.contentType = [];
   }
 
-  block.contentType.push(text);
+  block.contentType = block.contentType.concat(utils.strSplitByComma(text));
 
   return block;
 }
 
+function toApidocString(block) {
+  if (block.contentType !== undefined) {
+    return block.contentType.map((contentType) => `@apiContentType ${contentType}`);
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

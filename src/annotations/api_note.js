@@ -16,6 +16,15 @@ function parse(block, text, line, index, lines, definitions) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.note !== undefined) {
+    return `@apiNote ${block.name}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

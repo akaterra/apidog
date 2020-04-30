@@ -6,8 +6,9 @@
 
 const get = require('lodash.get');
 const fs = require('fs');
+const parserJsonUtils = require('../parser.json.utils');
 const parserJsonschemaUtils = require('../parser.jsonschema.utils');
-const parserSwaggerUtils = require('../parser.swagger.utils');
+const parserSwaggerUtils = require('../parser.swagger.1.2.utils');
 const utils = require('../utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
@@ -32,7 +33,31 @@ function parse(block, text, line, index, lines, definitions, config) {
   const [schemaFile, schemaPath] = schema[1].split('#', 2);
   const params = utils.strSplitBySpace(tokens[5] || '');
 
+  let conv;
+
   switch (schema[0].toLowerCase()) {
+    case 'json':
+      if (params.length === 0) {
+        throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing annotation definition`);
+      }
+
+      let jsonSpec = parserJsonschemaUtils.fetchSource(schemaFile);
+      let json = jsonSpec;
+
+      if (schemaPath) {
+        json = get(json, schemaPath, parse);
+
+        if (json === parse) {
+          throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" path not exists`);
+        }
+      }
+
+      conv = parserJsonUtils.convert(json, params[0], config);
+
+      lines.splice(index, 1, ...[''].concat(conv));
+
+      return block;
+
     case 'jsonschema':
       if (params.length === 0) {
         throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing annotation definition`);
@@ -49,13 +74,9 @@ function parse(block, text, line, index, lines, definitions, config) {
         }
       }
 
-      lines.splice(index, 1, ...[''].concat(parserJsonschemaUtils.convert(
-        jsonSchema,
-        tokens[2],
-        params[0],
-        jsonSchemaSpec,
-        config
-      )));
+      conv = parserJsonschemaUtils.convert(jsonSchema, tokens[2], params[0], jsonSchemaSpec, config);
+
+      lines.splice(index, 1, ...[''].concat(conv));
 
       return block;
 
@@ -83,7 +104,7 @@ function parse(block, text, line, index, lines, definitions, config) {
           swaggerSpec,
           swaggerApi,
           [],
-          [swaggerApiOperation]
+          [swaggerApiOperation],
         )[0]));
 
         return block;

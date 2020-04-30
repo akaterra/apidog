@@ -9,11 +9,11 @@ const main = (function () {
     return by.selector('[data-chapter-selector]')[0];
   }
 
-  function getVerisionSelectorEl() {
+  function getVersionSelectorEl() {
     return by.selector('[data-version-selector]')[0];
   }
 
-  function getVerisionSelectorCompareToEl() {
+  function getVersionSelectorCompareToEl() {
     return by.selector('[data-version-compare-to-selector]')[0];
   }
 
@@ -21,12 +21,12 @@ const main = (function () {
     api.showChapter(chapterId);
   });
 
-  on.change(getVerisionSelectorEl(), (version) => {
-    Object.keys(families).map((familyId) => api.showVersion(familyId, version === 'null' ? null : version));
+  on.change(getVersionSelectorEl(), (version) => {
+    api.showVersion(version);
   });
 
-  on.change(getVerisionSelectorCompareToEl(), (versionCompareTo) => {
-    Object.keys(families).map((familyId) => api.showVersionComparedTo(familyId, versionCompareTo === 'null' ? null : versionCompareTo));
+  on.change(getVersionSelectorCompareToEl(), (versionCompareTo) => {
+    api.showVersionComparedTo(versionCompareTo);
   });
 
   by.selector('[data-control-panel]').forEach((el) => {
@@ -43,7 +43,7 @@ const main = (function () {
     lastSelectedVersionsCompareTo[familyId] = getValue(blockControlPanelVersionCompareToSelector);
 
     on.change(blockControlPanelVersionCompareToSelector, (versionCompareTo) => {
-      api.showVersionComparedTo(familyId, versionCompareTo === 'null' ? null : versionCompareTo);
+      api.showFamilyVersionComparedTo(familyId, versionCompareTo === 'null' ? null : versionCompareTo);
     });
 
     const blockControlPanelVersionSelector = by.selector('[data-control-panel-version-selector]', el)[0];
@@ -51,7 +51,7 @@ const main = (function () {
     lastSelectedVersions[familyId] = getValue(blockControlPanelVersionSelector);
 
     on.change(blockControlPanelVersionSelector, (version) => {
-      api.showVersion(familyId, version);
+      api.showFamilyVersion(familyId, version);
     });
   });
 
@@ -70,7 +70,7 @@ const main = (function () {
       lastSelectedContentType[id] = value;
 
       for (const el of by.selector(`[data-block-example="${id}_${lastSelectedContentType[id]}"]`)) {
-        cls.remove(el, 'hidden');
+        cls.rem(el, 'hidden');
       }
     });
   });
@@ -96,7 +96,7 @@ const main = (function () {
   
       lastSelectedChapter = chapterId;
   
-      cls.remove(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
+      cls.rem(by.selector(`[data-chapter="${lastSelectedChapter}"]`), 'hidden');
 
       return api;
     },
@@ -123,7 +123,7 @@ const main = (function () {
 
       if (controlPanelEl) {
         by.selector(`[data-block-hint="${familyId}"]`).forEach((el) => {
-          cls.remove(el, 'hidden');
+          cls.rem(el, 'hidden');
         });
 
         const showHintEl = by.selector('button', controlPanelEl)[0];
@@ -158,7 +158,7 @@ const main = (function () {
         main.showChapter(chapter);
 
         if (version) {
-          main.showVersion(api.idFrom(chapter, group, subgroup, family), version);
+          main.showFamilyVersion(api.idFrom(chapter, group, subgroup, family), version);
         }
       }
 
@@ -171,7 +171,7 @@ const main = (function () {
       return api;
     },
 
-    showVersion(familyId, version) {
+    showFamilyVersion(familyId, version) {
       const controlPanelEl = getControlPanelEl(familyId);
 
       if (controlPanelEl) {
@@ -188,11 +188,11 @@ const main = (function () {
           if (blockControlPanelVersionCompareToSelectorEl) {
             cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
             cls.add(by.selector(`[data-element-menu-item="${api.idFrom(familyId, lastSelectedVersions[familyId])}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-block="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
-            cls.remove(by.selector(`[data-element-menu-item="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
+            cls.rem(by.selector(`[data-block="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
+            cls.rem(by.selector(`[data-element-menu-item="${api.idFrom(familyId, version)}"]`)[0], 'hidden');
 
             for (const el of by.selector(`[data-family="${familyId}"]`)) {
-              cls.remove(el, 'hidden');
+              cls.rem(el, 'hidden');
             }
 
             lastSelectedVersions[familyId] = version;
@@ -218,7 +218,7 @@ const main = (function () {
       return api;
     },
 
-    showVersionComparedTo(familyId, versionCompareTo) {
+    showFamilyVersionComparedTo(familyId, versionCompareTo) {
       const controlPanelEl = getControlPanelEl(familyId);
 
       if (controlPanelEl) {
@@ -228,14 +228,14 @@ const main = (function () {
 
         if (versionCompareTo !== null) {
           cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
-          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
+          cls.rem(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
 
           by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0].innerHTML = HtmlDiff.execute(
             by.selector(`[data-block="${api.idFrom(familyId, versionCompareTo)}"] [data-block-compare-to-content]`)[0].innerHTML,
             by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0].innerHTML
           );
         } else {
-          cls.remove(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
+          cls.rem(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-content]`)[0], 'hidden');
           cls.add(by.selector(`[data-block="${api.idFrom(familyId, lastSelectedVersions[familyId])}"] [data-block-compare-to-diff-content]`)[0], 'hidden');
         }
 
@@ -250,6 +250,22 @@ const main = (function () {
 
         lastSelectedVersionsCompareTo[familyId] = versionCompareTo;
       }
+
+      return api;
+    },
+
+    showVersion(version) {
+      setValue(getVersionSelectorEl(), version);
+
+      Object.keys(families).map((familyId) => api.showFamilyVersion(familyId, version === 'null' ? null : version));
+
+      return api;
+    },
+
+    showVersionComparedTo(versionCompareTo) {
+      setValue(getVersionSelectorCompareToEl(), versionCompareTo);
+
+      Object.keys(families).map((familyId) => api.showFamilyVersionComparedTo(familyId, versionCompareTo === 'null' ? null : versionCompareTo));
 
       return api;
     },

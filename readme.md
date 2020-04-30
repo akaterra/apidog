@@ -14,23 +14,26 @@ Features:
 * Templates for:
   * Minimalistic HTML file with dynamic assets loading
   * Single pre-compiled HTML file with no external dependencies
+  * apidoc.apidoc text file
   * Markdown file
-  * Swagger specification file (v1.2, v2.0)
+  * Swagger specification file (v2.0, v3.0)
 * Server proxy
 * Send sample request plugin for html template:
     * Transports support:
-        * HTTP/HTTPS
-        * Nats (via Server proxy)
+        * HTTP/HTTPS (via Server proxy only HTTP)
+        * Nats PUB/SUB (via Server proxy)
         * Nats RPC (remote procedure call, via Server proxy)
-        * RabbitMQ (via Server proxy)
+        * RabbitMQ PUS/SUB (via Server proxy)
         * RabbitMQ RPC (remote procedure call, via Server proxy)
         * Redis PUB/SUB (via Server proxy)
-        * WebSocket/WebSocket Secure (W3C)
+        * Socket.IO
+        * WebSocket/WebSocket Secure (W3C) (via Server proxy only WebSocket)
     * Content types support:
         * Form
         * JSON
         * XML
     * Nested typed params
+    * Type variants
     * Presets (saved requests)
     * Variables
 
@@ -42,6 +45,7 @@ Table of contents
 * Additional annotations
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
+  * [@apiErrorPrefix](#apierrorprefix)
   * [@apiErrorValue](#apierrorvalue)
   * [@apiFamily](#apifamily)
   * [@apiHeaderValue](#apiheadervalue)
@@ -52,14 +56,18 @@ Table of contents
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
+  * [@apiSuccessPrefix](#apisuccessprefix)
   * [@apiSuccessValue](#apisuccessvalue)
+  * [@apiTag](#apitag)
 * Built-in templates
+  * [@apidoc](#apidoc)
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
-  * [@swagger.1.2](#swagger12)
   * [@swagger.2.0](#swagger20)
+  * [@swagger.3.0](#swagger30)
 * @html template "Send sample request" plug-in
+  * [Type variants](#type-variants)
 
 ### Installation
 
@@ -137,11 +145,12 @@ Parameters:
   Default is "@html".
 
   Build-in templates:
+    * @apidoc
     * @html
     * @html.standalone
     * @md
-    * @swagger.1.2
     * @swagger.2.0
+    * @swagger.3.0
 
 * **--title** - Custom title that will be used as a title of the generated documentation
 
@@ -205,6 +214,7 @@ Format:
 ```
 
 Defines unique identifier of the doc block within its chapter, group and subgroup.
+
 It can be used to distinguish between several doc blocks with the same descriptors to show them separately or combine the different doc blocks under versioning.
 
 Example:
@@ -261,7 +271,7 @@ Format:
 
 Prefixes all following **@apiParam**s with prefix.
 
-This allows also to reuse lists of **apiParams** between different doc blocks.
+Allows to reuse lists of **apiParams** between different doc blocks.
 
 Example:
 ```
@@ -284,6 +294,24 @@ Example:
  * @apiDescription Parameters are prefixed by "payload" - payload.a, payload.b, payload.c
  * @apiParamPrefix payload.
  * @apiUse sharedParams
+ */
+```
+
+Another subsequent declaration adds a prefix to the previous one.
+".." returns to the previous prefix, empty value resets the prefix.
+
+Example:
+```
+/**
+ * @api {post} test
+ * @apiParamPrefix body.
+ * @apiParam {String} a As "body.a"
+ * @apiParamPrefix b.
+ * @apiParam {String} c As "body.a.b.c"
+ * @apiParamPrefix ..
+ * @apiParam {String} d As "body.d"
+ * @apiParamPrefix
+ * @apiParam {String} e As "e"
  */
 ```
 
@@ -377,6 +405,59 @@ Format:
 Defines to which subgroup the doc block belongs.
 The subgroup will be shown as a sub navigation section of the menu.
 
+##### @apiSuccessPrefix
+
+Format:
+```
+@apiSuccessPrefix prefix
+```
+
+Prefixes all following **@apiSuccess**s with prefix.
+
+Allows to reuse lists of **apiSuccess** between different doc blocks.
+
+Example:
+```
+/**
+ * @apiDefine sharedParams
+ * @apiSuccess a
+ * @apiSuccess b
+ * @apiSuccess c
+ */
+
+/**
+ * @api {post} test1
+ * @apiDescription Parameters are prefixed by "body" - body.a, body.b, body.c
+ * @apiSuccessPrefix body.
+ * @apiUse sharedParams
+ */
+
+/**
+ * @api {post} test2
+ * @apiDescription Parameters are prefixed by "payload" - payload.a, payload.b, payload.c
+ * @apiSuccessPrefix payload.
+ * @apiUse sharedParams
+ */
+```
+
+Another subsequent declaration adds a prefix to the previous one.
+".." returns to the previous prefix, empty value resets the prefix.
+
+Example:
+```
+/**
+ * @api {post} test
+ * @apiSuccessPrefix body.
+ * @apiSuccess {String} a As "body.a"
+ * @apiSuccessPrefix b.
+ * @apiSuccess {String} c As "body.a.b.c"
+ * @apiSuccessPrefix ..
+ * @apiSuccess {String} d As "body.d"
+ * @apiSuccessPrefix
+ * @apiSuccess {String} e As "e"
+ */
+```
+
 ##### @apiSuccessValue
 
 Format:
@@ -386,8 +467,24 @@ Format:
 
 Describes custom success value.
 
+##### @apiTag
+
+Format:
+```
+@apiTag tag1,tag2,tag3
+```
+
+Defines tags. Can be multiple.
 
 ### Built-in templates
+
+##### @apidoc
+
+```sh
+apidog -t @apidoc
+```
+
+Compiles to apiDoc annotations text file where the doc blocks separated by two "\n".
 
 ##### @html (default)
 
@@ -402,7 +499,13 @@ Complies to:
 * apidoc.i18n.min.js - I18N translations
 * apidoc.min.js - bootstrap
 * apidoc.template.min.js - handlebars template
-* handlebars.min.js - handlebars bundle
+* favicon.png
+* handlebars.min.js - Handlebars bundle
+* socket.io.js - Socket.IO bundle
+
+Supports nav jumping to a chapter, group, subgroup and block version.
+Supports locale selection (en, he, ru) via "locale=..." query string param.
+Supports version selection via "version=..." query string param.
 
 ##### @html.standalone
 
@@ -412,6 +515,10 @@ apidog -t @html.standalone
 
 Compiles to standalone html file without external dependencies.
 
+Supports nav jumping to a chapter, group, subgroup and block version.
+Supports locale selection (en, he, ru) via "locale=..." query string param.
+Supports version selection via "version=..." query string param.
+
 ##### @md
 
 ```sh
@@ -420,14 +527,6 @@ apidog -t @md
 
 Compiles to markdown file.
 
-##### @swagger.1.2
-
-```sh
-apidog -t @swagger.1.2
-```
-
-Compiles to Swagger v1.2 specification JSON file.
-
 ##### @swagger.2.0
 
 ```sh
@@ -435,6 +534,14 @@ apidog -t @swagger.2.0
 ```
 
 Compiles to Swagger v2.0 specification JSON file.
+
+##### @swagger.3.0
+
+```sh
+apidog -t @swagger.3.0
+```
+
+Compiles to Swagger v3.0 specification JSON file.
 
 ### Server proxy
 
@@ -454,6 +561,7 @@ Configuration file is a js script that by default exports the object with next p
 
 * **allowPresets** - enables presets support for the built-in HTML template particularly
 * **presetsDir** - directory where the presets are located
+* **publicDir** - directory from which the HTML template files will be served
 * **http** - HTTP/HTTPS configuration section:
   * **allow** - allowes proxing HTTP/HTTPS requests, also allows running of HTTP/HTTPS proxy
   * **allowHeaders** - list of allowed headers
@@ -547,6 +655,23 @@ Configuration file is a js script that by default exports the object with next p
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
 
+##### Type variants
+
+"Send sample request" plug-in allows to define multiple type variants for the specified field.
+This can be useful when some part of the request data structure should be various.
+
+Example:
+```
+@apiParam {Type1} field
+@apiParam {Number} field.a
+@apiParam {Type2} field
+@apiParam {String} field.b
+```
+
+Now the "field" will have two options of type to select:
+  * First with the subfield "a" with type "Number"
+  * Second with the subfield "b" with type "String"
+
 ##### Nats, RabbitMQ, and Redis
 To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.
 
@@ -566,6 +691,14 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
+**@api** annotation format for Nats SUB:
+
+```
+/**
+ * @api {natsSub} endpoint
+ */
+```
+
 **@api** annotation format for RabbitMQ PUB:
 
 ```
@@ -582,6 +715,14 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
  */
 ```
 
+**@api** annotation format for RabbitMQ SUB:
+
+```
+/**
+ * @api {rabbitmqSub[:exchange]} endpoint
+ */
+```
+
 **@api** annotation format for Redis PUB:
 
 ```
@@ -595,6 +736,22 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
 ```
 /**
  * @api {redisSub} endpoint
+ */
+```
+
+**@api** annotation format for Socket.IO:
+
+```
+/**
+ * @api {sockeio} endpoint
+ */
+```
+
+**@api** annotation format for WebSocket:
+
+```
+/**
+ * @api {webSocket} endpoint
  */
 ```
 

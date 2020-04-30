@@ -14,6 +14,15 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.sampleRequestProxy !== undefined) {
+    return `@apiSampleRequestProxy ${block.sampleRequestProxy}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

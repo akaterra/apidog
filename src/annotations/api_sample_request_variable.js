@@ -49,7 +49,34 @@ function parse(block, text) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.sampleRequestVariable !== undefined) {
+    return block.sampleRequestVariable.map((annotation) => {
+      const args = [];
+
+      if (annotation.ns) {
+        args.push(`(${annotation.ns})`);
+      }
+
+      if (annotation.responsePath) {
+        args.push(`{${annotation.responsePath}}`);
+      }
+
+      if (annotation.field) {
+        const f = annotation.field;
+
+        args.push(`${f.isOptional ? '' : '['}${f.name}${f.defaultValue ? '=' + utils.quote(f.defaultValue) : ''}${f.isOptional ? '' : ']'}`);
+      }
+
+      return `apiSampleRequestVariable ${args.join(' ')}`;
+    }).flat(1);
+  }
+
+  return null;
+}
+
 module.exports = {
   addDescription,
   parse,
+  toApidocString,
 };

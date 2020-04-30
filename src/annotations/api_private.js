@@ -5,11 +5,28 @@
 const utils = require('../utils');
 
 function parse(block, text) {
-  block.private = text ? utils.strSplitByComma(text) : true;
+  if (!block.private) {
+    block.private = [];
+  }
+
+  if (text) {
+    block.private = block.private.concat(utils.strSplitByComma(text));
+  } else {
+    block.private = true;
+  }
 
   return block;
 }
 
+function toApidocString(block) {
+  if (block.private !== undefined) {
+    return `@apiPrivate${block.private !== true ? ' ' + block.private.map((private) => utils.quote(private)).join(',') : ''}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

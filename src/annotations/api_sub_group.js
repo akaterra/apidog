@@ -18,6 +18,15 @@ function parse(block, text, line, index, lines, definitions) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.subgroup !== undefined) {
+    return `@apiSubgroup ${block.subgroup.name}`;
+  }
+
+  return null;
+}
+
 module.exports = {
-  parse: parse,
+  parse,
+  toApidocString,
 };

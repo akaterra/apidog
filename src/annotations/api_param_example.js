@@ -5,7 +5,7 @@
 
 const utils = require('../utils');
 
-function construct(name, fullName) {
+function construct(name) {
   const annotationName = name ? `${name}Example` : 'example';
 
   function addDescription(block, text) {
@@ -17,34 +17,57 @@ function construct(name, fullName) {
   const regex = /^({(.+)})?(.+)?/;
 
   function parse(block, text, line, index, lines, embeddedLines) {
-    if (!text) {
-      throw new Error(`${fullName} malformed`);
-    }
+    // if (!text) {
+    //   throw new Error(`${fullName} malformed`);
+    // }
 
     const tokens = regex.exec(text);
 
     if (!tokens) {
-      throw new Error(`${fullName} malformed`);
+      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
     if (!block[annotationName]) {
       block[annotationName] = [];
     }
 
-    const blockParamExample = {};
+    const blockExample = {};
 
-    block[annotationName].push(blockParamExample);
+    block[annotationName].push(blockExample);
 
-    blockParamExample.description = [];
-    blockParamExample.type = tokens[2] || 'form';
-    blockParamExample.title = tokens[3] ? tokens[3].trim() : null;
+    blockExample.description = [];
+    blockExample.type = tokens[2] || 'form';
+    blockExample.title = tokens[3] ? tokens[3].trim() : null;
 
     return block;
+  }
+
+  function toApidocString(block) {
+    if (block[annotationName] !== undefined) {
+      return block[annotationName].map((annotation) => {
+        const args = [];
+
+        if (annotation.type) {
+          args.push(`{${annotation.type}}`);
+        }
+
+        if (annotation.title) {
+          args.push(annotation.title);
+        }
+
+        const apiAnnotation = `@api${annotationName.charAt(0).toUpperCase()}${annotationName.slice(1)}`;
+
+        return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description];
+      }).flat(1);
+    }
+  
+    return null;
   }
 
   return {
     addDescription,
     parse,
+    toApidocString,
   };
 }
 
@@ -54,4 +77,5 @@ module.exports = {
   addDescription: paramExample.addDescription,
   construct,
   parse: paramExample.parse,
+  toApidocString: paramExample.toApidocString,
 };

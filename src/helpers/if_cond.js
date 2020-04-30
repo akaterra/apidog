@@ -56,5 +56,9 @@ module.exports = (...args) => {
     }
   }
 
+  if (!options.fn && !options.inverse) {
+    return pass;
+  }
+
   return pass ? options.fn(this) : options.inverse(this);
 };

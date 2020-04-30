@@ -11,9 +11,7 @@ const hbs = () => {
         return '';
       }
     },
-    registerHelper(name, fn) {
-
-    },
+    registerHelper(name, fn) {},
   };
 
   return hbsInstance;
@@ -280,7 +278,7 @@ describe('generate sections', () => {
 
     const [definitions, sections] = generator.generateSections(blocks);
 
-    expect(sections.$.$.$.endpoint__['0.0.1'].chapter).toEqual({description: [], name: '$', title: null});
+    expect(sections.null.null.null.endpoint__['0.0.1'].chapter).toEqual({description: [], name: null, title: null});
   });
 
   it('should generate sections filling default group', () => {
@@ -294,7 +292,7 @@ describe('generate sections', () => {
 
     const [definitions, sections] = generator.generateSections(blocks);
 
-    expect(sections.$.$.$.endpoint__['0.0.1'].group).toEqual({description: [], name: '$', title: null});
+    expect(sections.null.null.null.endpoint__['0.0.1'].group).toEqual({description: [], name: null, title: null});
   });
 
   it('should generate sections filling default subgroup', () => {
@@ -308,7 +306,7 @@ describe('generate sections', () => {
 
     const [definitions, sections] = generator.generateSections(blocks);
 
-    expect(sections.$.$.$.endpoint__['0.0.1'].subgroup).toEqual({description: [], name: '$', title: null});
+    expect(sections.null.null.null.endpoint__['0.0.1'].subgroup).toEqual({description: [], name: null, title: null});
   });
 
   it('should generate sections filling default version', () => {
@@ -322,7 +320,7 @@ describe('generate sections', () => {
 
     const [definitions, sections] = generator.generateSections(blocks);
 
-    expect(sections.$.$.$.endpoint__['0.0.1'].version).toEqual('0.0.1');
+    expect(sections.null.null.null.endpoint__['0.0.1'].version).toEqual('0.0.1');
   });
 
   it('should generate sections skipping "ignore" blocks', () => {

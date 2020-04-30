@@ -1,4 +1,4 @@
-function prepareBody(params, paramsDescriptors, paramsGroup) {
+function prepareBody(params, paramDescriptors, paramsGroup) {
   if (paramsGroup === '$') {
     paramsGroup = null; // :( refactor
   } else if (!paramsGroup) {
@@ -12,7 +12,14 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
   };
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    let paramsDescriptor;
+
+    if (Array.isArray(val)) {
+      paramsDescriptor = paramDescriptors && paramDescriptors[val[1]];
+      val = val[0];
+    } else {
+      paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    }
 
     if (paramsDescriptor && paramsDescriptor.type) {
       switch (paramsDescriptor.type.modifiers.initial) {
@@ -25,7 +32,15 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
   });
 
   Object.entries(params).forEach(([key, val]) => {
-    const paramsDescriptor = paramsDescriptors && paramsDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    let paramsDescriptor;
+
+    if (Array.isArray(val)) {
+      paramsDescriptor = paramDescriptors && paramDescriptors[val[1]];
+      val = val[0];
+    } else {
+      paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
+    }
+
     const pathKeys = key.split('.');
     const pathKeyTypes = [];
 
@@ -57,57 +72,72 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
       }
     }
 
-    if (paramsDescriptor && paramsDescriptor.type.name.slice(-2) === '[]') {
-      pathKeys.push(0);
+    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
+    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
+    const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
+    const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
 
-      if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
-        pathKeyTypes[pathKeyTypes.length - 1] = 'a';
+    if (typeIsList) {
+      let typeIsListCounter = typeIsList === true ? 1 : typeIsList;
+
+      while (typeIsListCounter) {
+        pathKeys.push('0');
+
+        if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
+          pathKeyTypes[pathKeyTypes.length - 1] = 'a';
+        }
+
+        pathKeyTypes.push('i');
+
+        typeIsListCounter -= 1;
       }
-
-      pathKeyTypes.push('i');
     }
 
     if (paramsDescriptor) {
-      if ((paramsDescriptor.type && paramsDescriptor.type.modifiers.none) || (paramsDescriptor.field && paramsDescriptor.field.isOptional)) {
-        val = params[key] === '' ? undefined : params[key];
-      } else if (paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.null) {
-        val = params[key] === '' ? null : params[key];
+      if (val === '') {
+        if (typeModifiers && typeModifiers.none) {
+          return;
+        }
+      }
+
+      if (val === '' || val === 'null') {
+        if (typeModifiers && typeModifiers.nullable) {
+          val = null;
+        }
       }
     }
 
-    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
-    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
-
     if (val !== null && val !== undefined) {
-      if (typeIsList) {
+      switch (type) {
+        case 'array':
+          val = [];
 
-      } else {
-        switch (type) {
-          case 'array':
-            val = [];
+          break;
 
-            break;
+        case 'boolean':
+          val = val === true || val === 'true' || val === 1 || val === '1';
 
-          case 'boolean':
-            val = val === '' ? undefined : (params[key] === '1' || params[key] === 'true');
+          break;
 
-            break;
+        case 'isodate':
+          val = new Date(val).toISOString();
 
-          case 'isodate':
-            val = val === '' ? undefined : new Date(params[key]).toISOString();
+          break;
 
-            break;
+        case 'null':
+          val = null;
 
-          case 'number':
-            val = val === '' ? undefined : Number(params[key]);
+          break;
 
-            break;
+        case 'number':
+          val = Number(val);
 
-          case 'object':
-            val = {};
+          break;
 
-            break;
-        }
+        case 'object':
+          val = {};
+
+          break;
       }
     }
 
@@ -122,10 +152,10 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
 
           if (typeIndex === pathKeys.length - 1) {
             if (Array.isArray(bodyNode)) {
-              let ind = key === '' ? - 1 : parseInt(key);
+              let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
-              if (ind === - 1) {
-                if (!bodyNode.length) {
+              if (ind < 0) {
+                if (ind === -1 || !bodyNode.length) {
                   bodyNode.push(undefined);
                 }
 
@@ -133,7 +163,7 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
                 key = String(ind);
               }
 
-              if (ind < 0) {
+              if (isNaN(ind) || ind < 0) {
                 throw new Error(`Invalid array index ${key}`);
               }
 
@@ -152,25 +182,25 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
           } else {
             switch (type) {
               case 'a':
-                if (!(key in bodyNode) || !Array.isArray(bodyNode[key])) {
+                if (!Array.isArray(bodyNode[key]) || !(key in bodyNode) ) {
                   bodyNode[key] = [];
                 }
 
                 break;
 
               case 'i':
-                let ind = key === '' ? - 1 : parseInt(key);
+                let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
-                if (ind === - 1) {
-                  if (!bodyNode.length) {
+                if (ind < 0) {
+                  if (ind === -1 || !bodyNode.length) {
                     bodyNode.push(undefined);
                   }
-
+  
                   ind = bodyNode.length - 1;
                   key = String(ind);
                 }
 
-                if (ind < 0) {
+                if (isNaN(ind) || ind < 0) {
                   throw new Error(`Invalid array index ${key}`);
                 }
 
@@ -182,7 +212,7 @@ function prepareBody(params, paramsDescriptors, paramsGroup) {
                   fillCount -= 1;
                 }
 
-                if (!(key in bodyNode) || bodyNode[key] === undefined) {
+                if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
                   bodyNode[key] = pathKeyTypes[typeIndex + 1] === 'i' ? [] : {};
                 }
 

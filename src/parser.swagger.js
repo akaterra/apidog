@@ -1,5 +1,5 @@
 const parseBlockLines = require('./parser.block_lines');
-const parserSwaggerUtils = require('./parser.swagger.utils');
+const parserSwagger12Utils = require('./parser.swagger.1.2.utils');
 const utils = require('./utils');
 
 function parseSwaggerFile(source, config) {
@@ -7,7 +7,7 @@ function parseSwaggerFile(source, config) {
     config = {logger: utils.logger};
   }
 
-  return parserSwaggerUtils.convert(parserSwaggerUtils.fetchSource(source)).map((lines) => {
+  return parserSwagger12Utils.convert(parserSwagger12Utils.fetchSource(source)).map((lines) => {
     return parseBlockLines.parseBlockLines(lines, undefined, config);
   });
 }

@@ -1,8 +1,54 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
+
+let logLevel = 0;
+
+const logger = {
+  debug(message) {
+    if (logLevel <= 0) {
+      console.debug(logger.prepare(message));
+    }
+
+    return logger;
+  },
+  info(message) {
+    if (logLevel <= 1) {
+      console.info(logger.prepare(message));
+    }
+
+    return logger;
+  },
+  warn(message) {
+    if (logLevel <= 2) {
+      console.warn(logger.prepare(message));
+    }
+
+    return logger;
+  },
+  error(message) {
+    if (logLevel <= 3) {
+      console.error(logger.prepare(message));
+    }
+
+    return logger;
+  },
+  prepare(message) {
+    return typeof message !== 'string' ? JSON.stringify(message) : message;
+  }
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  if (!fs.existsSync('./node_modules')) {
+    logger.warn("Installing dependencies...");
+
+    execSync('npm i');
+  }
+}
+
 const http = require('http');
 const https = require('https');
 const qs = require('qs');
-const URL = require('url').URL;
+const { URL } = require('url');
 
 const reqTransportHandlers = {
   natsPub: ['nats', natsPublish],
@@ -115,15 +161,15 @@ async function createAppHttp(env) {
       });
 
       proxyReq.on('error', (err) => {
-        res.status(503).jsonp("Service unavailable");
+        res.status(503).send("Service unavailable");
       });
 
       proxyReq.write(req.rawBody);
       proxyReq.end();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
 
-      res.status(500).json(err.message);
+      res.status(500).send(err.message);
     }
   }
 
@@ -148,10 +194,16 @@ async function createAppHttp(env) {
         res.status(200).send(body);
       }
     } catch (err) {
-      console.error(err);
+      logger.error(err);
 
-      res.status(500).json(err.message);
+      res.status(500).send(err.message);
     }
+  }
+
+  if (config.publicDir) {
+    logger.debug(`Serving apiDoc public files from ${config.publicDir} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
+
+    app.use('/public', express.static(`${__dirname}/${config.publicDir}`));
   }
 
   app.use((req, res, next) => {
@@ -219,13 +271,13 @@ async function createAppHttp(env) {
 
         fs.writeFile(`${config.presetsDir}/${presetBlockId}__${presetName}.json`, req.rawBody, (err) => {
           if (err) {
-            res.status(500).json(err.message);
+            res.status(500).send(err.message);
           } else {
             res.status(204).send();
           }
         });
       } else {
-        res.status(501).json('Preset directory is not configured');
+        res.status(501).send('Preset directory is not configured');
       }
     });
   }
@@ -300,7 +352,7 @@ async function createAppWebSocket(env) {
         ws.send(body);
       }
     } catch (e) {
-      console.error(err);
+      logger.error(err);
 
       ws.json(err.message);
     }
@@ -311,6 +363,8 @@ async function createAppWebSocket(env) {
       const wsServer = app.wsServer = env.webSocketServerConstructor ? (env.webSocketServerConstructor({ port })) : new WebSocket.Server({ port });
 
       wsServer.on('connection', (ws, req) => {
+        logger.debug(req);
+
         let uri = req.url.substr(1);
 
         if (uri.substr(0, 5) !== 'ws://') {
@@ -336,13 +390,13 @@ async function createAppWebSocket(env) {
 
         if (route) {
           ws.on('disconnect', _ => {
-            console.info(`Incoming WebSocket connection closed: ${req.url}`);
+            logger.debug(`Incoming WebSocket connection closed: ${req.url}`);
 
             // remoteWs.terminate();
           });
 
           ws.on('error', (err) => {
-            console.info(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
+            logger.error(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
 
             // remoteWs.terminate();
           });
@@ -356,19 +410,19 @@ async function createAppWebSocket(env) {
           let messageBuffer = [];
 
           remoteWs.onclose = _ => {
-            console.info(`Outgoing WebSocket connection closed: ${req.url}`);
+            logger.debug(`Outgoing WebSocket connection closed: ${req.url}`);
 
             ws.terminate();
           };
 
           remoteWs.onerror = (err) => {
-            console.info(`Outgoing WebSocket connection error: ${req.url}, ${err.message}`);
+            logger.error(`Outgoing WebSocket connection error: ${req.url}, ${err.message}`);
 
             ws.terminate();
           };
 
           remoteWs.onmessage = (message) => {
-            console.info(`Outgoing WebSocket connection message: ${req.url}`);
+            logger.debug(`Outgoing WebSocket connection message: ${req.url}, ${logger.prepare(message)}`);
 
             ws.send(message.data);
           };
@@ -380,19 +434,19 @@ async function createAppWebSocket(env) {
           };
 
           ws.on('disconnect', _ => {
-            console.info(`Incoming WebSocket connection closed: ${req.url}`);
+            logger.debug(`Incoming WebSocket connection closed: ${req.url}`);
 
             remoteWs.terminate();
           });
 
           ws.on('error', (err) => {
-            console.info(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
+            logger.error(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
 
             remoteWs.terminate();
           });
 
           ws.on('message', async (message) => {
-            console.info(`Incoming WebSocket connection message: ${req.url}`);
+            logger.debug(`Incoming WebSocket connection message: ${req.url}, ${logger.prepare(message)}`);
 
             remoteWs.readyState === WebSocket.OPEN ? remoteWs.send(message) : messageBuffer.push(message);
           });
@@ -422,13 +476,31 @@ async function createAppWebSocket(env) {
     },
   };
 
+  app.subscribe('/natssub', (ws, uri) => {
+    transportConfig = config.nats || {};
+    transportConfig.env = env;
+
+    natsSubscribe(transportConfig, uri.pathname.substr(9), async (data) => {
+      ws.send(data);
+    }, undefined).catch((error) => ws.send(error.message));
+  });
+
+  app.subscribe('/rabbitmqsub', (ws, uri) => {
+    transportConfig = config.rabbitmq || {};
+    transportConfig.env = env;
+
+    rabbitmqSubscribe(transportConfig, uri.pathname.substr(13), async (data) => {
+      ws.send(data);
+    }, undefined).catch((error) => ws.send(error.message));
+  });
+
   app.subscribe('/redissub', (ws, uri) => {
     transportConfig = config.redis || {};
     transportConfig.env = env;
 
     redisSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
       ws.send(data);
-    }, undefined, 'sub');
+    }, undefined, 'sub').catch((error) => ws.send(error.message));
   });
 
   return app;
@@ -442,6 +514,62 @@ async function getConfig(env) {
   }
 
   return config;
+}
+
+function getConfigHttpProxyHost(config) {
+  if (config.http) {
+    return config.http.proxyHost || '127.0.0.1';
+  }
+
+  if (config.https) {
+    return config.https.proxyHost || '127.0.0.1';
+  }
+
+  return '127.0.0.1';
+}
+
+function getConfigHttpProxyPort(config) {
+  if (config.http) {
+    return config.http.proxyPort || 8088;
+  }
+
+  if (config.https) {
+    return config.https.proxyPort || 8088;
+  }
+
+  return 8088;
+}
+
+function getConfigHttpBind(config) {
+  return `${getConfigHttpProxyHost(config)}:${getConfigHttpProxyPort(config)}`;
+}
+
+function getConfigWebsocketProxyHost(config) {
+  if (config.websocket) {
+    return config.websocket.proxyHost || '127.0.0.1';
+  }
+
+  if (config.websocketsecure) {
+    return config.websocketsecure.proxyHost || '127.0.0.1';
+  }
+
+  return '127.0.0.1';
+}
+
+function getConfigWebsocketProxyPort(config) {
+  if (config.websocket) {
+    return config.websocket.proxyPort || 8089;
+  }
+
+  if (config.websocketsecure) {
+    return config.websocketsecure.proxyPort || 8089;
+  }
+
+  return 8089;
+}
+
+function getConfigWebsocketBind(config) {
+  return `${getConfigWebsocketProxyHost(config)}:${getConfigWebsocketProxyPort(config)}`;
 }
 
 /**
@@ -491,6 +619,16 @@ async function natsPublish(config, target, data, headers, opts) {
     body: `Message has been sent to Nats "${target}" queue by apiDog proxy`,
     headers: {},
   };
+}
+
+async function natsSubscribe(config, target, fn, opts, connectionFlag) {
+  const natsConnection = await getNatsConnection(config, target);
+  const q = target.substr(target.lastIndexOf('/') + 1);
+  natsConnection.subscribe(q, (message) => {
+    fn(message);
+  });
+
+  return true;
 }
 
 async function natsRPC(config, queue, data, headers, opts) {
@@ -605,6 +743,16 @@ async function rabbitmqRPCViaAmqplibRpcDriver(config, queue, data, headers, opts
     body: res.content.toString('utf8'),
     headers: {...res.properties.headers, 'Content-Type': res.properties.contentType || 'text/html'},
   };
+}
+
+async function rabbitmqSubscribe(config, target, fn, opts, connectionFlag) {
+  const amqpChannel = await getRabbitmqChannel(config, target);
+  const q = target.substr(target.lastIndexOf('/') + 1);
+  amqpChannel.consume(q, (message) => {
+    fn(message.content.toString('utf8'));
+  }, {noAck: true});
+
+  return true;
 }
 
 /**
@@ -741,17 +889,25 @@ async function websocketSendSilent(config, target, data, headers, opts) {
   if (process.env.NODE_ENV !== 'test') {
     const config = await getConfig();
 
-    if (config.websocket && config.websocket.allow) {
+    logLevel = config.logLevel ? ['debug', 'info', 'error'].findIndex((level) => level === config.logLevel.toLowerCase()) : -1;
+
+    if (logLevel === -1) {
+      logLevel = 1;
+    }
+
+    if ((config.websocket && config.websocket.allow) || (config.websocketsecure && config.websocketsecure.allow)) {
       (await createAppWebSocket({})).listen(
-        config.websocket.proxyPort || 8089,
-        _ => console.log(`ApiDog WebSocket proxy started on ${config.websocket.proxyPort || 8089}`)
+        getConfigWebsocketProxyPort(config),
+        _ => logger.info(`apiDog WebSocket proxy started on ${getConfigWebsocketBind(config)}`)
       );
     }
 
+    const bind = getConfigHttpProxyHost(config) === '127.0.0.1' ? [getConfigHttpProxyPort(config)] : [getConfigHttpProxyHost(config), getConfigHttpProxyPort(config)];
+
     if ((config.http && config.http.allow) || (config.https && config.https.allow)) {
       (await createAppHttp({})).listen(
-        config.http.proxyPort || 8088,
-        _ => console.log(`ApiDog HTTP proxy started on ${config.http.proxyPort || 8088}`)
+        ...bind,
+        _ => logger.info(`apiDog HTTP proxy started on ${getConfigHttpBind(config)}`)
       );
     }
   }

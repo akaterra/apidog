@@ -7,25 +7,36 @@ const translations = {
     defaultValue: 'Default value',
     description: 'Description',
     disconnect: 'Disconnect',
+    error4xx: 'Error 4xx',
     errorExample: 'Error example',
     errorResponse: 'Error response',
+    errorValue: 'Error value',
+    false: 'False',
     field: 'Field',
     header: 'Header',
     headerExample: 'Header example',
+    headerValue: 'Header value',
     hideHints: 'Hide hints',
+    loadList: 'Load list',
     mainChapter: 'Main chapter',
     name: 'Name',
+    new: 'New',
     optional: 'optional',
     parameter: 'Parameter',
     parameterExample: 'Parameter example',
     parameterValue: 'Parameter value',
     preset: 'Preset',
     response: 'Response',
+    save: 'Save',
     send: 'Send',
     sendSampleRequest: 'Send sample request',
     showHints: 'Show hints',
+    success200: 'Success 200',
     successExample: 'Success example',
+    successValue: 'Success value',
+    true: 'True',
     type: 'Type',
+    undefined: 'Undefined',
     usageExample: 'Usage example',
     value: 'Value',
     variable: 'Variable',
@@ -44,14 +55,17 @@ const translations = {
     header: 'כותרת',
     headerExample: 'דוגמה לכותרת',
     hideHints: 'הסתר רמזים',
+    loadList: 'Load list',
     mainChapter: 'פרק ראשי',
     name: 'שם',
+    new: 'New',
     optional: 'optional',
     parameter: 'פרמטר',
     parameterExample: 'דוגמא לפרמטרים',
     parameterValue: 'ערך פרמטר',
     preset: 'Preset',
     response: 'תגובה',
+    save: 'שמור',
     send: 'שלח',
     sendSampleRequest: 'שלח קריאת דוגמא',
     showHints: 'הצג רמזים',
@@ -71,23 +85,31 @@ const translations = {
     disconnect: 'Отключиться',
     errorExample: 'Пример ошибочного ответа',
     errorResponse: 'Ошибочный ответ',
+    errorValue: 'Значение ошибочного ответа',
     field: 'Поле',
     header: 'Заголовок',
-    headerExample: 'Пример заголовков',
+    headerExample: 'Пример заголовка',
+    headerValue: 'Значение заголовка',
     hideHints: 'Свернуть',
+    loadList: 'Загрузить список',
     mainChapter: 'Основная глава',
     name: 'Имя',
+    new: 'Новый',
     optional: 'опциональное',
     parameter: 'Параметр',
-    parameterExample: 'Пример параметров',
+    parameterExample: 'Пример параметра',
     parameterValue: 'Значение параметра',
     preset: 'Сохраненный запрос',
     response: 'Ответ',
+    save: 'Сохранить',
     send: 'Отправить',
     sendSampleRequest: 'Отправить тестовый запрос',
     showHints: 'Развернуть',
+    success: 'Успешный ответ',
     successExample: 'Пример успешного ответа',
+    errorValue: 'Значение успешного ответа',
     type: 'Тип',
+    undefined: 'Не задано',
     usageExample: 'Пример использования',
     value: 'Значение',
     variable: 'Переменная',
@@ -106,14 +128,17 @@ const translations = {
     header: '标头',
     headerExample: '标头示例',
     hideHints: '隐藏提示',
+    loadList: 'Load list',
     mainChapter: '本章',
     name: '名称',
+    new: 'New',
     optional: 'optional',
     parameter: '名称',
     parameterExample: '参数示例',
     parameterValue: '参数值',
     preset: 'Preset',
     response: '响应',
+    save: 'Save',
     send: '发送',
     sendSampleRequest: '发送样品申请',
     showHints: '显示提示',
@@ -125,6 +150,30 @@ const translations = {
   },
 };
 
+const rtl = {
+  he: true,
+};
+
+function getRtl(loc) {
+  return rtl[loc] || false;
+}
+
+function _(loc, key) {
+  return loc in translations
+    ? key in translations[loc]
+      ? translations[loc][key]
+      : loc !== 'en'
+        ? _('en', key)
+        : key
+    : loc !== 'en'
+      ? _('en', key)
+      : key;
+}
+
 if (typeof module !== 'undefined') {
-  module.exports.translations = translations;
+  module.exports = {
+    getRtl,
+    _,
+    translations,
+  }
 }

@@ -44,7 +44,22 @@ function parse(block, text, line, index, lines, definitions) {
   return block;
 }
 
+function toApidocString(block) {
+  if (block.define !== undefined) {
+    const args = [
+      block.define.name,
+    ];
+
+    if (block.define.title) {
+      args.push(block.define.title);
+    }
+
+    return [`@apiDefine ${args.join(' ')}`, ...block.define.embeddedLines];
+  }
+}
+
 module.exports = {
-  addDescription: addDescription,
-  parse: parse,
+  addDescription,
+  parse,
+  toApidocString,
 };

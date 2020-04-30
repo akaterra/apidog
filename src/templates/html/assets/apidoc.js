@@ -3,7 +3,7 @@ const HtmlDiff = (function () {
 
   {{> htmldiff.js }}
 
-  return module.exports.default;
+  return module.exports && module.exports.default;
 })();
 
 {{> main.func.js }}
@@ -61,7 +61,7 @@ window.onload = () => {
             id: `${chapterName}___${groupName}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                id: `${chapterName}___${groupName}__${subgroupName}`,
+                id: `${chapterName}___${groupName}___${subgroupName}`,
                 apis: Object.entries(subgroup).map(([name, version]) => {
                   return Object.values(version).filter((version) => version.api);
                 }).filter((apis) => apis.length),
@@ -119,7 +119,9 @@ window.onload = () => {
   Handlebars.registerHelper('context', (name) => templateParams[name]);
   Handlebars.registerHelper('_', (key) => _(config.locale || 'en', key));
 
-  const html = Handlebars.compile(templateContent)(templateParams);
+  Object.entries(templates).forEach(([key, val]) => Handlebars.registerPartial(key, val));
+
+  const html = Handlebars.compile(templates.content)(templateParams);
 
   document.body.innerHTML = html;
 
@@ -138,6 +140,10 @@ window.onload = () => {
   }
 
   main.jumpToByHash(document.location.hash.substr(1));
+
+  if (qs.version) {
+    main.showVersion(qs.version);
+  }
 };
 
 function enumChapters(chapters, fn, acc) {

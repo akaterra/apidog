@@ -5,12 +5,13 @@
 const utils = require('../utils');
 
 function construct(name, usePrefix) {
-  const paramsGroupsName = `${name}sGroups`;
-  const paramsName = `${name}s`;
-  const paramsPrefixName = `${name}Prefix`;
+  const annotationGroupName = `${name}Group`;
+  const annotationGroupVariantsName = `${name}GroupVariant`;
+  const annotationName = name;
+  const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {
-    block[paramsName][block[paramsName].length - 1].description.push(text);
+    block[annotationName][block[annotationName].length - 1].description.push(text);
 
     return block;
   }
@@ -22,17 +23,21 @@ function construct(name, usePrefix) {
       throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
-    if (!block[paramsName]) {
-      block[paramsName] = [];
+    if (!block[annotationName]) {
+      block[annotationName] = [];
     }
 
-    if (!block[paramsGroupsName]) {
-      block[paramsGroupsName] = {};
+    if (!block[annotationGroupName]) {
+      block[annotationGroupName] = {};
+    }
+
+    if (!block[annotationGroupVariantsName]) {
+      block[annotationGroupVariantsName] = {};
     }
 
     const blockParam = {};
 
-    block[paramsName].push(blockParam);
+    block[annotationName].push(blockParam);
 
     const tokens = regex.exec(text);
 
@@ -49,9 +54,9 @@ function construct(name, usePrefix) {
       const [fieldName, fieldDefaultValues] = utils.strSplitBy(field, '=', 1);
 
       field = {
-        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : null,
+        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : undefined,
         isOptional: !!tokens[6],
-        name: usePrefix && block[paramsPrefixName] ? block[paramsPrefixName] + fieldName : fieldName,
+        name: usePrefix && block[annotationPrefixName] ? block[annotationPrefixName] + fieldName : fieldName,
       }
     }
 
@@ -63,8 +68,8 @@ function construct(name, usePrefix) {
         modifiers: typeName.split(':').reduce((acc, val, ind) => {
           val = val.toLowerCase();
 
-          if (val.slice(-2) === '[]') {
-            acc.list = true;
+          while (val.slice(-2) === '[]') {
+            acc.list = acc.list ? acc.list + 1 : 1;
 
             val = val.substr(0, val.length - 2);
           }
@@ -94,22 +99,103 @@ function construct(name, usePrefix) {
     blockParam.group = group;
     blockParam.type = type;
 
-    if (!block[paramsGroupsName][group || '$']) {
-      block[paramsGroupsName][group || '$'] = {isTyped: false, list: []};
+    if (!block[annotationGroupName][group || null]) {
+      block[annotationGroupName][group || null] = { isTyped: false, list: [] };
+    }
+
+    block[annotationGroupName][group || null].list.push(block[annotationName].length - 1);
+
+    if (!block[annotationGroupVariantsName][group]) {
+      block[annotationGroupVariantsName][group] = { isTyped: false, prop: {} };
+    }
+
+    if (blockParam.field) {
+      let root = block[annotationGroupVariantsName][group].prop;
+
+      utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (key, ind, isLast) => {
+        const keysExtra = [];
+        const keys = [key.replace(/(\[(\d*)\])+$/g, (_1, _2, keyMatch) => {
+          keysExtra.push(keyMatch);
+
+          return '';
+        })].concat(keysExtra);
+        const keysRoot = root;
+
+        utils.forEach(keys, (subKey, subInd, subIsLast) => {
+          if (!root[subKey]) {
+            root[subKey] = [];
+          }
+
+          if ((isLast && subIsLast) || root[subKey].length === 0) {
+            // last pushed param descriptor
+            // const list = isLast && subIsLast
+            //   ? [ block[annotationName].length - 1 ]
+            //   : keysRoot[keys[0]][keysRoot[keys[0]].length - 1] && keysRoot[keys[0]][keysRoot[keys[0]].length - 1].list || [ null ];
+            const list = [ block[annotationName].length - 1 ];
+
+            // parent is not null when key is not last therefore has no its own param descriptor (list[0])
+            const parent = isLast && subIsLast
+              ? null
+              : list[0];
+
+            const variant = { list, parent, prop: {} };
+
+            root[subKey].push(variant);
+
+            root = variant.prop;
+          } else {
+            root = root[subKey][root[subKey].length - 1].prop;
+          }
+        });
+      });
     }
 
     if (type) {
-      block[paramsGroupsName][group || '$'].isTyped = true;
+      block[annotationGroupName][group || null].isTyped = true; // @deprecated
+      block[annotationGroupVariantsName][group || null].isTyped = true;
     }
 
-    block[paramsGroupsName][group || '$'].list.push(blockParam);
-
     return block;
+  }
+
+  function toApidocString(block) {
+    if (block[annotationName] !== undefined) {
+      return block[annotationName].map((annotation) => {
+        const args = [];
+
+        if (annotation.group) {
+          args.push(`(${annotation.group})`);
+        }
+
+        if (annotation.type) {
+          const t = annotation.type;
+
+          args.push(`{${t.name}${t.allowedValues.length ? '=' + t.allowedValues.map(utils.quote).join(',') : ''}}`);
+        }
+
+        if (annotation.field) {
+          const f = annotation.field;
+
+          args.push(`${f.isOptional ? '' : '['}${f.name}${f.defaultValue ? '=' + utils.quote(f.defaultValue) : ''}${f.isOptional ? '' : ']'}`);
+        }
+
+        if (annotation.description.length) {
+          args.push(annotation.description[0]);
+        }
+
+        const apiAnnotation = `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+
+        return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description.slice(1)];
+      }).flat(1);
+    }
+  
+    return null;
   }
 
   return {
     addDescription,
     parse,
+    toApidocString,
   };
 }
 
@@ -119,4 +205,5 @@ module.exports = {
   addDescription: param.addDescription,
   construct,
   parse: param.parse,
+  toApidocString: param.toApidocString,
 };

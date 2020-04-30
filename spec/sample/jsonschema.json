@@ -43,7 +43,7 @@
     },
     "e": {
       "type": "array",
-      "item": {
+      "items": {
         "type": "object",
         "required": [
           "b"
@@ -95,6 +95,7 @@
   },
   "definitions": {
     "test": {
+      "type": "object",
       "properties": {
         "x": {
           "$ref": "#/properties/c",

@@ -7,6 +7,14 @@
   opacity: 0.25;
 }
 
+input[type="checkbox"] {
+  margin: 0;
+}
+
+input[type="radio"] {
+  margin: 0;
+}
+
 .rtl {
   direction: rtl;
 }
@@ -57,8 +65,18 @@ ins.diffmod, .diffins {
   padding-left: 0.5rem;
 }
 
+.rtl .left-padded {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
 .right-padded {
   padding-right: 0.5rem;
+}
+
+.rtl .right-padded {
+  padding-left: 0.5rem;
+  padding-right: 0;
 }
 
 .top-padded {
@@ -360,6 +378,10 @@ ins.diffmod, .diffins {
   border-width: 0 0 1px 1px;
 }
 
+.table > * {
+  line-height: 18px;
+}
+
 .table > *:not(.diffmod):last-child {
   border-right-width: 0;
 }
@@ -381,7 +403,7 @@ ins.diffmod, .diffins {
   color: #383838;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  padding: 1rem 0.5rem 0 25%;
+  padding: 1rem 0 0 25%;
 }
 
 .rtl .inner-label {
@@ -431,6 +453,23 @@ ins.diffmod, .diffins {
   padding: 0 0.5rem;
 }
 
+.input-param-radio {
+  background-color: transparent;
+  color: #808080;
+  font: 1rem monospace;
+  height: 1.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.rtl .input-param-radio>input[type="radio"] {
+  margin: 0 0 0 0.25rem;
+}
+
+.input-param-radio>input[type="radio"] {
+  margin: 0 0.25rem 0 0;
+}
+
+
 .input-param-raw-body {
   background-color: #fcfcfc;
   border: 1px solid #e0e0e0;
@@ -447,6 +486,14 @@ ins.diffmod, .diffins {
   padding: 0.25rem 0.5rem;
 }
 
+.rtl .input-placeholder>input[type="radio"] {
+  margin: 0 0 0 0.25rem;
+}
+
+.input-placeholder>input[type="radio"] {
+  margin: 0 0.25rem 0 0;
+}
+
 .response {
   margin: 0;
   white-space: pre-wrap;
@@ -459,14 +506,42 @@ ins.diffmod, .diffins {
   direction: ltr;
 }
 
+.menu {
+
+}
+
+.menu-group {
+
+}
+
+.menu-subgroup {
+  margin: 0.75rem 0;
+}
+
+.menu-subgroup>*:first-child {
+  padding-top: 0;
+}
+
+.menu-subgroup>*:last-child {
+  padding-bottom: 0;
+}
+
+.menu-subgroup__header {
+  margin: 0 0.5rem;
+}
+
 .menu-item {
   color: #383838;
   display: block;
   text-decoration: none;
 }
 
+.menu-item {
+  padding-top: 0.25rem;
+}
+
 .menu-item:hover {
-  background-color: #e0e0e0;
+  text-decoration: underline;
 }
 
 .control-panel {

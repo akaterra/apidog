@@ -4,12 +4,13 @@
 
 const ArgumentParser = require('argparse').ArgumentParser;
 const fs = require('fs');
+const path = require('path');
 const generate = require('./src/generator');
 const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
 const parseJsonschemaUtils = require('./src/parser.jsonschema.utils');
 const parseSwagger = require('./src/parser.swagger');
-const parseSwaggerUtils = require('./src/parser.swagger.utils');
+const parseSwaggerUtils = require('./src/parser.swagger.1.2.utils');
 const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({
@@ -63,7 +64,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '-o', '--output' ],
   {
-    help: 'Output directory where apidoc.html and additional files will be written',
+    help: 'Output directory where the apiDoc compiled files will be written',
   },
 );
 argumentParser.addArgument(
@@ -99,25 +100,37 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--sampleRequestProxy:nats' ],
   {
-    help: 'URL of apiDog Nats proxy to be used to pass requests through it',
+    help: 'URL of apiDog Nats PUB and RPC HTTP/HTTPS proxy to be used to pass requests through it',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:natsSub' ],
+  {
+    help: 'URL of apiDog Nats SUB WebSocket proxy to be used to listen through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmq' ],
   {
-    help: 'URL of apiDog RabbitMQ proxy to be used to pass requests through it',
+    help: 'URL of apiDog RabbitMQ PUB and RPC HTTP/HTTPS proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
-  [ '--sampleRequestProxy:redisPub' ],
+  [ '--sampleRequestProxy:rabbitmqSub' ],
   {
-    help: 'URL of apiDog Redis PUB proxy to be used to pass requests through it',
+    help: 'URL of apiDog RabbitMQ SUB WebSocket proxy to listen through it',
+  },
+);
+argumentParser.addArgument(
+  [ '--sampleRequestProxy:redis' ],
+  {
+    help: 'URL of apiDog Redis PUB HTTP/HTTPS proxy to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:redisSub' ],
   {
-    help: 'URL of apiDog Redis SUB proxy to be used to pass requests through it',
+    help: 'URL of apiDog Redis SUB WebSocket proxy to listen through it',
   },
 );
 argumentParser.addArgument(
@@ -141,13 +154,13 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    help: 'Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+    defaultValue: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
   },
 );
 
 const args = argumentParser.parseArgs();
 
-let argsInput = (args.i || args.input).length ? (args.i || args.input) : ['.'];
+let argsInput = (args.i || args.input) && (args.i || args.input).length ? (args.i || args.input) : [];
 let argsPrivate = args.p || args.private;
 let argsParser = args.parser && args.parser.toLowerCase() || 'dir';
 
@@ -175,9 +188,13 @@ function loadConfig(dir) {
   return {
     author: configApidoc.author || configPackage.apidoc.author || configPackage.author,
     description: configApidoc.description || configPackage.apidoc.description || configPackage.description,
+    input: configApidoc.input || configPackage.apidoc.input,
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
+    output: configApidoc.output || configPackage.apidoc.output,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    'sampleRequestProxy:nats': configApidoc['sampleRequestProxy:nats'] || configPackage.apidoc['sampleRequestProxy:nats'],
+    'sampleRequestProxy:rabbitmq': configApidoc['sampleRequestProxy:rabbitmq'] || configPackage.apidoc['sampleRequestProxy:rabbitmq'],
     'sampleUrl:ws': configApidoc['sampleUrl:ws'] || configPackage.apidoc['sampleUrl:ws'],
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
@@ -191,10 +208,18 @@ function loadGitIgnore(dir) {
     return fs.readFileSync(`${dir}/.gitignore`, {encoding: 'utf8'})
       .split('\n')
       .filter((ignore) => ignore.trim())
-      .map((ignore) => new RegExp(`^${dir}/${ignore
-        .replace(/\*\*/g, '.*')
-        .replace(/\*/g, '[^\\/]*')
-      }`));
+      .map((ignore) => new RegExp(`^${(dir + '/' + ignore).replace(/(\*{1,2}|\.)/g, (_, match) => {
+        switch (match) {
+          case '.':
+            return '\\.';
+
+          case '*':
+            return '[^\\/]*';
+
+          case '**':
+            return '.*';
+        }
+      })}`));
   }
 
   return [];
@@ -226,6 +251,7 @@ function loadTemplate(path, hbs) {
 
         hbs.registerPartial(dirEntry, content);
         hbs.registerPartial(dirEntry + '.content', content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}'));
+        hbs.registerPartial(dirEntry + '.base64', Buffer.from(fs.readFileSync(`${dirName}/${dirEntry}`)).toString('base64'));
       }
     });
   }
@@ -257,10 +283,10 @@ function loadTemplate(path, hbs) {
   };
 }
 
-const config = loadConfig(argsInput[0]);
+const config = loadConfig(argsInput[0] || '.');
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
-const outputDir = args.o || args.output;
+const outputDir = args.o || args.output || config.output;
 const definitions = {
   file: {
     description: [],
@@ -294,8 +320,10 @@ const envConfig = {
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
   sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
+  sampleRequestProxyNatsSub: args['sampleRequestProxy:natsSub'] || config['sampleRequestProxy:natsSub'],
   sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
-  sampleRequestProxyRedisPub: args['sampleRequestProxy:redisPub'] || config['sampleRequestProxy:redisPub'],
+  sampleRequestProxyRabbitmqSub: args['sampleRequestProxy:rabbitmqSub'] || config['sampleRequestProxy:rabbitmqSub'],
+  sampleRequestProxyRedis: args['sampleRequestProxy:redis'] || config['sampleRequestProxy:redis'],
   sampleRequestProxyRedisSub: args['sampleRequestProxy:redisSub'] || config['sampleRequestProxy:redisSub'],
   sampleRequestProxyWs: args['sampleRequestProxy:ws']
     || args['sampleRequestProxy:websocket']
@@ -330,6 +358,10 @@ const envConfig = {
 let docBlocks = [];
 let linesOfInlineParser = [];
 
+if (argsInput.length === 0) {
+  argsInput = argsInput.concat(config.input ? Array.isArray(config.input) ? config.input : [config.input] : ['.']);
+}
+
 argsInput.forEach((argInput, index) => {
   let [_, parser, source] = argInput.match(/^(inline:)(.*)$/) || [];
 
@@ -356,12 +388,16 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
 
   switch (parser.slice(0, -1) || argsParser) {
     case 'dir':
+      source = path.resolve(source);
+
       docBlocks = docBlocks.concat(parseDir.parseDir(
         source,
         [],
         {
-          filter: (args.f || args.fileFilter || []).map((p) => new RegExp(p)),
-          ignore: (args.f || args.fileIgnore || []).map((p) => new RegExp(p)).concat(loadGitIgnore(source)),
+          filter: (args.f || args.fileFilter || [])
+            .map((p) => new RegExp(p)),
+          ignore: (args.f || args.fileIgnore || [])
+            .map((p) => new RegExp(p)).concat(loadGitIgnore(source)).concat([/.*apidoc\.proxy$/]),
         },
         definitions,
         envConfig
@@ -397,12 +433,17 @@ const content = generate.generate(
   hbs,
 );
 
-if (!template.templateProcessor) {
-  if (!fs.existsSync(`${envConfig.outputDir}/apidoc`)) {
-    fs.mkdirSync(`${envConfig.outputDir}/apidoc`);
+if (content) {
+  if (envConfig.outputDir === 'stdout') {
+    process.stdout.write(content);
+  } else {
+    if (!fs.existsSync(`${envConfig.outputDir}/apidoc`)) {
+      fs.mkdirSync(`${envConfig.outputDir}/apidoc`);
+    }
+  
+    fs.writeFileSync(`${envConfig.outputDir}/apidoc/apidoc.${template.config.extension || 'txt'}`, content);
   }
 
-  fs.writeFileSync(`${envConfig.outputDir}/apidoc/apidoc.${template.config.extension || 'txt'}`, content);
 }
 
 if (args.withSampleRequestProxy) {
@@ -410,8 +451,10 @@ if (args.withSampleRequestProxy) {
     fs.mkdirSync(`${envConfig.outputDir}/apidoc.proxy`);
   }
 
-  for (const file of ['apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
-    if (!fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`) || args.withSampleRequestProxy === 'update') {
+  for (const file of ['.gitignore', 'apidog_proxy.js', 'apidog_proxy.config.js', 'package.json']) {
+    const files = args.withSampleRequestProxy === true ? [] : args.withSampleRequestProxy.split(',');
+
+    if (files.includes('update') || files.includes(file) || !fs.existsSync(`${envConfig.outputDir}/apidoc.proxy/${file}`)) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/apidoc.proxy/${file}`);
     }
   }
