@@ -155,7 +155,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
               let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
               if (ind < 0) {
-                if (ind === -1 || !bodyNode.length) {
+                if (ind === -2 || !bodyNode.length) {
                   bodyNode.push(undefined);
                 }
 
@@ -192,7 +192,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
                 let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
 
                 if (ind < 0) {
-                  if (ind === -1 || !bodyNode.length) {
+                  if (ind === -2 || !bodyNode.length) {
                     bodyNode.push(undefined);
                   }
   
