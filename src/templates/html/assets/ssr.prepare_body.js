@@ -124,6 +124,11 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
           break;
 
+        case 'json':
+          val = JSON.parse(val);
+    
+          break;
+
         case 'null':
           val = null;
 
