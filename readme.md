@@ -244,7 +244,7 @@ Example:
  * @apiErrorPrefix body.
  * @apiError {String} a As "body.a"
  * @apiErrorPrefix b.
- * @apiError {String} c As "body.a.b.c"
+ * @apiError {String} c As "body.b.c"
  * @apiErrorPrefix ..
  * @apiError {String} d As "body.d"
  * @apiErrorPrefix
@@ -371,7 +371,7 @@ Example:
  * @apiParamPrefix body.
  * @apiParam {String} a As "body.a"
  * @apiParamPrefix b.
- * @apiParam {String} c As "body.a.b.c"
+ * @apiParam {String} c As "body.b.c"
  * @apiParamPrefix ..
  * @apiParam {String} d As "body.d"
  * @apiParamPrefix
@@ -514,7 +514,7 @@ Example:
  * @apiSuccessPrefix body.
  * @apiSuccess {String} a As "body.a"
  * @apiSuccessPrefix b.
- * @apiSuccess {String} c As "body.a.b.c"
+ * @apiSuccess {String} c As "body.b.c"
  * @apiSuccessPrefix ..
  * @apiSuccess {String} d As "body.d"
  * @apiSuccessPrefix
