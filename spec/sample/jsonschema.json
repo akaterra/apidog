@@ -91,6 +91,26 @@
     "x": {
       "$ref": "jsonschema.external.json#/properties/b",
       "type": "number"
+    },
+    "y": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "z": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
     }
   },
   "definitions": {

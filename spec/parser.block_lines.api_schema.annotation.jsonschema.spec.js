@@ -40,6 +40,10 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
       '@apiParam (group) {String:Enum=a,b,c,"Hello, world!"} [j]',
       '@apiParam (group) {String:Enum=a,b,c,"Hello, world!"} k',
       '@apiParam (group) {Number} [x=5]',
+      "@apiParam (group) {Number} [y]",
+      "@apiParam (group) {String} [y]",
+      "@apiParam (group) {Number} [z]",
+      "@apiParam (group) {String} [z]",
     ]);
   });
 

@@ -45,6 +45,7 @@ Table of contents
 * Additional annotations
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
+  * [@apiDefine](#apidefine)
   * [@apiErrorPrefix](#apierrorprefix)
   * [@apiErrorValue](#apierrorvalue)
   * [@apiFamily](#apifamily)
@@ -59,6 +60,7 @@ Table of contents
   * [@apiSuccessPrefix](#apisuccessprefix)
   * [@apiSuccessValue](#apisuccessvalue)
   * [@apiTag](#apitag)
+  * [@apiUse](#apiuse)
 * Built-in templates
   * [@apidoc](#apidoc)
   * [@html (default)](#html-default)
@@ -188,6 +190,68 @@ Content type will be used as a filter of the **@apiExample** content having corr
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
 
+##### @apiDefine
+
+Format:
+```
+@apiDefine definition
+```
+
+Works same as well as original **@apiDefine** but supports embedded **@apiUse**.
+
+##### @apiErrorPrefix
+
+Format:
+```
+@apiErrorPrefix prefix
+```
+
+Prefixes all following **@apiError**s with prefix.
+
+Can be combined with **@apiUse** to reuse lists of **apiError** between different doc blocks.
+
+Example:
+```
+/**
+ * @apiDefine sharedParams
+ * @apiError a
+ * @apiError b
+ * @apiError c
+ */
+
+/**
+ * @api {post} test1
+ * @apiDescription Parameters are prefixed by "body" - body.a, body.b, body.c
+ * @apiErrorPrefix body.
+ * @apiUse sharedParams
+ */
+
+/**
+ * @api {post} test2
+ * @apiDescription Parameters are prefixed by "payload" - payload.a, payload.b, payload.c
+ * @apiErrorPrefix payload.
+ * @apiUse sharedParams
+ */
+```
+
+Another subsequent declaration adds a prefix to the previous one.
+".." returns to the previous prefix, empty value resets the prefix.
+
+Example:
+```
+/**
+ * @api {post} test
+ * @apiErrorPrefix body.
+ * @apiError {String} a As "body.a"
+ * @apiErrorPrefix b.
+ * @apiError {String} c As "body.a.b.c"
+ * @apiErrorPrefix ..
+ * @apiError {String} d As "body.d"
+ * @apiErrorPrefix
+ * @apiError {String} e As "e"
+ */
+```
+
 ##### @apiErrorValue
 
 Format:
@@ -271,7 +335,7 @@ Format:
 
 Prefixes all following **@apiParam**s with prefix.
 
-Allows to reuse lists of **apiParams** between different doc blocks.
+Can be combined with **@apiUse** to reuse lists of **apiParam** between different doc blocks.
 
 Example:
 ```
@@ -414,7 +478,7 @@ Format:
 
 Prefixes all following **@apiSuccess**s with prefix.
 
-Allows to reuse lists of **apiSuccess** between different doc blocks.
+Can be combined with **@apiUse** to reuse lists of **apiSuccess** between different doc blocks.
 
 Example:
 ```
@@ -475,6 +539,16 @@ Format:
 ```
 
 Defines tags. Can be multiple.
+
+##### @apiUse
+
+Format:
+```
+@apiUse definition
+```
+
+Works same as well as original **@apiUse** but can be used multiply.
+
 
 ### Built-in templates
 
