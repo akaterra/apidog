@@ -36,8 +36,16 @@ function construct(name) {
     block[annotationName].push(blockExample);
 
     blockExample.description = [];
-    blockExample.type = tokens[2] || 'form';
+    blockExample.type = tokens[2] ? tokens[2].toLowerCase() : 'form';
     blockExample.title = tokens[3] ? tokens[3].trim() : null;
+
+    if (!block.contentType) {
+      block.contentType = [];
+    }
+
+    if (!block.contentType.includes(blockExample.type)) {
+      block.contentType.push(blockExample.type);
+    }
 
     return block;
   }

@@ -10,6 +10,7 @@ describe('parser.block_lines parseBlockLines @apiExample annotation', () => {
     ];
 
     expect(parser.parseBlockLines(lines, {})).toEqual({
+      contentType: ['form', 'type'],
       example: [{
         description: [],
         title: 'This is a title',
