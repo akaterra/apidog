@@ -2,5 +2,7 @@ sudo: false
 language: node_js
 node_js:
   - stable
+env:
+  - NPM_TOKEN=test
 script:
-  - NPM_TOKEN=1 npm test
+  - npm test
