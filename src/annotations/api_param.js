@@ -128,9 +128,6 @@ function construct(name, usePrefix) {
 
           if ((isLast && subIsLast) || root[subKey].length === 0) {
             // last pushed param descriptor
-            // const list = isLast && subIsLast
-            //   ? [ block[annotationName].length - 1 ]
-            //   : keysRoot[keys[0]][keysRoot[keys[0]].length - 1] && keysRoot[keys[0]][keysRoot[keys[0]].length - 1].list || [ null ];
             const list = [ block[annotationName].length - 1 ];
 
             // parent is not null when key is not last therefore has no its own param descriptor (list[0])

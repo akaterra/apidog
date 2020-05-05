@@ -291,7 +291,7 @@ const ssr = (function () {
     showHeadersGroup(blockId, group) {
       return api.showInputsGroup(blockId, 'header', group);
     },
-    showParamsGroupVariant(blockId, field, index) {
+    showHeadersGroupVariant(blockId, field, index) {
       return api.showInputsGroupVariant(blockId, 'header', field, index);
     },
 
@@ -415,6 +415,18 @@ const ssr = (function () {
       on.click(subEl, () => api.showHeadersGroup(blockId, subEl.dataset.blockSsrField));
     }
 
+    for (const subEl of by.selector('[data-block-ssr-class="header"][data-block-ssr-group-variant-selector]', el)) {
+      on.click(
+        subEl,
+        () => {
+          api.showHeadersGroupVariant(
+            blockId,
+            subEl.dataset.blockSsrField,
+            parseInt(subEl.dataset.blockSsrGroupVariantIndex),
+          )
+        });
+    }
+
     const blockSsrParamsGroupSelectorCheckedEl = by.selector('[data-block-ssr-class="param"][data-block-ssr-group-selector]:checked', el)[0];
 
     if (blockSsrParamsGroupSelectorCheckedEl) {
@@ -425,7 +437,7 @@ const ssr = (function () {
       on.click(subEl, () => api.showParamsGroup(blockId, subEl.dataset.blockSsrGroup));
     }
 
-    for (const subEl of by.selector('[data-block-ssr-group-variant-selector]', el)) {
+    for (const subEl of by.selector('[data-block-ssr-class="param"][data-block-ssr-group-variant-selector]', el)) {
       on.click(
         subEl,
         () => {
@@ -445,6 +457,10 @@ const ssr = (function () {
       emitRequestPrepareParams(el, { headers, params });
 
       let {body, type} = prepareBody(params, blockDescriptor.param, lastSelectedGroup[blockId] && lastSelectedGroup[blockId].param || null);
+
+      Object.entries(headers).forEach(([key, val]) => {
+        headers[key] = val[0];
+      }, headers);
 
       if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
         for (const ssrHook of blockDescriptor.sampleRequestHooks) {
@@ -532,8 +548,14 @@ const ssr = (function () {
         const contentType = api.getContentType(blockId);
         const headers = api.getHeadersByLastGroup(blockId);
         const params = api.getParamsByLastGroup(blockId);
-  
+
         emitRequestPrepareParams(el, {headers, params});
+
+        let {body, type} = prepareBody(params, blockDescriptor.param, lastSelectedGroup[blockId] && lastSelectedGroup[blockId].param || null);  
+
+        Object.entries(headers).forEach(([key, val]) => {
+          headers[key] = val[0];
+        }, headers);
 
         const actualEndpoint = api.getActualEndpoint(blockId);
 
@@ -543,7 +565,7 @@ const ssr = (function () {
 
         switch (blockDescriptor.api.transport.name) {
           case 'socketio':
-            request.socketio.connect(prepareUrl(actualEndpoint, params), {
+            request.socketio.connect(prepareUrl(actualEndpoint, params), headers, {
               onConnect: () => api.showWsDisconnect(blockId),
               onData: (ws, data) => api.showResponse(blockId, data),
               onDisconnect: () => api.showWsConnect(blockId),

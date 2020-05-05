@@ -7,6 +7,10 @@
   opacity: 0.25;
 }
 
+form {
+  font-size: 0;
+}
+
 input[type="checkbox"] {
   margin: 0;
 }
@@ -481,7 +485,7 @@ ins.diffmod, .diffins {
 .input-placeholder {
   background-color: #e0e0e0;
   color: #808080;
-  font-size: 1rem;
+  font-size: initial;
   height: 1.5rem;
   padding: 0.25rem 0.5rem;
 }

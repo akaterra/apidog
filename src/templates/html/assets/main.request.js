@@ -9,11 +9,11 @@ const request = (function () {
 
   const socketIoConnections = {};
 
-  function socketIoConnect(url, config) {
+  function socketIoConnect(url, headers, config) {
     const parsedUrl = parseUrl(url);
 
     if (!(parsedUrl.fullPath in socketIoConnections) || !socketIoIsConnected(url)) {
-      socketIoConnections[parsedUrl.fullPath] = io.connect(url);
+      socketIoConnections[parsedUrl.fullPath] = io(url/*, headers && {transportOptions: {polling: {extraHeaders: headers}}}*/);
 
       if (config) {
         if (config.onConnect) {
@@ -202,7 +202,7 @@ const request = (function () {
         });
 
       case 'socketio':
-        return socketIoConnect(url, {
+        return socketIoConnect(url, headers, {
           onConnect: config && config.onConnect,
           onData: config && config.onData,
           onDisconnect: config && config.onDisconnect,
@@ -354,12 +354,12 @@ const request = (function () {
     connect: socketIoConnect,
     isConnected: socketIoIsConnected,
     publish: (url, params, contentType) => requestWithFormattedBody('socketio', url, 'socketio', params, undefined, contentType),
-    requestWithFormattedBody: (url, params, contentType) => requestWithFormattedBody(
+    requestWithFormattedBody: (url, params, headers, contentType) => requestWithFormattedBody(
       'socketio',
       url,
       'socketio',
       params,
-      undefined,
+      headers,
       contentType
     ),
   };

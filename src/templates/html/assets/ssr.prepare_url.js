@@ -6,7 +6,7 @@ function prepareUrl(url, params) {
 
       del(params, key.substr(1));
 
-      return encodeURIComponent(value);
+      return encodeURIComponent(Array.isArray(value) ? value[0] : value);
     } else {
       return key;
     }

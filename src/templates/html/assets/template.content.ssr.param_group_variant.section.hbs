@@ -133,34 +133,36 @@
                     {{/with}}
                 {{/each}}
             </div>
-            {{#each prop as |p|}}
-                {{#with (first (lookup ../../../param p.list.[0]) (lookup ../../../../param p.list.[0])) as |param|}} <!-- ??? -->
-                    <span class="input-placeholder mono">{{#if (first (ifCond prop.length '!=' 1) (ifCond (hook 'isGroupVariantOptional' prop ../../../../param) '==' true))}}<input
+            <form class="flex">
+                {{#each prop as |p|}}
+                    {{#with (first (lookup ../../../param p.list.[0]) (lookup ../../../../param p.list.[0])) as |param|}} <!-- ??? -->
+                        <span class="input-placeholder mono">{{#if (first (ifCond prop.length '!=' 1) (ifCond (hook 'isGroupVariantOptional' prop ../../../../param) '==' true))}}<input
+                            type="radio"
+                            name="{{../../../../id}}_{{../../../../group}}_{{param.field.name}}_{{../../../../class}}_gvs"
+                            {{#if @first}}checked{{/if}}
+                            data-block-ssr-block-index="{{../../../../group}}_{{param.field.name}}_gvs"
+                            data-block-ssr-class="{{../../../../class}}"
+                            data-block-ssr-field="{{param.field.name}}"
+                            data-block-ssr-group="{{../../../../group}}"
+                            data-block-ssr-group-variant-index="{{@index}}"
+                            data-block-ssr-group-variant-selector="{{param.field.name}}_{{@index}}_{{../../../../class}}"
+                        />{{/if}}{{param.type.name}}</span>
+                    {{/with}}
+                {{/each}}
+                {{#with (first (lookup (hook 'paramByGroupVariantIndex' prop ../../param 0)) (lookup (hook 'paramByGroupVariantIndex' prop ../../../param 0))) as |param|}} <!-- ??? -->
+                    {{#ifCond (hook 'isGroupVariantOptional' prop ../../../param) '==' true}}<span class="input-placeholder mono"><input
                         type="radio"
                         name="{{../../../../id}}_{{../../../../group}}_{{param.field.name}}_{{../../../../class}}_gvs"
-                        {{#if @first}}checked{{/if}}
+                        {{!-- {{#if @first}}checked{{/if}} --}}
                         data-block-ssr-block-index="{{../../../../group}}_{{param.field.name}}_gvs"
                         data-block-ssr-class="{{../../../../class}}"
                         data-block-ssr-field="{{param.field.name}}"
                         data-block-ssr-group="{{../../../../group}}"
-                        data-block-ssr-group-variant-index="{{@index}}"
+                        data-block-ssr-group-variant-index="-1"
                         data-block-ssr-group-variant-selector="{{param.field.name}}_{{@index}}_{{../../../../class}}"
-                    />{{/if}}{{param.type.name}}</span>
+                    />?</span>{{/ifCond}}
                 {{/with}}
-            {{/each}}
-            {{#with (first (lookup (hook 'paramByGroupVariantIndex' prop ../../param 0)) (lookup (hook 'paramByGroupVariantIndex' prop ../../../param 0))) as |param|}} <!-- ??? -->
-                {{#ifCond (hook 'isGroupVariantOptional' prop ../../../param) '==' true}}<span class="input-placeholder mono"><input
-                    type="radio"
-                    name="{{../../../../id}}_{{../../../../group}}_{{param.field.name}}_{{../../../../class}}_gvs"
-                    {{!-- {{#if @first}}checked{{/if}} --}}
-                    data-block-ssr-block-index="{{../../../../group}}_{{param.field.name}}_gvs"
-                    data-block-ssr-class="{{../../../../class}}"
-                    data-block-ssr-field="{{param.field.name}}"
-                    data-block-ssr-group="{{../../../../group}}"
-                    data-block-ssr-group-variant-index="-1"
-                    data-block-ssr-group-variant-selector="{{param.field.name}}_{{@index}}_{{../../../../class}}"
-                />?</span>{{/ifCond}}
-            {{/with}}
+            </form>
         </div>
         {{/ifCond}}
         {{#with (first (lookup ../param prop.[0].list.[0]) (lookup ../../param prop.[0].list.[0])) as |param|}} <!-- ??? -->
