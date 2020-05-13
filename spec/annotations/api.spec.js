@@ -361,12 +361,12 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
-        sampleRequestProxyNats: 'http://proxy',
+        sampleRequestProxyNatsPub: 'http://proxy',
       };
   
       parser.validate(block, config);
   
-      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyNats);
+      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyNatsPub);
     });
   });
 
@@ -391,7 +391,7 @@ describe('@api annotation validate', () => {
       expect(block.sampleRequestProxy).toBe(config.sampleRequestProxy);
     });
 
-    it('should set sample request proxy (sampleRequestProxyNats)', () => {
+    it('should set sample request proxy (sampleRequestProxyNatsPub)', () => {
       const block = {
         api: {
           endpoint: 'endpoint',
@@ -403,12 +403,12 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
-        sampleRequestProxyNats: 'http://proxy',
+        sampleRequestProxyNatsPub: 'http://proxy',
       };
   
       parser.validate(block, config);
   
-      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyNats);
+      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyNatsPub);
     });
   });
 
@@ -487,12 +487,12 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
-        sampleRequestProxyRedis: 'http://proxy',
+        sampleRequestProxyRedisPub: 'http://proxy',
       };
   
       parser.validate(block, config);
   
-      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyRedis);
+      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyRedisPub);
     });
   });
 
@@ -509,15 +509,15 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
-        sampleRequestProxy: 'http://proxy',
+        sampleRequestProxyRedisSub: 'http://proxy',
       };
   
       parser.validate(block, config);
   
-      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxy);
+      expect(block.sampleRequestProxy).toBe(config.sampleRequestProxyRedisSub);
     });
 
-    it('should set sample request proxy (sampleRequestProxyRedis)', () => {
+    it('should set sample request proxy (sampleRequestProxyRedisPub)', () => {
       const block = {
         api: {
           endpoint: 'endpoint',
@@ -529,7 +529,7 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
-        sampleRequestProxyRedis: 'http://proxy',
+        sampleRequestProxyRedisPub: 'http://proxy',
       };
   
       parser.validate(block, config);

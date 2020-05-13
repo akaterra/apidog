@@ -36,7 +36,11 @@
  */
 
 /**
- * @apiDefine WebSocket 5. WebSocket
+ * @apiDefine Socket.IO 5. Socket.IO
+ */
+
+/**
+ * @apiDefine WebSocket 6. WebSocket
  */
 
 /**
@@ -238,6 +242,15 @@
 /**
  * @api {redissub} subscribe Subscribe
  * @apiChapter Redis
+ * @apiContentType json
+ * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ */
+
+// Socket.IO Socket.IO
+
+/**
+ * @api {socketio} communicate Communicate
+ * @apiChapter Socket.IO
  * @apiContentType json
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */

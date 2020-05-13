@@ -192,7 +192,7 @@ function validate(block, config) {
     case 'natsrpc':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyNats || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyNatsPub || config.sampleRequestProxyPub || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
@@ -213,7 +213,7 @@ function validate(block, config) {
     case 'natssub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyNatsSub || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyNatsSub || config.sampleRequestProxySub;
         }
 
         if (!block.sampleRequestProxy) {
@@ -235,7 +235,7 @@ function validate(block, config) {
     case 'rabbitmqrpc':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyRabbitmq || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyRabbitmqPub || config.sampleRequestProxyPub || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
@@ -256,7 +256,7 @@ function validate(block, config) {
     case 'rabbitmqsub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyRabbitmqSub || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyRabbitmqSub || config.sampleRequestProxySub;
         }
 
         if (!block.sampleRequestProxy) {
@@ -277,7 +277,7 @@ function validate(block, config) {
     case 'redispub':
       if (block.sampleRequest.length) {
         if (!block.sampleRequestProxy) {
-          block.sampleRequestProxy = config.sampleRequestProxyRedis || config.sampleRequestProxy;
+          block.sampleRequestProxy = config.sampleRequestProxyRedisPub || config.sampleRequestProxyPub || config.sampleRequestProxy;
         }
 
         if (!block.sampleRequestProxy) {
@@ -298,7 +298,7 @@ function validate(block, config) {
     case 'redissub':
         if (block.sampleRequest.length) {
           if (!block.sampleRequestProxy) {
-            block.sampleRequestProxy = config.sampleRequestProxyRedisSub || config.sampleRequestProxyRedis || config.sampleRequestProxy;
+            block.sampleRequestProxy = config.sampleRequestProxyRedisSub || config.sampleRequestProxySub;
           }
   
           if (!block.sampleRequestProxy) {

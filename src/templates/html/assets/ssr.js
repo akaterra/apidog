@@ -8,6 +8,11 @@ const ssr = (function () {
     const sel = {
       sel: '',
 
+      checked() {
+        sel.sel += ':checked';
+
+        return sel;
+      },
       class(CLASS) {
         sel.sel += CLASS === undefined ? '[data-block-ssr-class]' : `[data-block-ssr-class="${CLASS}"]`;
 
@@ -25,6 +30,11 @@ const ssr = (function () {
       },
       gvIndex(index) {
         sel.sel += index === undefined ? '[data-block-ssr-group-variant-index]' : `[data-block-ssr-group-variant-index="${index}"]`;
+
+        return sel;
+      },
+      gvSelector(selector) {
+        sel.sel += selector === undefined ? '[data-block-ssr-group-variant-selector]' : `[data-block-ssr-group-variant-selector="${selector}"]`;
 
         return sel;
       },
@@ -179,19 +189,46 @@ const ssr = (function () {
       const el = getBlockEl(blockId);
 
       if (el) {
-        return by.selector(sel().class(CLASS).inputGlobalId().sel, el).reduce((acc, subEl) => {
+        return by.selector(sel().class(CLASS).inputGlobalId().sel, el).reduce((values, subEl) => {
           switch (subEl.dataset.blockSsrParamType) {
             default:
-              if (subEl.dataset.blockSsrGroupVariantIndex !== '-1') {
-                acc[subEl.dataset.blockSsrBlockIndex] = getValue(subEl);
+              if (!values[subEl.dataset.blockSsrGroup]) {
+                values[subEl.dataset.blockSsrGroup] = {};
               }
-            }
 
-          return acc;
+              const group = values[subEl.dataset.blockSsrGroup];
+
+              if (!group[subEl.dataset.blockSsrField]) {
+                group[subEl.dataset.blockSsrField] = { selectedIndex: null, values: {} };
+              }
+
+              if (subEl.dataset.blockSsrGroupVariantIndex !== '-1') {
+                group[subEl.dataset.blockSsrField].values[subEl.dataset.blockSsrGroupVariantIndex] = getValue(subEl);
+              }
+
+              if (group[subEl.dataset.blockSsrField].selectedIndex === null) {
+                group[subEl.dataset.blockSsrField].selectedIndex = api.getInputsGroupVariantIndex(blockId, CLASS, subEl.dataset.blockSsrField);
+              }
+          }
+
+          return values;
         }, {});
       }
 
       return {};
+    },
+    getInputsGroupVariantIndex(blockId, CLASS, field) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        const subEl = by.selector(sel().class(CLASS).field(field).gvSelector().checked().sel, el)[0];
+
+        if (subEl) {
+          return parseInt(subEl.dataset.blockSsrGroupVariantIndex);
+        }
+      }
+
+      return -1;
     },
     getInputsByLastGroup(blockId, CLASS) {
       const el = getBlockEl(blockId);
@@ -213,17 +250,44 @@ const ssr = (function () {
       const el = getBlockEl(blockId);
 
       if (el) {
-        by.selector(sel().class(CLASS).inputGlobalId().sel, el).forEach((blockSsrInputEl) => {
-          if (blockSsrInputEl.dataset.blockSsrBlockIndex in values) {
-            switch (blockSsrInputEl.dataset.blockSsrParamType) {
-              default:
-                setValue(blockSsrInputEl, values[blockSsrInputEl.dataset.blockSsrBlockIndex]);
-            }
+        by.selector(sel().class(CLASS).inputGlobalId().sel, el).forEach((subEl) => {
+          switch (subEl.dataset.blockSsrParamType) {
+            default:
+              if (!values[subEl.dataset.blockSsrGroup]) {
+                return;
+              }
+
+              const group = values[subEl.dataset.blockSsrGroup];
+
+              if (!group[subEl.dataset.blockSsrField]) {
+                return;
+              }
+
+              if (subEl.dataset.blockSsrGroupVariantIndex !== '-1') {
+                setValue(subEl, group[subEl.dataset.blockSsrField].values[subEl.dataset.blockSsrGroupVariantIndex]);
+              }
+
+              if (group[subEl.dataset.blockSsrField].selectedIndex !== -1) {
+                api.showInputsGroupVariant(blockId, CLASS, subEl.dataset.blockSsrField, group[subEl.dataset.blockSsrField].selectedIndex);
+              }
           }
         });
       }
 
       return api;
+    },
+    setInputsGroupVariantIndex(blockId, CLASS, field, index) {
+      const el = getBlockEl(blockId);
+
+      if (el) {
+        const subEl = by.selector(sel().class(CLASS).field(field).gvIndex(index).gvSelector().sel, el)[0];
+
+        if (subEl) {
+          return setValue(subEl, true);
+        }
+      }
+
+      return -1;
     },
  
     getHeaders(blockId) {
@@ -283,6 +347,8 @@ const ssr = (function () {
           by.selector(sel().class(CLASS).field(field).group(group).gvIndex(groupVariant[field] || 0).selectable().sel, el),
           'hidden',
         );
+
+        api.setInputsGroupVariantIndex(blockId, CLASS, field, index);
       }
 
       return api;
