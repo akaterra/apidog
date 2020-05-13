@@ -193,10 +193,10 @@ const ssr = (function () {
           switch (subEl.dataset.blockSsrParamType) {
             default:
               if (!values[subEl.dataset.blockSsrGroup]) {
-                values[subEl.dataset.blockSsrGroup] = {};
+                values[subEl.dataset.blockSsrGroup] = { selectedIndex: null, fields: {} };
               }
 
-              const group = values[subEl.dataset.blockSsrGroup];
+              const group = values[subEl.dataset.blockSsrGroup].fields;
 
               if (!group[subEl.dataset.blockSsrField]) {
                 group[subEl.dataset.blockSsrField] = { selectedIndex: null, values: {} };
@@ -257,7 +257,7 @@ const ssr = (function () {
                 return;
               }
 
-              const group = values[subEl.dataset.blockSsrGroup];
+              const group = values[subEl.dataset.blockSsrGroup].fields;
 
               if (!group[subEl.dataset.blockSsrField]) {
                 return;
@@ -445,12 +445,6 @@ const ssr = (function () {
   };
 
   by.selector('[data-block]').forEach((el) => {
-    const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
-
-    if (!blockSsrSendEl) {
-      return;
-    }
-
     const blockId = el.dataset.block;
     const blockDescriptor = api.getDescriptor(blockId);
 
@@ -515,97 +509,101 @@ const ssr = (function () {
         });
     }
 
-    on.click(blockSsrSendEl, () => {
-      const contentType = api.getContentType(blockId);
-      const headers = api.getHeadersByLastGroup(blockId);
-      const params = api.getParamsByLastGroup(blockId);
+    const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
-      emitRequestPrepareParams(el, { headers, params });
+    if (blockSsrSendEl) {
+      on.click(blockSsrSendEl, () => {
+        const contentType = api.getContentType(blockId);
+        const headers = api.getHeadersByLastGroup(blockId);
+        const params = api.getParamsByLastGroup(blockId);
 
-      let {body, type} = prepareBody(params, blockDescriptor.param, lastSelectedGroup[blockId] && lastSelectedGroup[blockId].param || null);
+        emitRequestPrepareParams(el, { headers, params });
 
-      Object.entries(headers).forEach(([key, val]) => {
-        headers[key] = val[0];
-      }, headers);
+        let {body, type} = prepareBody(params, blockDescriptor.param, lastSelectedGroup[blockId] && lastSelectedGroup[blockId].param || null);
 
-      if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
-        for (const ssrHook of blockDescriptor.sampleRequestHooks) {
-          body = sampleRequestHooks[ssrHook](body);
+        Object.entries(headers).forEach(([key, val]) => {
+          headers[key] = val[0];
+        }, headers);
+
+        if (blockDescriptor.sampleRequestHooks && typeof sampleRequestHooks !== 'undefined') {
+          for (const ssrHook of blockDescriptor.sampleRequestHooks) {
+            body = sampleRequestHooks[ssrHook](body);
+          }
         }
-      }
 
-      const actualEndpoint = api.getActualEndpoint(blockId);
+        const actualEndpoint = api.getActualEndpoint(blockId);
 
-      if (actualEndpoint === false) {
-        return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
-      }
+        if (actualEndpoint === false) {
+          return api.showErrorResponse(blockId, `apiDog proxy must be used for "${blockDescriptor.api.transport.name.toUpperCase()}" requests`);
+        }
 
-      if (actualEndpoint === null) {
-        return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name.toUpperCase()}"`);
-      }
+        if (actualEndpoint === null) {
+          return api.showErrorResponse(blockId, `Unknown transport "${blockDescriptor.api.transport.name.toUpperCase()}"`);
+        }
 
-      let actualTransport;
-      let actualOptions;
+        let actualTransport;
+        let actualOptions;
 
-      switch (blockDescriptor.api.transport.name) {
-        case 'http':
-        case 'https':
-        case 'natspub':
-        case 'natsrpc':
-        case 'rabbitmqpub':
-        case 'rabbitmqrpc':
-        case 'redispub':
-          api.showResponse(blockId, 'Waiting for response ...');
+        switch (blockDescriptor.api.transport.name) {
+          case 'http':
+          case 'https':
+          case 'natspub':
+          case 'natsrpc':
+          case 'rabbitmqpub':
+          case 'rabbitmqrpc':
+          case 'redispub':
+            api.showResponse(blockId, 'Waiting for response ...');
 
-          actualTransport = 'http';
-          actualOptions = requestOptions.http;
+            actualTransport = 'http';
+            actualOptions = requestOptions.http;
 
-          break;
+            break;
 
-        case 'natssub':
-        case 'rabbitmqsub':
-        case 'redissub':
-        case 'websocket':
-        case 'websocketsecure':
-        case 'ws':
-        case 'wss':
-          // api.hideResponses(blockId);
+          case 'natssub':
+          case 'rabbitmqsub':
+          case 'redissub':
+          case 'websocket':
+          case 'websocketsecure':
+          case 'ws':
+          case 'wss':
+            // api.hideResponses(blockId);
 
-          actualTransport = 'ws';
-          actualOptions = requestOptions.websocket;
+            actualTransport = 'ws';
+            actualOptions = requestOptions.websocket;
 
-          break;
+            break;
 
-        case 'socketio':
-          actualTransport = 'socketio';
-          actualOptions = requestOptions.websocket;
+          case 'socketio':
+            actualTransport = 'socketio';
+            actualOptions = requestOptions.websocket;
 
-          break;
-      }
+            break;
+        }
 
-      const response = request.requestWithFormattedBody(
-        actualTransport,
-        actualEndpoint,
-        blockDescriptor.api.transport.method || 'post',
-        body,
-        type,
-        headers,
-        contentType,
-        actualOptions
-      );
+        const response = request.requestWithFormattedBody(
+          actualTransport,
+          actualEndpoint,
+          blockDescriptor.api.transport.method || 'post',
+          body,
+          type,
+          headers,
+          contentType,
+          actualOptions
+        );
 
-      if (response instanceof Promise) {
-        response.then(({status, text}) => {
-          emitResponse(el, text, contentType);
+        if (response instanceof Promise) {
+          response.then(({status, text}) => {
+            emitResponse(el, text, contentType);
 
-          status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
-        }).catch((e) => {
-          emitErrorResponse(el, e, contentType);
+            status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
+          }).catch((e) => {
+            emitErrorResponse(el, e, contentType);
 
-          api.showErrorResponse(blockId, e.message.text || e.message);
-        });
-      }
-    });
+            api.showErrorResponse(blockId, e.message.text || e.message);
+          });
+        }
+      });
+    }
 
     const blockSsrWsConnectEl = by.selector('[data-block-ssr-ws-connect]', el)[0];
 
