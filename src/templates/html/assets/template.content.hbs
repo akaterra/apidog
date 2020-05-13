@@ -79,12 +79,12 @@
                   {{/ifCond}}
                   {{#each this.apis}}
                     {{#each this as |block index|}}
-                      <a class="left-padded menu-item{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.name}}</a>
+                      <a class="left-padded menu-item{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
                     {{/each}}
                   {{/each}}
                   {{#each this.notes}}
                     {{#each this as |block index|}}
-                      <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.name}}</a>
+                      <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
                     {{/each}}
                   {{/each}}
                 </div>

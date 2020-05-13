@@ -209,10 +209,6 @@ function generateSections(blocks, definitions, config) {
       block.title = block.api.endpoint;
     }
 
-    if (!block.name) {
-      block.name = block.title;
-    }
-
     if (config && config.ordered) {
       if (block.chapter.title) {
         block.chapter.title = block.chapter.title.replace(/^(\d+\.)+\s+/, expandTitleOrder);
@@ -231,8 +227,14 @@ function generateSections(blocks, definitions, config) {
       }
     }
 
-    block.familyId = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}`;
-    block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
+    if (block.name) {
+      block.familyId = block.name;
+      block.id = `${block.name}___${block.version}`;
+    } else {
+      block.familyId = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}`;
+      block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
+    }
+
     block.visualId = `${getDef(block.chapter.name)}___${getDef(block.group.name)}___${getDef(block.subgroup.name)}___${block.title}___${block.version}`;
 
     if (block.validate) {
