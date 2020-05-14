@@ -102,7 +102,7 @@
 
             {{#ifCond this.title '!=' 'null'}}
               <div class="section left-padded color-1 font-size-2 bold">
-                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
+                <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}" data-anchor-chapter="{{../../id}}" >
                   {{#with (context 'definitions') as |definitions|}}
                     {{first (lookup definitions ../../this.title 'title') ../../this.title}}
                   {{/with}}
@@ -119,7 +119,7 @@
 
               {{#ifCond this.title '!=' 'null'}}
                 <div class="section left-padded color-1 font-size-1 bold">
-                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}">
+                  <a class="section-title" href="#{{../this.id}}" name="{{../this.id}}" data-anchor-chapter="{{../../../id}}" >
                     {{#with (context 'definitions') as |definitions|}}
                       {{first (lookup definitions ../../this.title 'title') ../../this.title}}
                     {{/with}}
@@ -161,9 +161,9 @@
                   </div>
                   {{#each this as |block index|}}
                     {{#ifCond index '==' 0}}
-                      <a name="{{block.familyId}}"></a>
+                      <a name="{{block.familyId}}" data-anchor-chapter="{{../../../../../id}}"></a>
                     {{/ifCond}}
-                  <a name="{{block.id}}"></a>
+                  <a name="{{block.id}}" data-anchor-chapter="{{../../../../id}}" data-anchor-family="{{block.familyId}}" data-anchor-version="{{block.version}}"></a>
                   <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
                     <div class="control-panel">
                       <div class="width-10 flex" data-block-control-panel="{{block.id}}">

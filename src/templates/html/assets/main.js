@@ -152,20 +152,18 @@ const main = (function () {
     },
 
     jumpToByHash(hash) {
-      const [chapter, group, subgroup, family, version] = api.parseId(hash);
+      const el = document.getElementsByName(hash)[0];
 
-      if (chapter) {
-        main.showChapter(chapter);
-
-        if (version) {
-          main.showFamilyVersion(api.idFrom(chapter, group, subgroup, family), version);
+      if (el) {
+        if (el.dataset.anchorChapter) {
+          main.showChapter(el.dataset.anchorChapter);
         }
-      }
 
-      const aEl = by.selector(`a[name="${decodeURIComponent(hash)}"]`)[0];
+        if (el.dataset.anchorVersion) {
+          main.showFamilyVersion(el.dataset.anchorFamily, el.dataset.anchorVersion);
+        }
 
-      if (aEl) {
-        window.scrollTo(0, aEl.offsetTop);
+        window.scrollTo(0, el.offsetTop);
       }
 
       return api;
