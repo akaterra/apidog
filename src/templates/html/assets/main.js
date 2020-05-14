@@ -163,7 +163,7 @@ const main = (function () {
           main.showFamilyVersion(el.dataset.anchorFamily, el.dataset.anchorVersion);
         }
 
-        window.scrollTo(0, el.offsetTop);
+        window.scrollTo(0, el.offsetTop - 25);
       }
 
       return api;

@@ -109,9 +109,39 @@
                                 {{#if param.field.defaultValue}}checked{{/if}}
                             />
                         {{else ifCond param.type.modifiers.initial '==' 'null'}}
-
+                            <input
+                                class="input-param flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                                id="{{../../../../../id}}_{{../../../../../group}}_{{param.field.name}}_{{../../../../../class}}_{{@index}}"
+                                name="{{param.field.name}}"
+                                type="hidden"
+                                data-block-ssr-block-index="{{../../../../../group}}_{{param.field.name}}_{{@index}}"
+                                data-block-ssr-class="{{../../../../../class}}"
+                                data-block-ssr-field="{{param.field.name}}"
+                                data-block-ssr-group="{{../../../../../group}}"
+                                data-block-ssr-group-variant-index="{{@index}}"
+                                data-block-ssr-group-variant-param-index="{{p.list.[0]}}"
+                                data-block-ssr-input-global-id="{{param.field.name}}_{{../../../../../class}}"
+                                data-block-ssr-param-type="{{param.type.modifiers.initial}}"
+                                data-block-ssr-selectable="groupVariant"
+                                hidden
+                            />
                         {{else ifCond (hook 'isNotContainerType' param.type) '!=' true}}
-
+                            <input
+                                class="input-param flex-1{{#if @first}}{{else}} hidden{{/if}}"
+                                id="{{../../../../../id}}_{{../../../../../group}}_{{param.field.name}}_{{../../../../../class}}_{{@index}}"
+                                name="{{param.field.name}}"
+                                type="hidden"
+                                data-block-ssr-block-index="{{../../../../../group}}_{{param.field.name}}_{{@index}}"
+                                data-block-ssr-class="{{../../../../../class}}"
+                                data-block-ssr-field="{{param.field.name}}"
+                                data-block-ssr-group="{{../../../../../group}}"
+                                data-block-ssr-group-variant-index="{{@index}}"
+                                data-block-ssr-group-variant-param-index="{{p.list.[0]}}"
+                                data-block-ssr-input-global-id="{{param.field.name}}_{{../../../../../class}}"
+                                data-block-ssr-param-type="{{param.type.modifiers.initial}}"
+                                data-block-ssr-selectable="groupVariant"
+                                hidden
+                            />
                         {{else}}
                             <input
                                 class="input-param flex-1{{#if @first}}{{else}} hidden{{/if}}"
