@@ -487,10 +487,12 @@ const ssr = (function () {
 
     for (const subEl of by.selector('[data-block-ssr-class="header"][data-block-ssr-group-selector]', el)) {
       on.click(subEl, () => {
+        const viewportY = subEl.offsetTop - window.scrollY;
+
         api.showHeadersGroup(blockId, subEl.dataset.blockSsrField);
 
         if (subEl.offsetTop < window.scrollY) {
-          window.scrollTo(0, subEl.offsetTop - 25);
+          window.scrollTo(0, subEl.offsetTop - viewportY);
         }
       });
     }
@@ -509,10 +511,12 @@ const ssr = (function () {
 
     for (const subEl of by.selector('[data-block-ssr-class="param"][data-block-ssr-group-selector]', el)) {
       on.click(subEl, () => {
+        const viewportY = subEl.offsetTop - window.scrollY;
+
         api.showParamsGroup(blockId, subEl.dataset.blockSsrGroup);
 
         if (subEl.offsetTop < window.scrollY) {
-          window.scrollTo(0, subEl.offsetTop - 25);
+          window.scrollTo(0, subEl.offsetTop - viewportY);
         }
       });
     }
