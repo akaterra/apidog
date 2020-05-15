@@ -32,7 +32,7 @@ const ssrPreset = (function () {
         const blockDescriptor = sections[blockId];
 
         request.http.put(
-          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}/${encodeURIComponent(presetName)}`,
+          `${blockDescriptor.sampleRequestPreset}/preset/${encodeURIComponent(blockId)}/${encodeURIComponent(presetName)}`,
           api.get(blockId, presetName),
           'json'
         ).then(() => {
@@ -48,7 +48,7 @@ const ssrPreset = (function () {
         const blockDescriptor = sections[blockId];
 
         request.http.get(
-          `${blockDescriptor.sampleRequestProxy}/preset/${encodeURIComponent(blockId)}`
+          `${blockDescriptor.sampleRequestPreset}/preset/${encodeURIComponent(blockId)}`
         ).then(({text}) => {
           Object.assign(presets, JSON.parse(text));
 

@@ -141,6 +141,10 @@ function toApidocString(block) {
 }
 
 function validate(block, config) {
+  if (block.sampleRequestPreset === undefined) {
+    block.sampleRequestPreset = config.sampleRequestPreset;
+  }
+
   if (block.sampleRequest === undefined) {
     if (config.sampleRequestUrl || config.sampleRequestUrlWs) {
       block.sampleRequest = [true];

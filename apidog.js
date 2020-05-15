@@ -86,69 +86,75 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--sampleRequestPreset' ],
+  {
+    help: 'URL of apiDog presets backend',
+  },
+);
+argumentParser.addArgument(
   [ '--sampleRequestProxy' ],
   {
-    help: 'URL of apiDog proxy to be used to pass requests through it',
+    help: 'URL of apiDog proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:http' ],
   {
-    help: 'URL of apiDog HTTP/HTTPS proxy to be used to pass requests through it',
+    help: 'URL of apiDog HTTP proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:nats' ],
   {
-    help: 'URL of apiDog Nats PUB and RPC HTTP/HTTPS proxy to be used to pass requests through it',
+    help: 'URL of apiDog Nats PUB and RPC HTTP/HTTPS proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:natsSub' ],
   {
-    help: 'URL of apiDog Nats SUB WebSocket proxy to be used to listen through it',
+    help: 'URL of apiDog Nats SUB WebSocket proxy backend to be used to listen through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:pub' ],
   {
-    help: 'URL of apiDog general PUB and RPC proxy to be used to pass requests through it',
+    help: 'URL of apiDog general PUB and RPC proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmq' ],
   {
-    help: 'URL of apiDog RabbitMQ PUB and RPC HTTP/HTTPS proxy to be used to pass requests through it',
+    help: 'URL of apiDog RabbitMQ PUB and RPC HTTP/HTTPS proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:rabbitmqSub' ],
   {
-    help: 'URL of apiDog RabbitMQ SUB WebSocket proxy to listen through it',
+    help: 'URL of apiDog RabbitMQ SUB WebSocket proxy backend to listen through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:redis' ],
   {
-    help: 'URL of apiDog Redis PUB HTTP/HTTPS proxy to be used to pass requests through it',
+    help: 'URL of apiDog Redis PUB HTTP/HTTPS proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:redisSub' ],
   {
-    help: 'URL of apiDog Redis SUB WebSocket proxy to listen through it',
+    help: 'URL of apiDog Redis SUB WebSocket proxy backend to listen through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:sub' ],
   {
-    help: 'URL of apiDog general SUB proxy to be used to pass requests through it',
+    help: 'URL of apiDog general SUB proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
   [ '--sampleRequestProxy:ws', '--sampleRequestProxy:websocket' ],
   {
-    help: 'URL of apiDog WebSocket proxy to be used to pass requests through it',
+    help: 'URL of apiDog WebSocket proxy backend to be used to pass requests through it',
   },
 );
 argumentParser.addArgument(
@@ -197,22 +203,37 @@ function loadConfig(dir) {
     configPackage.apidoc = {};
   }
 
-  return {
+  const config = {
     author: configApidoc.author || configPackage.apidoc.author || configPackage.author,
     description: configApidoc.description || configPackage.apidoc.description || configPackage.description,
     input: configApidoc.input || configPackage.apidoc.input,
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     output: configApidoc.output || configPackage.apidoc.output,
+    sampleRequestPreset: configApidoc.sampleRequestPreset || configPackage.apidoc.sampleRequestPreset,
     sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
-    'sampleRequestProxy:nats': configApidoc['sampleRequestProxy:nats'] || configPackage.apidoc['sampleRequestProxy:nats'],
-    'sampleRequestProxy:rabbitmq': configApidoc['sampleRequestProxy:rabbitmq'] || configPackage.apidoc['sampleRequestProxy:rabbitmq'],
-    'sampleUrl:ws': configApidoc['sampleUrl:ws'] || configPackage.apidoc['sampleUrl:ws'],
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
     url: configApidoc.url || configPackage.apidoc.url,
   };
+
+  function resolveSsrProxy(backend) {
+    config[`sampleRequestProxy:${backend}`] = configApidoc[`sampleRequestProxy:${backend}`] || configPackage.apidoc[`sampleRequestProxy:${backend}`];
+  }
+
+  resolveSsrProxy('pub');
+  resolveSsrProxy('sub');
+  resolveSsrProxy('natsPub');
+  resolveSsrProxy('natsSub');
+  resolveSsrProxy('rabbitmqPub');
+  resolveSsrProxy('rabbitmqSub');
+  resolveSsrProxy('redisPub');
+  resolveSsrProxy('redisSub');
+  resolveSsrProxy('websocket');
+  resolveSsrProxy('ws');
+
+  return config;
 }
 
 function loadGitIgnore(dir) {
@@ -329,14 +350,15 @@ const envConfig = {
   private: argsPrivate,
   ordered: args.ordered,
   outputDir,
+  sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
-  sampleRequestProxyNats: args['sampleRequestProxy:nats'] || config['sampleRequestProxy:nats'],
+  sampleRequestProxyNatsPub: args['sampleRequestProxy:natsPub'] || config['sampleRequestProxy:natsPub'],
   sampleRequestProxyNatsSub: args['sampleRequestProxy:natsSub'] || config['sampleRequestProxy:natsSub'],
   sampleRequestProxyPub: args['sampleRequestProxy:pub'] || config['sampleRequestProxy:pub'],
-  sampleRequestProxyRabbitmq: args['sampleRequestProxy:rabbitmq'] || config['sampleRequestProxy:rabbitmq'],
+  sampleRequestProxyRabbitmqPub: args['sampleRequestProxy:rabbitmqPub'] || config['sampleRequestProxy:rabbitmqPub'],
   sampleRequestProxyRabbitmqSub: args['sampleRequestProxy:rabbitmqSub'] || config['sampleRequestProxy:rabbitmqSub'],
-  sampleRequestProxyRedis: args['sampleRequestProxy:redis'] || config['sampleRequestProxy:redis'],
+  sampleRequestProxyRedisPub: args['sampleRequestProxy:redisPub'] || config['sampleRequestProxy:redisPub'],
   sampleRequestProxyRedisSub: args['sampleRequestProxy:redisSub'] || config['sampleRequestProxy:redisSub'],
   sampleRequestProxySub: args['sampleRequestProxy:sub'] || config['sampleRequestProxy:sub'],
   sampleRequestProxyWs: args['sampleRequestProxy:ws']
