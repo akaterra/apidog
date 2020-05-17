@@ -1,7 +1,7 @@
 module.exports = {
   allowPresets: true,
   logLevel: 'debug',
-  presetsDir: "presets",
+  presetsDir: 'presets',
   // publicDir: '../apidoc',
 
   http: {

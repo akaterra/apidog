@@ -201,9 +201,9 @@ async function createAppHttp(env) {
   }
 
   if (config.publicDir) {
-    logger.debug(`Serving apiDoc public files from ${config.publicDir} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
+    logger.info(`Serving apiDoc public files from ${config.publicDir} ( http://${getConfigHttpBind(config)}/public/apidoc.html )`);
 
-    app.use('/public', express.static(`${__dirname}/${config.publicDir}`));
+    app.use('/public', express.static(`${__dirname}/${config.publicDir}`, { index: 'apidoc.html' }));
   }
 
   app.use((req, res, next) => {
