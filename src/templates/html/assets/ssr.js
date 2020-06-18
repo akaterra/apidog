@@ -400,7 +400,8 @@ const ssr = (function () {
 
       if (el) {
         cls.add(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
-        by.selector('[data-block-ssr-error-response]>pre', el)[0].textContent = '';
+        by.selector('[data-block-ssr-error-response] [data-block-ssr-response-body]', el)[0].textContent = '';
+        by.selector('[data-block-ssr-error-response] [data-block-ssr-response-status]', el)[0].textContent = '';
       }
 
       return api;
@@ -410,27 +411,30 @@ const ssr = (function () {
 
       if (el) {
         cls.add(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
-        by.selector('[data-block-ssr-response]>pre', el)[0].textContent = '';
+        by.selector('[data-block-ssr-response] [data-block-ssr-response-body]', el)[0].textContent = '';
+        by.selector('[data-block-ssr-response] [data-block-ssr-response-status]', el)[0].textContent = '';
       }
 
       return api;
     },
-    showErrorResponse(blockId, text) {
+    showErrorResponse(blockId, text, status, headers) {
       const el = getBlockEl(blockId);
 
       if (el) {
         cls.rem(by.selector('[data-block-ssr-error-response]', el)[0], 'hidden');
-        by.selector('[data-block-ssr-error-response]>pre', el)[0].textContent = text;
+        by.selector('[data-block-ssr-error-response] [data-block-ssr-response-body]', el)[0].textContent = text;
+        by.selector('[data-block-ssr-error-response] [data-block-ssr-response-status]', el)[0].textContent = status || '';
       }
 
       return api.hideResponse(blockId);
     },
-    showResponse(blockId, text) {
+    showResponse(blockId, text, status, headers) {
       const el = getBlockEl(blockId);
 
       if (el) {
         cls.rem(by.selector('[data-block-ssr-response]', el)[0], 'hidden');
-        by.selector('[data-block-ssr-response]>pre', el)[0].textContent = text;
+        by.selector('[data-block-ssr-response] [data-block-ssr-response-body]', el)[0].textContent = text;
+        by.selector('[data-block-ssr-response] [data-block-ssr-response-status]', el)[0].textContent = status || '';
       }
 
       return api.hideErrorResponse(blockId);
@@ -616,14 +620,14 @@ const ssr = (function () {
         );
 
         if (response instanceof Promise) {
-          response.then(({status, text}) => {
+          response.then(({response, status, text}) => {
             emitResponse(el, text, contentType);
 
-            status > 299 ? api.showErrorResponse(blockId, text) : api.showResponse(blockId, text);
+            status > 299 ? api.showErrorResponse(blockId, text, status, response.headers) : api.showResponse(blockId, text, status, response.headers);
           }).catch((e) => {
             emitErrorResponse(el, e, contentType);
 
-            api.showErrorResponse(blockId, e.message.text || e.message);
+            api.showErrorResponse(blockId, e.message.text || e.message, 0);
           });
         }
       });

@@ -147,6 +147,14 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
     }
 
     if (val !== undefined) {
+      if (typeModifiers) {
+        if (typeModifiers.singleline) {
+          if (typeof val === 'string') {
+            val = val.replace(/(?:\r\n|\r|\n)/g, '');
+          }
+        }
+      }
+
       if (body.type !== 'params') {
         body.body[key] = val;
       } else {

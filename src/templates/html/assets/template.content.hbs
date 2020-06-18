@@ -415,13 +415,13 @@
                       </div>
 
                       <div class="section hidden" data-block-ssr-error-response>
-                        <div class="label">{{_ 'errorResponse'}}</div>
-                        <pre class="response big-badge bg-color-dark-red color-white mono"></pre>
+                        <div class="label">{{_ 'errorResponse'}} <span data-block-ssr-response-status></span></div>
+                        <pre class="response big-badge bg-color-dark-red color-white mono" data-block-ssr-response-body></pre>
                       </div>
 
                       <div class="section hidden" data-block-ssr-response>
-                        <div class="label">{{_ 'response'}}</div>
-                        <pre class="response big-badge bg-color-dark-cyan color-white mono"></pre>
+                        <div class="label">{{_ 'response'}} <span data-block-ssr-response-status></span></div>
+                        <pre class="response big-badge bg-color-dark-cyan color-white mono" data-block-ssr-response-body></pre>
                       </div>
                     {{/ifCond}}
                   </div>

@@ -256,6 +256,14 @@ ins.diffmod, .diffins {
   background-color: blue !important;
 }
 
+.bg-color-cyan {
+  background-color: cyan !important;
+}
+
+.bg-color-dark-cyan {
+  background-color: darkslateblue;
+}
+
 .bg-color-dark-green {
   background-color: darkgreen !important;
 }
@@ -278,14 +286,6 @@ ins.diffmod, .diffins {
 
 .bg-color-red {
   background-color: red !important;
-}
-
-.bg-color-cyan {
-  background-color: cyan !important;
-}
-
-.bg-color-dark-cyan {
-  background-color: darkslateblue;
 }
 
 .bg-color-white {
@@ -312,12 +312,24 @@ ins.diffmod, .diffins {
   color: blue !important;
 }
 
+.color-cyan {
+  color: cyan !important;
+}
+
+.color-dark-cyan {
+  color: darkslateblue;
+}
+
 .color-green {
   color: green !important;
 }
 
 .color-orange {
   color: orange !important;
+}
+
+.color-dark-red {
+  color: darkred !important;
 }
 
 .color-red {
