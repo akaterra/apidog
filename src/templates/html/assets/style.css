@@ -19,6 +19,10 @@ input[type="radio"] {
   margin: 0;
 }
 
+option {
+  padding: 0;
+}
+
 .rtl {
   direction: rtl;
 }

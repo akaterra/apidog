@@ -183,7 +183,7 @@
             <form class="flex">
                 {{#each prop as |p|}}
                     {{#with (first (lookup ../../../param p.list.[0]) (lookup ../../../../param p.list.[0])) as |param|}} <!-- ??? -->
-                        <span class="input-placeholder mono">{{#if (first (ifCond prop.length '!=' 1) (ifCond (hook 'isGroupVariantOptional' prop ../../../../param) '==' true))}}<input
+                        <label class="input-placeholder mono">{{#if (first (ifCond prop.length '!=' 1) (ifCond (hook 'isGroupVariantOptional' prop ../../../../param) '==' true))}}<input
                             type="radio"
                             name="{{../../../../id}}_{{../../../../group}}_{{param.field.name}}_{{../../../../class}}_gvs"
                             {{#if @first}}checked{{/if}}
@@ -193,11 +193,11 @@
                             data-block-ssr-group="{{../../../../group}}"
                             data-block-ssr-group-variant-index="{{@index}}"
                             data-block-ssr-group-variant-selector="{{param.field.name}}_{{@index}}_{{../../../../class}}"
-                        />{{/if}}{{param.type.name}}</span>
+                        />{{/if}}{{param.type.name}}</label>
                     {{/with}}
                 {{/each}}
                 {{#with (first (lookup (hook 'paramByGroupVariantIndex' prop ../../param 0)) (lookup (hook 'paramByGroupVariantIndex' prop ../../../param 0))) as |param|}} <!-- ??? -->
-                    {{#ifCond (hook 'isGroupVariantOptional' prop ../../../param) '==' true}}<span class="input-placeholder mono"><input
+                    {{#ifCond (hook 'isGroupVariantOptional' prop ../../../param) '==' true}}<label class="input-placeholder mono"><input
                         type="radio"
                         name="{{../../../../id}}_{{../../../../group}}_{{param.field.name}}_{{../../../../class}}_gvs"
                         {{!-- {{#if @first}}checked{{/if}} --}}
@@ -207,7 +207,7 @@
                         data-block-ssr-group="{{../../../../group}}"
                         data-block-ssr-group-variant-index="-1"
                         data-block-ssr-group-variant-selector="{{param.field.name}}_{{@index}}_{{../../../../class}}"
-                    />?</span>{{/ifCond}}
+                    />?</label>{{/ifCond}}
                 {{/with}}
             </form>
         </div>
