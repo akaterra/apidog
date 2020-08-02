@@ -104,12 +104,13 @@ function parseXML(text) {
 function parseUrl(url) {
   const a = document.createElement("a");
 
-  a.url = url;
+  a.href = url;
 
   return {
     fullPath: `${a.hostname}/${a.pathname || ''}`,
     host: a.hostname,
     path: a.pathname,
+    queryParams: a.search ? parseForm(a.search.substr(1)) : {},
   };
 };
 

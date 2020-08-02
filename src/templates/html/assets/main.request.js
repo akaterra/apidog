@@ -23,6 +23,10 @@ const request = (function () {
             if (config.onReady) {
               config.onReady(socketIoConnections[parsedUrl.fullPath]);
             }
+
+            if (parsedUrl.queryParams.room) {
+              socketIoConnections[parsedUrl.fullPath].emit('join', parsedUrl.queryParams.room);
+            }
           });
         }
 
