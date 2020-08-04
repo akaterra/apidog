@@ -182,6 +182,19 @@ let argsInput = (args.i || args.input) && (args.i || args.input).length ? (args.
 let argsPrivate = args.p || args.private;
 let argsParser = args.parser && args.parser.toLowerCase() || 'dir';
 
+const inputs = argsInput.reduce((acc, argInput) => {
+  const [_, parser, source] = argInput.match(/^(dir:|inline:|swagger:|)(.*)$/) || [];
+  const type = parser.slice(0, -1) || argsParser;
+
+  if (!acc[type]) {
+    acc[type] = [];
+  }
+
+  acc[type].push(source);
+
+  return acc;
+}, {});
+
 function loadConfig(dir) {
   let configApidoc = {};
 
@@ -211,7 +224,7 @@ function loadConfig(dir) {
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     output: configApidoc.output || configPackage.apidoc.output,
     sampleRequestPreset: configApidoc.sampleRequestPreset || configPackage.apidoc.sampleRequestPreset,
-    sampleUrl: configApidoc.sampleUrl || configPackage.apidoc.sampleUrl,
+    sampleUrl: definedOrEmptyString(configApidoc.sampleUrl, configPackage.apidoc.sampleUrl),
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
@@ -269,30 +282,42 @@ function loadTemplate(path, hbs) {
     realPath = `${__dirname}/src/templates/${realPath.substr(1)}`;
   }
 
-  for (const dirName of [`${__dirname}/src/assets`, `${realPath}/assets`, `${__dirname}/src/helpers`, `${realPath}/helpers`]) {
-    const dir = fs.readdirSync(dirName);
+  let dirs = [`${__dirname}/src/assets`, `${realPath}/assets`, `${__dirname}/src/helpers`, `${realPath}/helpers`];
 
-    dir.forEach((dirEntry) => {
-      const fsStat = fs.statSync(`${dirName}/${dirEntry}`);
+  if (inputs.dir && inputs.dir.length) {
+    dirs.push(`${inputs.dir[0]}/assets`);
+  }
 
-      if (fsStat.isFile() && dirEntry !== 'index.js') {
-        let content = fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'});
+  for (const dirName of dirs) {
+    if (fs.existsSync(dirName)) {
+      const dir = fs.readdirSync(dirName);
 
-        if (content.substr(0, 4) === 'ref:') {
-          content = fs.readFileSync(`${__dirname}/${content.substr(4)}`, {encoding: 'utf8'});
+      dir.forEach((dirEntry) => {
+        const fsStat = fs.statSync(`${dirName}/${dirEntry}`);
+
+        if (fsStat.isFile() && dirEntry !== 'index.js') {
+          utils.logger.info(`Asset to be loaded: ${dirName}/${dirEntry}`);
+
+          let content = fs.readFileSync(`${dirName}/${dirEntry}`, {encoding: 'utf8'});
+
+          if (content.substr(0, 4) === 'ref:') {
+            content = fs.readFileSync(`${__dirname}/${content.substr(4)}`, {encoding: 'utf8'});
+          }
+
+          hbs.registerPartial(dirEntry, content);
+          hbs.registerPartial(dirEntry + '.content', content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}'));
+          hbs.registerPartial(dirEntry + '.base64', Buffer.from(fs.readFileSync(`${dirName}/${dirEntry}`)).toString('base64'));
         }
-
-        hbs.registerPartial(dirEntry, content);
-        hbs.registerPartial(dirEntry + '.content', content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}'));
-        hbs.registerPartial(dirEntry + '.base64', Buffer.from(fs.readFileSync(`${dirName}/${dirEntry}`)).toString('base64'));
-      }
-    });
+      });
+    }
   }
 
   for (const helpersDir of [`${__dirname}/src/helpers`, `${realPath}/helpers`]) {
-    if (fs.existsSync(`${helpersDir}/index.js`)) {
-      for (const [key, val] of Object.entries(require(`${helpersDir}/index.js`))) {
-        hbs.registerHelper(key, val);
+    if (fs.existsSync(helpersDir)) {
+      if (fs.existsSync(`${helpersDir}/index.js`)) {
+        for (const [key, val] of Object.entries(require(`${helpersDir}/index.js`))) {
+          hbs.registerHelper(key, val);
+        }
       }
     }
   }
@@ -365,8 +390,8 @@ const envConfig = {
     || args['sampleRequestProxy:websocket']
     || config['sampleRequestProxy:ws']
     || config['sampleRequestProxy:websocket'],
-  sampleRequestUrl: args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
-  sampleRequestUrlWs: config['sampleRequestUrl:ws'] || config['sampleUrl:ws'] || args.s || args.sampleRequestUrl || args.sampleUrl || config.sampleRequestUrl || config.sampleUrl,
+  sampleRequestUrl: definedOrEmptyString(args.s, args.sampleRequestUrl, args.sampleUrl, config.sampleRequestUrl, config.sampleUrl),
+  sampleRequestUrlWs: definedOrEmptyString(config['sampleRequestUrl:ws'], config['sampleUrl:ws'], args.s, args.sampleRequestUrl, args.sampleUrl, config.sampleRequestUrl, config.sampleUrl),
   schema: {
     jsonschema: (args.jsonschema || []).reduce((acc, source) => {
       const jsonSchemaSpec = parseJsonschemaUtils.fetchSource(source);
@@ -443,6 +468,10 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
         envConfig.outputDir = parseDir.normalizeDir(source);
       }
 
+      if (!envConfig.inputDir) {
+        envConfig.inputDir = parseDir.normalizeDir(source);
+      }
+
       break;
 
     case 'swagger':
@@ -450,6 +479,10 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
 
       if (index === 0 && !outputDir) {
         envConfig.outputDir = parseSwagger.normalizeDir(source);
+      }
+
+      if (!envConfig.inputDir) {
+        envConfig.inputDir = parseDir.normalizeDir(source);
       }
 
       break;
@@ -494,4 +527,8 @@ if (args.withSampleRequestProxy) {
       fs.copyFileSync(`${__dirname}/src/templates/${file}`, `${envConfig.outputDir}/apidoc.proxy/${file}`);
     }
   }
+}
+
+function definedOrEmptyString(...args) {
+  return args.find((arg) => arg || arg === '');
 }

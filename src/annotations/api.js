@@ -146,14 +146,14 @@ function validate(block, config) {
   }
 
   if (block.sampleRequest === undefined) {
-    if (config.sampleRequestUrl || config.sampleRequestUrlWs) {
+    if (config.sampleRequestUrl !== undefined || config.sampleRequestUrlWs !== undefined) {
       block.sampleRequest = [true];
     } else {
       block.sampleRequest = [];
     }
   }
 
-  block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest);
+  block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest || sampleRequest === '');
 
   switch (block.api.transport.name) {
     case 'http':
@@ -167,7 +167,7 @@ function validate(block, config) {
           if (sampleRequest === true) {
             const isFullUrl = /^http(s)?:\/\//.test(block.api.endpoint);
 
-            if (isFullUrl || (config && config.sampleRequestUrl)) {
+            if (isFullUrl || (config && (config.sampleRequestUrl || config.sampleRequestUrl === ''))) {
               return isFullUrl ? block.api.endpoint : config.sampleRequestUrl + (
                 block.api.endpoint[0] !== '/'
                   ? `/${block.api.endpoint}`
@@ -177,7 +177,7 @@ function validate(block, config) {
           } else if (sampleRequest !== false) {
             const isFullUrl = /^http(s)?:\/\//.test(sampleRequest);
 
-            if (isFullUrl || (config && config.sampleRequestUrl)) {
+            if (isFullUrl || (config && (config.sampleRequestUrl || config.sampleRequestUrl === ''))) {
               return isFullUrl ? sampleRequest : config.sampleRequestUrl + (
                 sampleRequest[0] !== '/'
                   ? `/${sampleRequest}`
@@ -332,7 +332,7 @@ function validate(block, config) {
           if (sampleRequest === true) {
             const isFullUrl = /^ws(s)?:\/\//.test(block.api.endpoint);
 
-            if (isFullUrl || (config && config.sampleRequestUrlWs)) {
+            if (isFullUrl || (config && (config.sampleRequestUrlWs || config.sampleRequestUrlWs === ''))) {
               return isFullUrl ? block.api.endpoint : config.sampleRequestUrlWs.replace(/http(s)?:\/\//, 'ws://') + (
                 block.api.endpoint[0] !== '/'
                   ? `/${block.api.endpoint}`
@@ -342,7 +342,7 @@ function validate(block, config) {
           } else if (sampleRequest !== false) {
             const isFullUrl = /^ws(s)?:\/\//.test(sampleRequest);
 
-            if (isFullUrl || (config && config.sampleRequestUrlWs)) {
+            if (isFullUrl || (config && (config.sampleRequestUrlWs || config.sampleRequestUrlWs === ''))) {
               return isFullUrl ? sampleRequest : config.sampleRequestUrlWs.replace(/http(s)?:\/\//, 'ws://') + (
                 sampleRequest[0] !== '/'
                   ? `/${sampleRequest}`
