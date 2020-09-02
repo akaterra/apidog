@@ -83,13 +83,52 @@ module.exports = (config) => ({
         methodDescriptor.description = descriptor.description.join('\n');
       }
 
+      if (Object.keys(descriptor.paramGroupVariant)[0] && !methodDescriptor.parameters) {
+        methodDescriptor.parameters = [];
+      }
+
+      if (Object.keys(descriptor.headerGroupVariant)[0] && !methodDescriptor.parameters) {
+        methodDescriptor.parameters = [];
+      }
+
+      if (descriptor.headerGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
+
+        if (groupVariantKey) {
+          // const notBodyParamIndexes = [];
+
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.headerGroup[groupVariantKey].list.map((headerIndex) => {
+            const header = descriptor.header[headerIndex];
+
+            if (true) {
+              // notBodyParamIndexes.push(paramIndex);
+
+              return {
+                name: header.field.name,
+                in: 'header',
+                description: header.description && header.description.join('/n'),
+                required: !header.field.isOptional,
+                schema: {
+                  ...parserUtils.convertParamTypeToJsonSchema(header.type.modifiers.initial.toLowerCase()),
+                  enum: header.type.allowedValues.length
+                    ? header.type.allowedValues
+                    : undefined,
+                },
+              };
+            }
+
+            return null;
+          }).filter(_ => _));
+        }
+      }
+
       if (descriptor.paramGroupVariant) {
         const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
         if (groupVariantKey) {
           const notBodyParamIndexes = [];
 
-          methodDescriptor.parameters = descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
             const param = descriptor.param[paramIndex];
 
             if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get')) {
@@ -110,7 +149,7 @@ module.exports = (config) => ({
             }
 
             return null;
-          }).filter(_ => _);
+          }).filter(_ => _));
 
           const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
 

@@ -13,7 +13,7 @@ const request = (function () {
     const parsedUrl = parseUrl(url);
 
     if (!(parsedUrl.fullPath in socketIoConnections) || !socketIoIsConnected(url)) {
-      socketIoConnections[parsedUrl.fullPath] = io(url/*, headers && {transportOptions: {polling: {extraHeaders: headers}}}*/);
+      socketIoConnections[parsedUrl.fullPath] = io(url, { path: undefined }/*, headers && {transportOptions: {polling: {extraHeaders: headers}}}*/);
 
       if (config) {
         if (config.onConnect) {

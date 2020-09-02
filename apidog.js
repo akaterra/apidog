@@ -172,7 +172,7 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    defaultValue: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+    constant: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
   },
 );
 
@@ -285,7 +285,7 @@ function loadTemplate(path, hbs) {
   let dirs = [`${__dirname}/src/assets`, `${realPath}/assets`, `${__dirname}/src/helpers`, `${realPath}/helpers`];
 
   if (inputs.dir && inputs.dir.length) {
-    dirs.push(`${inputs.dir[0]}/assets`);
+    dirs.push(`${inputs.dir[0]}/apidoc.assets`);
   }
 
   for (const dirName of dirs) {

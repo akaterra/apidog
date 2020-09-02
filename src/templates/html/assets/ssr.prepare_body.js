@@ -98,6 +98,10 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
         if (typeModifiers && typeModifiers.none) {
           return;
         }
+
+        if (typeModifiers && typeModifiers.optional) {
+          return;
+        }
       }
 
       if (val === '' || val === 'null') {
