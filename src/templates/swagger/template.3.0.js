@@ -3,6 +3,13 @@ const parserUtils = require('../../parser.utils');
 const parserSwaggerUtils = require('../../parser.swagger.1.2.utils');
 const URL = require('url').URL;
 
+const PARAM_VALUE_BY_TYPE = {
+  'Boolean': (value) => value && value !== '0' && value !== 'false' ? true : false,
+  'Boolean:Enum': (value) => value && value !== '0' && value !== 'false' ? true : false,
+  'Number': (value) => parseFloat(value),
+  'Number:Enum': (value) => parseFloat(value),
+};
+
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
@@ -83,11 +90,11 @@ module.exports = (config) => ({
         methodDescriptor.description = descriptor.description.join('\n');
       }
 
-      if (Object.keys(descriptor.paramGroupVariant)[0] && !methodDescriptor.parameters) {
+      if (Object.keys(descriptor.paramGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
         methodDescriptor.parameters = [];
       }
 
-      if (Object.keys(descriptor.headerGroupVariant)[0] && !methodDescriptor.parameters) {
+      if (Object.keys(descriptor.headerGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
         methodDescriptor.parameters = [];
       }
 
@@ -142,7 +149,7 @@ module.exports = (config) => ({
                 schema: {
                   ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
                   enum: param.type.allowedValues.length
-                    ? param.type.allowedValues
+                    ? PARAM_VALUE_BY_TYPE[param.type.name] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value)) : param.type.allowedValues
                     : undefined,
                 },
               };
@@ -153,7 +160,7 @@ module.exports = (config) => ({
 
           const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
 
-          if (bodyParams.length) {
+          if (bodyParams.filter((param) => !!param).length) {
             methodDescriptor.requestBody = {
               content: descriptor.contentType.reduce((acc, contentType) => {
                 switch (contentType) {

@@ -90,6 +90,13 @@ function convertParamTypeToJsonSchema(type) {
   };
 }
 
+const PARAM_VALUE_BY_TYPE = {
+  'Boolean': (value) => value && value !== '0' && value !== 'false' ? true : false,
+  'Boolean:Enum': (value) => value && value !== '0' && value !== 'false' ? true : false,
+  'Number': (value) => parseFloat(value),
+  'Number:Enum': (value) => parseFloat(value),
+};
+
 function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptors, jsonSchema) {
   if (!jsonSchema) {
     jsonSchema = {
@@ -143,7 +150,9 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       if (paramType === 'boolean' || paramType === 'null' || paramType === 'number' || paramType === 'string') {
         if (param.type.allowedValues && param.type.allowedValues.length) {
-          paramJsonSchemaRef.enum = param.type.allowedValues;
+          paramJsonSchemaRef.enum = PARAM_VALUE_BY_TYPE[param.type.name]
+            ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value))
+            : param.type.allowedValues;
         }
 
         paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null]  : paramType;
@@ -237,7 +246,9 @@ function convertParamsToJsonSchema(params) {
 
             if (type === 'boolean' || type === 'null' || type === 'number' || type === 'string') {
               if (param.type.allowedValues && param.type.allowedValues.length) {
-                nodeProperties.enum = param.type.allowedValues;
+                nodeProperties.enum = PARAM_VALUE_BY_TYPE[param.type.name]
+                  ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value))
+                  : param.type.allowedValues;
               }
 
               nodeProperties.type = type;
