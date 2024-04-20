@@ -53,11 +53,22 @@ module.exports = (config) => ({
       } else {
         if (descriptor.successGroupVariant) {
           Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            let schema;
+
+            if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
+              descriptor.success[-1] = descriptor.successRoot[0];
+              schema = parserUtils.convertParamGroupVariantToJsonSchema({
+                $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+              }, descriptor.success).properties.$;
+            } else {
+              schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
+            }
+
             responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
-                  schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
+                  schema,
                 },
               },
             };
@@ -66,11 +77,22 @@ module.exports = (config) => ({
 
         if (descriptor.errorGroupVariant) {
           Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            let schema;
+
+            if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
+              descriptor.error[-1] = descriptor.errorRoot[0];
+              schema = parserUtils.convertParamGroupVariantToJsonSchema({
+                $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+              }, descriptor.error).properties.$;
+            } else {
+              schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
+            }
+            
             responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
-                  schema: parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
+                  schema,
                 },
               },
             };
@@ -261,33 +283,37 @@ module.exports = (config) => ({
           if (bodyParams.filter((param) => !!param).length) {
             methodDescriptor.requestBody = {
               content: descriptor.contentType.reduce((acc, contentType) => {
+                if (descriptor.paramRootGroupVariant && descriptor.paramRootGroupVariant[groupVariantKey]) {
+                  bodyParams[-1] = descriptor.paramRoot[0];
+                  schema = parserUtils.convertParamGroupVariantToJsonSchema(
+                    { $: [ { list: [ -1 ], parent: null, prop: descriptor.paramGroupVariant[groupVariantKey].prop } ] },
+                    bodyParams,
+                  ).properties.$;
+                } else {
+                  schema = parserUtils.convertParamGroupVariantToJsonSchema(
+                    descriptor.paramGroupVariant[groupVariantKey].prop,
+                    bodyParams,
+                  );
+                }
+
                 switch (contentType) {
                   case 'form':
                     acc['application/x-www-form-urlencoded'] = {
-                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
-                        descriptor.paramGroupVariant[groupVariantKey].prop,
-                        bodyParams,
-                      ),
+                      schema,
                     };
     
                     break;
     
                   case 'json':
                     acc['application/json'] = {
-                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
-                        descriptor.paramGroupVariant[groupVariantKey].prop,
-                        bodyParams,
-                      ),
+                      schema,
                     };
     
                     break;
     
                   case 'xml':
                     acc['application/xml'] = {
-                      schema: parserUtils.convertParamGroupVariantToJsonSchema(
-                        descriptor.paramGroupVariant[groupVariantKey].prop,
-                        bodyParams,
-                      ),
+                      schema,
                     };
     
                     break;

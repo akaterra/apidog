@@ -128,10 +128,10 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         description: param.description && param.description.join('/n'),
         required: [],
         properties: {},
-        default: param.field.defaultValue,
+        default: param.field && param.field.defaultValue,
       };
 
-      if (!param.field.isOptional && !jsonSchema.required.includes(propKey)) {
+      if (param.field && !param.field.isOptional && !jsonSchema.required.includes(propKey)) {
         jsonSchema.required.push(propKey);
       }
 

@@ -43,21 +43,27 @@ Table of contents
 * Installation
 * CLI
 * Additional annotations
+  * [@apiAuthHeader](#apiauthheader)
+  * [@apiAuthParam](#apiauthparam)
+  * [@apiAuthQuery](#apiauthquery)
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
   * [@apiDefine](#apidefine)
   * [@apiErrorPrefix](#apierrorprefix)
+  * [@apiErrorRoot](#apierrorroot)
   * [@apiErrorValue](#apierrorvalue)
   * [@apiFamily](#apifamily)
   * [@apiHeaderValue](#apiheadervalue)
   * [@apiNote](#apinote)
   * [@apiParamPrefix](#apiparamprefix)
+  * [@apiParamRoot](#apiparamroot)
   * [@apiParamValue](#apiparamvalue)
   * [@apiSchema](#apischema)
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
   * [@apiSubgroup](#apisubgroup)
   * [@apiSuccessPrefix](#apisuccessprefix)
+  * [@apiSuccessRoot](#apisuccessroot)
   * [@apiSuccessValue](#apisuccessvalue)
   * [@apiTag](#apitag)
   * [@apiUse](#apiuse)
@@ -167,6 +173,33 @@ Parameters:
 
 ### Additional annotations
 
+##### @apiAuthHeader
+
+Format:
+```
+@apiAuthHeader {authType} name description
+```
+
+Defines authorization type through header.
+
+##### @apiAuthParam
+
+Format:
+```
+@apiAuthParam {authType} name description
+```
+
+Defines authorization type through param.
+
+##### @apiAuthQuery
+
+Format:
+```
+@apiAuthQuery {authType} name description
+```
+
+Defines authorization type through query param.
+
 ##### @apiChapter
 
 Format:
@@ -254,6 +287,33 @@ Example:
  * @apiError {String} e As "e"
  */
 ```
+
+##### @apiErrorRoot
+
+Format:
+```
+@apiErrorRoot (group) {type} description
+```
+
+Defines "root" type for error response.
+
+Used when response contains primitive value or array of **@apiError** definitions.
+
+Example:
+```
+/**
+ * @apiErrorRoot {Object[]} List of objects
+ * @apiError a
+ * @apiError b
+ * @apiError c
+ */
+ ```
+
+ ```
+/**
+ * @apiErrorRoot {String[]} List of strings
+ */
+ ```
 
 ##### @apiErrorValue
 
@@ -381,6 +441,33 @@ Example:
  * @apiParam {String} e As "e"
  */
 ```
+
+##### @apiParamRoot
+
+Format:
+```
+@apiParamRoot (group) {type} description
+```
+
+Defines "root" type for request.
+
+Used when request contains primitive value or array of **@apiParam** definitions.
+
+Example:
+```
+/**
+ * @apiParamRoot {Object[]} List of objects
+ * @apiParam {String} a
+ * @apiParam {String} b
+ * @apiParam {String} c
+ */
+ ```
+
+ ```
+/**
+ * @apiParamRoot {String[]} List of strings
+ */
+ ```
 
 ##### @apiParamValue
 
@@ -524,6 +611,33 @@ Example:
  * @apiSuccess {String} e As "e"
  */
 ```
+
+##### @apiSuccessRoot
+
+Format:
+```
+@apiSuccessRoot (group) {type} description
+```
+
+Defines "root" type for success response.
+
+Used when response contains primitive value or array of **@apiSuccess** definitions.
+
+Example:
+```
+/**
+ * @apiSuccessRoot {Object[]} List of objects
+ * @apiSuccess a
+ * @apiSuccess b
+ * @apiSuccess c
+ */
+ ```
+
+ ```
+/**
+ * @apiSuccessRoot {String[]} List of strings
+ */
+ ```
 
 ##### @apiSuccessValue
 
