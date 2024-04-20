@@ -1,7 +1,11 @@
+const { Block } = require('./block');
 const utils = require('./utils');
 
 const annotationParsers = {
   '@api': require('./annotations/api'),
+  '@apiauthheader': require('./annotations/api_param').construct('authHeader'),
+  '@apiauthparam': require('./annotations/api_param').construct('authParam'),
+  '@apiauthquery': require('./annotations/api_param').construct('authQuery'),
   '@apichapter': require('./annotations/api_chapter'),
   '@apicontenttype': require('./annotations/api_content_type'),
   '@apidefine': require('./annotations/api_define'),
@@ -26,6 +30,7 @@ const annotationParsers = {
   '@apiparamvalue': require('./annotations/api_param_value'),
   '@apipermission': require('./annotations/api_permission'),
   '@apiprivate': require('./annotations/api_private'),
+  '@apiquery': require('./annotations/api_query').construct('query'),
   '@apisamplerequest': require('./annotations/api_sample_request'),
   '@apisamplerequesthook': require('./annotations/api_sample_request_hook'),
   '@apisamplerequestoption': require('./annotations/api_sample_request_option'),
@@ -56,7 +61,7 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
     definitions = {};
   }
 
-  const block = {};
+  const block = new Block();
 
   let lastTokenParser;
 
@@ -107,7 +112,7 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
             config.logger.warn(`Possibly unknown annotation: ${annotation}`);
           }
 
-          // add line of description (or another props) via last used annotation parser
+          // add line of description (or another props) by using last selected annotation parser
           if (lastTokenParser && lastTokenParser.addDescription) {
             Object.assign(block, lastTokenParser.addDescription(block, line, config));
           }
@@ -136,6 +141,7 @@ function toApidocBlockLines(block) {
 }
 
 module.exports = {
+  Block,
   parseBlockLines,
   toApidocBlockLines,
 };

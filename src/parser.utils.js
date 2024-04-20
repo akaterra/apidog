@@ -68,10 +68,14 @@ const PARAM_STRING_FORMAT_BY_TYPE = {
   'date-time': true,
   email: true,
   hostname: true,
+  id: { type: 'integer', minimum: 0 },
   ipv4: true,
   ipv6: true,
   longitude: { type: 'number', minimum: -180, maximum: 180 },
   latitude: { type: 'number', minimum: -90, maximum: 90 },
+  natural: { type: 'integer', minimum: 1 },
+  negativeInteger: { type: 'integer', maximum: -1 },
+  positiveInteger: { type: 'integer', minimum: 0 },
   time: true,
   uri: true,
   uuid: true,
@@ -124,6 +128,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         description: param.description && param.description.join('/n'),
         required: [],
         properties: {},
+        default: param.field.defaultValue,
       };
 
       if (!param.field.isOptional && !jsonSchema.required.includes(propKey)) {
@@ -148,6 +153,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
         Object.assign(paramJsonSchemaRef, convertParamTypeToJsonSchema(paramType));
+        paramType = paramJsonSchemaRef.type;
       }
 
       if (paramType === 'object') {
@@ -159,9 +165,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             : param.type.allowedValues;
         }
 
-        paramJsonSchemaRef.type = param.type.modifiers.nullable
-          ? [paramJsonSchemaRef.type ?? paramType, null]
-          : paramJsonSchemaRef.type ?? paramType;
+        paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null] : paramType;
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
@@ -213,6 +217,10 @@ function convertParamsToJsonSchema(params) {
 
           nodeProperties = nodeProperties[propertyName] = {};
 
+          if (param.field.defaultValue) {
+            nodeProperties.default = param.field.defaultValue;
+          }
+
           if (param.description) {
             nodeProperties.description = param.description.join('\n');
           }
@@ -242,6 +250,7 @@ function convertParamsToJsonSchema(params) {
           } else {
             if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
               Object.assign(nodeProperties, convertParamTypeToJsonSchema(paramType));
+              paramType = nodeProperties.type;
             }
 
             if (paramType === 'object') {
@@ -257,7 +266,7 @@ function convertParamsToJsonSchema(params) {
                   : param.type.allowedValues;
               }
 
-              nodeProperties.type = nodeProperties.type ?? paramType;
+              nodeProperties.type = paramType;
             }
           }
         } else {

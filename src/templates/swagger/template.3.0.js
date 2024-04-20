@@ -24,6 +24,7 @@ module.exports = (config) => ({
       servers: [{
         url: '/',
       }],
+      components: {},
       paths: {},
     };
 
@@ -52,7 +53,7 @@ module.exports = (config) => ({
       } else {
         if (descriptor.successGroupVariant) {
           Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
@@ -65,7 +66,7 @@ module.exports = (config) => ({
 
         if (descriptor.errorGroupVariant) {
           Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+            responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
               content: {
                 '*/*': {
@@ -91,7 +92,101 @@ module.exports = (config) => ({
         methodDescriptor.description = descriptor.description.join('\n');
       }
 
+      if (Object.keys(descriptor.authHeaderGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
+      if (Object.keys(descriptor.authParamGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
+      if (Object.keys(descriptor.authQueryGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
+      if (descriptor.authHeaderGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.authHeaderGroupVariant)[0];
+
+        if (groupVariantKey) {
+          if (!methodDescriptor.security) {
+            methodDescriptor.security = [];
+          }
+
+          descriptor.authHeaderGroup[groupVariantKey].list.forEach((authHeaderIndex) => {
+            const authHeader = descriptor.authHeader[authHeaderIndex];
+            methodDescriptor.security.push({ [authHeader.group || 'default']: [] });
+
+            switch (authHeader.type.modifiers.initial) {
+              case 'apikey':
+                spec.components.securitySchemes[authHeader.group || 'default'] = { type: 'apiKey', in: 'header', name: authHeader.field.name };
+                break;
+
+              case 'basic':
+              case 'bearer':
+                spec.components.securitySchemes[authHeader.group || 'default'] = { type: authHeader.type.modifiers.initial, name: authHeader.field.name };
+                break;
+            }
+          });
+        }
+      }
+
+      if (descriptor.authParamGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.authParamGroupVariant)[0];
+
+        if (groupVariantKey) {
+          if (!methodDescriptor.security) {
+            methodDescriptor.security = [];
+          }
+
+          descriptor.authParamGroup[groupVariantKey].list.forEach((authParamIndex) => {
+            const authParam = descriptor.authParam[authParamIndex];
+            methodDescriptor.security.push({ [authParam.group || 'default']: [] });
+
+            switch (authParam.type.modifiers.initial) {
+              case 'apikey':
+                spec.components.securitySchemes[authParam.group || 'default'] = { type: 'apiKey', in: uriParams[param.field.name] === false ? 'path' : 'query', name: authParam.field.name };
+                break;
+
+              case 'basic':
+              case 'bearer':
+                spec.components.securitySchemes[authParam.group || 'default'] = { type: authParam.type.modifiers.initial, name: authParam.field.name };
+                break;
+            }
+          });
+        }
+      }
+
+      if (descriptor.authQueryGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.authQueryGroupVariant)[0];
+
+        if (groupVariantKey) {
+          if (!methodDescriptor.security) {
+            methodDescriptor.security = [];
+          }
+
+          descriptor.authQueryGroup[groupVariantKey].list.forEach((authQueryIndex) => {
+            const authQuery = descriptor.authParam[authQueryIndex];
+            methodDescriptor.security.push({ [authQuery.group || 'default']: [] });
+
+            switch (authQuery.type.modifiers.initial) {
+              case 'apikey':
+                spec.components.securitySchemes[authQuery.group || 'default'] = { type: 'apiKey', in: 'query', name: authQuery.field.name };
+                break;
+
+              case 'basic':
+              case 'bearer':
+                spec.components.securitySchemes[authQuery.group || 'default'] = { type: authQuery.type.modifiers.initial, name: authQuery.field.name };
+                break;
+            }
+          });
+        }
+      }
+
       if (Object.keys(descriptor.paramGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
+        methodDescriptor.parameters = [];
+      }
+
+      if (Object.keys(descriptor.queryGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
         methodDescriptor.parameters = [];
       }
 
@@ -121,6 +216,7 @@ module.exports = (config) => ({
                   enum: header.type.allowedValues.length
                     ? header.type.allowedValues
                     : undefined,
+                  default: header.field.defaultValue,
                 },
               };
             }
@@ -152,6 +248,7 @@ module.exports = (config) => ({
                   enum: param.type.allowedValues.length
                     ? PARAM_VALUE_BY_TYPE[param.type.name] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value)) : param.type.allowedValues
                     : undefined,
+                  default: param.field.defaultValue,
                 },
               };
             }
@@ -200,6 +297,38 @@ module.exports = (config) => ({
               }, {}),
             };
           }
+        }
+      }
+
+      if (descriptor.queryGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.queryGroupVariant)[0];
+
+        if (groupVariantKey) {
+          // const notBodyParamIndexes = [];
+
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.queryGroup[groupVariantKey].list.map((queryIndex) => {
+            const query = descriptor.query[queryIndex];
+
+            if (true) {
+              // notBodyParamIndexes.push(paramIndex);
+
+              return {
+                name: query.field.name,
+                in: 'query',
+                description: query.description && query.description.join('/n'),
+                required: !query.field.isOptional,
+                schema: {
+                  ...parserUtils.convertParamTypeToJsonSchema(query.type.modifiers.initial.toLowerCase()),
+                  enum: query.type.allowedValues.length
+                    ? query.type.allowedValues
+                    : undefined,
+                  default: query.field.defaultValue,
+                },
+              };
+            }
+
+            return null;
+          }).filter(_ => _));
         }
       }
     });
