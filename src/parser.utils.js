@@ -62,7 +62,7 @@ function enumUriPlaceholders(uri, fn, acc) {
   return acc;
 }
 
-const paramTypeToFormat = {
+const PARAM_STRING_FORMAT_BY_TYPE = {
   date: true,
   datetime: 'date-time',
   'date-time': true,
@@ -70,32 +70,37 @@ const paramTypeToFormat = {
   hostname: true,
   ipv4: true,
   ipv6: true,
+  longitude: { type: 'number', minimum: -180, maximum: 180 },
+  latitude: { type: 'number', minimum: -90, maximum: 90 },
   time: true,
   uri: true,
   uuid: true,
 };
+const PARAM_VALUE_BY_TYPE = {
+  boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
+  number: (value) => parseFloat(value),
+};
 
 function convertParamTypeToJsonSchema(type) {
+  const def = PARAM_STRING_FORMAT_BY_TYPE[type];
+
+  if (def && typeof def === 'object') {
+    return def;
+  }
+
   return {
-    type: type in paramTypeToFormat
-      ? paramTypeToFormat[type] === true
+    type: type in PARAM_STRING_FORMAT_BY_TYPE
+      ? def === true
         ? 'string'
-        : paramTypeToFormat[type]
+        : PARAM_STRING_FORMAT_BY_TYPE[type]
       : type,
-    format: type in paramTypeToFormat
-      ? paramTypeToFormat[type] === true
+    format: type in PARAM_STRING_FORMAT_BY_TYPE
+      ? def === true
         ? type
-        : paramTypeToFormat[type]
+        : PARAM_STRING_FORMAT_BY_TYPE[type]
       : undefined,
   };
 }
-
-const PARAM_VALUE_BY_TYPE = {
-  'Boolean': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Boolean:Enum': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Number': (value) => parseFloat(value),
-  'Number:Enum': (value) => parseFloat(value),
-};
 
 function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptors, jsonSchema) {
   if (!jsonSchema) {
@@ -116,6 +121,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       const paramJsonSchema = {
         type: 'object',
+        description: param.description && param.description.join('/n'),
         required: [],
         properties: {},
       };
@@ -140,24 +146,22 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       let paramType = param.type.modifiers.initial.toLowerCase();
 
-      if (paramType in paramTypeToFormat) {
-        paramJsonSchemaRef.format = paramTypeToFormat[paramType] !== true
-          ? paramTypeToFormat[paramType]
-          : paramType;
-
-        paramType = 'string';
+      if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
+        Object.assign(paramJsonSchemaRef, convertParamTypeToJsonSchema(paramType));
       }
 
-      if (paramType === 'boolean' || paramType === 'null' || paramType === 'number' || paramType === 'string') {
+      if (paramType === 'object') {
+        convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
+      } else {
         if (param.type.allowedValues && param.type.allowedValues.length) {
-          paramJsonSchemaRef.enum = PARAM_VALUE_BY_TYPE[param.type.name]
-            ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value))
+          paramJsonSchemaRef.enum = PARAM_VALUE_BY_TYPE[paramType]
+            ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
             : param.type.allowedValues;
         }
 
-        paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null]  : paramType;
-      } else {
-        convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
+        paramJsonSchemaRef.type = param.type.modifiers.nullable
+          ? [paramJsonSchemaRef.type ?? paramType, null]
+          : paramJsonSchemaRef.type ?? paramType;
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
@@ -227,7 +231,7 @@ function convertParamsToJsonSchema(params) {
             }
           }
 
-          let type = param.type.modifiers.initial.toLowerCase();
+          let paramType = param.type.modifiers.initial.toLowerCase();
 
           if (ind < path.length - 1) {
             nodeProperties.required = [];
@@ -236,28 +240,24 @@ function convertParamsToJsonSchema(params) {
             nodeProperties.properties = {};
             nodeProperties = nodeProperties.properties
           } else {
-            if (type in paramTypeToFormat) {
-              nodeProperties.format = paramTypeToFormat[type] !== true
-                ? paramTypeToFormat[type]
-                : type;
-
-              type = 'string';
+            if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
+              Object.assign(nodeProperties, convertParamTypeToJsonSchema(paramType));
             }
 
-            if (type === 'boolean' || type === 'null' || type === 'number' || type === 'string') {
-              if (param.type.allowedValues && param.type.allowedValues.length) {
-                nodeProperties.enum = PARAM_VALUE_BY_TYPE[param.type.name]
-                  ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value))
-                  : param.type.allowedValues;
-              }
-
-              nodeProperties.type = type;
-            } else {
+            if (paramType === 'object') {
               nodeProperties.required = [];
               nodeRequired = nodeProperties.required
               nodeProperties.type = 'object';
               nodeProperties.properties = {};
               nodeProperties = nodeProperties.properties
+            } else {
+              if (param.type.allowedValues && param.type.allowedValues.length) {
+                nodeProperties.enum = PARAM_VALUE_BY_TYPE[paramType]
+                  ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
+                  : param.type.allowedValues;
+              }
+
+              nodeProperties.type = nodeProperties.type ?? paramType;
             }
           }
         } else {

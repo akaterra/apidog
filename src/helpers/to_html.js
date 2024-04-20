@@ -1,5 +1,10 @@
 module.exports = (input) => {
-  const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
+  if (!input) {
+    return undefined;
+  }
 
-  return new handlebars.SafeString(input.toString().replace(/\n/g, '<br>'));
+  const handlebars = typeof require === 'function' ? require('handlebars') : window.Handlebars;
+  const content = input.toString().replace(/\n/g, '<br>');
+console.log(content ? new handlebars.SafeString(content) : undefined);
+  return content ? new handlebars.SafeString(content) : undefined;
 };

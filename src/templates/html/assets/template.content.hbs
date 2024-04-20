@@ -205,7 +205,9 @@
 
                       <!-- title:end -->
 
-                      <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
+                      {{#ifCond (toHtml (join this.description true)) '!=' undefined}}
+                        <div class="section left-padded top-padded bottom-padded color-2">{{toHtml (join ../this.description true)}}</div>
+                      {{/ifCond}}
 
                       <div class="section flex">
                         <span class="padded font-size-1 uppercase mono bold">{{toUpperCase this.api.transport.name}}</span>
@@ -426,7 +428,7 @@
                     {{/ifCond}}
                   </div>
                   {{/each}}
-                  <hr class="splitter">
+                  <div class="splitter" />
                 </div>
               {{/each}}
 

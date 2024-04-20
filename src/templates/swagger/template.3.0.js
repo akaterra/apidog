@@ -32,7 +32,8 @@ module.exports = (config) => ({
         return;
       }
 
-      const endpoint = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint)).pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`);
+      const url = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint));
+      const endpoint = url.pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`) + url.search.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
         spec.paths[endpoint] = {};
@@ -138,7 +139,7 @@ module.exports = (config) => ({
           methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
             const param = descriptor.param[paramIndex];
 
-            if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get')) {
+            if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get' || descriptor.api.transport.method === 'delete')) {
               notBodyParamIndexes.push(paramIndex);
 
               return {

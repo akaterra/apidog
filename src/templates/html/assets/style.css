@@ -62,7 +62,7 @@ ins.diffmod, .diffins {
 }
 
 .splitter {
-  margin: 1.5rem 0;
+  padding: 1.5rem 0;
 }
 
 .padded {
@@ -89,6 +89,10 @@ ins.diffmod, .diffins {
 
 .top-padded {
   padding-top: 0.5rem;
+}
+
+.bottom-padded {
+  padding-bottom: 0.5rem;
 }
 
 .margin-left-25 {
@@ -378,8 +382,22 @@ ins.diffmod, .diffins {
   padding: 0.5rem;
 }
 
-.block {
-  //padding: 1 rem 0;
+.table-zebra > *:nth-child(odd) {
+  background-color: #f0f0f0;
+}
+
+.table-zebra > *:first-child {
+  background-color: #e0e0e0;
+}
+
+.table-zebra > *:first-child {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.table-zebra > *:last-child {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
 }
 
 .table {
@@ -388,26 +406,11 @@ ins.diffmod, .diffins {
 
 .table > *:not(.diffmod) {
   box-sizing: border-box;
-  border: #e0e0e0 solid;
-  border-width: 0 1px 1px 0;
-  min-height: 1.5rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.rtl .table > *:not(.diffmod) {
-  border-width: 0 0 1px 1px;
+  padding: 0.5rem 0.5rem;
 }
 
 .table > * {
-  line-height: 18px;
-}
-
-.table > *:not(.diffmod):last-child {
-  border-right-width: 0;
-}
-
-.rtl .table > *:not(.diffmod):last-child {
-  border-left-width: 0;
+  line-height: 1rem;
 }
 
 .button {
@@ -438,19 +441,37 @@ ins.diffmod, .diffins {
 }
 
 .control {
+  appearance: none;
   background-color: #fcfcfc;
-  border: 1px solid #e0e0e0;
+  border-color: #e0e0e0;
+  border-style: solid;
+  border-width: 2px 0 2px 0;
+  cursor: pointer;
   font-size: 0.75rem;
   height: 1.5rem;
   padding: 0 0.5rem;
+  text-align: center;
+}
+
+.control:hover {
+  background-color: #e0e0e0;
 }
 
 .input {
+  appearance: none;
   background-color: #fcfcfc;
-  border: 1px solid #e0e0e0;
+  border-color: #e0e0e0;
+  border-style: solid;
+  border-width: 2px 0 2px 0;
+  cursor: pointer;
   font-size: 0.75rem;
   height: 1.5rem;
   padding: 0 0.5rem;
+  text-align: center;
+}
+
+.input:hover {
+  background-color: #e0e0e0;
 }
 
 .input-label {
