@@ -1,3 +1,4 @@
+const {Block} = require('../src/block');
 const parser = require('../src/parser.dir');
 
 describe('parse.dir parseJavaDocStyle', () => {
@@ -11,7 +12,7 @@ describe('parse.dir parseJavaDocStyle', () => {
       ' */'
     );
 
-    expect(blocks).toEqual([{
+    expect(blocks).toEqual([new Block({
       api: {
         endpoint: 'url',
         title: null,
@@ -19,7 +20,7 @@ describe('parse.dir parseJavaDocStyle', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }, {
+    }), new Block({
       api: {
         endpoint: 'url',
         title: null,
@@ -27,6 +28,6 @@ describe('parse.dir parseJavaDocStyle', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }]);
+    })]);
   });
 });

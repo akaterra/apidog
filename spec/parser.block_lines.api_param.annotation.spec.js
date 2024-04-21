@@ -19,7 +19,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam (isNotTyped) A_B.C This is a description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       param: [{ // 0
         description: [],
         field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
@@ -247,7 +247,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
           }
         }
       }
-    });
+    }));
   });
 
   it('should parse multiple params prefixed by @apiParamPrefix', () => {
@@ -256,13 +256,11 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam A_B.C',
     ];
 
-    expect(parser.parseBlockLines(lines).param).toEqual([
-      {
-        description: [],
-        field: { defaultValue: undefined, isOptional: false, name: 'prefix.A_B.C' },
-        group: null,
-        type: null,
-      }
-    ]);
+    expect(parser.parseBlockLines(lines).param).toEqual([{
+      description: [],
+      field: { defaultValue: undefined, isOptional: false, name: 'prefix.A_B.C' },
+      group: null,
+      type: null,
+    }]);
   });
 });

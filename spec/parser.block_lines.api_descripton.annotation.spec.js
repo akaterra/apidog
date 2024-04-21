@@ -8,12 +8,12 @@ describe('parser.block_lines parseBlockLines @apiDescriptor annotation', () => {
       'Some description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       description: [
         'This is a description',
         'Some description',
       ],
       validate: [apiDescriptionToken.validate],
-    })
+    }));
   });
 });

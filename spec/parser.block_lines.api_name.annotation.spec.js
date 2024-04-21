@@ -6,9 +6,9 @@ describe('parser.block_lines parseBlockLines @apiName annotation', () => {
       '@apiName name',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       name: 'name',
-    })
+    }));
   });
 
   it('should raise error on malformed definition', () => {

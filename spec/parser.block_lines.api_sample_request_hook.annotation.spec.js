@@ -7,8 +7,8 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestHook annotation', 
       '@apiSrHook hook2',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequestHook: ['hook1', 'hook2'],
-    });
+    }));
   });
 });

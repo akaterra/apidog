@@ -6,9 +6,9 @@ describe('parser.block_lines parseBlockLines @apiFamily annotation', () => {
       '@apiFamily family',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       family: 'family',
-    });
+    }));
   });
 
   it('should raise error on malformed definition', () => {

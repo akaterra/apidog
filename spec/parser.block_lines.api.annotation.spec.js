@@ -9,7 +9,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(block).toEqual({
+    expect(block).toEqual(new parser.Block({
       api: {
         endpoint: '/url',
         title: 'This is a title',
@@ -17,7 +17,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should parse nats pub transport', () => {
@@ -27,7 +27,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -35,7 +35,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should parse nats rpc transport', () => {
@@ -45,7 +45,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -53,7 +53,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should parse rabbitmq pub transport with exchange', () => {
@@ -63,7 +63,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -71,7 +71,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should parse rabbitmq rpc transport with exchange', () => {
@@ -81,7 +81,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -89,7 +89,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should parse socket io transport', () => {
@@ -99,7 +99,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
@@ -107,7 +107,7 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
       },
       title: 'This is a title',
       validate: block.validate,
-    })
+    }));
   });
 
   it('should raise error on malformed', () => {

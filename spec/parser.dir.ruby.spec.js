@@ -1,3 +1,4 @@
+const {Block} = require('../src/block');
 const parser = require('../src/parser.dir');
 
 describe('parse.dir parseRuby', () => {
@@ -8,7 +9,7 @@ describe('parse.dir parseRuby', () => {
       '=end'
     );
 
-    expect(blocks).toEqual([{
+    expect(blocks).toEqual([new Block({
       api: {
         endpoint: 'url',
         title: null,
@@ -16,6 +17,6 @@ describe('parse.dir parseRuby', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }]);
+    })]);
   });
 });

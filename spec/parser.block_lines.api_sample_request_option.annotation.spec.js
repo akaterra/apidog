@@ -7,11 +7,11 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestOption annotation'
       '@apiSrOption key2',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequestOption: {
         key1: 'value1',
         key2: true,
       },
-    })
+    }));
   });
 });

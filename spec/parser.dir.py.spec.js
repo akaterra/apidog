@@ -1,3 +1,4 @@
+const {Block} = require('../src/block');
 const parser = require('../src/parser.dir');
 
 describe('parse.dir parsePy', () => {
@@ -8,7 +9,7 @@ describe('parse.dir parsePy', () => {
       '"""'
     );
 
-    expect(blocks).toEqual([{
+    expect(blocks).toEqual([new Block({
       api: {
         endpoint: 'url',
         title: null,
@@ -16,7 +17,7 @@ describe('parse.dir parsePy', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }]);
+    })]);
   });
 
   it('should parse indented', () => {
@@ -26,7 +27,7 @@ describe('parse.dir parsePy', () => {
       '    """'
     );
 
-    expect(blocks).toEqual([{
+    expect(blocks).toEqual([new Block({
       api: {
         endpoint: 'url',
         title: null,
@@ -34,6 +35,6 @@ describe('parse.dir parsePy', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }]);
+    })]);
   });
 });

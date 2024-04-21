@@ -19,7 +19,7 @@ describe('parser.block_lines parseBlockLines @apiError annotation', () => {
       '@apiError (isNotTyped) A_B.C This is a description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       error: [{ // 0
         description: [],
         field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
@@ -247,6 +247,6 @@ describe('parser.block_lines parseBlockLines @apiError annotation', () => {
           }
         }
       }
-    });
+    }));
   });
 });

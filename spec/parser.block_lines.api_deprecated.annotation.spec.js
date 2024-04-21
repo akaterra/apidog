@@ -6,8 +6,8 @@ describe('parser.block_lines parseBlockLines @apiDeprecated annotation', () => {
       '@apiDeprecated deprecated',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       deprecated: 'deprecated',
-    });
+    }));
   });
 });

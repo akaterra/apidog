@@ -1,3 +1,4 @@
+const {Block} = require('../src/block');
 const parser = require('../src/parser.dir');
 
 describe('parse.dir parseApidoc', () => {
@@ -12,7 +13,7 @@ describe('parse.dir parseApidoc', () => {
       '@api {test} url3\n'
     );
 
-    expect(blocks).toEqual([{
+    expect(blocks).toEqual([new Block({
       api: {
         endpoint: 'url1',
         title: null,
@@ -20,7 +21,7 @@ describe('parse.dir parseApidoc', () => {
       },
       title: null,
       validate: blocks[0].validate,
-    }, {
+    }), new Block({
       api: {
         endpoint: 'url2',
         title: null,
@@ -28,7 +29,7 @@ describe('parse.dir parseApidoc', () => {
       },
       title: null,
       validate: blocks[1].validate,
-    }, {
+    }), new Block({
       api: {
         endpoint: 'url3',
         title: null,
@@ -36,6 +37,6 @@ describe('parse.dir parseApidoc', () => {
       },
       title: null,
       validate: blocks[2].validate,
-    }]);
+    })]);
   });
 });

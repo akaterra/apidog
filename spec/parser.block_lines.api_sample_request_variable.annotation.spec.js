@@ -13,7 +13,7 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestVariable annotatio
       '@apiSrVariable (namespace) {response.name} name4=123',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequestVariable: [
         {
           field: {defaultValue: null, name: 'name1'},
@@ -56,7 +56,7 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestVariable annotatio
           responsePath: 'response.name',
         },
       ],
-    })
+    }));
   });
 
   it('should raise error on malformed definition', () => {

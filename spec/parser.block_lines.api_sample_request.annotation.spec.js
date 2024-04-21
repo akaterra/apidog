@@ -6,11 +6,11 @@ describe('parser.block_lines parseBlockLines @apiSampleRequest annotation', () =
       '@apiSampleRequest baseEndpoint',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequest: [
         'baseEndpoint',
       ],
-    })
+    }));
   });
 
   it('should parse', () => {
@@ -18,11 +18,11 @@ describe('parser.block_lines parseBlockLines @apiSampleRequest annotation', () =
       '@apiSr baseEndpoint',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequest: [
         'baseEndpoint',
       ],
-    })
+    }));
   });
 
   it('should parse with off', () => {
@@ -30,11 +30,11 @@ describe('parser.block_lines parseBlockLines @apiSampleRequest annotation', () =
       '@apiSampleRequest off',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequest: [
         false,
       ],
-    })
+    }));
   });
 
   it('should parse with on', () => {
@@ -42,11 +42,11 @@ describe('parser.block_lines parseBlockLines @apiSampleRequest annotation', () =
       '@apiSampleRequest on',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual({
+    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       sampleRequest: [
         true,
       ],
-    })
+    }));
   });
 
   it('should raise error on malformed definition', () => {
