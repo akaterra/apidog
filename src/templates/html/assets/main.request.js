@@ -244,6 +244,7 @@ const request = (function () {
     transport,
     url,
     method,
+    queryParams,
     body,
     type,
     headers,
@@ -280,7 +281,7 @@ const request = (function () {
 
       case 'parametrizedbody':
         if (body.parametrizedBody) {
-          data = prepareUrl(body.parametrizedBody, body);
+          data = prepareUrl(body.parametrizedBody, queryParams, body);
         }
 
         break;
@@ -294,7 +295,7 @@ const request = (function () {
     }
 
     // insert placeholders
-    url = prepareUrl(url, body);
+    url = prepareUrl(url, queryParams, body);
 
     // prepare body based on content type in case of not http GET method
     if (method !== 'GET') {
@@ -342,12 +343,13 @@ const request = (function () {
   request.http = {
     delete: (url) => request('http', url, 'delete'),
     get: (url) => request('http', url, 'get'),
-    post: (url, params, contentType) => requestWithFormattedBody('http', url, 'post', params, undefined, undefined, contentType),
-    put: (url, params, contentType) => requestWithFormattedBody('http', url, 'put', params, undefined, undefined, contentType),
-    requestWithFormattedBody: (url, method, params, headers, contentType) => requestWithFormattedBody(
+    post: (url, queryParams, params, contentType) => requestWithFormattedBody('http', url, 'post', queryParams, params, undefined, undefined, contentType),
+    put: (url, queryParams, params, contentType) => requestWithFormattedBody('http', url, 'put', queryParams, params, undefined, undefined, contentType),
+    requestWithFormattedBody: (url, method, queryParams, params, headers, contentType) => requestWithFormattedBody(
       'http',
       url,
       method,
+      queryParams,
       params,
       headers,
       contentType
@@ -357,11 +359,12 @@ const request = (function () {
     disconnect: socketIoDisconnect,
     connect: socketIoConnect,
     isConnected: socketIoIsConnected,
-    publish: (url, params, contentType) => requestWithFormattedBody('socketio', url, 'socketio', params, undefined, contentType),
+    publish: (url, queryParams, params, contentType) => requestWithFormattedBody('socketio', url, 'socketio', queryParams, params, undefined, contentType),
     requestWithFormattedBody: (url, params, headers, contentType) => requestWithFormattedBody(
       'socketio',
       url,
       'socketio',
+      queryParams,
       params,
       headers,
       contentType
@@ -371,11 +374,12 @@ const request = (function () {
     disconnect: wsDisconnect,
     connect: wsConnect,
     isConnected: wsIsConnected,
-    publish: (url, params, contentType) => requestWithFormattedBody('ws', url, 'ws', params, undefined, contentType),
+    publish: (url, queryParams, params, contentType) => requestWithFormattedBody('ws', url, 'ws', queryParams, params, undefined, contentType),
     requestWithFormattedBody: (url, params, contentType) => requestWithFormattedBody(
       'ws',
       url,
       'ws',
+      queryParams,
       params,
       undefined,
       contentType

@@ -247,6 +247,12 @@
 {{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
                         {{/if}}
 
+                        <!-- auth header -->
+
+                        {{#if this.authHeader.length}}
+                          {{> contentParamGroup group=this.authHeaderGroup param=this.authHeader defaultName='authHeader'}}
+                        {{/if}}
+
                         <!-- header -->
 
                         {{#if this.header.length}}
@@ -259,6 +265,24 @@
 
                         {{#if this.headerExample.length}}
 {{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                        {{/if}}
+
+                        <!-- auth query -->
+
+                        {{#if this.authQuery.length}}
+                          {{> contentParamGroup group=this.authQueryGroup param=this.authQuery defaultName='authQueryParameter'}}
+                        {{/if}}
+
+                        <!-- query -->
+
+                        {{#if this.query.length}}
+                          {{> contentParamGroup group=this.queryGroup param=this.query defaultName='queryParameter'}}
+                        {{/if}}
+
+                        <!-- auth param -->
+
+                        {{#if this.authParam.length}}
+                          {{> contentParamGroup group=this.authParamGroup param=this.authParam defaultName='auth parameter'}}
                         {{/if}}
 
                         <!-- param -->
@@ -371,6 +395,17 @@
                         />
                       </div>
 
+                      {{#if ../this.authHeader.length}}
+                        <div class="inner-label"><hr></div>
+                        {{> contentSsrParamGroupVariant
+                          class='authHeader'
+                          defaultName='authHeader'
+                          groupVariant=../this.authHeaderGroupVariant
+                          id=block.id
+                          param=../this.authHeader
+                        }}
+                      {{/if}}
+
                       {{#if ../this.header.length}}
                         <div class="inner-label"><hr></div>
                         {{> contentSsrParamGroupVariant
@@ -379,6 +414,39 @@
                           groupVariant=../this.headerGroupVariant
                           id=block.id
                           param=../this.header
+                        }}
+                      {{/if}}
+
+                      {{#if ../this.authQuery.length}}
+                        <div class="inner-label"><hr></div>
+                        {{> contentSsrParamGroupVariant
+                          class='authQuery'
+                          defaultName='authQuery'
+                          groupVariant=../this.authQueryGroupVariant
+                          id=block.id
+                          param=../this.authQuery
+                        }}
+                      {{/if}}
+
+                      {{#if ../this.query.length}}
+                        <div class="inner-label"><hr></div>
+                        {{> contentSsrParamGroupVariant
+                          class='query'
+                          defaultName='query'
+                          groupVariant=../this.queryGroupVariant
+                          id=block.id
+                          param=../this.query
+                        }}
+                      {{/if}}
+
+                      {{#if ../this.authParam.length}}
+                        <div class="inner-label"><hr></div>
+                        {{> contentSsrParamGroupVariant
+                          class='authParam'
+                          defaultName='authParam'
+                          groupVariant=../this.authParamGroupVariant
+                          id=block.id
+                          param=../this.authParam
                         }}
                       {{/if}}
 

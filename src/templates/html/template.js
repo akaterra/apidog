@@ -78,7 +78,5 @@ module.exports = (config) => ({
 
     const favicon = fs.readFileSync(`${__dirname}/assets/favicon.png`);
     fs.writeFileSync(`${outputDir}/favicon.png`, favicon);
-
-    console.log(config.inputDir);
   }
 });

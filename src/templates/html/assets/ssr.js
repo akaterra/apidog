@@ -317,6 +317,36 @@ const ssr = (function () {
       return api;
     },
  
+    getAuthHeaders(blockId) {
+      return api.getInputs(blockId, 'authHeader');
+    },
+    getAuthHeadersOfSelectedGroup(blockId) {
+      return api.getInputsOfSelectedGroup(blockId, 'authHeader');
+    },
+    setAuthHeaders(blockId, values) {
+      return api.setInputs(blockId, 'authHeader', values);
+    },
+
+    getAuthQueryParams(blockId) {
+      return api.getInputs(blockId, 'authQuery');
+    },
+    getAuthQueryParamsOfSelectedGroup(blockId) {
+      return api.getInputsOfSelectedGroup(blockId, 'authQuery');
+    },
+    setAuthQueryParams(blockId, values) {
+      return api.setInputs(blockId, 'authQuery', values);
+    },
+
+    getAuthParams(blockId) {
+      return api.getInputs(blockId, 'authParam');
+    },
+    getAuthParamsOfSelectedGroup(blockId) {
+      return api.getInputsOfSelectedGroup(blockId, 'authParam');
+    },
+    setAuthParams(blockId, values) {
+      return api.setInputs(blockId, 'authParam', values);
+    },
+
     getHeaders(blockId) {
       return api.getInputs(blockId, 'header');
     },
@@ -325,6 +355,16 @@ const ssr = (function () {
     },
     setHeaders(blockId, values) {
       return api.setInputs(blockId, 'header', values);
+    },
+
+    getQueryParams(blockId) {
+      return api.getInputs(blockId, 'query');
+    },
+    getQueryParamsOfSelectedGroup(blockId) {
+      return api.getInputsOfSelectedGroup(blockId, 'query');
+    },
+    setQueryParams(blockId, values) {
+      return api.setInputs(blockId, 'query', values);
     },
 
     getParams(blockId) {
@@ -542,10 +582,11 @@ const ssr = (function () {
     if (blockSsrSendEl) {
       on.click(blockSsrSendEl, () => {
         const contentType = api.getContentType(blockId);
-        const headers = api.getHeadersOfSelectedGroup(blockId);
-        const params = api.getParamsOfSelectedGroup(blockId);
+        const headers = { ...api.getHeadersOfSelectedGroup(blockId), ...api.getAuthHeadersOfSelectedGroup(blockId) };
+        const queryParams = { ...api.getQueryParamsOfSelectedGroup(blockId), ...api.getAuthQueryParamsOfSelectedGroup(blockId) };
+        const params = { ...api.getParamsOfSelectedGroup(blockId), ...api.getAuthParamsOfSelectedGroup(blockId) };
 
-        emitRequestPrepareParams(el, { headers, params });
+        emitRequestPrepareParams(el, { headers, queryParams, params });
 
         let {body, type} = prepareBody(params, blockDescriptor.param, api.getSelectedInputsGroup(blockId, 'param'));
 
@@ -612,6 +653,7 @@ const ssr = (function () {
           actualTransport,
           actualEndpoint,
           blockDescriptor.api.transport.method || 'post',
+          queryParams,
           body,
           type,
           headers,
