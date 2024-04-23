@@ -1,3 +1,7 @@
+if (typeof module !== 'undefined') {
+  strToPathEscaped = require('./main.func').strToPathEscaped;
+}
+
 function prepareBody(params, paramDescriptors, paramsGroup) {
   if (paramsGroup === '$') {
     paramsGroup = null; // :( refactor
@@ -41,11 +45,25 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
       paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
     }
 
-    const pathKeys = paramsDescriptor?.field.path ?? strSplitByPathEscaped(key);
-    const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
-    const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
-    const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
-    const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
+    const pathKeys = paramsDescriptor?.field.path ?? strToPathEscaped(key);
+    const parentParamsDescriptor = paramDescriptors && pathKeys.length > 1
+      ? paramDescriptors.find((param) => param.field?.path
+        ? param.group === paramsGroup && param.field.path.join('.') === pathKeys.slice(0, -1).join('.')
+        : false)
+      : null;
+    const type = paramsDescriptor?.type?.modifiers?.initial;
+    const typeIsList = paramsDescriptor?.type?.modifiers?.list;
+    const typeIsOptional = paramsDescriptor?.field?.isOptional;
+    const typeModifiers = paramsDescriptor?.type?.modifiers;
+
+    // TODO only for last parent, not for all ascestors
+    if (
+      parentParamsDescriptor?.type?.modifiers?.list &&
+      !arrayIndexRegex.test(pathKeys[pathKeys.length - 2]) &&
+      pathKeys[pathKeys.length - 2] !== ''
+    ) {
+      pathKeys.splice(pathKeys.length - 1, 0, '0');
+    }
 
     if (typeIsList) {
       pathKeys.push('0');
@@ -140,11 +158,11 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
             }
           }
 
-          if (ind === pathKeys.length - 1) {
-            bodyNode[bodyNodeKey][key] = val;
-          } else {
+          if (ind < pathKeys.length - 1) {
             bodyNode = bodyNode[bodyNodeKey];
             bodyNodeKey = key;
+          } else {
+            bodyNode[bodyNodeKey][key] = val;
           }
         });
       }
@@ -153,61 +171,6 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
   return body;
 };
-
-const PUSH = 0;
-const NEXT = 1;
-const NOOP = 2;
-const A = {
-  0: { '.': { OP: PUSH, ST: 0 }, '[': { OP: PUSH, ST: 1 }, '"': { OP: NEXT, ST: 3 } },
-  1: { ']': { OP: PUSH, ST: 2, TP: 'index' }, '"': { OP: NOOP, ST: 4 } },
-  2: { '.': { OP: NEXT, ST: 0 }, '[': { OP: NEXT, ST: 1 }, '*': { RG: /./, OP: NOOP, ST: 0 } },
-  3: { '"': { OP: PUSH, ST: 0 } },
-  4: { '"': { OP: NOOP, ST: 1 } },
-};
-
-function strSplitByPathEscaped(str) {
-  const chunks = [];
-  let st = 0;
-  let sub = '';
-  let i = 0;
-  let s = 0;
-
-  while (i < str.length) {
-    const sym = str[i];
-    const rul = A[st][sym] ?? A[st]['*'];
-
-    if (rul) {
-      if (!rul.RG || rul.RG.test(sym)) {
-        switch (rul.OP) {
-          case PUSH:
-            if (sub || rul.TP === 'index') {
-              chunks.push(sub);
-              sub = '';
-            }
-          case NEXT:
-            s = i + 1;
-            break;
-          case NOOP:
-            break;
-          default:
-            sub += sym;
-        }
-  
-        st = rul.ST;
-      }
-    } else {
-      sub += sym;
-    }
-
-    i += 1;
-  }
-
-  if (s < str.length) {
-    chunks.push(str.slice(s));
-  }
-
-  return chunks;
-}
 
 if (typeof module !== 'undefined') {
   module.exports.prepareBody = prepareBody;
