@@ -12,7 +12,6 @@ describe('template html assets SSR prepareBody', () => {
       'e[][1].f[0]': 7,
       'f[]': 8,
       'g[].a': 9,
-      'g[$].b': 10,
 
       'h[]': 11,
       'i.j[]': 12,
@@ -23,7 +22,6 @@ describe('template html assets SSR prepareBody', () => {
       'm[][1].n[0][]': 17,
       'n[][]': 18,
       'o[].a[]': 19,
-      'o[$].b[]': 20,
     }, [
       { field: { name: 'h' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
       { field: { name: 'i.j' }, group: null, type: { modifiers: { list: true }, name: 'string[]' } },
@@ -42,14 +40,14 @@ describe('template html assets SSR prepareBody', () => {
       d: [ { e: 6 } ],
       e: [ [ undefined, { f: [ 7 ] } ] ],
       f: [ 8 ],
-      g: [ { a: 9 }, { b: 10 } ],
+      g: [ { a: 9 } ],
       h: [ 11 ],
       i: { j: [ 12 ], k: [ 13 ] },
       k: [ { d: [ 15 ] } ],
       l: [ { m: [ 16 ] } ],
       m: [ [ undefined, { n: [ [ 17 ] ]} ] ],
       n: [ [ 18 ] ],
-      o: [ { a: [ 19 ] }, { b: [ 20 ] } ],
+      o: [ { a: [ 19 ] } ],
     });
   });
 

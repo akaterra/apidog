@@ -16,7 +16,7 @@ function construct(name, usePrefix) {
     return block;
   }
 
-  const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+?)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
+  const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
 
   function parse(block, text) {
     if (!text) {
@@ -111,39 +111,27 @@ function construct(name, usePrefix) {
 
     if (blockParam.field) {
       let root = block[annotationGroupVariantsName][group].prop;
+      blockParam.field.path = utils.strSplitByPathEscaped(blockParam.field.name);
 
-      utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (key, ind, isLast) => {
-        const keysExtra = [];
-        const keys = [key.replace(/(\[(\d*)\])+$/g, (_1, _2, keyMatch) => {
-          keysExtra.push(keyMatch);
+      utils.forEach(blockParam.field.path, (key, ind, isLast) => {
+        if (!root[key]) {
+          root[key] = [];
+        }
 
-          return '';
-        })].concat(keysExtra);
-        const keysRoot = root;
+        if (isLast || root[key].length === 0) {
+          // last pushed param descriptor
+          const list = [ block[annotationName].length - 1 ];
 
-        utils.forEach(keys, (subKey, subInd, subIsLast) => {
-          if (!root[subKey]) {
-            root[subKey] = [];
-          }
+          // parent is not null when key is not last therefore has no its own param descriptor (list[0])
+          const parent = isLast ? null : list[0];
+          const variant = { list, parent, prop: {} };
 
-          if ((isLast && subIsLast) || root[subKey].length === 0) {
-            // last pushed param descriptor
-            const list = [ block[annotationName].length - 1 ];
+          root[key].push(variant);
 
-            // parent is not null when key is not last therefore has no its own param descriptor (list[0])
-            const parent = isLast && subIsLast
-              ? null
-              : list[0];
-
-            const variant = { list, parent, prop: {} };
-
-            root[subKey].push(variant);
-
-            root = variant.prop;
-          } else {
-            root = root[subKey][root[subKey].length - 1].prop;
-          }
-        });
+          root = variant.prop;
+        } else {
+          root = root[key][root[key].length - 1].prop;
+        }
       });
     }
 

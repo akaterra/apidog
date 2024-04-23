@@ -23,7 +23,7 @@ Features:
         * HTTP/HTTPS (via Server proxy only HTTP)
         * Nats PUB/SUB (via Server proxy)
         * Nats RPC (remote procedure call, via Server proxy)
-        * RabbitMQ PUS/SUB (via Server proxy)
+        * RabbitMQ PUB/SUB (via Server proxy)
         * RabbitMQ RPC (remote procedure call, via Server proxy)
         * Redis PUB/SUB (via Server proxy)
         * Socket.IO
@@ -295,9 +295,9 @@ Format:
 @apiErrorRoot (group) {type} description
 ```
 
-Defines "root" type for error response.
+Defines "root" type for the error response.
 
-Used when response contains primitive value or array of **@apiError** definitions.
+Used when response contains primitive value, array of primitive values or array of **@apiError** definitions.
 
 Example:
 ```
@@ -449,9 +449,9 @@ Format:
 @apiParamRoot (group) {type} description
 ```
 
-Defines "root" type for request.
+Defines "root" type for the request.
 
-Used when request contains primitive value or array of **@apiParam** definitions.
+Used when request contains primitive value, array of primitive values or array of **@apiParam** definitions.
 
 Example:
 ```
@@ -619,9 +619,9 @@ Format:
 @apiSuccessRoot (group) {type} description
 ```
 
-Defines "root" type for success response.
+Defines "root" type for the success response.
 
-Used when response contains primitive value or array of **@apiSuccess** definitions.
+Used when response contains primitive value, array of primitive values or array of **@apiSuccess** definitions.
 
 Example:
 ```

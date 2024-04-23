@@ -17,82 +17,94 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam {typeA="A,B,C","D,E,F","G,H,I"} A_B.C This is a description',
       '@apiParam (groupA) {typeA="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
       '@apiParam (isNotTyped) A_B.C This is a description',
+      '@apiParam A_B[D]',
+      '@apiParam [A_B[D]] This is a description',
     ];
 
     expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
       param: [{ // 0
         description: [],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 1
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 2
         description: ['This is a description', 'Some description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 3
         description: ['This is a description'],
-        field: { defaultValue: 'A', isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: 'A', isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 4
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null
       }, { // 5
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: true, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 6
         description: ['This is a description'],
-        field: { defaultValue: 'A', isOptional: true, name: 'A_B.C' },
+        field: { defaultValue: 'A', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 7
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null
       }, { // 8
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'groupA',
         type: null,
       }, { // 9
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: [], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 10
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A', 'B', 'C'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 11
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 12
         description: ['This is a description'],
-        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C' },
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'groupA',
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 13
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C' },
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'isNotTyped',
         type:null,
+      }, { // 14
+        description: [],
+        field: { defaultValue: undefined, isOptional: false, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
+        group: null,
+        type: null,
+      }, { // 15
+        description: ['This is a description'],
+        field: { defaultValue: undefined, isOptional: true, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
+        group: null,
+        type: null,
       }],
       paramGroup: {
-        null: { isTyped: true, list: [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11 ]},
+        null: { isTyped: true, list: [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 15 ]},
         groupA: { isTyped: true, list: [ 8, 12 ] },
         isNotTyped: { isTyped: false, list: [ 13 ]},
       },
@@ -185,6 +197,22 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
                       "parent": null,
                       "prop": {}
                     }
+                  ],
+                  "D": [
+                    {
+                      "list": [
+                        14
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        15
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    }
                   ]
                 }
               }
@@ -258,7 +286,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
 
     expect(parser.parseBlockLines(lines).param).toEqual([{
       description: [],
-      field: { defaultValue: undefined, isOptional: false, name: 'prefix.A_B.C' },
+      field: { defaultValue: undefined, isOptional: false, name: 'prefix.A_B.C', path: [ 'prefix', 'A_B', 'C' ] },
       group: null,
       type: null,
     }]);

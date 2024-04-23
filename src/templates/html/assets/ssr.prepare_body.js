@@ -5,7 +5,7 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
     paramsGroup = null;
   }
 
-  const arrayIndexRegex = /.*[^\\]\[(.*)\]$/; // /.+(?<!\\)\[(.*?(?<!\\))]$/;
+  const arrayIndexRegex = /^([0-9]|[1-9]\d+)$/;
   const body = {
     body: {},
     type: 'params',
@@ -41,56 +41,14 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
       paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
     }
 
-    const pathKeys = key.split('.');
-    const pathKeyTypes = [];
-
-    for (let i = 0; i < pathKeys.length; i += 1) {
-      let j = i;
-      let sub = pathKeys[i];
-      let arrayIndex;
-
-      arrayIndex = arrayIndexRegex.exec(pathKeys[i]);
-
-      if (arrayIndex) {
-        const pathSlice = [];
-
-        while (true) {
-          if (arrayIndex) {
-            pathSlice.unshift(arrayIndex[1]);
-            pathKeyTypes.push('i');
-            i += 1;
-            sub = sub.substr(0, sub.length - arrayIndex[1].length - 2);
-            arrayIndex = arrayIndexRegex.exec(sub);
-          } else {
-            pathKeys.splice(j, 1, sub, ...pathSlice);
-            pathKeyTypes.splice(j, 0, 'a');
-            break;
-          }
-        }
-      } else {
-        pathKeyTypes.push('o');
-      }
-    }
-
+    const pathKeys = paramsDescriptor?.field.path ?? strSplitByPathEscaped(key);
     const type = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.initial;
     const typeIsList = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers.list;
     const typeIsOptional = paramsDescriptor && paramsDescriptor.field && paramsDescriptor.field.isOptional;
     const typeModifiers = paramsDescriptor && paramsDescriptor.type && paramsDescriptor.type.modifiers;
 
     if (typeIsList) {
-      let typeIsListCounter = typeIsList === true ? 1 : typeIsList;
-
-      while (typeIsListCounter) {
-        pathKeys.push('0');
-
-        if (pathKeyTypes[pathKeyTypes.length - 1] !== 'i') {
-          pathKeyTypes[pathKeyTypes.length - 1] = 'a';
-        }
-
-        pathKeyTypes.push('i');
-
-        typeIsListCounter -= 1;
-      }
+      pathKeys.push('0');
     }
 
     if (paramsDescriptor) {
@@ -162,86 +120,31 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
       if (body.type !== 'params') {
         body.body[key] = val;
       } else {
-        let bodyNode = body.body;
+        let bodyNode = body;
+        let bodyNodeKey = 'body';
 
-        pathKeyTypes.forEach((type, typeIndex) => {
-          let key = pathKeys[typeIndex];
+        pathKeys.forEach((key, ind) => {
+          if (key === '') {
+            key = '0';
+          }
 
-          if (typeIndex === pathKeys.length - 1) {
-            if (Array.isArray(bodyNode)) {
-              let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
+          const isArrayIndex = arrayIndexRegex.test(key);
 
-              if (ind < 0) {
-                if (ind === -2 || !bodyNode.length) {
-                  bodyNode.push(undefined);
-                }
-
-                ind = bodyNode.length - 1;
-                key = String(ind);
-              }
-
-              if (isNaN(ind) || ind < 0) {
-                throw new Error(`Invalid array index ${key}`);
-              }
-
-              let fillCount = ind - bodyNode.length;
-
-              while (fillCount > 0) {
-                bodyNode.push(undefined);
-
-                fillCount -= 1;
-              }
-
-              bodyNode[key] = val;
-            } else {
-              bodyNode[key] = val;
+          if (isArrayIndex) {
+            if (!Array.isArray(bodyNode[bodyNodeKey])) {
+              bodyNode[bodyNodeKey] = [];
             }
           } else {
-            switch (type) {
-              case 'a':
-                if (!Array.isArray(bodyNode[key]) || !(key in bodyNode) ) {
-                  bodyNode[key] = [];
-                }
-
-                break;
-
-              case 'i':
-                let ind = key === '' ? -1 : key === '$' ? -2 : parseInt(key); // $ - last element
-
-                if (ind < 0) {
-                  if (ind === -2 || !bodyNode.length) {
-                    bodyNode.push(undefined);
-                  }
-  
-                  ind = bodyNode.length - 1;
-                  key = String(ind);
-                }
-
-                if (isNaN(ind) || ind < 0) {
-                  throw new Error(`Invalid array index ${key}`);
-                }
-
-                let fillCount = ind - bodyNode.length;
-
-                while (fillCount > 0) {
-                  bodyNode.push(undefined);
-
-                  fillCount -= 1;
-                }
-
-                if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
-                  bodyNode[key] = pathKeyTypes[typeIndex + 1] === 'i' ? [] : {};
-                }
-
-                break;
-
-              default:
-                if (!(key in bodyNode) || bodyNode[key] === null || typeof bodyNode[key] !== 'object') {
-                  bodyNode[key] = {};
-                }
+            if (!bodyNode[bodyNodeKey] || typeof bodyNode[bodyNodeKey] !== 'object') {
+              bodyNode[bodyNodeKey] = {};
             }
+          }
 
-            bodyNode = bodyNode[key];
+          if (ind === pathKeys.length - 1) {
+            bodyNode[bodyNodeKey][key] = val;
+          } else {
+            bodyNode = bodyNode[bodyNodeKey];
+            bodyNodeKey = key;
           }
         });
       }
@@ -250,6 +153,61 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
   return body;
 };
+
+const PUSH = 0;
+const NEXT = 1;
+const NOOP = 2;
+const A = {
+  0: { '.': { OP: PUSH, ST: 0 }, '[': { OP: PUSH, ST: 1 }, '"': { OP: NEXT, ST: 3 } },
+  1: { ']': { OP: PUSH, ST: 2, TP: 'index' }, '"': { OP: NOOP, ST: 4 } },
+  2: { '.': { OP: NEXT, ST: 0 }, '[': { OP: NEXT, ST: 1 }, '*': { RG: /./, OP: NOOP, ST: 0 } },
+  3: { '"': { OP: PUSH, ST: 0 } },
+  4: { '"': { OP: NOOP, ST: 1 } },
+};
+
+function strSplitByPathEscaped(str) {
+  const chunks = [];
+  let st = 0;
+  let sub = '';
+  let i = 0;
+  let s = 0;
+
+  while (i < str.length) {
+    const sym = str[i];
+    const rul = A[st][sym] ?? A[st]['*'];
+
+    if (rul) {
+      if (!rul.RG || rul.RG.test(sym)) {
+        switch (rul.OP) {
+          case PUSH:
+            if (sub || rul.TP === 'index') {
+              chunks.push(sub);
+              sub = '';
+            }
+          case NEXT:
+            s = i + 1;
+            break;
+          case NOOP:
+            break;
+          default:
+            sub += sym;
+        }
+  
+        st = rul.ST;
+      }
+    } else {
+      sub += sym;
+    }
+
+    i += 1;
+  }
+
+  if (s < str.length) {
+    chunks.push(str.slice(s));
+  }
+
+  return chunks;
+}
 
 if (typeof module !== 'undefined') {
   module.exports.prepareBody = prepareBody;

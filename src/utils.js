@@ -59,6 +59,61 @@ function strSplitBySpace(str, limit) {
   return strSplitBy(str, ' ', limit);
 }
 
+const PUSH = 0;
+const NEXT = 1;
+const NOOP = 2;
+const A = {
+  0: { '.': { OP: PUSH, ST: 0 }, '[': { OP: PUSH, ST: 1 }, '"': { OP: NEXT, ST: 3 } },
+  1: { ']': { OP: PUSH, ST: 2, TP: 'index' }, '"': { OP: NOOP, ST: 4 } },
+  2: { '.': { OP: NEXT, ST: 0 }, '[': { OP: NEXT, ST: 1 }, '*': { RG: /./, OP: NOOP, ST: 0 } },
+  3: { '"': { OP: PUSH, ST: 0 } },
+  4: { '"': { OP: NOOP, ST: 1 } },
+};
+
+function strSplitByPathEscaped(str) {
+  const chunks = [];
+  let st = 0;
+  let sub = '';
+  let i = 0;
+  let s = 0;
+
+  while (i < str.length) {
+    const sym = str[i];
+    const rul = A[st][sym] ?? A[st]['*'];
+
+    if (rul) {
+      if (!rul.RG || rul.RG.test(sym)) {
+        switch (rul.OP) {
+          case PUSH:
+            if (sub || rul.TP === 'index') {
+              chunks.push(sub);
+              sub = '';
+            }
+          case NEXT:
+            s = i + 1;
+            break;
+          case NOOP:
+            break;
+          default:
+            sub += sym;
+        }
+  
+        st = rul.ST;
+      }
+    } else {
+      sub += sym;
+    }
+
+    i += 1;
+  }
+
+  if (s < str.length) {
+    chunks.push(str.slice(s));
+  }
+
+  return chunks;
+}
+
 function strSplitByEscaped(str, splitter = '.') {
   return str.split(new RegExp(`(?<!\\\\)\\${splitter}`, 'g')).map((term) => term.replace('\\', ''));
 }
@@ -147,6 +202,7 @@ module.exports = {
   strSplitBy,
   strSplitByComma,
   strSplitByEscaped,
+  strSplitByPathEscaped,
   strSplitByQuotedTokens,
   strSplitBySpace,
   Logger,
