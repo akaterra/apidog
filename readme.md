@@ -308,13 +308,13 @@ Example:
  * @apiError b
  * @apiError c
  */
- ```
+```
 
- ```
+```
 /**
  * @apiErrorRoot {String[]} List of strings
  */
- ```
+```
 
 ##### @apiErrorValue
 
@@ -462,13 +462,13 @@ Example:
  * @apiParam {String} b
  * @apiParam {String} c
  */
- ```
+```
 
- ```
+```
 /**
  * @apiParamRoot {String[]} List of strings
  */
- ```
+```
 
 ##### @apiParamValue
 
@@ -632,13 +632,13 @@ Example:
  * @apiSuccess b
  * @apiSuccess c
  */
- ```
+```
 
- ```
+```
 /**
  * @apiSuccessRoot {String[]} List of strings
  */
- ```
+```
 
 ##### @apiSuccessValue
 
