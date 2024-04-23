@@ -76,6 +76,7 @@ Table of contents
   * [@swagger.3.0](#swagger30)
 * @html template "Send sample request" plug-in
   * [Type variants](#type-variants)
+* [Sunsetting apiDoc](#sunsetting-apidoc)
 
 ### Installation
 
@@ -934,7 +935,7 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
 
 ```
 /**
- * @api {sockeio} endpoint
+ * @api {socketio} endpoint
  */
 ```
 
@@ -949,3 +950,10 @@ To send sample requests through the transports such as Nats, RabbitMQ, and Redis
 ##### WebSocket and HTTP/HTTPS
 
 The WebSocket and HTTP/HTTPS requests also can be sent via Server proxy optionally.
+
+##### Sunsetting apiDoc
+
+Despite the [discussion](#https://github.com/apidoc/apidoc/issues/1436) about ending support for apiDoc mainly due to the more popular OpenAPI standard, I still believe that using apiDoc nevertheless makes sense because:
+  1. Finally no one forces to keep apiDoc annotations directly in the code - they may well be in a separate text file.
+  2. These annotations can be easily converted into a OpenAPI spec at any time and vice versa.
+  3. In my humble opinion, the OpenAPI specification is not entirely human-friendly (although no doubt it is more strict than apiDoc), reading it can be quite difficult due to the specific format, while the apiDoc is much simpler for most cases.
