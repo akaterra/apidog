@@ -132,7 +132,7 @@ function resolveType(type, format) {
 }
 
 function throwError(message) {
-  throw new Error(`Malformed Swagger specification${message ? `: ${message}` : ''}`);
+  throw new Error(`Malformed OpenAPI specification${message ? `: ${message}` : ''}`);
 }
 
 function validate(spec) {
@@ -308,7 +308,7 @@ module.exports = {
       return JSON.parse(fs.readFileSync(source, 'utf8'));
     }
 
-    throw new Error(`Unknown Swagger source format "${source}"`);
+    throw new Error(`Unknown OpenAPI source format "${source}"`);
   },
   resolveApi,
   resolveApiOperation,

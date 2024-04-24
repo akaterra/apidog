@@ -1,14 +1,14 @@
 /**
  * @apiSchema [(group)] {jsonschema=./jsonschema.json[#internal.path]} @apiParam
- * @apiSchema [(group)] {swagger=./swagger.json#internal.path.to.api} operationNickname
- * @apiSchema [(group)] {swagger=./swagger.json#internal.path.to.model} @apiParam
+ * @apiSchema [(group)] {openapi=./openapi.json#internal.path.to.api} operationNickname
+ * @apiSchema [(group)] {openapi=./openapi.json#internal.path.to.model} @apiParam
  */
 
 const get = require('lodash.get');
 const fs = require('fs');
 const parserJsonUtils = require('../parser.json.utils');
 const parserJsonschemaUtils = require('../parser.jsonschema.utils');
-const parserSwaggerUtils = require('../parser.swagger.1.2.utils');
+const parserOpenAPIUtils = require('../parser.openapi.1.2.utils');
 const utils = require('../utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;
@@ -80,47 +80,47 @@ function parse(block, text, line, index, lines, definitions, config) {
 
       return block;
 
-    case 'swagger':
+    case 'openapi':
       if (!schemaPath || (schemaPath.substr(0, 4) !== 'apis' && schemaPath.substr(0, 6) !== 'models')) {
         throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" missing path to api definition or model`);
       }
 
-      let swaggerSpec = parserSwaggerUtils.validate(parserSwaggerUtils.fetchSource(schemaFile));
+      let openapiSpec = parserOpenAPIUtils.validate(parserOpenAPIUtils.fetchSource(schemaFile));
 
       if (schemaPath.substr(0, 4) === 'apis') {
-        let swaggerApi = get(swaggerSpec, schemaPath, parse);
+        let openapiApi = get(openapiSpec, schemaPath, parse);
 
-        if (swaggerApi === parse) {
+        if (openapiApi === parse) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" api definition not exists`);
         }
 
-        const swaggerApiOperation = parserSwaggerUtils.validateApi(swaggerSpec, swaggerApi).operations.find((op) => op.nickname === params[0]);
+        const openapiApiOperation = parserOpenAPIUtils.validateApi(openapiSpec, openapiApi).operations.find((op) => op.nickname === params[0]);
 
-        if (!swaggerApiOperation) {
+        if (!openapiApiOperation) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" api definition nickname "${params[0]}" not exists`);
         }
 
-        lines.splice(index, 1, ...[''].concat(parserSwaggerUtils.resolveApi(
-          swaggerSpec,
-          swaggerApi,
+        lines.splice(index, 1, ...[''].concat(parserOpenAPIUtils.resolveApi(
+          openapiSpec,
+          openapiApi,
           [],
-          [swaggerApiOperation],
+          [openapiApiOperation],
         )[0]));
 
         return block;
       }
 
       if (schemaPath.substr(0, 6) === 'models') {
-        let swaggerModel = get(swaggerSpec, schemaPath, parse);
+        let openapiModel = get(openapiSpec, schemaPath, parse);
 
-        if (swaggerModel === parse) {
+        if (openapiModel === parse) {
           throw new Error(`@apiSchema "${schemaFile}#${schemaPath}" model definition not exists`);
         }
 
-        lines.splice(index, 1, ...[''].concat(parserSwaggerUtils.resolveModel(
-          swaggerSpec,
+        lines.splice(index, 1, ...[''].concat(parserOpenAPIUtils.resolveModel(
+          openapiSpec,
           params[0],
-          swaggerModel,
+          openapiModel,
           ''
         )));
 

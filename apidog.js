@@ -9,8 +9,8 @@ const generate = require('./src/generator');
 const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
 const parseJsonschemaUtils = require('./src/parser.jsonschema.utils');
-const parseSwagger = require('./src/parser.swagger');
-const parseSwaggerUtils = require('./src/parser.swagger.1.2.utils');
+const parseOpenAPI = require('./src/parser.openapi');
+const parseOpenAPIUtils = require('./src/parser.openapi.1.2.utils');
 const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({
@@ -183,7 +183,7 @@ let argsPrivate = args.p || args.private;
 let argsParser = args.parser && args.parser.toLowerCase() || 'dir';
 
 const inputs = argsInput.reduce((acc, argInput) => {
-  const [_, parser, source] = argInput.match(/^(dir:|inline:|swagger:|)(.*)$/) || [];
+  const [_, parser, source] = argInput.match(/^(dir:|inline:|openapi:|)(.*)$/) || [];
   const type = parser.slice(0, -1) || argsParser;
 
   if (!acc[type]) {
@@ -445,9 +445,12 @@ if (linesOfInlineParser.length) {
 }
 
 argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
-  let [_, parser, source] = argInput.match(/^(dir:|inline:|swagger:|)(.*)$/) || [];
+  let [_, parser, source] = argInput.match(/^(dir:|inline:|openapi:|)(.*)$/) || [];
 
   switch (parser.slice(0, -1) || argsParser) {
+    case 'asyncapi':
+      break;
+
     case 'dir':
       source = path.resolve(source);
 
@@ -474,11 +477,11 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
 
       break;
 
-    case 'swagger':
-      docBlocks = docBlocks.concat(parseSwagger.parseSwaggerFile(source, envConfig));
+    case 'openapi':
+      docBlocks = docBlocks.concat(parseOpenAPI.parseOpenAPIFile(source, envConfig));
 
       if (index === 0 && !outputDir) {
-        envConfig.outputDir = parseSwagger.normalizeDir(source);
+        envConfig.outputDir = parseOpenAPI.normalizeDir(source);
       }
 
       if (!envConfig.inputDir) {

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserSwaggerUtils = require('../../parser.swagger.1.2.utils');
+const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
 
 const PARAM_VALUE_BY_TYPE = {
@@ -21,9 +21,7 @@ module.exports = (config) => ({
         description: params.description,
         version: params.version,
       },
-      servers: [{
-        url: '/',
-      }],
+      servers: [{ url: '/' }],
       components: {},
       paths: {},
     };
@@ -42,7 +40,7 @@ module.exports = (config) => ({
 
       const uriParams = {};
 
-      parserSwaggerUtils.enumUriPlaceholders(endpoint, (placeholder, isInQuery) => {
+      parserOpenAPIUtils.enumUriPlaceholders(endpoint, (placeholder, isInQuery) => {
         uriParams[placeholder] = isInQuery;
       });
 
@@ -364,7 +362,7 @@ module.exports = (config) => ({
     if (outputDir === 'stdout') {
       return content;
     } else {
-      fs.writeFileSync(`${outputDir}/swagger.3.0.json`, JSON.stringify(spec, undefined, 2));
+      fs.writeFileSync(`${outputDir}/openapi.json`, JSON.stringify(spec, undefined, 2));
     }
   },
 });

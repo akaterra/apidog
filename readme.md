@@ -16,7 +16,7 @@ Features:
   * Single pre-compiled HTML file with no external dependencies
   * apidoc.apidoc text file
   * Markdown file
-  * Swagger specification file (v2.0, v3.0)
+  * OpenAPI specification file (v2.0, v3.0)
 * Server proxy
 * Send sample request plugin for html template:
     * Transports support:
@@ -72,8 +72,8 @@ Table of contents
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
-  * [@swagger.2.0](#swagger20)
-  * [@swagger.3.0](#swagger30)
+  * [@openapi.2.0](#openapi20)
+  * [@openapi.3.0](#openapi30)
 * @html template "Send sample request" plug-in
   * [Type variants](#type-variants)
 * [Sunsetting apiDoc](#sunsetting-apidoc)
@@ -117,7 +117,7 @@ Parameters:
 
   Same as **input directory** by default.
 
-* **--parser "dir" | "inline" | "swagger"** -- Parser to be used to parse the doc blocks sources
+* **--parser "dir" | "inline" | "openapi"** -- Parser to be used to parse the doc blocks sources
 
   Default is "dir".
 
@@ -133,10 +133,10 @@ Parameters:
   apidog --parser inline -i "@api {get} /version"
   ```
 
-  "swagger" is used to parse the provided Swagger specification sources.
+  "openapi" is used to parse the provided OpenAPI specification sources.
 
   ```sh
-  apidog --parser swagger -i ./api-v1.swagger.json -i ./api-v2.swagger.json
+  apidog --parser openapi -i ./api-v1.openapi.json -i ./api-v2.openapi.json
   ```
 
 * **-p, --private \["tag"\]** -- Tags to filter doc blocks having all the private tags or entirely marked as private
@@ -161,8 +161,8 @@ Parameters:
     * @html
     * @html.standalone
     * @md
-    * @swagger.2.0
-    * @swagger.3.0
+    * @openapi.2.0
+    * @openapi.3.0
 
 * **--title** - Custom title that will be used as a title of the generated documentation
 
@@ -487,17 +487,17 @@ Format:
 ```
 
 ```
-@apiSchema [(group)] {swagger=pathToFile#internal.path.to.api} operationNickname
+@apiSchema [(group)] {openapi=pathToFile#internal.path.to.api} operationNickname
 ```
 
 ```
-@apiSchema [(group)] {swagger=pathToFile#internal.path.to.model} @apiParam
+@apiSchema [(group)] {openapi=pathToFile#internal.path.to.model} @apiParam
 ```
 
 Uses external schema to fill doc block.
 
 "jsonschema" also allows to use **$ref** definitions within schema.
-"swagger" generates doc block by api operation or **@apiParam** list by model.
+"openapi" generates doc block by api operation or **@apiParam** list by model.
 
 ##### @apiSampleRequestOption
 
@@ -719,21 +719,21 @@ apidog -t @md
 
 Compiles to markdown file.
 
-##### @swagger.2.0
+##### @openapi.2.0
 
 ```sh
-apidog -t @swagger.2.0
+apidog -t @openapi.2.0
 ```
 
-Compiles to Swagger v2.0 specification JSON file.
+Compiles to OpenAPI v2.0 specification JSON file.
 
-##### @swagger.3.0
+##### @openapi.3.0
 
 ```sh
-apidog -t @swagger.3.0
+apidog -t @openapi.3.0
 ```
 
-Compiles to Swagger v3.0 specification JSON file.
+Compiles to OpenAPI v3.0 specification JSON file.
 
 ### Server proxy
 

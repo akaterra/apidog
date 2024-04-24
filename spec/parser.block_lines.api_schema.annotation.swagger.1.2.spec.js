@@ -3,9 +3,9 @@ const parser = require('../src/parser.block_lines');
 const utils = require('../src/utils');
 
 describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
-  it('should parse Swagger v1.2 api operation by nickname', () => {
+  it('should parse OpenAPI v1.2 api operation by nickname', () => {
     const lines = [
-      '@apiSchema (group) {swagger=./spec/sample/swagger.json#apis[0]} getResourceById',
+      '@apiSchema (group) {openapi=./spec/sample/openapi.json#apis[0]} getResourceById',
     ];
 
     parser.parseBlockLines(lines);
@@ -20,9 +20,9 @@ describe('parser.block_lines parseBlockLines @apiSchema annotation', () => {
     ]);
   });
 
-  it('should parse Swagger v1.2 model', () => {
+  it('should parse OpenAPI v1.2 model', () => {
     const lines = [
-      '@apiSchema (group) {swagger=./spec/sample/swagger.json#models.Resource} @apiParam',
+      '@apiSchema (group) {openapi=./spec/sample/openapi.json#models.Resource} @apiParam',
     ];
 
     parser.parseBlockLines(lines);

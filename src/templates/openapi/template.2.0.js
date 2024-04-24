@@ -1,6 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserSwaggerUtils = require('../../parser.swagger.1.2.utils');
+const parserSwaggerUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
 
 module.exports = (config) => ({
@@ -161,7 +161,7 @@ module.exports = (config) => ({
     if (outputDir === 'stdout') {
       return content;
     } else {
-      fs.writeFileSync(`${outputDir}/swagger.2.0.json`, JSON.stringify(spec, undefined, 2));
+      fs.writeFileSync(`${outputDir}/openapi.json`, JSON.stringify(spec, undefined, 2));
     }
   },
 });
