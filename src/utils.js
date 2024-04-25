@@ -89,6 +89,7 @@ function strSplitByPathEscaped(str) {
               chunks.push(sub);
               sub = '';
             }
+            // no break
           case NEXT:
             s = i + 1;
             break;

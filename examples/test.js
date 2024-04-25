@@ -193,6 +193,7 @@
  * @api {natspub} publish Publish
  * @apiChapter Nats
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -200,13 +201,16 @@
  * @api {natsrpc} rpc RPC
  * @apiChapter Nats
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ * @apiSuccess {String} success1 Success 1
  */
 
 /**
  * @api {natssub} subscribe Subscribe
  * @apiChapter Nats
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -215,6 +219,7 @@
 /**
  * @api {rabbitmqpub} publish Publish
  * @apiChapter RabbitMQ
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -222,12 +227,15 @@
  * @api {rabbitmqrpc} rpc RPC
  * @apiChapter RabbitMQ
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ * @apiSuccess {String} success1 Success 1
  */
 
 /**
  * @api {rabbitmqsub} subscribe Subscribe
  * @apiChapter RabbitMQ
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -236,13 +244,16 @@
 /**
  * @api {redispub} publish Publish
  * @apiChapter Redis
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
+ * @apiSuccess {String} success1 Success 1
  */
 
 /**
  * @api {redissub} subscribe Subscribe
  * @apiChapter Redis
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -252,6 +263,7 @@
  * @api {socketio} communicate Communicate
  * @apiChapter Socket.IO
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */
 
@@ -261,5 +273,6 @@
  * @api {websocket} communicate Communicate
  * @apiChapter WebSocket
  * @apiContentType json
+ * @apiHeader {String} header1=test Header 1
  * @apiParam (bodyParameter) {String} [param1=test] Body param 1
  */

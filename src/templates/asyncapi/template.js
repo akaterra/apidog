@@ -12,6 +12,7 @@ const PARAM_VALUE_BY_TYPE = {
 const PROTOCOL_CONFIG = {
   natspub: { bindings: { nats: {} }, action: 'send' },
   natssub: { bindings: { nats: {} }, action: 'receive' },
+  natsrpc: { bindings: { nats: {} }, action: 'send', reply: true },
   rabbitmqpub: { bindings: { amqp: {} }, action: 'send', prepareBindings(bindings, descriptor) {
     bindings.amqp.exchange = { name: descriptor.api.transport.exchange ?? 'default', type: 'topic' };
 
@@ -22,11 +23,16 @@ const PROTOCOL_CONFIG = {
 
     return bindings;
   } },
+  rabbitmqrpc: { bindings: { amqp: {} }, action: 'send', prepareBindings(bindings, descriptor) {
+    bindings.amqp.exchange = { name: descriptor.api.transport.exchange ?? 'default', type: 'topic' };
+
+    return bindings;
+  }, reply: true },
   redispub: { bindings: { redis: {} }, action: 'send' },
   redissub: { bindings: { redis: {} }, action: 'receive' },
-  socketio: { bindings: {  http: {} }, action: 'send' },
-  websocket: { bindings: { ws: {} }, action: 'send' },
-  ws: { bindings: { ws: {} }, action: 'send' },
+  socketio: { bindings: {  http: {} }, action: 'send', reply: true },
+  websocket: { bindings: { ws: {} }, action: 'send', reply: true },
+  ws: { bindings: { ws: {} }, action: 'send', reply: true },
 };
 
 module.exports = (config) => ({
@@ -69,60 +75,6 @@ module.exports = (config) => ({
         uriParams[placeholder] = isInQuery;
       });
 
-      const responses = {};
-
-      // if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
-      //   responses['default'] = {description: 'No description'};
-      // } else {
-      //   if (descriptor.successGroupVariant) {
-      //     Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-      //       let schema;
-
-      //       if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
-      //         descriptor.success[-1] = descriptor.successRoot[0];
-      //         schema = parserUtils.convertParamGroupVariantToJsonSchema({
-      //           $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-      //         }, descriptor.success).properties.$;
-      //       } else {
-      //         schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
-      //       }
-
-      //       responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-      //         description: 'No description',
-      //         content: {
-      //           '*/*': {
-      //             schema,
-      //           },
-      //         },
-      //       };
-      //     });
-      //   }
-
-      //   if (descriptor.errorGroupVariant) {
-      //     Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-      //       let schema;
-
-      //       if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
-      //         descriptor.error[-1] = descriptor.errorRoot[0];
-      //         schema = parserUtils.convertParamGroupVariantToJsonSchema({
-      //           $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-      //         }, descriptor.error).properties.$;
-      //       } else {
-      //         schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
-      //       }
-            
-      //       responses[groupVariantKey === 'null' ? 'default' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-      //         description: 'No description',
-      //         content: {
-      //           '*/*': {
-      //             schema,
-      //           },
-      //         },
-      //       };
-      //     });
-      //   }
-      // }
-
       if (!spec.channels[descriptor.id]) {
         spec.channels[descriptor.id] = {
           title: descriptor.title,
@@ -141,6 +93,53 @@ module.exports = (config) => ({
 
       if (transportProtocolConfig.prepareBindings) {
         channelDescriptor.bindings = transportProtocolConfig.prepareBindings(channelDescriptor.bindings, descriptor);
+      }
+
+      const messages = [];
+      const replies = [];
+
+      if (descriptor.successGroupVariant) {
+        Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+          let schema;
+
+          if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
+            descriptor.success[-1] = descriptor.successRoot[0];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema({
+              $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+            }, descriptor.success).properties.$;
+          } else {
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
+          }
+
+          if (!channelDescriptor.messages[`${groupVariantKey}_success`]) {
+            channelDescriptor.messages[`${groupVariantKey}_success`] = {};
+            replies.push({ $ref :`#/channels/${descriptor.id}/messages/${groupVariantKey}_success` });
+          }
+
+          channelDescriptor.messages[`${groupVariantKey}_success`].payload = schema;
+        });
+      }
+
+      if (descriptor.errorGroupVariant) {
+        Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+          let schema;
+
+          if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
+            descriptor.error[-1] = descriptor.errorRoot[0];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema({
+              $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+            }, descriptor.error).properties.$;
+          } else {
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
+          }
+          
+          if (!channelDescriptor.messages[`${groupVariantKey}_error`]) {
+            channelDescriptor.messages[`${groupVariantKey}_error`] = {};
+            replies.push({ $ref :`#/channels/${descriptor.id}/messages/${groupVariantKey}_error` });
+          }
+
+          channelDescriptor.messages[`${groupVariantKey}_error`].payload = schema;
+        });
       }
 
       // if (Object.keys(descriptor.authHeaderGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
@@ -245,97 +244,67 @@ module.exports = (config) => ({
       //   channelDescriptor.parameters = [];
       // }
 
-      // if (descriptor.headerGroupVariant) {
-      //   const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
+      if (descriptor.headerGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
 
-      //   if (groupVariantKey) {
-      //     // const notBodyParamIndexes = [];
+        if (groupVariantKey) {
+          let schema;
 
-      //     channelDescriptor.parameters = channelDescriptor.parameters.concat(descriptor.headerGroup[groupVariantKey].list.map((headerIndex) => {
-      //       const header = descriptor.header[headerIndex];
+          if (descriptor.headerRootGroupVariant?.[groupVariantKey]) {
+            descriptor.header[-1] = descriptor.paramRoot[0];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(
+              { $: [ { list: [ -1 ], parent: null, prop: descriptor.headerGroupVariant[groupVariantKey].prop } ] },
+              descriptor.header,
+            ).properties.$;
+          } else {
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.headerGroupVariant[groupVariantKey].prop,
+              descriptor.header,
+            );
+          }
 
-      //       if (true) {
-      //         // notBodyParamIndexes.push(paramIndex);
+          if (!channelDescriptor.messages[groupVariantKey]) {
+            channelDescriptor.messages[groupVariantKey] = {};
+            messages.push({ $ref :`#/channels/${descriptor.id}/messages/${groupVariantKey}` });
+          }
 
-      //         return {
-      //           name: header.field.name,
-      //           in: 'header',
-      //           description: header.description && header.description.join('/n'),
-      //           required: !header.field.isOptional,
-      //           schema: {
-      //             ...parserUtils.convertParamTypeToJsonSchema(header.type.modifiers.initial.toLowerCase()),
-      //             enum: header.type.allowedValues.length
-      //               ? header.type.allowedValues
-      //               : undefined,
-      //             default: header.field.defaultValue,
-      //           },
-      //         };
-      //       }
-
-      //       return null;
-      //     }).filter(_ => _));
-      //   }
-      // }
+          channelDescriptor.messages[groupVariantKey].headers = schema;
+        }
+      }
 
       if (descriptor.paramGroupVariant) {
         const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
         if (groupVariantKey) {
-          // const notBodyParamIndexes = [];
+          let schema;
 
-          // channelDescriptor.parameters = channelDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
-          //   const param = descriptor.param[paramIndex];
-
-          //   if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get' || descriptor.api.transport.method === 'delete')) {
-          //     notBodyParamIndexes.push(paramIndex);
-
-          //     return {
-          //       name: param.field.name,
-          //       in: uriParams[param.field.name] === false ? 'path' : 'query',
-          //       description: param.description && param.description.join('/n'),
-          //       required: !param.field.isOptional,
-          //       schema: {
-          //         ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
-          //         enum: param.type.allowedValues.length
-          //           ? PARAM_VALUE_BY_TYPE[param.type.name] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value)) : param.type.allowedValues
-          //           : undefined,
-          //         default: param.field.defaultValue,
-          //       },
-          //     };
-          //   }
-
-          //   return null;
-          // }).filter(_ => _));
-
-          const bodyParams = descriptor.param;
-
-          if (bodyParams.filter((param) => !!param).length) {
-            let schema;
-
-            if (descriptor.paramRootGroupVariant && descriptor.paramRootGroupVariant[groupVariantKey]) {
-              bodyParams[-1] = descriptor.paramRoot[0];
-              schema = parserUtils.convertParamGroupVariantToJsonSchema(
-                { $: [ { list: [ -1 ], parent: null, prop: descriptor.paramGroupVariant[groupVariantKey].prop } ] },
-                bodyParams,
-              ).properties.$;
-            } else {
-              schema = parserUtils.convertParamGroupVariantToJsonSchema(
-                descriptor.paramGroupVariant[groupVariantKey].prop,
-                bodyParams,
-              );
-            }
-
-            channelDescriptor.messages.default = {
-              payload: schema,
-            };
+          if (descriptor.paramRootGroupVariant?.[groupVariantKey]) {
+            descriptor.param[-1] = descriptor.paramRoot[0];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(
+              { $: [ { list: [ -1 ], parent: null, prop: descriptor.paramGroupVariant[groupVariantKey].prop } ] },
+              descriptor.param,
+            ).properties.$;
+          } else {
+            schema = parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.paramGroupVariant[groupVariantKey].prop,
+              descriptor.param,
+            );
           }
+
+          if (!channelDescriptor.messages[groupVariantKey]) {
+            channelDescriptor.messages[groupVariantKey] = {};
+            messages.push({ $ref: `#/channels/${descriptor.id}/messages/${groupVariantKey}` });
+          }
+
+          channelDescriptor.messages[groupVariantKey].payload = schema;
         }
       }
 
       const operationDescriptor = spec.operations[descriptor.id] = {
         title: descriptor.title,
         channel: { $ref: `#/channels/${descriptor.id}` },
-        messages: [ { $ref: `#/channels/${descriptor.id}/messages/default` } ],
+        messages,
+        reply: replies.length ? { messages: replies } : undefined,
       };
 
       if (transportProtocolConfig) {

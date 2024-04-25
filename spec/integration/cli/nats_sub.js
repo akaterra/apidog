@@ -1,5 +1,13 @@
 const nats = require('nats');
 
-const connectiin = nats.connect('nats://127.0.0.1:4222');
+(async () => {
+  const connection = await nats.connect({ service: [ 'nats://127.0.0.1:4222' ] });
 
-connectiin.subscribe('subscribe', (message) => console.log(message));
+  connection.subscribe('subscribe', { callback: (err, msg) => console.log(msg) });
+  connection.subscribe('publish', { callback: (err, msg) => console.log(msg) });
+  connection.subscribe('rpc', { callback: (err, msg) => {
+    console.log(msg);
+
+    msg.respond('ok');
+  } });
+})();

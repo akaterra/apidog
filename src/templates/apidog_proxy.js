@@ -33,7 +33,15 @@ const logger = {
     return logger;
   },
   prepare(message) {
-    return typeof message !== 'string' ? JSON.stringify(message) : message;
+    if (typeof message === 'string') {
+      return message;
+    }
+
+    try {
+      return JSON.stringify(message);
+    } catch (err) {
+      return 'null';
+    }
   }
 }
 
@@ -358,12 +366,64 @@ async function createAppWebSocket(env) {
     }
   }
 
+  async function reqProxyPass(uri, ws) {
+    if (uri instanceof URL) {
+      uri = uri.toString();
+    }
+
+    const remoteWs = env.webSocketConstructor ? env.webSocketConstructor(uri) : new WebSocket(uri);
+
+    let messageBuffer = [];
+
+    remoteWs.onclose = _ => {
+      logger.debug(`Outgoing WebSocket connection closed: ${uri}`);
+
+      ws.terminate();
+    };
+
+    remoteWs.onerror = (err) => {
+      logger.error(`Outgoing WebSocket connection error: ${uri}, ${err.message}`);
+
+      ws.terminate();
+    };
+
+    remoteWs.onmessage = (message) => {
+      logger.debug(`Outgoing WebSocket connection message: ${uri}, ${logger.prepare(message)}`);
+
+      ws.send(message.data);
+    };
+
+    remoteWs.onopen = _ => {
+      for (const message of messageBuffer) {
+        remoteWs.send(message);
+      }
+    };
+
+    ws.on('disconnect', _ => {
+      logger.debug(`Incoming WebSocket connection closed: ${uri}`);
+
+      remoteWs.terminate();
+    });
+
+    ws.on('error', (err) => {
+      logger.error(`Incoming WebSocket connection error: ${uri}, ${err.message}`);
+
+      remoteWs.terminate();
+    });
+
+    ws.on('message', async (message) => {
+      logger.debug(`Incoming WebSocket connection message: ${uri}, ${logger.prepare(message)}`);
+
+      remoteWs.readyState === WebSocket.OPEN ? remoteWs.send(message) : messageBuffer.push(message);
+    });
+  }
+
   const app = {
     listen: (port, fn) => {
       const wsServer = app.wsServer = env.webSocketServerConstructor ? (env.webSocketServerConstructor({ port })) : new WebSocket.Server({ port });
 
       wsServer.on('connection', (ws, req) => {
-        logger.debug(req);
+        logger.debug(`Incoming WebSocket connection opened: ${req.url ?? '?'}`);
 
         let uri = req.url.substr(1);
 
@@ -390,66 +450,20 @@ async function createAppWebSocket(env) {
 
         if (route) {
           ws.on('disconnect', _ => {
-            logger.debug(`Incoming WebSocket connection closed: ${req.url}`);
+            logger.debug(`Incoming WebSocket connection closed: ${req.url ?? '?'}`);
 
             // remoteWs.terminate();
           });
 
           ws.on('error', (err) => {
-            logger.error(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
+            logger.error(`Incoming WebSocket connection error: ${req.url ?? '?'}, ${err.message}`);
 
             // remoteWs.terminate();
           });
 
           route(ws, uri);
         } else {
-          uri = uri.toString();
-
-          const remoteWs = env.webSocketConstructor ? env.webSocketConstructor(uri) : new WebSocket(uri);
-
-          let messageBuffer = [];
-
-          remoteWs.onclose = _ => {
-            logger.debug(`Outgoing WebSocket connection closed: ${req.url}`);
-
-            ws.terminate();
-          };
-
-          remoteWs.onerror = (err) => {
-            logger.error(`Outgoing WebSocket connection error: ${req.url}, ${err.message}`);
-
-            ws.terminate();
-          };
-
-          remoteWs.onmessage = (message) => {
-            logger.debug(`Outgoing WebSocket connection message: ${req.url}, ${logger.prepare(message)}`);
-
-            ws.send(message.data);
-          };
-
-          remoteWs.onopen = _ => {
-            for (const message of messageBuffer) {
-              remoteWs.send(message);
-            }
-          };
-
-          ws.on('disconnect', _ => {
-            logger.debug(`Incoming WebSocket connection closed: ${req.url}`);
-
-            remoteWs.terminate();
-          });
-
-          ws.on('error', (err) => {
-            logger.error(`Incoming WebSocket connection error: ${req.url}, ${err.message}`);
-
-            remoteWs.terminate();
-          });
-
-          ws.on('message', async (message) => {
-            logger.debug(`Incoming WebSocket connection message: ${req.url}, ${logger.prepare(message)}`);
-
-            remoteWs.readyState === WebSocket.OPEN ? remoteWs.send(message) : messageBuffer.push(message);
-          });
+          reqProxyPass(uri, ws);
         }
       });
 
@@ -501,6 +515,10 @@ async function createAppWebSocket(env) {
     redisSubscribe(transportConfig, uri.pathname.substr(10), async (data) => {
       ws.send(data);
     }, undefined, 'sub').catch((error) => ws.send(error.message));
+  });
+
+  app.subscribe('/websocket', (ws, uri) => {
+    reqProxyPass(uri.pathname.substr(11), ws);
   });
 
   return app;
@@ -604,7 +622,7 @@ async function getNatsConnection(config, uri) {
   const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
 
   if (!natsConnections[key]) {
-    natsConnections[key] = await (config.env && config.env.nats || require('nats')).connect(uri.toString());
+    natsConnections[key] = await (config.env && config.env.nats || require('nats')).connect({ servers: [ uri.toString() ] });
   }
 
   return natsConnections[key];
@@ -624,9 +642,9 @@ async function natsPublish(config, target, data, headers, opts) {
 async function natsSubscribe(config, target, fn, opts, connectionFlag) {
   const natsConnection = await getNatsConnection(config, target);
   const q = target.substr(target.lastIndexOf('/') + 1);
-  natsConnection.subscribe(q, (message) => {
-    fn(message);
-  });
+  natsConnection.subscribe(q, { callback: (err, msg) => {
+    fn(msg.string());
+  } });
 
   return true;
 }
@@ -635,11 +653,9 @@ async function natsRPC(config, queue, data, headers, opts) {
   const natsConnection = await getNatsConnection(config, queue);
   const q = queue.substr(queue.lastIndexOf('/') + 1);
 
-  return new Promise((resolve, reject) => natsConnection.requestOne(q, data, {}, config.timeout || 60000, (res) => {
-    res instanceof Error
-      ? reject(res)
-      : resolve({body: res, headers: {}});
-  }));
+  return natsConnection.request(q, data, { timeout: config.timeout ?? 60000 }).then((msg) => {
+    return {body: msg.string(), headers: {}};
+  });
 }
 
 /**

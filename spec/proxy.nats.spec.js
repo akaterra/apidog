@@ -18,7 +18,7 @@ describe('proxy nats', () => {
         },
         $publish(queue, message) {
           if (env.$natsSubscriptions[queue]) {
-            env.$natsSubscriptions[queue].fn(message);
+            env.$natsSubscriptions[queue].opts.callback(null, { string: () => message });
           }
 
           return env;
@@ -32,14 +32,16 @@ describe('proxy nats', () => {
             publish(queue, data) {
               env.$natsPublish = {queue, data}
             },
-            subscribe(queue, fn) {
-              env.$natsSubscriptions[queue] = {fn};
+            subscribe(queue, opts) {
+              env.$natsSubscriptions[queue] = {opts};
             },
-            requestOne: (queue, data, opts, timeout, fn) => {
-              env.$natsRequestOne = {queue, data, timeout, opts, fn};
+            request: (queue, data, opts) => {
+              env.$natsRequestOne = {queue, data, opts};
 
-              if (fn) {
-                fn(env.$response);
+              if (env.$response instanceof Error) {
+                return Promise.reject(err);
+              } else {
+                return Promise.resolve({ string: () => env.$response });
               }
             },
           };
@@ -76,7 +78,7 @@ describe('proxy nats', () => {
       .expect(200)
       .expect(res => {
         expect(env.$natsPublish.queue).toBe('queue');
-        expect(env.$natsConnection.uri).toBe('nats://default');
+        expect(env.$natsConnection.uri).toEqual({ servers: [ 'nats://default' ] });
         expect(res.text).toBe('Message has been sent to Nats "queue" queue by apiDog proxy');
       });
   });
@@ -93,7 +95,7 @@ describe('proxy nats', () => {
       .expect(200)
       .expect(res => {
         expect(env.$natsPublish.queue).toBe('queue');
-        expect(env.$natsConnection.uri).toBe('nats://username:password@host:9999');
+        expect(env.$natsConnection.uri).toEqual({ servers: [ 'nats://username:password@host:9999' ] });
         expect(res.text).toBe('Message has been sent to Nats "nats://username:password@host:9999/queue" queue by apiDog proxy');
       });
   });
@@ -110,7 +112,7 @@ describe('proxy nats', () => {
       .expect(200)
       .expect(res => {
         expect(env.$natsPublish.queue).toBe('queue');
-        expect(env.$natsConnection.uri).toBe('nats://a:b@c:1');
+        expect(env.$natsConnection.uri).toEqual({ servers: [ 'nats://a:b@c:1' ] });
         expect(res.text).toBe('Message has been sent to Nats "nats://alias/queue" queue by apiDog proxy');
       });
   });
@@ -127,7 +129,7 @@ describe('proxy nats', () => {
       .expect(200)
       .expect(res => {
         expect(env.$natsRequestOne.queue).toBe('queue');
-        expect(env.$natsConnection.uri).toBe('nats://default');
+        expect(env.$natsConnection.uri).toEqual({ servers: [ 'nats://default' ] });
         expect(res.text).toBe('data');
       });
   });
@@ -144,7 +146,7 @@ describe('proxy nats', () => {
       .expect(200)
       .expect(res => {
         expect(env.$natsRequestOne.queue).toBe('queue');
-        expect(env.$natsConnection.uri).toBe('nats://username:password@host:9999');
+        expect(env.$natsConnection.uri).toEqual({ servers: [ 'nats://username:password@host:9999' ] });
         expect(res.text).toBe('data');
       });
   });

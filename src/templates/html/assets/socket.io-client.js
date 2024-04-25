@@ -1,1 +1,1 @@
-ref:node_modules/socket.io-client/dist/socket.io.js
+ref:node_modules/socket.io/client-dist/socket.io.js

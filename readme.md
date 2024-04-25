@@ -158,11 +158,11 @@ Parameters:
 
   Build-in templates:
     * @apidoc
+    * @asyncapi
     * @html
     * @html.standalone
     * @md
-    * @openapi.2.0
-    * @openapi.3.0
+    * @openapi
 
 * **--title** - Custom title that will be used as a title of the generated documentation
 
@@ -298,7 +298,7 @@ Format:
 
 Defines "root" type for the error response.
 
-Used when response contains primitive value, array of primitive values or array of **@apiError** definitions.
+Used when the response contains a primitive value, an array of primitive values or an array of **@apiError** definitions.
 
 Example:
 ```
@@ -452,7 +452,7 @@ Format:
 
 Defines "root" type for the request.
 
-Used when request contains primitive value, array of primitive values or array of **@apiParam** definitions.
+Used when the request contains a primitive value, an array of primitive values or an array of **@apiParam** definitions.
 
 Example:
 ```
@@ -622,7 +622,7 @@ Format:
 
 Defines "root" type for the success response.
 
-Used when response contains primitive value, array of primitive values or array of **@apiSuccess** definitions.
+Used when the response contains a primitive value, an array of primitive values or an array of **@apiSuccess** definitions.
 
 Example:
 ```

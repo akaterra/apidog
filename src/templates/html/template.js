@@ -1,6 +1,6 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
-const uglify = require('uglify-es');
+const uglify = require('uglify-js');
 
 module.exports = (config) => ({
   generate(hbs, config, params) {
@@ -73,7 +73,7 @@ module.exports = (config) => ({
     const handlebarsJs = fs.readFileSync(`${__dirname}/../../../node_modules/handlebars/dist/handlebars.min.js`, {encoding: 'utf8'});
     fs.writeFileSync(`${outputDir}/handlebars.min.js`, handlebarsJs);
 
-    const socketIoJs = fs.readFileSync(`${__dirname}/../../../node_modules/socket.io-client/dist/socket.io.js`, {encoding: 'utf8'});
+    const socketIoJs = fs.readFileSync(`${__dirname}/../../../node_modules/socket.io/client-dist/socket.io.js`, {encoding: 'utf8'});
     fs.writeFileSync(`${outputDir}/socket.io.js`, socketIoJs);
 
     const favicon = fs.readFileSync(`${__dirname}/assets/favicon.png`);

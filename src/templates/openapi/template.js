@@ -276,6 +276,7 @@ module.exports = (config) => ({
             return null;
           }).filter(_ => _));
 
+          // not to filter, param must stay at same index
           const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
 
           if (bodyParams.filter((param) => !!param).length) {
