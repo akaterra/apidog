@@ -419,8 +419,8 @@
                       {{#if ../this.authQuery.length}}
                         <div class="inner-label"><hr></div>
                         {{> contentSsrParamGroupVariant
-                          class='authQuery'
-                          defaultName='authQuery'
+                          class='authQueryParam'
+                          defaultName='authQueryParameter'
                           groupVariant=../this.authQueryGroupVariant
                           id=block.id
                           param=../this.authQuery
@@ -430,8 +430,8 @@
                       {{#if ../this.query.length}}
                         <div class="inner-label"><hr></div>
                         {{> contentSsrParamGroupVariant
-                          class='query'
-                          defaultName='query'
+                          class='queryParam'
+                          defaultName='queryParameter'
                           groupVariant=../this.queryGroupVariant
                           id=block.id
                           param=../this.query
@@ -442,7 +442,7 @@
                         <div class="inner-label"><hr></div>
                         {{> contentSsrParamGroupVariant
                           class='authParam'
-                          defaultName='authParam'
+                          defaultName='authParameter'
                           groupVariant=../this.authParamGroupVariant
                           id=block.id
                           param=../this.authParam

@@ -418,11 +418,39 @@ const ssr = (function () {
       return api;
     },
 
+    showAuthHeadersGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'authHeader', group);
+    },
+    showAuthHeadersGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'authHeader', undefined, field, index);
+    },
+
+    showAuthQueryParamsGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'authQueryParam', group);
+    },
+    showAuthQueryParamsGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'authQueryParam', undefined, field, index);
+    },
+
+    showAuthParamsGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'authParam', group);
+    },
+    showAuthParamsGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'authParam', undefined, field, index);
+    },
+
     showHeadersGroup(blockId, group) {
       return api.showInputsGroup(blockId, 'header', group);
     },
     showHeadersGroupVariant(blockId, field, index) {
       return api.showInputsGroupVariant(blockId, 'header', undefined, field, index);
+    },
+
+    showQueryParamsGroup(blockId, group) {
+      return api.showInputsGroup(blockId, 'queryParam', group);
+    },
+    showQueryParamsGroupVariant(blockId, field, index) {
+      return api.showInputsGroupVariant(blockId, 'queryParam', undefined, field, index);
     },
 
     showParamsGroup(blockId, group) {
@@ -529,53 +557,39 @@ const ssr = (function () {
       },
     };
 
-    for (const subEl of by.selector('[data-block-ssr-class="header"][data-block-ssr-group-selector]', el)) {
-      on.click(subEl, () => {
-        const viewportY = subEl.offsetTop - window.scrollY;
-
-        api.showHeadersGroup(blockId, subEl.dataset.blockSsrField);
-
-        if (subEl.offsetTop < window.scrollY) {
-          window.scrollTo(0, subEl.offsetTop - viewportY);
-        }
-      });
-    }
-
-    for (const subEl of by.selector('[data-block-ssr-class="header"][data-block-ssr-group-variant-selector]', el)) {
-      on.click(
-        subEl,
-        () => {
-          api.showHeadersGroupVariant(
-            blockId,
-            subEl.dataset.blockSsrField,
-            parseInt(subEl.dataset.blockSsrGroupVariantIndex),
-          )
+    function ssrGroupHandlers(type, showGroupFn, showGroupVariantFn) {
+      for (const subEl of by.selector(`[data-block-ssr-class="${type}"][data-block-ssr-group-selector]`, el)) {
+        on.click(subEl, () => {
+          const viewportY = subEl.offsetTop - window.scrollY;
+  
+          showGroupFn(blockId, subEl.dataset.blockSsrField);
+  
+          if (subEl.offsetTop < window.scrollY) {
+            window.scrollTo(0, subEl.offsetTop - viewportY);
+          }
         });
+      }
+  
+      for (const subEl of by.selector(`[data-block-ssr-class="${type}"][data-block-ssr-group-variant-selector]`, el)) {
+        on.click(
+          subEl,
+          () => {
+            showGroupVariantFn(
+              blockId,
+              subEl.dataset.blockSsrField,
+              parseInt(subEl.dataset.blockSsrGroupVariantIndex),
+            )
+          },
+        );
+      }
     }
 
-    for (const subEl of by.selector('[data-block-ssr-class="param"][data-block-ssr-group-selector]', el)) {
-      on.click(subEl, () => {
-        const viewportY = subEl.offsetTop - window.scrollY;
-
-        api.showParamsGroup(blockId, subEl.dataset.blockSsrGroup);
-
-        if (subEl.offsetTop < window.scrollY) {
-          window.scrollTo(0, subEl.offsetTop - viewportY);
-        }
-      });
-    }
-
-    for (const subEl of by.selector('[data-block-ssr-class="param"][data-block-ssr-group-variant-selector]', el)) {
-      on.click(
-        subEl,
-        () => {
-          api.showParamsGroupVariant(
-            blockId,
-            subEl.dataset.blockSsrField,
-            parseInt(subEl.dataset.blockSsrGroupVariantIndex),
-          )
-        });
-    }
+    ssrGroupHandlers('authHeader', api.showAuthHeadersGroup, api.showAuthHeadersGroupVariant);
+    ssrGroupHandlers('authQueryParam', api.showAuthHeadersGroup, api.showAuthHeadersGroupVariant);
+    ssrGroupHandlers('authParam', api.showAuthHeadersGroup, api.showAuthHeadersGroupVariant);
+    ssrGroupHandlers('header', api.showHeadersGroup, api.showHeadersGroupVariant);
+    ssrGroupHandlers('queryParam', api.showQueryParamsGroup, api.showQueryParamsGroupVariant);
+    ssrGroupHandlers('param', api.showParamsGroup, api.showParamsGroupVariant);
 
     const blockSsrSendEl = by.selector('[data-block-ssr-send]', el)[0];
 
