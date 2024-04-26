@@ -713,7 +713,7 @@ describe('@api annotation validate', () => {
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
-        sampleRequestProxy: 'http://proxy',
+        sampleRequestProxyWs: 'ws://proxy',
       };
   
       parser.validate(block, config);

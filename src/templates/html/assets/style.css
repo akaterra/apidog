@@ -11,6 +11,12 @@ form {
   font-size: 0;
 }
 
+hr {
+  border: none;
+  border-top: solid 2px #e0e0e0;
+  margin: 1rem 0;
+}
+
 input[type="checkbox"] {
   margin: 0;
 }
@@ -125,7 +131,7 @@ ins.diffmod, .diffins {
 }
 
 .right {
-  text-align: right;
+  justify-content: right;
 }
 
 .rtl .right {
@@ -386,6 +392,10 @@ ins.diffmod, .diffins {
   background-color: #f0f0f0;
 }
 
+.table-zebra > *:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
 .table-zebra > *:first-child {
   background-color: #e0e0e0;
 }
@@ -441,7 +451,9 @@ ins.diffmod, .diffins {
 }
 
 .label {
+  align-items: center;
   color: #383838;
+  display: flex;
   font-weight: bold;
   margin-bottom: 0.5rem;
   padding: 1rem 0.5rem 0 0.5rem;

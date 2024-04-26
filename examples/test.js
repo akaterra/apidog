@@ -10,7 +10,7 @@
 
 /**
  * @apiDefine subgroup Sample subgroup
- * This is a sample subgroup with a title ans description
+ * This is a sample subgroup with a title and description
  */
 
 /**

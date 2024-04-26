@@ -186,7 +186,7 @@ class Logger {
   throw(error) {
     console.warn(this.generateMessage(String(error)));
 
-    throw error
+    throw error;
   }
 
   generateMessage(message) {

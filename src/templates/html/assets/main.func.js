@@ -162,7 +162,7 @@ function parseUrl(url) {
   a.href = url;
 
   return {
-    fullPath: `${a.hostname}:${a.port || 80}${a.pathname || ''}`,
+    fullPath: `${a.protocol}//${a.hostname}:${a.port || 80}${a.pathname || ''}`,
     host: a.hostname,
     path: a.pathname,
     port: a.port,

@@ -619,7 +619,7 @@ async function getNatsConnection(config, uri) {
 
   uri.pathname = '';
 
-  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+  const key = `${uri.hostname}:${uri.port}:${uri.username}:${uri.password}:${uri.pathname}`;
 
   if (!natsConnections[key]) {
     natsConnections[key] = await (config.env && config.env.nats || require('nats')).connect({ servers: [ uri.toString() ] });
@@ -696,7 +696,7 @@ async function getRabbitmqConnection(config, uri) {
 
   uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
 
-  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+  const key = `${uri.hostname}:${uri.port}:${uri.username}:${uri.password}:${uri.pathname}`;
 
   if (!rabbitmqConnections.connections[key]) {
     rabbitmqConnections.connections[key] = await (config.env && config.env.amqplib || require('amqplib')).connect(uri.toString());
@@ -724,7 +724,7 @@ async function getRabbitmqChannel(config, uri) {
 
   uri.pathname = uri.pathname.split('/').slice(1, 2).join('/');
 
-  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+  const key = `${uri.hostname}:${uri.port}:${uri.username}:${uri.password}:${uri.pathname}`;
 
   const connection = await getRabbitmqConnection(config, uri.toString());
 
@@ -800,10 +800,10 @@ async function getRedisConnection(config, uri, connectionFlag) {
 
   uri.pathname = '';
 
-  const key = `${connectionFlag || ''}${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+  const key = `${connectionFlag || ''}${uri.hostname}:${uri.port}:${uri.username}:${uri.password}:${uri.pathname}`;
 
   if (!redisConnections[key]) {
-    redisConnections[key] = await (config.env && config.env.redis || require('redis')).createClient(uri.toString());
+    redisConnections[key] = await (config.env && config.env.redis || require('redis')).createClient(uri.toString()).connect();
   }
 
   return redisConnections[key];
@@ -812,7 +812,7 @@ async function getRedisConnection(config, uri, connectionFlag) {
 async function redisPublish(config, channel, data, headers, opts, connectionFlag) {
   const redisConnection = await getRedisConnection(config, channel, connectionFlag);
   const q = channel.substr(channel.lastIndexOf('/') + 1);
-  redisConnection.publish(q, data);
+  await redisConnection.publish(q, data);
 
   return {
     body: `Message has been sent to Redis "${channel}" channel by apiDog proxy`,
@@ -823,17 +823,17 @@ async function redisPublish(config, channel, data, headers, opts, connectionFlag
 async function redisSubscribe(config, queue, fn, opts, connectionFlag) {
   const redisConnection = await getRedisConnection(config, queue, connectionFlag);
   const q = queue.substr(queue.lastIndexOf('/') + 1);
-  redisConnection.subscribe(q);
-  redisConnection.on('message', (channel, message) => {
+  const handler = (message) => {
     fn(message);
-  });
+  }
+  redisConnection.subscribe(q, handler);
 
   return true;
 }
 
 async function redisUnsubscribe(config, queue, opts, connectionFlag) {
   const redisConnection = await getRedisConnection(config, queue, connectionFlag);
-  redisConnection.unsubscribe();
+  await redisConnection.unsubscribe();
   // redisConnection.quit();
 }
 
@@ -866,7 +866,7 @@ async function getWebsocketConnection(config, uri) {
 
   // uri.pathname = '';
 
-  const key = `${uri.hostname}${uri.port}${uri.username}${uri.password}${uri.pathname}`;
+  const key = `${uri.hostname}:${uri.port}:${uri.username}:${uri.password}:${uri.pathname}`;
 
   if (!websocketConnections[key]) {
     websocketConnections[key] = new (config.env && config.env.websocket || require('websocket'))(uri.toString());

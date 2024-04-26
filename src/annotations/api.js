@@ -153,7 +153,7 @@ function validate(block, config) {
     }
   }
 
-  block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest || sampleRequest === '');
+  // block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest || sampleRequest === '');
 
   switch (block.api.transport.name) {
     case 'http':
@@ -324,8 +324,8 @@ function validate(block, config) {
     case 'websocket':
     case 'ws':
       if (block.sampleRequest.length) {
-        if (!block.sampleRequestProxy && (config.sampleRequestProxyWs || config.sampleRequestProxy)) {
-          block.sampleRequestProxy = config.sampleRequestProxyWs || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
+        if (!block.sampleRequestProxy && config.sampleRequestProxyWs) {
+          block.sampleRequestProxy = config.sampleRequestProxyWs; // || config.sampleRequestProxy.replace(/http(s)?:\/\//, 'ws://');
         }
 
         block.sampleRequest = block.sampleRequest.map((sampleRequest) => {

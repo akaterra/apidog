@@ -1,8 +1,9 @@
 const redis = require('redis');
 
-const connectiin = redis.createClient('redis://127.0.0.1:6379');
+(async () => {
+  const connection = await redis.createClient('redis://127.0.0.1:6379');
 
-connectiin.subscribe('publish');
-connectiin.on('message', (channel, message) => {
-  console.log(channel, message);
-});
+  await connection.subscribe('publish', (message, channel) => {
+    console.log(channel, message);
+  });
+})();
