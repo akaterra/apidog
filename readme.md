@@ -16,7 +16,8 @@ Features:
   * Single pre-compiled HTML file with no external dependencies
   * apidoc.apidoc text file
   * Markdown file
-  * OpenAPI specification file (v2.0, v3.0)
+  * AsyncAPI specification file (v3.0)
+  * OpenAPI specification file (v3.0)
 * Server proxy
 * Send sample request plugin for html template:
     * Transports support:
@@ -70,6 +71,7 @@ Table of contents
   * [@apiUse](#apiuse)
 * Built-in templates
   * [@apidoc](#apidoc)
+  * [@asyncapi](#asyncapi)
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
@@ -687,6 +689,14 @@ apidog -t @apidoc
 
 Compiles to apiDoc annotations text file where the doc blocks separated by two "\n".
 
+##### @asyncapi
+
+```sh
+apidog -t @asyncapi
+```
+
+Compiles to AsyncAPI v3.0 specification JSON file.
+
 ##### @html (default)
 
 ```sh
@@ -702,6 +712,7 @@ Complies to:
 * apidoc.template.min.js - handlebars template
 * favicon.png
 * handlebars.min.js - Handlebars bundle
+* showdown.min.js - Showdown bundle
 * socket.io.js - Socket.IO bundle
 
 Supports nav jumping to a chapter, group, subgroup and block version.
