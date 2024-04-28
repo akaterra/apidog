@@ -11,6 +11,7 @@
     "htmldiff-js": "1.0.5",
     "lodash.get": "4.4.2",
     "markdown": "^0.5.0",
+    "showdown": "^2.1.0",
     "uglify-js": "3.17.4"
   },
   "devDependencies": {

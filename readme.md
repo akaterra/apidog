@@ -49,6 +49,7 @@ Table of contents
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
   * [@apiDefine](#apidefine)
+  * [@apiDescription](#apidescription)
   * [@apiErrorPrefix](#apierrorprefix)
   * [@apiErrorRoot](#apierrorroot)
   * [@apiErrorValue](#apierrorvalue)
@@ -72,8 +73,7 @@ Table of contents
   * [@html (default)](#html-default)
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
-  * [@openapi.2.0](#openapi20)
-  * [@openapi.3.0](#openapi30)
+  * [@openapi](#openapi)
 * @html template "Send sample request" plug-in
   * [Type variants](#type-variants)
 * [Sunsetting apiDoc](#sunsetting-apidoc)
@@ -235,6 +235,15 @@ Format:
 ```
 
 Works same as well as original **@apiDefine** but supports embedded **@apiUse**.
+
+##### @apiDescription
+
+Format:
+```
+@apiDescription description
+```
+
+Works same as well as original **@apiDescription** but treats the description content as Markdown for @html template.
 
 ##### @apiErrorPrefix
 
@@ -719,18 +728,10 @@ apidog -t @md
 
 Compiles to markdown file.
 
-##### @openapi.2.0
+##### @openapi
 
 ```sh
-apidog -t @openapi.2.0
-```
-
-Compiles to OpenAPI v2.0 specification JSON file.
-
-##### @openapi.3.0
-
-```sh
-apidog -t @openapi.3.0
+apidog -t @openapi
 ```
 
 Compiles to OpenAPI v3.0 specification JSON file.

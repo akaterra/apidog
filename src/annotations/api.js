@@ -117,11 +117,7 @@ function parse(block, text) {
       throw new Error(`Unknown transport "${transportTokens[0]}"`);
   }
 
-  if (!block.validate) {
-    block.validate = [validate];
-  } else {
-    block.validate.push(validate);
-  }
+  block.addValidateAfter(validate);
 
   return block;
 }
@@ -152,8 +148,6 @@ function validate(block, config) {
       block.sampleRequest = [];
     }
   }
-
-  // block.sampleRequest = block.sampleRequest.filter((sampleRequest) => sampleRequest || sampleRequest === '');
 
   switch (block.api.transport.name) {
     case 'http':
@@ -359,6 +353,10 @@ function validate(block, config) {
 
     default:
       throw new Error(`Unknown transport "${block.api.transport.name}"`);
+  }
+
+  if (!block.version && config.version) {
+    block.version = config.version;
   }
 
   return block;

@@ -6,6 +6,7 @@ module.exports = {
   join: require('./join'),
   joinWithComma: require('./join_with_comma'),
   lookup: require('./lookup'),
+  markdown: require('./markdown'),
   pathLastKeyIndented: require('./path_last_key_indented'),
   setVar: require('./set_var'),
   toBase64: require('./to_base64'),

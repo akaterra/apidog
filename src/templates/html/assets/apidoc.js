@@ -30,6 +30,9 @@ window.onload = () => {
   {{> lookup.js }}
   Handlebars.registerHelper('lookup', module.exports);
 
+  {{> markdown.js }}
+  Handlebars.registerHelper('markdown', module.exports);
+
   {{> path_last_key_indented.js }}
   Handlebars.registerHelper('pathLastKeyIndented', module.exports);
 

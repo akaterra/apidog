@@ -27,6 +27,14 @@ module.exports = (config) => ({
     };
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
+      if (descriptor.note) {
+        spec.info.description += `\n\n# ${descriptor.title}`;
+
+        if (descriptor.description?.length) {
+          spec.info.description += descriptor.description.map((description) => `\n\n${description}`);
+        }
+      }
+
       if (!descriptor.api) {
         return;
       }

@@ -67,7 +67,7 @@
             <div class="menu-group">
               {{#ifCond this.title '!=' 'null'}}
                 {{#with (context 'definitions') as |definitions|}}
-                  <a class="element-badge bg-color-1 color-white bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
+                  <a class="bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                 {{/with}}
               {{/ifCond}}
               {{#each this.subgroups}}
@@ -77,14 +77,14 @@
                       <a class="bold smaller menu-subgroup__header menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                     {{/with}}
                   {{/ifCond}}
-                  {{#each this.apis}}
-                    {{#each this as |block index|}}
-                      <a class="left-padded menu-item{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
-                    {{/each}}
-                  {{/each}}
                   {{#each this.notes}}
                     {{#each this as |block index|}}
                       <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
+                    {{/each}}
+                  {{/each}}
+                  {{#each this.apis}}
+                    {{#each this as |block index|}}
+                      <a class="left-padded menu-item{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
                     {{/each}}
                   {{/each}}
                 </div>
@@ -110,7 +110,7 @@
               </div>
               {{#with (lookup (context 'definitions') ../this.title 'description') as |description|}}
                 {{#if description}}
-                  <div class="section left-padded color-2">{{toHtml (join description true)}}</div>
+                  <div class="section left-padded color-2">{{markdown (join description true)}}</div>
                 {{/if}}
               {{/with}}
             {{/ifCond}}
@@ -131,6 +131,153 @@
                   {{/if}}
                 {{/with}}
               {{/ifCond}}
+
+              <!--
+              Notes
+              -->
+
+              {{#each this.notes}}
+                <div class="block" data-family="{{this.0.familyId}}">
+                  <div class="control-panel">
+                    <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-selector>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
+                          <option value="null">{{_ 'compareTo'}}</option>
+                          {{#each this}}
+                            <option value="{{this.version}}">{{this.version}}</option>
+                          {{/each}}
+                        </select>
+                      </div>
+                      <div class="flex-1">
+                        <button class="width-100 control flex-1 color-blue" disabled>{{_ 'hideHints'}}</button>
+                      </div>
+                      <div class="flex-1"></div>
+                    </div>
+                  </div>
+                  {{#each this as |block index|}}
+                    {{#ifCond index '==' 0}}
+                      <a name="{{block.familyId}}"></a>
+                    {{/ifCond}}
+                  <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
+                    <div class="control-panel">
+                      <div class="width-10 flex" data-block-control-panel="{{block.id}}">
+                        <div class="flex-1">
+                          <select class="width-100 input right color-blue" data-block-content-type disabled>
+                            {{#each block.contentType}}
+                              <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="hidden" data-block-compare-to-diff-content></div>
+                    <div data-block-compare-to-content>
+
+                      <!-- title -->
+
+                      <div class="section left-padded color-1 font-size-1 bold">
+                        <a class="section-title color-blue" href="#{{block.familyId}}">
+                          <span class="{{#if this.deprecated}}line-through{{/if}}">
+                            {{this.title}}
+                            <span class="color-3">
+                              {{#ifCond this.group.name '!=' null}}
+                                {{first ../this.group.title ../this.group.name}} /
+                              {{/ifCond}}
+                              {{#ifCond this.subgroup.name '!=' null}}
+                                {{first ../this.subgroup.title ../this.subgroup.name}} /
+                              {{/ifCond}}
+                              {{this.version}}
+                            </span>
+                          </span>
+                          {{#if this.deprecated}}
+                            {{#ifCond this.deprecated '!=' true}}
+                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
+                            {{/ifCond}}
+                          {{/if}}
+                        </a>
+                      </div>
+
+                      <!-- title:end -->
+
+                      <div class="section left-padded color-2">{{markdown (join this.description true)}}</div>
+
+                      <div data-block-hint="{{block.familyId}}">
+
+                        <!-- usage example -->
+
+                        {{#if this.example.length}}
+{{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
+                        {{/if}}
+
+                        <!-- header -->
+
+                        {{#if this.header.length}}
+                          {{> contentParamGroupVariant groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
+                        {{/if}}
+
+                        {{#if this.headerValue.length}}
+                          {{> contentParamValueGroup group=this.headerValueGroup defaultName='headerValue'}}
+                        {{/if}}
+
+                        {{#if this.headerExample.length}}
+{{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                        {{/if}}
+
+                        <!-- param -->
+
+                        {{#if this.param.length}}
+                          {{> contentParamGroupVariant groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
+                        {{/if}}
+
+                        {{#if this.paramValue.length}}
+                          {{> contentParamValueGroup group=this.paramValueGroup defaultName='parameterValue'}}
+                        {{/if}}
+
+                        {{#if this.paramExample.length}}
+{{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
+                        {{/if}}
+
+                        <!-- success -->
+
+                        {{#if this.success.length}}
+                          {{> contentParamGroupVariant groupVariant=this.successGroupVariant param=this.success defaultName='success200' color='color-green'}}
+                        {{/if}}
+
+                        {{#if this.successValue.length}}
+                          {{> contentParamValueGroup group=this.successValueGroup defaultName='successValue' color='color-green'}}
+                        {{/if}}
+
+                        {{#if this.successExample.length}}
+{{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                        {{/if}}
+
+                        <!-- error -->
+
+                        {{#if this.error.length}}
+                          {{> contentParamGroupVariant groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx' color='color-red'}}
+                        {{/if}}
+
+                        {{#if this.errorValue.length}}
+                          {{> contentParamValueGroup group=this.errorValueGroup defaultName='errorValue' color='color-red'}}
+                        {{/if}}
+
+                        {{#if this.errorExample.length}}
+{{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
+                        {{/if}}
+                      </div>
+                    </div>
+                  </div>
+                  {{/each}}
+                  <div class="splitter"></div>
+                </div>
+              {{/each}}
 
               <!-- apis -->
 
@@ -496,153 +643,6 @@
                   </div>
                   {{/each}}
                   <div class="splitter"></div>
-                </div>
-              {{/each}}
-
-              <!--
-              Notes
-              -->
-
-              {{#each this.notes}}
-                <div class="block" data-family="{{this.0.familyId}}">
-                  <div class="control-panel">
-                    <div class="width-40 flex" data-control-panel="{{this.0.familyId}}">
-                      <div class="flex-1">
-                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-selector>
-                          {{#each this}}
-                            <option value="{{this.version}}">{{this.version}}</option>
-                          {{/each}}
-                        </select>
-                      </div>
-                      <div class="flex-1">
-                        <select class="width-100 input flex-1 right color-blue" data-control-panel-version-compare-to-selector>
-                          <option value="null">{{_ 'compareTo'}}</option>
-                          {{#each this}}
-                            <option value="{{this.version}}">{{this.version}}</option>
-                          {{/each}}
-                        </select>
-                      </div>
-                      <div class="flex-1">
-                        <button class="width-100 control flex-1 color-blue" disabled>{{_ 'hideHints'}}</button>
-                      </div>
-                      <div class="flex-1"></div>
-                    </div>
-                  </div>
-                  {{#each this as |block index|}}
-                    {{#ifCond index '==' 0}}
-                      <a name="{{block.familyId}}"></a>
-                    {{/ifCond}}
-                  <div class="{{#ifCond index '!=' 0}}hidden{{/ifCond}}" data-block="{{block.id}}">
-                    <div class="control-panel">
-                      <div class="width-10 flex" data-block-control-panel="{{block.id}}">
-                        <div class="flex-1">
-                          <select class="width-100 input right color-blue" data-block-content-type disabled>
-                            {{#each block.contentType}}
-                              <option value="{{this}}">{{this}}</option>
-                            {{/each}}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="hidden" data-block-compare-to-diff-content></div>
-                    <div data-block-compare-to-content>
-
-                      <!-- title -->
-
-                      <div class="section left-padded color-1 font-size-1 bold">
-                        <a class="section-title color-blue" href="#{{block.familyId}}">
-                          <span class="{{#if this.deprecated}}line-through{{/if}}">
-                            {{this.title}}
-                            <span class="color-3">
-                              {{#ifCond this.group.name '!=' null}}
-                                {{first ../this.group.title ../this.group.name}} /
-                              {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' null}}
-                                {{first ../this.subgroup.title ../this.subgroup.name}} /
-                              {{/ifCond}}
-                              {{this.version}}
-                            </span>
-                          </span>
-                          {{#if this.deprecated}}
-                            {{#ifCond this.deprecated '!=' true}}
-                              <span class="left-padded color-red small sup">{{../this.deprecated}}</span>
-                            {{/ifCond}}
-                          {{/if}}
-                        </a>
-                      </div>
-
-                      <!-- title:end -->
-
-                      <div class="section left-padded color-2">{{toHtml (join this.description true)}}</div>
-
-                      <div data-block-hint="{{block.familyId}}">
-
-                        <!-- usage example -->
-
-                        {{#if this.example.length}}
-{{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
-                        {{/if}}
-
-                        <!-- header -->
-
-                        {{#if this.header.length}}
-                          {{> contentParamGroupVariant groupVariant=this.headerGroupVariant param=this.header defaultName='header'}}
-                        {{/if}}
-
-                        {{#if this.headerValue.length}}
-                          {{> contentParamValueGroup group=this.headerValueGroup defaultName='headerValue'}}
-                        {{/if}}
-
-                        {{#if this.headerExample.length}}
-{{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
-                        {{/if}}
-
-                        <!-- param -->
-
-                        {{#if this.param.length}}
-                          {{> contentParamGroupVariant groupVariant=this.paramGroupVariant param=this.param defaultName='parameter'}}
-                        {{/if}}
-
-                        {{#if this.paramValue.length}}
-                          {{> contentParamValueGroup group=this.paramValueGroup defaultName='parameterValue'}}
-                        {{/if}}
-
-                        {{#if this.paramExample.length}}
-{{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
-                        {{/if}}
-
-                        <!-- success -->
-
-                        {{#if this.success.length}}
-                          {{> contentParamGroupVariant groupVariant=this.successGroupVariant param=this.success defaultName='success200' color='color-green'}}
-                        {{/if}}
-
-                        {{#if this.successValue.length}}
-                          {{> contentParamValueGroup group=this.successValueGroup defaultName='successValue' color='color-green'}}
-                        {{/if}}
-
-                        {{#if this.successExample.length}}
-{{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
-                        {{/if}}
-
-                        <!-- error -->
-
-                        {{#if this.error.length}}
-                          {{> contentParamGroupVariant groupVariant=this.errorGroupVariant param=this.error defaultName='error4xx' color='color-red'}}
-                        {{/if}}
-
-                        {{#if this.errorValue.length}}
-                          {{> contentParamValueGroup group=this.errorValueGroup defaultName='errorValue' color='color-red'}}
-                        {{/if}}
-
-                        {{#if this.errorExample.length}}
-{{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
-                        {{/if}}
-                      </div>
-                    </div>
-                  </div>
-                  {{/each}}
-                  <hr class="splitter">
                 </div>
               {{/each}}
             {{/each}}

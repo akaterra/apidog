@@ -201,10 +201,6 @@ function generateSections(blocks, definitions, config) {
       block.subgroup = {description: [], name: null, title: null};
     }
 
-    if (!block.version) {
-      block.version = '0.0.1';
-    }
-
     if (!block.title && !block.note) {
       block.title = block.api.endpoint;
     }
@@ -235,12 +231,16 @@ function generateSections(blocks, definitions, config) {
       block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
     }
 
-    block.visualId = `${getDef(block.chapter.name)}___${getDef(block.group.name)}___${getDef(block.subgroup.name)}___${block.title}___${block.version}`;
+    block.visualId = `${getDef(block.chapter.name ?? '!')}___${getDef(block.group.name ?? '!')}___${getDef(block.subgroup.name ?? '!')}___${block.title}___${block.version}`;
 
     if (block.validate) {
       for (const validate of block.validate) {
         blocks[index] = validate(block, config);
       }
+    }
+
+    if (!block.version) {
+      block.version = '0.0.1';
     }
   });
 

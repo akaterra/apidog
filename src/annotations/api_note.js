@@ -12,6 +12,7 @@ function parse(block, text, line, index, lines, definitions) {
   block.description = definitions[text] ? definitions[text].description : [];
   block.name = text;
   block.note = block.title = definitions[text] ? definitions[text].title : text;
+  block.addValidateAfter(validate);
 
   return block;
 }
@@ -24,7 +25,16 @@ function toApidocString(block) {
   return null;
 }
 
+function validate(block, config) {
+  if (!block.version && config.version) {
+    block.version = config.version;
+  }
+
+  return block;
+}
+
 module.exports = {
   parse,
   toApidocString,
+  validate,
 };
