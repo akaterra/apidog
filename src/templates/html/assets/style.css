@@ -45,8 +45,14 @@ ins.diffmod, .diffins {
 
 .container {
   margin: 0 auto;
-  max-width: 85%;
-  min-width: 800px;
+  padding-left: 10rem;
+  padding-right: 10rem;
+}
+
+@media screen and (max-width: 1000px) {
+  .container {
+    padding: 0;
+  }
 }
 
 .sub-container {

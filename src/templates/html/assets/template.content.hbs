@@ -67,14 +67,14 @@
             <div class="menu-group">
               {{#ifCond this.title '!=' 'null'}}
                 {{#with (context 'definitions') as |definitions|}}
-                  <a class="bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
+                  <a class="left-padded bold menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                 {{/with}}
               {{/ifCond}}
               {{#each this.subgroups}}
                 <div class="menu-subgroup">
                   {{#ifCond this.title '!=' 'null'}}
                     {{#with (context 'definitions') as |definitions|}}
-                      <a class="bold smaller menu-subgroup__header menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
+                      <a class="left-padded bold smaller menu-subgroup__header menu-item" href="#{{../../this.id}}">{{first (lookup definitions ../../this.title 'title') ../../this.title}}</a>
                     {{/with}}
                   {{/ifCond}}
                   {{#each this.notes}}

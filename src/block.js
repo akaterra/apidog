@@ -8,6 +8,8 @@ class Block {
   addToApidocString(fn) {
     if (!this._toApidocStringFns) {
       this._toApidocStringFns = [];
+    } else if (this._toApidocStringFns.includes(fn)) {
+      return this;
     }
 
     this._toApidocStringFns.push(fn);
