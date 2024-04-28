@@ -26,6 +26,8 @@ module.exports = (config) => ({
       paths: {},
     };
 
+    const tags = {};
+
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
       if (descriptor.note) {
         spec.info.description += `\n\n# ${descriptor.title}`;
@@ -65,18 +67,34 @@ module.exports = (config) => ({
               descriptor.success[-1] = descriptor.successRoot[0];
               schema = parserUtils.convertParamGroupVariantToJsonSchema({
                 $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-              }, descriptor.success).properties.$;
+              }, descriptor.success)?.properties?.$;
             } else {
               schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
             }
 
             responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
-              content: {
+              content: schema ? {
                 '*/*': {
                   schema,
                 },
-              },
+              } : undefined,
+            };
+          });
+        } else if (descriptor.successRootGroupVariant) {
+          Object.entries(descriptor.successRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            const success = [ descriptor.successRoot[0] ];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema({
+              $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
+            }, success)?.properties?.$;
+
+            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+              description: 'No description',
+              content: schema ? {
+                '*/*': {
+                  schema,
+                },
+              } : undefined,
             };
           });
         }
@@ -89,18 +107,34 @@ module.exports = (config) => ({
               descriptor.error[-1] = descriptor.errorRoot[0];
               schema = parserUtils.convertParamGroupVariantToJsonSchema({
                 $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-              }, descriptor.error).properties.$;
+              }, descriptor.error)?.properties?.$;
             } else {
               schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
             }
             
             responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
               description: 'No description',
-              content: {
+              content: schema ? {
                 '*/*': {
                   schema,
                 },
-              },
+              } : undefined,
+            };
+          });
+        } else if (descriptor.errorRootGroupVariant) {
+          Object.entries(descriptor.errorRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+            const error = [ descriptor.errorRoot[0] ];
+            schema = parserUtils.convertParamGroupVariantToJsonSchema({
+              $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
+            }, error)?.properties?.$;
+  
+            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+              description: 'No description',
+              content: schema ? {
+                '*/*': {
+                  schema,
+                },
+              } : undefined,
             };
           });
         }
@@ -118,6 +152,24 @@ module.exports = (config) => ({
 
       if (descriptor.description) {
         methodDescriptor.description = descriptor.description.join('\n');
+      }
+
+      if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
+        methodDescriptor.tags = [];
+
+        if (descriptor.subgroup?.title) {
+          const name = [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / ');
+          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n') };
+          methodDescriptor.tags.push(name);
+        } else if (descriptor.group?.title) {
+          const name = [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / ');
+          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n') };
+          methodDescriptor.tags.push(name);
+        } else if (descriptor.chapter?.title) {
+          const name = descriptor.chapter.title;
+          tags[name] = { name, description: descriptor.chapter.description.join('\n') };
+          methodDescriptor.tags.push(name);
+        }
       }
 
       if (Object.keys(descriptor.authHeaderGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
@@ -365,6 +417,8 @@ module.exports = (config) => ({
         }
       }
     });
+
+    spec.tags = Object.values(tags);
 
     const content = JSON.stringify(spec, undefined, 2);
 

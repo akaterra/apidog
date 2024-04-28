@@ -52,6 +52,8 @@ module.exports = (config) => ({
       defaultContentType: 'application/json',
     };
 
+    const tags = {};
+
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
       if (descriptor.note) {
         spec.info.description += `\n\n# ${descriptor.title}`;
@@ -95,6 +97,24 @@ module.exports = (config) => ({
 
       if (descriptor.description) {
         channelDescriptor.description = descriptor.description.join('\n');
+      }
+
+      if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
+        channelDescriptor.tags = [];
+
+        if (descriptor.subgroup?.title) {
+          const name = [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / ');
+          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n') };
+          channelDescriptor.tags.push(name);
+        } else if (descriptor.group?.title) {
+          const name = [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / ');
+          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n') };
+          channelDescriptor.tags.push(name);
+        } else if (descriptor.chapter?.title) {
+          const name = descriptor.chapter.title;
+          tags[name] = { name, description: descriptor.chapter.description.join('\n') };
+          channelDescriptor.tags.push(name);
+        }
       }
 
       channelDescriptor.bindings = transportProtocolConfig.bindings;
@@ -351,6 +371,8 @@ module.exports = (config) => ({
       //   }
       // }
     });
+
+    spec.tags = Object.values(tags);
 
     const content = JSON.stringify(spec, undefined, 2);
 

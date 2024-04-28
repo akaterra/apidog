@@ -119,7 +119,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     const oneOf = propVariants.map((propVariant) => {
       const param = paramDescriptors[propVariant.list[0]];
 
-      if (!param) {
+      if (!param || param.type?.modifiers?.undefined) {
         return;
       }
 
@@ -137,7 +137,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       let paramJsonSchemaRef = paramJsonSchema;
 
-      if (param.type.modifiers.list) {
+      if (param.type?.modifiers?.list) {
         for (let i = 0; i < param.type.modifiers.list; i += 1) {
           paramJsonSchemaRef.type = 'array';
           paramJsonSchemaRef.items = {
@@ -149,7 +149,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         }
       }
 
-      let paramType = param.type.modifiers.initial.toLowerCase();
+      let paramType = param.type?.modifiers?.initial?.toLowerCase();
 
       if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
         Object.assign(paramJsonSchemaRef, convertParamTypeToJsonSchema(paramType));
@@ -159,13 +159,13 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       if (paramType === 'object') {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
       } else {
-        if (param.type.allowedValues && param.type.allowedValues.length) {
+        if (param.type?.allowedValues?.length) {
           paramJsonSchemaRef.enum = PARAM_VALUE_BY_TYPE[paramType]
             ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
             : param.type.allowedValues;
         }
 
-        paramJsonSchemaRef.type = param.type.modifiers.nullable ? [paramType, null] : paramType;
+        paramJsonSchemaRef.type = param.type?.modifiers?.nullable ? [paramType, null] : paramType;
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
@@ -287,11 +287,19 @@ function convertParamsToJsonSchema(params) {
 
 function removeEmptyRequiredAndProperties(jsonSchema) {
   if (jsonSchema.properties) {
-    Object.values(jsonSchema.properties).forEach(removeEmptyRequiredAndProperties);
+    Object.entries(jsonSchema.properties).forEach(([ key, val ]) => {
+      if (removeEmptyRequiredAndProperties(val) === undefined) {
+        delete jsonSchema.properties[key];
+      }
+    });
   }
 
   if (jsonSchema.items) {
-    removeEmptyRequiredAndProperties(jsonSchema.items);
+    jsonSchema.items = removeEmptyRequiredAndProperties(jsonSchema.items);
+  }
+
+  if (jsonSchema.items && Object.keys(jsonSchema.items).length === 0) {
+    delete jsonSchema.items;
   }
 
   if (jsonSchema.required && jsonSchema.required.length === 0) {
@@ -302,7 +310,11 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
     delete jsonSchema.properties;
   }
 
-  return jsonSchema;
+  if (jsonSchema.oneOf && !jsonSchema.oneOf.length) {
+    delete jsonSchema.oneOf;
+  }
+
+  return Object.keys(jsonSchema).length === 0 ? undefined : jsonSchema;
 }
 
 function addUriDefaultScheme(uri) {
