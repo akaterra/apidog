@@ -6,6 +6,7 @@ const utils = require('../utils');
 
 function parse(block, text) {
   block.ignore = text || true;
+  block.addToApidocString(toApidocString);
 
   return block;
 }

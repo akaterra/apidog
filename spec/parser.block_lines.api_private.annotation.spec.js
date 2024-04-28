@@ -7,9 +7,9 @@ describe('parser.block_lines parseBlockLines @apiPrivate annotation', () => {
       '@apiPrivate d,e,f',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       private: ['a', 'b', 'c', 'd', 'e', 'f'],
-    }));
+    })));
   });
 
   it('should parse as global', () => {
@@ -17,8 +17,8 @@ describe('parser.block_lines parseBlockLines @apiPrivate annotation', () => {
       '@apiPrivate',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       private: true,
-    }));
+    })));
   });
 });

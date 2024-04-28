@@ -140,6 +140,8 @@ function construct(name, usePrefix) {
       block[annotationGroupVariantsName][group || null].isTyped = true;
     }
 
+    block.addToApidocString(toApidocString);
+
     return block;
   }
 

@@ -47,6 +47,8 @@ function construct(name) {
       block.contentType.push(blockExample.type);
     }
 
+    block.addToApidocString(toApidocString);
+
     return block;
   }
 

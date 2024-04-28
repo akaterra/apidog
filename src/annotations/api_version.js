@@ -10,6 +10,7 @@ function parse(block, text) {
   }
 
   block.version = text;
+  block.addToApidocString(toApidocString);
 
   return block;
 }

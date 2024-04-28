@@ -42,6 +42,8 @@ function parse(block, text) {
     block.validate.push(validate);
   }
 
+  block.addToApidocString(toApidocString);
+
   return block;
 }
 

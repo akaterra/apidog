@@ -9,7 +9,7 @@ describe('parser.block_lines parseBlockLines @apiErrorExample annotation', () =>
       '@apiErrorExample {type} This is a title', 'A', 'B',
     ];
 
-    expect(parser.parseBlockLines(lines, {})).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines, {})).toEqual(jasmine.objectContaining(new parser.Block({
       contentType: ['form', 'type'],
       errorExample: [{
         description: [],
@@ -28,6 +28,6 @@ describe('parser.block_lines parseBlockLines @apiErrorExample annotation', () =>
         title: 'This is a title',
         type: 'type',
       }],
-    }));
+    })));
   });
 });

@@ -10,6 +10,7 @@ describe('proxy redis', () => {
     env = {
       $response: response,
       $redisHandlers: {},
+      $redisSubscriptions: {},
       redis: {
         $setResponse(response) {
           env.$response = response;
@@ -17,8 +18,8 @@ describe('proxy redis', () => {
           return env;
         },
         $publish(channel, message) {
-          if (env.$redisHandlers.message && (!env.$redisSubscribe || env.$redisSubscribe.channel === channel)) {
-            env.$redisHandlers.message(channel, message);
+          if (env.$redisSubscriptions[channel]) {
+            env.$redisSubscriptions[channel](message);
           }
 
           return env;
@@ -26,14 +27,17 @@ describe('proxy redis', () => {
         createClient(uri) {
           env.$redisClient = {
             uri,
+            connect() {
+              return env.$redisClient;
+            },
             on(event, fn) {
               env.$redisHandlers[event] = fn;
             },
             publish(channel, message) {
               env.$redisPublish = {channel, message};
             },
-            subscribe(channel) {
-              env.$redisSubscribe = {channel};
+            subscribe(channel, fn) {
+              env.$redisSubscriptions[channel] = fn;
             },
           }
 

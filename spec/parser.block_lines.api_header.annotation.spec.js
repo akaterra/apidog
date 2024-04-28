@@ -19,7 +19,7 @@ describe('parser.block_lines parseBlockLines @apiHeader', () => {
       '@apiHeader (isNotTyped) A_B.C This is a description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       header: [{ // 0
         description: [],
         field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
@@ -247,6 +247,6 @@ describe('parser.block_lines parseBlockLines @apiHeader', () => {
           }
         }
       },
-    }));
+    })));
   });
 });

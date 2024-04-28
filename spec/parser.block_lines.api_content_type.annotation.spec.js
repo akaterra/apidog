@@ -7,9 +7,9 @@ describe('parser.block_lines parseBlockLines @apiContentType annotation', () => 
       '@apiContentType contentType2,contentType3',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       contentType: ['contentType1', 'contentType2', 'contentType3'],
-    }));
+    })));
   });
 
   it('should raise error on malformed definition', () => {

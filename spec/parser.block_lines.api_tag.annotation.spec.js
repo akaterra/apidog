@@ -7,9 +7,9 @@ describe('parser.block_lines parseBlockLines @apiTag annotation', () => {
       '@apiTag tag2,tag3',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       tag: ['tag1', 'tag2', 'tag3'],
-    }));
+    })));
   });
 
   it('should raise error on malformed definition', () => {

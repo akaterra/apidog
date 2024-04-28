@@ -97,48 +97,12 @@ function construct(name, usePrefix) {
       block[annotationGroupVariantsName][group] = { isTyped: false, prop: {} };
     }
 
-    // if (blockParam.field) {
-    //   let root = block[annotationGroupVariantsName][group].prop;
-
-    //   utils.forEach(utils.strSplitByEscaped(blockParam.field.name), (key, ind, isLast) => {
-    //     const keysExtra = [];
-    //     const keys = [key.replace(/(\[(\d*)\])+$/g, (_1, _2, keyMatch) => {
-    //       keysExtra.push(keyMatch);
-
-    //       return '';
-    //     })].concat(keysExtra);
-    //     const keysRoot = root;
-
-    //     utils.forEach(keys, (subKey, subInd, subIsLast) => {
-    //       if (!root[subKey]) {
-    //         root[subKey] = [];
-    //       }
-
-    //       if ((isLast && subIsLast) || root[subKey].length === 0) {
-    //         // last pushed param descriptor
-    //         const list = [ block[annotationName].length - 1 ];
-
-    //         // parent is not null when key is not last therefore has no its own param descriptor (list[0])
-    //         const parent = isLast && subIsLast
-    //           ? null
-    //           : list[0];
-
-    //         const variant = { list, parent, prop: {} };
-
-    //         root[subKey].push(variant);
-
-    //         root = variant.prop;
-    //       } else {
-    //         root = root[subKey][root[subKey].length - 1].prop;
-    //       }
-    //     });
-    //   });
-    // }
-
     if (type) {
       block[annotationGroupName][group || null].isTyped = true; // @deprecated
       block[annotationGroupVariantsName][group || null].isTyped = true;
     }
+
+    block.addToApidocString(toApidocString);
 
     return block;
   }

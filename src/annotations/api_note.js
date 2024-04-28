@@ -12,7 +12,7 @@ function parse(block, text, line, index, lines, definitions) {
   block.description = definitions[text] ? definitions[text].description : [];
   block.name = text;
   block.note = block.title = definitions[text] ? definitions[text].title : text;
-  block.addValidateAfter(validate);
+  block.addValidateAfter(validate).addToApidocString(toApidocString);
 
   return block;
 }

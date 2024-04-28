@@ -359,6 +359,8 @@ function validate(block, config) {
     block.version = config.version;
   }
 
+  block.addToApidocString(toApidocString);
+
   return block;
 }
 

@@ -31,15 +31,8 @@ function parse(block, text, line, index, lines, definitions) {
   blockDefine.name = tokens[1];
   blockDefine.title = tokens[3] || null;
 
-  // if (!block.description) {
-  //   block.description = blockDefine.description;
-  // }
-  //
-  // if (!block.title) {
-  //   block.title = blockDefine.title;
-  // }
-
   definitions[tokens[1]] = blockDefine;
+  block.addToApidocString(toApidocString);
 
   return block;
 }

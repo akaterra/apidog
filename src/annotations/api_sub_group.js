@@ -14,6 +14,7 @@ function parse(block, text, line, index, lines, definitions) {
     name: text,
     title: definitions[text] ? definitions[text].title : null,
   };
+  block.addToApidocString(toApidocString);
 
   return block;
 }

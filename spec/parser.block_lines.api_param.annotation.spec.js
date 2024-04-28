@@ -21,7 +21,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam [A_B[D]] This is a description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       param: [{ // 0
         description: [],
         field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
@@ -275,7 +275,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
           }
         }
       }
-    }));
+    })));
   });
 
   it('should parse multiple params prefixed by @apiParamPrefix', () => {

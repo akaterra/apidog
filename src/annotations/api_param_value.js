@@ -68,6 +68,7 @@ function construct(name) {
     }
 
     block[annotationGroupName][group || '$'].push(blockParam);
+    block.addToApidocString(toApidocString);
 
     return block;
   }

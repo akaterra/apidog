@@ -15,6 +15,8 @@ function parse(block, text) {
     block.private = true;
   }
 
+  block.addToApidocString(toApidocString);
+
   return block;
 }
 

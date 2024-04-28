@@ -14,6 +14,7 @@ function parse(block, text) {
   }
 
   block.contentType = block.contentType.concat(utils.strSplitByComma(text));
+  block.addToApidocString(toApidocString);
 
   return block;
 }

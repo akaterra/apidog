@@ -13,30 +13,27 @@ describe('parse.dir parseApidoc', () => {
       '@api {test} url3\n'
     );
 
-    expect(blocks).toEqual([new Block({
+    expect(blocks).toEqual([jasmine.objectContaining(new Block({
       api: {
         endpoint: 'url1',
         title: null,
         transport: {name: 'test'},
       },
       title: null,
-      validate: blocks[0].validate,
-    }), new Block({
+    })), jasmine.objectContaining(new Block({
       api: {
         endpoint: 'url2',
         title: null,
         transport: {name: 'test'},
       },
       title: null,
-      validate: blocks[1].validate,
-    }), new Block({
+    })), jasmine.objectContaining(new Block({
       api: {
         endpoint: 'url3',
         title: null,
         transport: {name: 'test'},
       },
       title: null,
-      validate: blocks[2].validate,
-    })]);
+    }))]);
   });
 });

@@ -6,9 +6,9 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestProxy annotation',
       '@apiSampleRequestProxy 0.0.0.0',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       sampleRequestProxy: '0.0.0.0',
-    }));
+    })));
   });
 
   it('should parse', () => {
@@ -16,9 +16,9 @@ describe('parser.block_lines parseBlockLines @apiSampleRequestProxy annotation',
       '@apiSrProxy 0.0.0.0',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       sampleRequestProxy: '0.0.0.0',
-    }));
+    })));
   });
 
   it('should raise error on malformed definition', () => {

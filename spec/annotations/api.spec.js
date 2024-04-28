@@ -1,4 +1,5 @@
 const parser = require('../../src/annotations/api');
+const {Block} = require('../../src/block');
 const Logger = require('../../src/utils').Logger;
 
 describe('@api annotation validate', () => {
@@ -6,14 +7,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for http', () => {
     it('should set sample request url from full endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'http://endpoint',
           transport: {
             name: 'http',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -26,14 +27,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'http',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -46,14 +47,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: '/endpoint',
           transport: {
             name: 'http',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -66,14 +67,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from full sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'http',
           },
         },
         sampleRequest: ['http://endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -86,14 +87,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'http',
           },
         },
         sampleRequest: ['endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -106,14 +107,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'http',
           },
         },
         sampleRequest: ['/endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -126,14 +127,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'http',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -146,14 +147,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (http)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'http',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -168,14 +169,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for https', () => {
     it('should set sample request url from full endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'https://endpoint',
           transport: {
             name: 'https',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -188,14 +189,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'https',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -208,14 +209,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: '/endpoint',
           transport: {
             name: 'https',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -228,14 +229,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from full sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'https',
           },
         },
         sampleRequest: ['https://endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -248,14 +249,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'https',
           },
         },
         sampleRequest: ['endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -268,14 +269,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'https',
           },
         },
         sampleRequest: ['/endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -288,14 +289,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'https',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'https://localhost',
@@ -308,14 +309,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (https)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'https',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -330,14 +331,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for nats pub', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'natspub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -350,14 +351,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyNats)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'natspub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -372,14 +373,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for nats rpc', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'natsrpc',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -392,14 +393,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyNatsPub)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'natsrpc',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -414,14 +415,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for rabbitmq pub', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'rabbitmqpub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -434,14 +435,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyRabbitmq)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'rabbitmqpub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -456,14 +457,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for redis pub', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'redispub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -476,14 +477,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyRedis)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'redispub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -498,14 +499,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for redis sub', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'redissub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -518,14 +519,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyRedisPub)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'redissub',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -540,14 +541,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrl for rabbitmq rpc', () => {
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'rabbitmqrpc',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -560,14 +561,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyRabbitmq)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'rabbitmqrpc',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrl: 'http://localhost',
@@ -582,14 +583,14 @@ describe('@api annotation validate', () => {
 
   describe('when with provided config.sampleRequestUrlWs for websocket', () => {
     it('should set sample request url from full endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'ws://endpoint',
           transport: {
             name: 'ws',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -602,14 +603,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'ws',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -622,14 +623,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial endpoint (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: '/endpoint',
           transport: {
             name: 'ws',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -642,14 +643,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from full sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'ws',
           },
         },
         sampleRequest: ['ws://endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -662,14 +663,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'ws',
           },
         },
         sampleRequest: ['endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -682,14 +683,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request url from partial sample request url defined by param (with slash)', () => {
-      const block = {
+      const block = new Block({
         api: {
           transport: {
             name: 'ws',
           },
         },
         sampleRequest: ['/endpoint'],
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -702,14 +703,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'ws',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',
@@ -722,14 +723,14 @@ describe('@api annotation validate', () => {
     });
 
     it('should set sample request proxy (sampleRequestProxyWs)', () => {
-      const block = {
+      const block = new Block({
         api: {
           endpoint: 'endpoint',
           transport: {
             name: 'websocket',
           },
         },
-      };
+      });
       const config = {
         logger,
         sampleRequestUrlWs: 'http://localhost',

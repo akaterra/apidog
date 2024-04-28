@@ -6,13 +6,13 @@ describe('parser.block_lines parseBlockLines @apiChapter annotation', () => {
       '@apiChapter chapter',
     ];
 
-    expect(parser.parseBlockLines(lines, {})).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines, {})).toEqual(jasmine.objectContaining(new parser.Block({
       chapter: {
         description: [],
         name: 'chapter',
         title: null,
       },
-    }));
+    })));
   });
 
   it('should parse with description and title of definition (declared by @apiDefine)', () => {
@@ -20,13 +20,13 @@ describe('parser.block_lines parseBlockLines @apiChapter annotation', () => {
       '@apiChapter chapter',
     ];
 
-    expect(parser.parseBlockLines(lines, {chapter: {description: ['description'], title: 'title'}})).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines, {chapter: {description: ['description'], title: 'title'}})).toEqual(jasmine.objectContaining(new parser.Block({
       chapter: {
         description: ['description'],
         name: 'chapter',
         title: 'title',
       },
-    }));
+    })));
   });
 
   it('should raise error on malformed definition', () => {

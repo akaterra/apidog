@@ -10,6 +10,7 @@ function parse(block, text) {
   }
 
   block.family = text;
+  block.addToApidocString(toApidocString);
 
   return block;
 }

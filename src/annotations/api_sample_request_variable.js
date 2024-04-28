@@ -45,6 +45,7 @@ function parse(block, text) {
   blockSrVariable.field = field;
   blockSrVariable.ns = ns;
   blockSrVariable.responsePath = responsePath;
+  block.addToApidocString(toApidocString);
 
   return block;
 }

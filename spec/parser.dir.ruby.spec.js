@@ -9,14 +9,13 @@ describe('parse.dir parseRuby', () => {
       '=end'
     );
 
-    expect(blocks).toEqual([new Block({
+    expect(blocks).toEqual([jasmine.objectContaining(new Block({
       api: {
         endpoint: 'url',
         title: null,
         transport: {name: 'test'},
       },
       title: null,
-      validate: blocks[0].validate,
-    })]);
+    }))]);
   });
 });

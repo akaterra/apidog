@@ -9,15 +9,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(block).toEqual(new parser.Block({
+    expect(block).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: '/url',
         title: 'This is a title',
         transport: {name: 'http', method: 'get'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should parse nats pub transport', () => {
@@ -27,15 +26,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'natspub'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should parse nats rpc transport', () => {
@@ -45,15 +43,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'natsrpc'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should parse rabbitmq pub transport with exchange', () => {
@@ -63,15 +60,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'rabbitmqpub', exchange: 'exchange'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should parse rabbitmq rpc transport with exchange', () => {
@@ -81,15 +77,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'rabbitmqrpc', exchange: 'exchange'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should parse socket io transport', () => {
@@ -99,15 +94,14 @@ describe('parser.block_lines parseBlockLines @api annotation', () => {
 
     const block = parser.parseBlockLines(lines);
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       api: {
         endpoint: 'url',
         title: 'This is a title',
         transport: {name: 'socketio'},
       },
       title: 'This is a title',
-      validate: block.validate,
-    }));
+    })));
   });
 
   it('should raise error on malformed', () => {

@@ -6,9 +6,9 @@ describe('parser.block_lines parseBlockLines @apiVersion annotation', () => {
       '@apiVersion 1.2.3',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(new parser.Block({
+    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       version: '1.2.3',
-    }));
+    })));
   });
 
   it('should raise error on malformed definition', () => {
