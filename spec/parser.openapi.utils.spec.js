@@ -1,7 +1,7 @@
 const parserOpenAPIUtils = require('../src/parser.openapi.1.2.utils');
 
-describe('parser.openapi.1.2.utils enumUriPlaceholders', () => {
-  it('should enum', () => {
+describe('parser.openapi.1.2.utils', () => {
+  it('should do enumUriPlaceholders', () => {
     const placeholders = {};
 
     parserOpenAPIUtils.enumUriPlaceholders('schema://uri/{a}/{b}?c={c}&d={d}', (placeholder, isInQuery) => {

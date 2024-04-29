@@ -76,12 +76,14 @@ const PARAM_STRING_FORMAT_BY_TYPE = {
   natural: { type: 'integer', minimum: 1 },
   negativeInteger: { type: 'integer', maximum: -1 },
   positiveInteger: { type: 'integer', minimum: 0 },
+  password: { type: 'string', format: 'password' },
   time: true,
   uri: true,
   uuid: true,
 };
 const PARAM_VALUE_BY_TYPE = {
   boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
+  integer: (value) => parseInt(value),
   number: (value) => parseFloat(value),
 };
 

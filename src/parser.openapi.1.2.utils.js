@@ -1,285 +1,346 @@
 const fs = require('fs');
+const get = require('lodash.get');
+const Ajv = require('ajv-draft-04');
+const addFormats = require('ajv-formats');
+const { Block } = require('./block');
+const parserJsonschemaUtils = require('./parser.jsonschema.utils');
 
-function convert(spec) {
-  const docBlocks = [];
+const ajv = new Ajv();
+addFormats(ajv);
+const validate = ajv.compile(JSON.parse(fs.readFileSync('./src/assets/json-schema.3.0.json', 'utf8')));
 
-  validate(spec);
+function convert(spec, config) {
+  const blocks = [];
 
-  for (const api of spec.apis) {
-    resolveApi(spec, api, docBlocks);
+  if (!validate(spec)) {
+    throwError(validate.errors[0]);
   }
 
-  return docBlocks;
-}
+  if (spec.info && config) {
+    if (!config.title) {
+      config.title = spec.info.title;
+    }
 
-function resolveApi(spec, api, docBlocks, operations) {
-  if (!docBlocks) {
-    docBlocks = [];
+    if (!config.version) {
+      config.version = spec.info.version;
+    }
   }
 
-  for (const operation of operations || api.operations) {
-    const docBlock = [];
+  const usedVisualIds = new Set();
 
-    let apiUri = api.path.replace(/\{(\w+)}/g, (_, param) => `:${param}`);
+  Object.entries(spec.paths).forEach(([ path, pathSpec ]) => {
+    Object.entries(pathSpec).forEach(([ method, methodSpec ]) => {
+      const block = new Block();
 
-    docBlock.push(`@api {${operation.method.toLowerCase()}} ${apiUri} ${operation.summary || ''}`);
+      block.api = {
+        endpoint: path.replace(/\{(\w+)}/g, (_, param) => `:${param}`),
+        title: methodSpec.summary,
+        transport: { name: 'http', method },
+      };
 
-    if (spec.apiVersion) {
-      docBlock.push(`@apiVersion ${spec.apiVersion}`);
-    }
-
-    if (operation.deprecated) {
-      docBlock.push(`@apiDeprecated`);
-    }
-
-    // if (operation.nickname) {
-    //   docBlock.push(`@apiName ${operation.nickname}`);
-    // }
-
-    if (operation.notes) {
-      docBlock.push(`@apiDescription ${operation.notes}`);
-    }
-
-    for (const parameter of operation.parameters) {
-      switch (parameter.paramType) {
-        case 'body':
-          resolveModelByType(spec, '@apiParam', parameter.type, '', docBlock);
-
-          break;
-
-        case 'header':
-          docBlock.push(`@apiHeader {${resolveType(parameter.type, parameter.format)}} ${parameter.required ? '' : '['}${parameter.name}${parameter.required ? '' : ']'} ${parameter.description || ''}`);
-
-          break;
-
-        case 'form':
-        case 'path':
-        case 'query':
-          docBlock.push(`@apiParam {${resolveType(parameter.type, parameter.format)}} ${parameter.name} ${parameter.description || ''}`);
-
-          break;
-
-        default:
-          throwError();
+      if (usedVisualIds.has(methodSpec.operationId)) {
+        // TODO warn
+      } else {
+        block.visualId = methodSpec.operationId;
       }
-    }
 
-    docBlocks.push(docBlock);
-  }
+      if (methodSpec.parameters?.length) {
+        methodSpec.parameters.forEach((paramSpec) => {
+          const params = parserJsonschemaUtils.convert({
+            type: 'object',
+            require: paramSpec.required ? [ paramSpec.name ] : [],
+            description: paramSpec.description,
+            properties: { [paramSpec.name]: paramSpec.schema },
+          });
 
-  return docBlocks;
-}
+          if (paramSpec.in === 'query') {
+            block.query = params;
+          } else {
+            block.param = params;
+          }
+        });
+      }
 
-function resolveApiOperation(spec, operation, docBlock) {
-  if (!docBlock) {
-    docBlock = [];
-  }
+      if (methodSpec.responses) {
+        const success = [];
+        const error = [];
 
-  return docBlock;
-}
+        Object.entries(methodSpec.responses).forEach(([ responseCode, responseSpec ]) => {
+          if (responseCode[0] === '2' || responseCode.slice(0, 3).toLowerCase() === 'x-2') {
 
-function resolveModel(spec, annotation, model, prefix, docBlock) {
-  if (!docBlock) {
-    docBlock = [];
-  }
+          }
+        });
+      }
 
-  if (!prefix) {
-    prefix = '';
-  }
-
-  validateModel(spec, model);
-
-  Object.entries(model.properties).forEach(([key, val]) => {
-    const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
-
-    docBlock.push(`${annotation} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
+      blocks.push(block);
+    });
   });
 
-  return docBlock;
+  return blocks;
 }
 
-function resolveModelByType(spec, annotation, type, prefix, docBlock) {
-  if (!docBlock) {
-    docBlock = [];
-  }
+// function resolveApi(spec, api, docBlocks, operations) {
+//   if (!docBlocks) {
+//     docBlocks = [];
+//   }
 
-  if (!prefix) {
-    prefix = '';
-  }
+//   for (const operation of operations || api.operations) {
+//     const docBlock = [];
 
-  validateModelByType(spec, type);
+//     let apiUri = api.path.replace(/\{(\w+)}/g, (_, param) => `:${param}`);
 
-  if (type in spec.models) {
-    return resolveModel(spec, annotation, spec.models[type], prefix, docBlock);
-  }
+//     docBlock.push(`@api {${operation.method.toLowerCase()}} ${apiUri} ${operation.summary || ''}`);
 
-  throwError(`Model "${type}" is not defined`);
-}
+//     if (spec.apiVersion) {
+//       docBlock.push(`@apiVersion ${spec.apiVersion}`);
+//     }
 
-function resolveType(type, format) {
-  switch (type) {
-    case 'boolean':
-      return 'Boolean';
+//     if (operation.deprecated) {
+//       docBlock.push(`@apiDeprecated`);
+//     }
 
-    case 'integer':
-      return 'Number';
+//     // if (operation.nickname) {
+//     //   docBlock.push(`@apiName ${operation.nickname}`);
+//     // }
 
-    case 'string':
-      return format === 'date-time' ? 'Date' : 'String';
-  }
+//     if (operation.notes) {
+//       docBlock.push(`@apiDescription ${operation.notes}`);
+//     }
 
-  return 'String';
-}
+//     for (const parameter of operation.parameters) {
+//       switch (parameter.paramType) {
+//         case 'body':
+//           resolveModelByType(spec, '@apiParam', parameter.type, '', docBlock);
+
+//           break;
+
+//         case 'header':
+//           docBlock.push(`@apiHeader {${resolveType(parameter.type, parameter.format)}} ${parameter.required ? '' : '['}${parameter.name}${parameter.required ? '' : ']'} ${parameter.description || ''}`);
+
+//           break;
+
+//         case 'form':
+//         case 'path':
+//         case 'query':
+//           docBlock.push(`@apiParam {${resolveType(parameter.type, parameter.format)}} ${parameter.name} ${parameter.description || ''}`);
+
+//           break;
+
+//         default:
+//           throwError();
+//       }
+//     }
+
+//     docBlocks.push(docBlock);
+//   }
+
+//   return docBlocks;
+// }
+
+// function resolveApiOperation(spec, operation, docBlock) {
+//   if (!docBlock) {
+//     docBlock = [];
+//   }
+
+//   return docBlock;
+// }
+
+// function resolveModel(spec, annotation, model, prefix, docBlock) {
+//   if (!docBlock) {
+//     docBlock = [];
+//   }
+
+//   if (!prefix) {
+//     prefix = '';
+//   }
+
+//   validateModel(spec, model);
+
+//   Object.entries(model.properties).forEach(([key, val]) => {
+//     const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
+
+//     docBlock.push(`${annotation} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
+//   });
+
+//   return docBlock;
+// }
+
+// function resolveModelByType(spec, annotation, type, prefix, docBlock) {
+//   if (!docBlock) {
+//     docBlock = [];
+//   }
+
+//   if (!prefix) {
+//     prefix = '';
+//   }
+
+//   validateModelByType(spec, type);
+
+//   if (type in spec.models) {
+//     return resolveModel(spec, annotation, spec.models[type], prefix, docBlock);
+//   }
+
+//   throwError(`Model "${type}" is not defined`);
+// }
+
+// function resolveType(type, format) {
+//   switch (type) {
+//     case 'boolean':
+//       return 'Boolean';
+
+//     case 'integer':
+//       return 'Integer';
+
+//     case 'string':
+//       return format === 'date-time' ? 'Date' : 'String';
+//   }
+
+//   return 'String';
+// }
 
 function throwError(message) {
   throw new Error(`Malformed OpenAPI specification${message ? `: ${message}` : ''}`);
 }
 
-function validate(spec) {
-  if (!spec || typeof spec !== 'object') {
-    throwError();
-  }
+// function validate(spec) {
+//   if (!spec || typeof spec !== 'object') {
+//     throwError();
+//   }
 
-  if (!spec.apis || !Array.isArray(spec.apis)) {
-    throwError();
-  }
+//   if (typeof spec.openapi !== 'string' || !spec.openapi[0] === '3') {
+//     throwError();
+//   }
 
-  if (spec.apiVersion && typeof spec.apiVersion !== 'string') {
-    throwError();
-  }
+//   if (typeof spec.info?.version) {
+//     throwError();
+//   }
 
-  if (!spec.basePath || typeof spec.basePath !== 'string') {
-    throwError();
-  }
+//   if (!spec.paths || typeof spec.paths !== 'object') {
+//     throwError();
+//   }
 
-  if (!spec.resourcePath && typeof spec.basePath !== 'string') {
-    throwError();
-  }
+//   Object.values(spec.paths).forEach((pathSpec) => validateApi(spec, pathSpec));
 
-  for (const api of spec.apis) {
-    validateApi(spec, api);
-  }
+//   if (spec.componens && typeof spec.components) {
+//     if (!spec.models || typeof spec.models !== 'object') {
+//       throwError();
+//     }
 
-  if (spec.models) {
-    if (!spec.models || typeof spec.models !== 'object') {
-      throwError();
-    }
+//     Object.values(spec.models).forEach((model) => validateModel(spec, model));
+//   }
 
-    Object.values(spec.models).forEach((model) => validateModel(spec, model));
-  }
+//   return spec;
+// }
 
-  return spec;
-}
+// function validateApi(spec, api) {
+//   if (!api || typeof api !== 'object') {
+//     throwError();
+//   }
 
-function validateApi(spec, api) {
-  if (!api || typeof api !== 'object') {
-    throwError();
-  }
+//   if (typeof api.path !== 'string') {
+//     throwError();
+//   }
 
-  if (typeof api.path !== 'string') {
-    throwError();
-  }
+//   if (!Array.isArray(api.operations)) {
+//     throwError();
+//   }
 
-  if (!Array.isArray(api.operations)) {
-    throwError();
-  }
+//   for (const operation of api.operations) {
+//     if (typeof operation.method !== 'string') {
+//       throwError();
+//     }
 
-  for (const operation of api.operations) {
-    if (typeof operation.method !== 'string') {
-      throwError();
-    }
+//     if (operation.nickname && typeof operation.nickname !== 'string') {
+//       throwError();
+//     }
 
-    if (operation.nickname && typeof operation.nickname !== 'string') {
-      throwError();
-    }
+//     if (typeof operation.notes !== 'string') {
+//       throwError();
+//     }
 
-    if (typeof operation.notes !== 'string') {
-      throwError();
-    }
+//     if (operation.summary && typeof operation.summary !== 'string') {
+//       throwError();
+//     }
 
-    if (operation.summary && typeof operation.summary !== 'string') {
-      throwError();
-    }
+//     if (!Array.isArray(operation.parameters)) {
+//       throwError();
+//     }
 
-    if (!Array.isArray(operation.parameters)) {
-      throwError();
-    }
+//     for (const parameter of operation.parameters) {
+//       if (!parameter || typeof parameter !== 'object') {
+//         throwError();
+//       }
 
-    for (const parameter of operation.parameters) {
-      if (!parameter || typeof parameter !== 'object') {
-        throwError();
-      }
+//       if (parameter.description && typeof parameter.description !== 'string') {
+//         throwError();
+//       }
 
-      if (parameter.description && typeof parameter.description !== 'string') {
-        throwError();
-      }
+//       if (typeof parameter.name !== 'string') {
+//         throwError();
+//       }
 
-      if (typeof parameter.name !== 'string') {
-        throwError();
-      }
+//       if (typeof parameter.paramType !== 'string') {
+//         throwError();
+//       }
 
-      if (typeof parameter.paramType !== 'string') {
-        throwError();
-      }
+//       if (parameter.required && typeof parameter.required !== 'boolean') {
+//         throwError();
+//       }
 
-      if (parameter.required && typeof parameter.required !== 'boolean') {
-        throwError();
-      }
+//       if (parameter.type && typeof parameter.type !== 'string') {
+//         throwError();
+//       }
+//     }
+//   }
 
-      if (parameter.type && typeof parameter.type !== 'string') {
-        throwError();
-      }
-    }
-  }
+//   return api;
+// }
 
-  return api;
-}
+// function validateModel(spec, model) {
+//   if (!model || typeof model !== 'object') {
+//     throwError();
+//   }
 
-function validateModel(spec, model) {
-  if (!model || typeof model !== 'object') {
-    throwError();
-  }
+//   if (!model.properties || typeof model.properties !== 'object') {
+//     throwError();
+//   }
 
-  if (!model.properties || typeof model.properties !== 'object') {
-    throwError();
-  }
+//   if (model.required && !Array.isArray(model.required)) {
+//     throwError();
+//   }
 
-  if (model.required && !Array.isArray(model.required)) {
-    throwError();
-  }
+//   Object.entries(model.properties).forEach(([key, val]) => {
+//     if (!val || typeof val !== 'object') {
+//       throwError();
+//     }
 
-  Object.entries(model.properties).forEach(([key, val]) => {
-    if (!val || typeof val !== 'object') {
-      throwError();
-    }
+//     if (val.description && typeof val.description !== 'string') {
+//       throwError();
+//     }
 
-    if (val.description && typeof val.description !== 'string') {
-      throwError();
-    }
+//     if (val.enum && !Array.isArray(val.enum)) {
+//       throwError();
+//     }
 
-    if (val.enum && !Array.isArray(val.enum)) {
-      throwError();
-    }
+//     if (val.enum) {
+//       for (const e of val.enum) {
+//         if (typeof e !== 'string') {
+//           throwError();
+//         }
+//       }
+//     }
+//   });
 
-    if (val.enum) {
-      for (const e of val.enum) {
-        if (typeof e !== 'string') {
-          throwError();
-        }
-      }
-    }
-  });
+//   return model;
+// }
 
-  return model;
-}
+// function validateModelByType(spec, type) {
+//   if (!spec.models || typeof spec.models !== 'object') {
+//     throwError();
+//   }
 
-function validateModelByType(spec, type) {
-  if (!spec.models || typeof spec.models !== 'object') {
-    throwError();
-  }
-
-  return validateModel(spec, spec.models[type]);
-}
+//   return validateModel(spec, spec.models[type]);
+// }
 
 function enumUriPlaceholders(uri, fn, acc) {
   const placeholderRegex = /(\{|\%7B)(\w+)(\}|\%7D)/g;
@@ -300,23 +361,89 @@ function enumUriPlaceholders(uri, fn, acc) {
   return acc;
 }
 
+const CURR_RESOLVING_PATHS = new Set();
+
+function normalizeRefs(spec, root) {
+  if (!root) {
+    root = spec;
+  }
+
+  if (spec && typeof spec === 'object' && typeof spec.$ref === 'string' && Object.keys(spec) === 1) {
+    const $ref = spec.$ref;
+
+    if (CURR_RESOLVING_PATHS.has($ref)) {
+      CURR_RESOLVING_PATHS.clear();
+
+      throw new Error('Circular reference');
+    }
+
+    CURR_RESOLVING_PATHS.add($ref);
+    spec = get(root, $ref.slice(2).replace(/\//g, '.'));
+    CURR_RESOLVING_PATHS.delete($ref);
+  }
+
+  if (Array.isArray(spec)) {
+    spec.forEach((val, i) => {
+      if (val && typeof val === 'object' && typeof val.$ref === 'string' && Object.keys(val).length === 1) {
+        const $ref = val.$ref;
+
+        if (CURR_RESOLVING_PATHS.has($ref)) {
+          CURR_RESOLVING_PATHS.clear();
+
+          throw new Error('Circular reference');
+        }
+
+        CURR_RESOLVING_PATHS.add($ref);
+        spec[i] = val = get(root, $ref.slice(2).replace(/\//g, '.'));
+        CURR_RESOLVING_PATHS.delete($ref);
+      }
+
+      spec[i] = normalizeRefs(val, root);
+    });
+  } else if (spec && typeof spec === 'object') {
+    Object.entries(spec).forEach(([ key, val ]) => {
+      if (val && typeof val === 'object' && typeof val.$ref === 'string' && Object.keys(val).length === 1) {
+        const $ref = val.$ref;
+
+        if (CURR_RESOLVING_PATHS.has($ref)) {
+          CURR_RESOLVING_PATHS.clear();
+
+          throw new Error('Circular reference');
+        }
+
+        CURR_RESOLVING_PATHS.add($ref);
+        val = get(root, $ref.slice(2).replace(/\//g, '.'));
+        CURR_RESOLVING_PATHS.delete($ref);
+      }
+      
+      spec[key] = normalizeRefs(val, root);
+    });
+  }
+
+  return spec;
+}
+
 module.exports = {
   convert,
   enumUriPlaceholders,
   fetchSource: (source) => {
     if (source.slice(-5).toLowerCase() === '.json') {
-      return JSON.parse(fs.readFileSync(source, 'utf8'));
+      return normalizeRefs(JSON.parse(fs.readFileSync(source, 'utf8')));
     }
 
     throw new Error(`Unknown OpenAPI source format "${source}"`);
   },
-  resolveApi,
-  resolveApiOperation,
-  resolveModel,
-  resolveModelByType,
-  resolveType,
-  validate,
-  validateApi,
-  validateModel,
-  validateModelByType,
+  // resolveApi,
+  // resolveApiOperation,
+  // resolveModel,
+  // resolveModelByType,
+  // resolveType,
+  // validate,
+  // validateApi,
+  // validateModel,
+  // validateModelByType,
 };
+
+const c = {};
+const q = convert(module.exports.fetchSource('./spec/sample/openapi.json'), c);
+console.log(JSON.stringify(q, undefined, 2), c)

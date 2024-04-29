@@ -2,17 +2,17 @@ const fs = require('fs');
 const utils = require('./utils');
 
 function convert(json, annotation, config) {
-  const docBlocks = [];
+  const blocks = [];
 
   validate(json);
-  resolveInternal(json, annotation, docBlocks, '', config);
+  resolveInternal(json, annotation, blocks, '', config);
 
-  return docBlocks;
+  return blocks;
 }
 
-function resolveInternal(json, annotation, docBlocks, prefix, config) {
+function resolveInternal(json, annotation, blocks, prefix, config) {
   if (!json || typeof json !== 'object') {
-    return 
+    return;
   }
 
   Object.entries(json).forEach(([key, val]) => {
@@ -45,15 +45,15 @@ function resolveInternal(json, annotation, docBlocks, prefix, config) {
     if (type) {
       const isObject = type.substr(0, 6) === 'Object';
 
-      docBlocks.push(`${annotation} {${type}} ${prefix ? prefix + '.' + key : key}${!isObject && val !== '' ? '=' + utils.quote(val) : ''}`);
+      blocks.push(`${annotation} {${type}} ${prefix ? prefix + '.' + key : key}${!isObject && val !== '' ? '=' + utils.quote(val) : ''}`);
       
       if (isObject) {
-        resolveInternal(val, annotation, docBlocks, `${prefix ? prefix + '.' + key : key}`, config);
+        resolveInternal(val, annotation, blocks, `${prefix ? prefix + '.' + key : key}`, config);
       }
     }
   });
 
-  return docBlocks;
+  return blocks;
 }
 
 function resolveType(type) {

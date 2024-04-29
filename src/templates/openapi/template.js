@@ -4,10 +4,9 @@ const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
 
 const PARAM_VALUE_BY_TYPE = {
-  'Boolean': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Boolean:Enum': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Number': (value) => parseFloat(value),
-  'Number:Enum': (value) => parseFloat(value),
+  boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
+  integer: (value) => parseInt(value),
+  number: (value) => parseFloat(value),
 };
 
 module.exports = (config) => ({
@@ -326,7 +325,7 @@ module.exports = (config) => ({
                 schema: {
                   ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
                   enum: param.type.allowedValues.length
-                    ? PARAM_VALUE_BY_TYPE[param.type.name] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.name](value)) : param.type.allowedValues
+                    ? PARAM_VALUE_BY_TYPE[param.type.initial] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.initial](value)) : param.type.allowedValues
                     : undefined,
                   default: param.field.defaultValue,
                 },
