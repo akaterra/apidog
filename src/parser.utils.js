@@ -108,6 +108,10 @@ function convertParamTypeToJsonSchema(type) {
   };
 }
 
+function convertParamValueByType(type, value) {
+  return PARAM_VALUE_BY_TYPE[type] ? PARAM_VALUE_BY_TYPE[type](value) : value;
+}
+
 function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptors, jsonSchema) {
   if (!jsonSchema) {
     jsonSchema = {
@@ -125,12 +129,13 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         return;
       }
 
+      let paramType = param.type?.modifiers?.initial?.toLowerCase();
+
       const paramJsonSchema = {
         type: 'object',
         description: param.description && param.description.join('/n'),
         required: [],
         properties: {},
-        default: param.field && param.field.defaultValue,
       };
 
       if (param.field && !param.field.isOptional && !jsonSchema.required.includes(propKey)) {
@@ -151,20 +156,20 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         }
       }
 
-      let paramType = param.type?.modifiers?.initial?.toLowerCase();
-
       if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
         Object.assign(paramJsonSchemaRef, convertParamTypeToJsonSchema(paramType));
         paramType = paramJsonSchemaRef.type;
+      }
+
+      if (param.field?.defaultValue !== undefined) {
+        paramJsonSchema.default = convertParamValueByType(paramType, param.field?.defaultValue);
       }
 
       if (paramType === 'object') {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
       } else {
         if (param.type?.allowedValues?.length) {
-          paramJsonSchemaRef.enum = PARAM_VALUE_BY_TYPE[paramType]
-            ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
-            : param.type.allowedValues;
+          paramJsonSchemaRef.enum = param.type.allowedValues.map((value) => convertParamValueByType(paramType, value));
         }
 
         paramJsonSchemaRef.type = param.type?.modifiers?.nullable ? [paramType, null] : paramType;
@@ -329,6 +334,8 @@ function addUriDefaultScheme(uri) {
 
 module.exports = {
   addUriDefaultScheme,
+  convertParamValueByType,
+  convertParamTypeToJsonSchema,
   enumChapters,
   enumChaptersApis,
   enumChaptersNotes,

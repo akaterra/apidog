@@ -7,7 +7,7 @@ const parserJsonschemaUtils = require('./parser.jsonschema.utils');
 
 const ajv = new Ajv();
 addFormats(ajv);
-const validate = ajv.compile(JSON.parse(fs.readFileSync('./src/assets/json-schema.3.0.json', 'utf8')));
+const validate = ajv.compile(JSON.parse(fs.readFileSync(__dirname + '/assets/json-schema.3.0.json', 'utf8')));
 
 function convert(spec, config) {
   const blocks = [];
@@ -444,6 +444,6 @@ module.exports = {
   // validateModelByType,
 };
 
-const c = {};
-const q = convert(module.exports.fetchSource('./spec/sample/openapi.json'), c);
-console.log(JSON.stringify(q, undefined, 2), c)
+// const c = {};
+// const q = convert(module.exports.fetchSource('./spec/sample/openapi.json'), c);
+// console.log(JSON.stringify(q, undefined, 2), c)

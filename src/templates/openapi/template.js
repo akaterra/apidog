@@ -3,10 +3,10 @@ const parserUtils = require('../../parser.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
 
-const PARAM_VALUE_BY_TYPE = {
-  boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
-  integer: (value) => parseInt(value),
-  number: (value) => parseFloat(value),
+const contentTypeToOpenapiContentType = {
+  form: 'application/x-www-form-urlencoded',
+  json: 'application/json',
+  xml: 'application/xml',
 };
 
 module.exports = (config) => ({
@@ -55,87 +55,89 @@ module.exports = (config) => ({
 
       const responses = {};
 
-      if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
-        responses['default'] = {description: 'No description'};
-      } else {
-        if (descriptor.successGroupVariant) {
-          Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            let schema;
+      for (const contentType of descriptor.contentType) {
+        if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
+          responses['default'] = {description: 'No description'};
+        } else {
+          if (descriptor.successGroupVariant) {
+            Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              let schema;
 
-            if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
-              descriptor.success[-1] = descriptor.successRoot[0];
+              if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
+                descriptor.success[-1] = descriptor.successRoot[0];
+                schema = parserUtils.convertParamGroupVariantToJsonSchema({
+                  $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+                }, descriptor.success)?.properties?.$;
+              } else {
+                schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
+              }
+
+              responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+                description: 'No description',
+                content: schema ? {
+                  [contentTypeToOpenapiContentType[contentType]]: {
+                    schema,
+                  },
+                } : undefined,
+              };
+            });
+          } else if (descriptor.successRootGroupVariant) {
+            Object.entries(descriptor.successRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              const success = [ descriptor.successRoot[0] ];
               schema = parserUtils.convertParamGroupVariantToJsonSchema({
-                $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-              }, descriptor.success)?.properties?.$;
-            } else {
-              schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
-            }
+                $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
+              }, success)?.properties?.$;
 
-            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-              description: 'No description',
-              content: schema ? {
-                '*/*': {
-                  schema,
-                },
-              } : undefined,
-            };
-          });
-        } else if (descriptor.successRootGroupVariant) {
-          Object.entries(descriptor.successRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            const success = [ descriptor.successRoot[0] ];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema({
-              $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
-            }, success)?.properties?.$;
+              responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+                description: 'No description',
+                content: schema ? {
+                  [contentTypeToOpenapiContentType[contentType]]: {
+                    schema,
+                  },
+                } : undefined,
+              };
+            });
+          }
 
-            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-              description: 'No description',
-              content: schema ? {
-                '*/*': {
-                  schema,
-                },
-              } : undefined,
-            };
-          });
-        }
+          if (descriptor.errorGroupVariant) {
+            Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              let schema;
 
-        if (descriptor.errorGroupVariant) {
-          Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            let schema;
-
-            if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
-              descriptor.error[-1] = descriptor.errorRoot[0];
+              if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
+                descriptor.error[-1] = descriptor.errorRoot[0];
+                schema = parserUtils.convertParamGroupVariantToJsonSchema({
+                  $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
+                }, descriptor.error)?.properties?.$;
+              } else {
+                schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
+              }
+              
+              responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+                description: 'No description',
+                content: schema ? {
+                  [contentTypeToOpenapiContentType[contentType]]: {
+                    schema,
+                  },
+                } : undefined,
+              };
+            });
+          } else if (descriptor.errorRootGroupVariant) {
+            Object.entries(descriptor.errorRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              const error = [ descriptor.errorRoot[0] ];
               schema = parserUtils.convertParamGroupVariantToJsonSchema({
-                $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-              }, descriptor.error)?.properties?.$;
-            } else {
-              schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
-            }
-            
-            responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-              description: 'No description',
-              content: schema ? {
-                '*/*': {
-                  schema,
-                },
-              } : undefined,
-            };
-          });
-        } else if (descriptor.errorRootGroupVariant) {
-          Object.entries(descriptor.errorRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            const error = [ descriptor.errorRoot[0] ];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema({
-              $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
-            }, error)?.properties?.$;
-  
-            responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-              description: 'No description',
-              content: schema ? {
-                '*/*': {
-                  schema,
-                },
-              } : undefined,
-            };
-          });
+                $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
+              }, error)?.properties?.$;
+    
+              responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+                description: 'No description',
+                content: schema ? {
+                  [contentTypeToOpenapiContentType[contentType]]: {
+                    schema,
+                  },
+                } : undefined,
+              };
+            });
+          }
         }
       }
 
@@ -280,22 +282,23 @@ module.exports = (config) => ({
           // const notBodyParamIndexes = [];
 
           methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.headerGroup[groupVariantKey].list.map((headerIndex) => {
-            const header = descriptor.header[headerIndex];
+            const param = descriptor.header[headerIndex];
+            const paramType = param.type.modifiers.initial.toLowerCase();
 
             if (true) {
               // notBodyParamIndexes.push(paramIndex);
 
               return {
-                name: header.field.name,
+                name: param.field.name,
                 in: 'header',
-                description: header.description && header.description.join('/n'),
-                required: !header.field.isOptional,
+                description: param.description && param.description.join('/n'),
+                required: !param.field.isOptional,
                 schema: {
-                  ...parserUtils.convertParamTypeToJsonSchema(header.type.modifiers.initial.toLowerCase()),
-                  enum: header.type.allowedValues.length
-                    ? header.type.allowedValues
+                  ...parserUtils.convertParamTypeToJsonSchema(paramType),
+                  enum: param.type.allowedValues?.length
+                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
                     : undefined,
-                  default: header.field.defaultValue,
+                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
                 },
               };
             }
@@ -313,6 +316,7 @@ module.exports = (config) => ({
 
           methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
             const param = descriptor.param[paramIndex];
+            const paramType = param.type.modifiers.initial.toLowerCase();
 
             if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get' || descriptor.api.transport.method === 'delete')) {
               notBodyParamIndexes.push(paramIndex);
@@ -323,11 +327,11 @@ module.exports = (config) => ({
                 description: param.description && param.description.join('/n'),
                 required: !param.field.isOptional,
                 schema: {
-                  ...parserUtils.convertParamTypeToJsonSchema(param.type.modifiers.initial.toLowerCase()),
-                  enum: param.type.allowedValues.length
-                    ? PARAM_VALUE_BY_TYPE[param.type.initial] ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[param.type.initial](value)) : param.type.allowedValues
+                  ...parserUtils.convertParamTypeToJsonSchema(paramType),
+                  enum: param.type.allowedValues?.length
+                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
                     : undefined,
-                  default: param.field.defaultValue,
+                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
                 },
               };
             }
@@ -354,28 +358,9 @@ module.exports = (config) => ({
                   );
                 }
 
-                switch (contentType) {
-                  case 'form':
-                    acc['application/x-www-form-urlencoded'] = {
-                      schema,
-                    };
-    
-                    break;
-    
-                  case 'json':
-                    acc['application/json'] = {
-                      schema,
-                    };
-    
-                    break;
-    
-                  case 'xml':
-                    acc['application/xml'] = {
-                      schema,
-                    };
-    
-                    break;
-                }
+                acc[contentTypeToOpenapiContentType[contentType]] = {
+                  schema,
+                };
     
                 return acc;
               }, {}),
@@ -391,22 +376,23 @@ module.exports = (config) => ({
           // const notBodyParamIndexes = [];
 
           methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.queryGroup[groupVariantKey].list.map((queryIndex) => {
-            const query = descriptor.query[queryIndex];
+            const param = descriptor.query[queryIndex];
+            const paramType = param.type.modifiers.initial.toLowerCase();
 
             if (true) {
               // notBodyParamIndexes.push(paramIndex);
 
               return {
-                name: query.field.name,
+                name: param.field.name,
                 in: 'query',
-                description: query.description && query.description.join('/n'),
-                required: !query.field.isOptional,
+                description: param.description && param.description.join('/n'),
+                required: !param.field.isOptional,
                 schema: {
-                  ...parserUtils.convertParamTypeToJsonSchema(query.type.modifiers.initial.toLowerCase()),
-                  enum: query.type.allowedValues.length
-                    ? query.type.allowedValues
+                  ...parserUtils.convertParamTypeToJsonSchema(paramType),
+                  enum: param.type.allowedValues?.length
+                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
                     : undefined,
-                  default: query.field.defaultValue,
+                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
                 },
               };
             }
