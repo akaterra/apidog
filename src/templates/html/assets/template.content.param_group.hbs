@@ -23,7 +23,7 @@
                         </div>
                         {{#if group.isTyped}}<div class="width-15 color-1 mono">{{p.type.name}}</div>{{/if}}
                         <div class="flex-1 color-2">
-                            {{toHtml (join p.description true)}}
+                            {{markdown (join p.description true)}}
                             {{#if p.type}}
                                 {{#if p.type.allowedValues}}
                                     <div class="{{#if p.description.length}}top-padded{{/if}}">
