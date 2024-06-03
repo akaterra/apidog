@@ -172,7 +172,14 @@ argumentParser.addArgument(
 argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
-    constant: true, help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+    action: 'storeTrue', help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
+  },
+);
+
+argumentParser.addArgument(
+  [ '--openapi:compressionDepth' ],
+  {
+    type: 'int', default: 2, help: 'Try to generalize fields and store them as schema (1 - no compression, default is 2)',
   },
 );
 
@@ -373,6 +380,9 @@ const envConfig = {
   logger: new utils.Logger(),
   locale: args.locale || config.locale || 'en',
   private: argsPrivate,
+  openapi: {
+    compressionDepth: (args['openapi:compressionDepth'] ?? config['openapi:compressionDepth'] ?? 2) - 1,
+  },
   ordered: args.ordered,
   outputDir,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
