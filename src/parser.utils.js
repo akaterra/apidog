@@ -133,7 +133,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       const paramJsonSchema = {
         type: 'object',
-        description: param.description && param.description.join('/n'),
+        description: param.description && param.description.join('\n'),
         required: [],
         properties: {},
       };

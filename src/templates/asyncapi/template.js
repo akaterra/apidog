@@ -354,7 +354,7 @@ module.exports = (config) => ({
       //         return {
       //           name: query.field.name,
       //           in: 'query',
-      //           description: query.description && query.description.join('/n'),
+      //           description: query.description && query.description.join('\n'),
       //           required: !query.field.isOptional,
       //           schema: {
       //             ...parserUtils.convertParamTypeToJsonSchema(query.type.modifiers.initial.toLowerCase()),

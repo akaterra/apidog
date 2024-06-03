@@ -292,7 +292,7 @@ module.exports = (config) => ({
               return {
                 name: param.field.name,
                 in: 'header',
-                description: param.description && param.description.join('/n'),
+                description: param.description && param.description.join('\n'),
                 required: !param.field.isOptional,
                 schema: {
                   ...maybeReplaceObjectParamsWithRef(parserUtils.convertParamTypeToJsonSchema(paramType), schemas),
@@ -325,7 +325,7 @@ module.exports = (config) => ({
               return {
                 name: param.field.name,
                 in: uriParams[param.field.name] === false ? 'path' : 'query',
-                description: param.description && param.description.join('/n'),
+                description: param.description && param.description.join('\n'),
                 required: !param.field.isOptional,
                 schema: {
                   ...maybeReplaceObjectParamsWithRef(parserUtils.convertParamTypeToJsonSchema(paramType), schemas),
@@ -386,7 +386,7 @@ module.exports = (config) => ({
               return {
                 name: param.field.name,
                 in: 'query',
-                description: param.description && param.description.join('/n'),
+                description: param.description && param.description.join('\n'),
                 required: !param.field.isOptional,
                 schema: {
                   ...parserUtils.convertParamTypeToJsonSchema(paramType),
@@ -432,7 +432,7 @@ function maybeReplaceObjectParamsWithRefIsComplexDef(obj) {
   }
 
   if (obj?.type === 'array') {
-    return obj.items?.type === 'object';
+    return obj.items?.type === 'object' || obj.items?.enum;
   }
 
   return false;
@@ -445,7 +445,7 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 10) {
 
   if (obj.properties) {
     Object.entries(obj.properties ?? {}).forEach(([ key, val ]) => {
-      if (val && val.type === 'object') {
+      if (val && (val.type === 'object' || val.enum || val.items?.enum)) {
         const hash = computeObjectHash(val);
 
         let refShortenId;
@@ -454,7 +454,7 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 10) {
           refShortenId = `schema_${schemaRefsShorten.$ += 1}`;
 
           if (val.description) {
-            refShortenId += `_${val.description.replace(/\s+/g, '_').toLowerCase()}`;
+            refShortenId += `_${val.description.split('\n')[0].trim().replace(/[-\s]+/g, '_').toLowerCase()}`;
           }
         } else {
           refShortenId = schemaRefsShorten[hash];
@@ -471,7 +471,7 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 10) {
     });
   } else {
     Object.entries(obj.items.properties ?? {}).forEach(([ key, val ]) => {
-      if (val && val.type === 'object') {
+      if (val && (val.type === 'object' || val.enum || val.items?.enum)) {
         const hash = computeObjectHash(val);
 
         let refShortenId;
@@ -480,7 +480,7 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 10) {
           refShortenId = `schema_${schemaRefsShorten.$ += 1}`;
 
           if (val.description) {
-            refShortenId += `_${val.description.replace(/\s+/g, '_').toLowerCase()}`;
+            refShortenId += `_${val.description.split('\n')[0].trim().replace(/[-\s]+/g, '_').toLowerCase()}`;
           }
         } else {
           refShortenId = schemaRefsShorten[hash];
