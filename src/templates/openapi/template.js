@@ -460,8 +460,12 @@ module.exports = (config) => ({
 });
 
 const schemaRefsShorten = {
-  $: 0,
+  $: 1,
 };
+const schemaRefsToReplaceOnMoreThanOne = {
+
+};
+const schemaRefsShortenIdUsed = new Set();
 
 function maybeReplaceObjectParamsWithRefIsComplexDef(obj) {
   if (obj?.type === 'object' || obj?.enum) {
@@ -484,16 +488,38 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 2) {
 
   Object.entries(props ?? {}).forEach(([ key, val ]) => {
     if (maybeReplaceObjectParamsWithRefIsComplexDef(val)) {
-      const hash = computeObjectHash(val);
+      if (val && typeof val === 'object') {
+        maybeReplaceObjectParamsWithRef(val, schemaRefs, depth - 1);
+      }
+
+      const hash = computeHash(val);
 
       let refShortenId;
 
       if (!schemaRefsShorten[hash]) {
-        refShortenId = `schema_${schemaRefsShorten.$ += 1}`;
+        if (!schemaRefsToReplaceOnMoreThanOne[hash] || schemaRefsToReplaceOnMoreThanOne[hash][0] === props) {
+          schemaRefsToReplaceOnMoreThanOne[hash] = [ props, key ];
+
+          return;
+        }
+
+        let refShortenIdExtra = '';
 
         if (val.description) {
-          refShortenId += `_${val.description.split('\n')[0].split('.')[0].trim().replace(/[^\p{L}]+/gu, '_').toLowerCase()}`;
+          refShortenIdExtra = `_${val.description.split('\n')[0].split('.')[0].trim().replace(/[^\p{L}]+/gu, '_').toLowerCase()}`;
         }
+
+        refShortenId = `schema_${schemaRefsShorten.$}${refShortenIdExtra}`;
+
+        if (schemaRefsShortenIdUsed.has(refShortenId)) {
+          refShortenId = `schema_${schemaRefsShorten.$ += 1}${refShortenIdExtra}`;
+        }
+
+        schemaRefsShortenIdUsed.add(refShortenId);
+
+        const [ ref, refKey ] = schemaRefsToReplaceOnMoreThanOne[hash];
+
+        ref[refKey] = { $ref: `#/components/schemas/${refShortenId}` };
       } else {
         refShortenId = schemaRefsShorten[hash];
       }
@@ -501,38 +527,42 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 2) {
       schemaRefsShorten[hash] = refShortenId;
       schemaRefs[refShortenId] = val;
       props[key] = { $ref: `#/components/schemas/${refShortenId}` };
-
-      if (typeof val === 'object') {
-        maybeReplaceObjectParamsWithRef(val, schemaRefs, depth - 1);
-      }
     }
   });
 
   return obj;
 }
 
-function computeObjectHash(obj) {
+function isPrimitiveValue(value) {
+  return value === null || typeof value !== 'object';
+}
+
+function computeHash(obj) {
   const pairs = [];
 
-  computeObjectHashInternal(obj, '', pairs);
+  computeHashInternal(obj, '', pairs);
 
   return createHash('sha256').update(pairs.join('|')).digest('hex');
 }
 
-function computeObjectHashInternal(obj, sub = '', pairs = []) {
-  if (Array.isArray(obj)) {
-    Array.from(obj).sort().forEach((val, ind) => {
-      pairs[`${sub}${ind}=${val}`];
-
-      computeObjectHashInternal(val, `${sub}.${ind}`, pairs);
+function computeHashInternal(val, sub = '', pairs = []) {
+  if (Array.isArray(val)) {
+    Array.from(val).sort().forEach((val, ind) => {
+      if (isPrimitiveValue(val)) {
+        pairs.push(`${sub}${ind}=${val}`);
+      } else {
+        computeHashInternal(val, `${sub}.${ind}`, pairs);
+      }
     });
-  } else if (obj && typeof obj === 'object') {
-    Object.keys(obj).sort().forEach((key) => {
-      pairs[`${sub}${key}=${obj[key]}`];
-
-      computeObjectHashInternal(obj[key], `${sub}.${key}`, pairs);
+  } else if (!isPrimitiveValue(val)) {
+    Object.keys(val).sort().forEach((key) => {
+      if (isPrimitiveValue(val[key])) {
+        pairs.push(`${sub}${key}=${val[key]}`);
+      } else {
+        computeHashInternal(val[key], `${sub}.${key}`, pairs);
+      }
     });
   } else {
-    pairs.push(`${sub}=${obj}`);
+    pairs.push(`${sub}=${val}`);
   }
 }

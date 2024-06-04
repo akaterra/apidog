@@ -13,7 +13,7 @@ function parse(block, text) {
     block.contentType = [];
   }
 
-  block.contentType = block.contentType.concat(utils.strSplitByComma(text));
+  block.contentType = Array.from(new Set(block.contentType.concat(utils.strSplitByComma(text))));
   block.addToApidocString(toApidocString);
 
   return block;
