@@ -3,12 +3,6 @@ const parserUtils = require('../../parser.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
 
-const PARAM_VALUE_BY_TYPE = {
-  'Boolean': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Boolean:Enum': (value) => value && value !== '0' && value !== 'false' ? true : false,
-  'Number': (value) => parseFloat(value),
-  'Number:Enum': (value) => parseFloat(value),
-};
 const PROTOCOL_CONFIG = {
   natspub: { bindings: { nats: {} }, action: 'send' },
   natssub: { bindings: { nats: {} }, action: 'receive' },

@@ -3,6 +3,7 @@
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_param');
 
 function construct(name, usePrefix) {
   const annotationGroupName = `${name}Group`;
@@ -16,7 +17,7 @@ function construct(name, usePrefix) {
     return block;
   }
 
-  const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
+  // const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
 
   function parse(block, text) {
     if (!text) {
@@ -39,59 +40,84 @@ function construct(name, usePrefix) {
 
     block[annotationName].push(blockParam);
 
-    const tokens = regex.exec(text);
+    const parsed = peggy.parse(text.trim());
 
-    if (!tokens) {
+    if (!parsed) {
       throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
     }
 
-    let group = tokens[2] || null;
-    let type = tokens[4] || null;
-    let field = tokens[6] || tokens[7] || tokens[8] || tokens[9];
-    let description = tokens[11] ? [tokens[11]] : [];
+    let group = parsed.group?.name || null;
+    let type = null;
+    let field = null;
+    let description = parsed.description ? parsed.description.split('\n') : [];
 
-    if (field) {
-      const [fieldName, fieldDefaultValues] = utils.strSplitBy(field, '=', 1);
-
+    if (parsed.field) {
       field = {
-        defaultValue: fieldDefaultValues ? utils.strSplitByQuotedTokens(fieldDefaultValues)[0] : undefined,
-        isOptional: !!tokens[6],
-        name: usePrefix && block[annotationPrefixName] ? block[annotationPrefixName] + fieldName : fieldName,
-      }
+        defaultValue: parsed.field.defaultValue,
+        isOptional: !parsed.field.isRequired,
+        name: usePrefix && block[annotationPrefixName] ? block[annotationPrefixName] + parsed.field.name : parsed.field.name,
+      };
     }
 
-    if (type) {
-      const [typeName, typeAllowedValues] = utils.strSplitBy(type, '=', 1);
+    if (parsed.type) {
+      // const [typeName, typeAllowedValues] = utils.strSplitBy(type, '=', 1);
 
       type = {
-        allowedValues: typeAllowedValues ? utils.strSplitByQuotedTokens(typeAllowedValues) : [],
-        modifiers: typeName.split(':').reduce((acc, val, ind) => {
-          val = val.toLowerCase();
+        allowedValues: parsed.type.enum ?? [],
+        modifiers: parsed.type.modifiers?.reduce((acc, val) => {
+          acc.list = val.list;
 
-          while (val.slice(-2) === '[]') {
-            acc.list = acc.list ? acc.list + 1 : 1;
-
-            val = val.substr(0, val.length - 2);
+          if (!val.name) {
+            return acc;
           }
 
-          if (ind === 0) {
-            acc.initial = val;
-          }
+          const name = val.name.toLowerCase();
 
-          acc[val] = true;
-
-          if (val === 'parametrizedbody') {
+          if (name === 'parametrizedbody') {
             field.name = 'parametrizedBody';
           }
 
-          if (val === 'rawbody') {
+          if (name === 'rawbody') {
             field.name = 'rawBody';
           }
 
+          acc[name] = true;
+
           return acc;
-        }, {}),
-        name: typeName,
-      }
+        }, {
+          initial: parsed.type.name.toLowerCase(),
+          isNumericRange: parsed.type.isNumeric,
+          min: parsed.type.min,
+          max: parsed.type.max,
+          [parsed.type.name.toLowerCase()]: true,
+        }),
+        // modifiers: typeName.split(':').reduce((acc, val, ind) => {
+        //   val = val.toLowerCase();
+
+        //   while (val.slice(-2) === '[]') {
+        //     acc.list = acc.list ? acc.list + 1 : 1;
+
+        //     val = val.slice(0, -2);
+        //   }
+
+        //   if (ind === 0) {
+        //     acc.initial = val;
+        //   }
+
+        //   acc[val] = true;
+
+        //   if (val === 'parametrizedbody') {
+        //     field.name = 'parametrizedBody';
+        //   }
+
+        //   if (val === 'rawbody') {
+        //     field.name = 'rawBody';
+        //   }
+
+        //   return acc;
+        // }, {}),
+        name: parsed.type.name,
+      };
     }
 
     blockParam.description = description;

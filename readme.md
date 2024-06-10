@@ -119,6 +119,10 @@ Parameters:
 
   Same as **input directory** by default.
 
+* **--openapi:compressionLevel** - Generalize the fields declared with **@apiParam**, **@apiError** and **@apiSuccess** aggregating them into separate schemas (`components.schemas` section), bigger value means bigger depth of traverse
+
+  1 means "no compression", default is 2.
+
 * **--parser "dir" | "inline" | "openapi"** -- Parser to be used to parse the doc blocks sources
 
   Default is "dir".

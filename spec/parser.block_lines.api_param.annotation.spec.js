@@ -24,17 +24,17 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
     expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
       param: [{ // 0
         description: [],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 1
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 2
         description: ['This is a description', 'Some description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 3
@@ -49,7 +49,7 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         type: null
       }, { // 5
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 6
@@ -64,22 +64,22 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         type: null
       }, { // 8
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'groupA',
         type: null,
       }, { // 9
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: [], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 10
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A', 'B', 'C'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 11
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 12
@@ -89,17 +89,17 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 13
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'isNotTyped',
         type:null,
       }, { // 14
         description: [],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
+        field: { isOptional: false, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
         group: null,
         type: null,
       }, { // 15
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: true, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
+        field: { isOptional: true, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
         group: null,
         type: null,
       }],

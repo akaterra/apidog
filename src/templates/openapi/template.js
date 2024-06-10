@@ -13,7 +13,7 @@ const contentTypeToOpenapiContentType = {
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
-    const compressionDepth = config.openapi?.compressionDepth ?? 2;
+    const compressionLevel = config.openapi?.compressionLevel ?? 2;
 
     const spec = {
       openapi: '3.0.3',
@@ -72,13 +72,13 @@ module.exports = (config) => ({
                     $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ],
                   }, descriptor.success)?.properties?.$,
                   schemas,
-                  compressionDepth,
+                  compressionLevel,
                 );
               } else {
                 schema = maybeReplaceObjectParamsWithRef(
                   parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
                   schemas,
-                  compressionDepth,
+                  compressionLevel,
                 );
               }
 
@@ -99,7 +99,7 @@ module.exports = (config) => ({
                   $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
                 }, success)?.properties?.$,
                 schemas,
-                compressionDepth,
+                compressionLevel,
               );
 
               responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
@@ -124,13 +124,13 @@ module.exports = (config) => ({
                     $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
                   }, descriptor.error)?.properties?.$,
                   schemas,
-                  compressionDepth,
+                  compressionLevel,
                 );
               } else {
                 schema = maybeReplaceObjectParamsWithRef(
                   parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
                   schemas,
-                  compressionDepth,
+                  compressionLevel,
                 );
               }
               
@@ -151,7 +151,7 @@ module.exports = (config) => ({
                   $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
                 }, error)?.properties?.$,
                 schemas,
-                compressionDepth,
+                compressionLevel,
               );
     
               responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
@@ -323,7 +323,7 @@ module.exports = (config) => ({
                   ...maybeReplaceObjectParamsWithRef(
                     parserUtils.convertParamTypeToJsonSchema(paramType),
                     schemas,
-                    compressionDepth,
+                    compressionLevel,
                   ),
                   enum: param.type.allowedValues?.length
                     ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
@@ -360,7 +360,7 @@ module.exports = (config) => ({
                   ...maybeReplaceObjectParamsWithRef(
                     parserUtils.convertParamTypeToJsonSchema(paramType),
                     schemas,
-                    compressionDepth,
+                    compressionLevel,
                   ),
                   enum: param.type.allowedValues?.length
                     ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
@@ -392,7 +392,7 @@ module.exports = (config) => ({
                       bodyParams,
                     ),
                     schemas,
-                    compressionDepth,
+                    compressionLevel,
                   );
                 }
 

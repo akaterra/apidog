@@ -177,7 +177,7 @@ argumentParser.addArgument(
 );
 
 argumentParser.addArgument(
-  [ '--openapi:compressionDepth' ],
+  [ '--openapi:compressionLevel' ],
   {
     type: 'int', default: 2, help: 'Try to generalize fields and store them as schema (1 - no compression, default is 2)',
   },
@@ -381,7 +381,7 @@ const envConfig = {
   locale: args.locale || config.locale || 'en',
   private: argsPrivate,
   openapi: {
-    compressionDepth: (args['openapi:compressionDepth'] ?? config['openapi:compressionDepth'] ?? 2) - 1,
+    compressionLevel: (args['openapi:compressionLevel'] ?? config['openapi:compressionLevel'] ?? 2) - 1,
   },
   ordered: args.ordered,
   outputDir,
