@@ -11,7 +11,7 @@ function forEach(iterable, fn, ...args) {
 }
 
 function quote(val) {
-  if (typeof val === 'string' && val.indexOf(' ') !== - 1) {
+  if (typeof val === 'string') {
     return `"${val.replace(/"/g, '\\"')}"`;
   }
 

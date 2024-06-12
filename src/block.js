@@ -34,8 +34,48 @@ class Block {
 
     return this._toApidocStringFns.map((fn) => fn(this)).filter((e) => !!e).flat();
   }
+
+  toJSON() {
+    return this.toObject();
+  }
+
+  toObject() {
+    return objWithRemoveUndefined(Object.keys(this).reduce((acc, key) => {
+      if (key.startsWith('_')) {
+        return acc;
+      }
+
+      acc[key] = this[key];
+
+      return acc;
+    }, {}));
+  }
+
+  toString() {
+    return this.toApidocStrings();
+  }
+
+  valueOf() {
+    return this.toApidocStrings();
+  }
 }
 
 module.exports = {
   Block,
+};
+
+function objWithRemoveUndefined(obj, newObj = {}) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === Object(obj[key])) {
+      if (Array.isArray(obj[key])) {
+        newObj[key] = objWithRemoveUndefined(obj[key], []);
+      } else {
+        newObj[key] = objWithRemoveUndefined(obj[key]);
+      }
+    } else if (obj[key] !== undefined) {
+      newObj[key] = obj[key];
+    };
+  });
+
+  return newObj;
 };
