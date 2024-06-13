@@ -1,6 +1,10 @@
 const parser = require('../src/parser.block_lines');
 
 describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
+  beforeEach(function () {
+    jasmine.addMatchers(require('jasmine-diff')(jasmine, {}));
+  });
+
   it('should parse multiple', () => {
     const lines = [
       '@apiSuccess A_B.C',
@@ -19,20 +23,20 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
       '@apiSuccess (isNotTyped) A_B.C This is a description',
     ];
 
-    expect(parser.parseBlockLines(lines)).toEqual(jasmine.objectContaining(new parser.Block({
+    expect(parser.parseBlockLines(lines).toObject()).toEqual(jasmine.objectContaining({
       success: [{ // 0
         description: [],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 1
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 2
         description: ['This is a description', 'Some description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 3
@@ -47,7 +51,7 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
         type: null
       }, { // 5
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: {isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: null,
       }, { // 6
@@ -62,22 +66,22 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
         type: null
       }, { // 8
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'groupA',
         type: null,
       }, { // 9
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: [], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 10
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A', 'B', 'C'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 11
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: null,
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 12
@@ -87,7 +91,7 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
         type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true }, name: 'typeA' },
       }, { // 13
         description: ['This is a description'],
-        field: { defaultValue: undefined, isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
         group: 'isNotTyped',
         type:null,
       }],
@@ -247,6 +251,6 @@ describe('parser.block_lines parseBlockLines @apiSuccess annotation', () => {
           }
         }
       },
-    })));
+    }));
   });
 });

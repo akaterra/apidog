@@ -42,10 +42,6 @@ function construct(name, usePrefix) {
 
     const parsed = peggy.parse(text.trim());
 
-    if (!parsed) {
-      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
-    }
-
     let group = parsed.group?.name || null;
     let type = null;
     let field = null;
@@ -60,8 +56,6 @@ function construct(name, usePrefix) {
     }
 
     if (parsed.type) {
-      // const [typeName, typeAllowedValues] = utils.strSplitBy(type, '=', 1);
-
       type = {
         allowedValues: parsed.type.enum ?? [],
         modifiers: parsed.type.modifiers?.reduce((acc, val) => {
@@ -91,31 +85,6 @@ function construct(name, usePrefix) {
           max: parsed.type.max,
           [parsed.type.name.toLowerCase()]: true,
         }),
-        // modifiers: typeName.split(':').reduce((acc, val, ind) => {
-        //   val = val.toLowerCase();
-
-        //   while (val.slice(-2) === '[]') {
-        //     acc.list = acc.list ? acc.list + 1 : 1;
-
-        //     val = val.slice(0, -2);
-        //   }
-
-        //   if (ind === 0) {
-        //     acc.initial = val;
-        //   }
-
-        //   acc[val] = true;
-
-        //   if (val === 'parametrizedbody') {
-        //     field.name = 'parametrizedBody';
-        //   }
-
-        //   if (val === 'rawbody') {
-        //     field.name = 'rawBody';
-        //   }
-
-        //   return acc;
-        // }, {}),
         name: parsed.type.name,
       };
     }

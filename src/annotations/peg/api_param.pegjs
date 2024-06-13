@@ -45,8 +45,8 @@ Any
   / String
 
 Number
-  = sign:"-"? part:[1-9]+[0-9]* { return parseInt(part.join('')) * (sign === '-' ? -1 : 1) }
-  / "0" { return 0 }
+  = sign:("-" / "+")? part:[1-9]+[0-9]* frac:("." [0-9]+)? { return (parseInt(part.join('')) + (frac?.[1] ? parseInt(frac?.[1].join('')) / 10 ** (frac?.[1].join('').length) : 0)) * (sign === '-' ? -1 : 1) }
+  / "0" frac:("." [0-9]+)? { return (frac?.[1] ? parseInt(frac?.[1].join('')) / 10 ** (frac?.[1].join('').length) : 0) }
 
 NumberOrNothing
   = Number

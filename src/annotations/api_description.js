@@ -15,7 +15,7 @@ function addDescription(block, text) {
   return block;
 }
 
-const regex = /^(\{(\S+)}\s)?(.+)/;
+const regex = /^(\{(\S+)}\s)?(.*)/;
 
 let lastDescriptionType;
 

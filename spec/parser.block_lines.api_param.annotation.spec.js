@@ -1,5 +1,4 @@
 const parser = require('../src/parser.block_lines');
-const diff = require('./utils');
 
 describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
   beforeEach(function () {
@@ -24,6 +23,12 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
       '@apiParam (isNotTyped) A_B.C This is a description',
       '@apiParam A_B[D]',
       '@apiParam [A_B[D]] This is a description',
+      '@apiParam {typeA{1..3}="A,B,C","D,E,F","G,H,I"} A_B.C This is a description',
+      '@apiParam (groupA) {typeA{1-3}="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
+      '@apiParam {typeA{..3}="A,B,C","D,E,F","G,H,I"} A_B.C This is a description',
+      '@apiParam (groupA) {typeA{-+3}="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
+      '@apiParam {typeA{1..}="A,B,C","D,E,F","G,H,I"} A_B.C This is a description',
+      '@apiParam (groupA) {typeA{1-}="A,B,C","D,E,F","G,H,I"} [A_B.C="A B C"] This is a description',
     ];
 
     expect(parser.parseBlockLines(lines).toObject()).toEqual({
@@ -107,10 +112,40 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         field: { isOptional: true, name: 'A_B[D]', path: [ 'A_B', 'D' ] },
         group: null,
         type: null,
+      }, { // 16
+        description: ['This is a description'],
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: null,
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: false, min: 1, max: 3 }, name: 'typeA' },
+      }, { // 17
+        description: ['This is a description'],
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: 'groupA',
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: true, min: 1, max: 3 }, name: 'typeA' },
+      }, { // 18
+        description: ['This is a description'],
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: null,
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: false, min: null, max: 3 }, name: 'typeA' },
+      }, { // 19
+        description: ['This is a description'],
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: 'groupA',
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: true, min: null, max: 3 }, name: 'typeA' },
+      }, { // 18
+        description: ['This is a description'],
+        field: { isOptional: false, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: null,
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: false, min: 1, max: null }, name: 'typeA' },
+      }, { // 19
+        description: ['This is a description'],
+        field: { defaultValue: 'A B C', isOptional: true, name: 'A_B.C', path: [ 'A_B', 'C' ] },
+        group: 'groupA',
+        type: { allowedValues: ['A,B,C', 'D,E,F', 'G,H,I'], modifiers: { initial: 'typea', typea: true, isNumericRange: true, min: 1, max: null }, name: 'typeA' },
       }],
       paramGroup: {
-        null: { isTyped: true, list: [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 15 ]},
-        groupA: { isTyped: true, list: [ 8, 12 ] },
+        null: { isTyped: true, list: [ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 15, 16, 18, 20 ]},
+        groupA: { isTyped: true, list: [ 8, 12, 17, 19, 21 ] },
         isNotTyped: { isTyped: false, list: [ 13 ]},
       },
       paramGroupVariant: {
@@ -201,6 +236,27 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
                       ],
                       "parent": null,
                       "prop": {}
+                    },
+                    {
+                      "list": [
+                        16
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        18
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        20
+                      ],
+                      "parent": null,
+                      "prop": {}
                     }
                   ],
                   "D": [
@@ -245,6 +301,27 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
                     {
                       "list": [
                         12
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        17
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        19
+                      ],
+                      "parent": null,
+                      "prop": {}
+                    },
+                    {
+                      "list": [
+                        21
                       ],
                       "parent": null,
                       "prop": {}

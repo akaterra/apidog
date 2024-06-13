@@ -4,6 +4,7 @@
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_define');
 
 function addDescription(block, text) {
   block.define.description.push(text);
@@ -11,27 +12,21 @@ function addDescription(block, text) {
   return block;
 }
 
-const regex = /^(\S+)(\s+(.+))?/;
-
 function parse(block, text, line, index, lines, definitions) {
   if (!text) {
     throw new Error('@apiDefine malformed');
   }
 
-  const tokens = regex.exec(text);
-
-  if (!tokens) {
-    throw new Error('@apiDefine malformed');
-  }
+  const parsed = peggy.parse(text.trim());
 
   const blockDefine = block.define = {};
 
   blockDefine.description = [];
-  blockDefine.embeddedLines = lines.filter((line) => line.trim().substr(0, 10) !== '@apiDefine');
-  blockDefine.name = tokens[1];
-  blockDefine.title = tokens[3] || null;
+  blockDefine.embeddedLines = lines.filter((line) => line.trim().slice(0, 10) !== '@apiDefine');
+  blockDefine.name = parsed.name;
+  blockDefine.title = parsed.title;
 
-  definitions[tokens[1]] = blockDefine;
+  definitions[parsed[1]] = blockDefine;
   block.addToApidocString(toApidocString);
 
   return block;
