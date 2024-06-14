@@ -1,16 +1,19 @@
-// @apiDefine (group) description
+//
 
 start
-  = name:Identifier [ \t]+ title:Title? { return { name, title } }
-  / name:Identifier { return { name, title: null } } 
+  = type:Type [ \t]+ description:Description { return { type, description } }
+  / description:Description { return { type: null, description } }
 
-Title
-  = title:.* { return title.join('') }
+Type
+  = "{" _ name:Identifier "}" { return { name } }
+
+Description
+  = description:.* { return description.join('') }
 
 Identifier
   = head:[a-zA-Z_]+[a-zA-Z0-9_]* { return head.join('') }
   / head:String { return head }
-
+ 
 String
   = '"' chars:DoubleStringCharacter* '"' { return chars.join('') }
   / "'" chars:SingleStringCharacter* "'" { return chars.join('') }

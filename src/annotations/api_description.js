@@ -8,14 +8,13 @@
 
 const markdown = require( "markdown" ).markdown;
 const utils = require('../utils');
+const peggy = require('./peg/api_description');
 
 function addDescription(block, text) {
   block.description.push(text);
 
   return block;
 }
-
-const regex = /^(\{(\S+)}\s)?(.*)/;
 
 let lastDescriptionType;
 
@@ -24,17 +23,11 @@ function parse(block, text) {
     throw new Error('@apiDescription malformed');
   }
 
-  const tokens = regex.exec(text);
+  const parsed = peggy.parse(text.trim());
 
-  if (!tokens) {
-    throw new Error('@apiDescription malformed');
-  }
+  lastDescriptionType = parsed.type?.name;
 
-  const [, , type, line] = tokens;
-
-  lastDescriptionType = type;
-
-  block.description = [line];
+  block.description = [parsed.description];
 
   if (!block.validate) {
     block.validate = [validate];

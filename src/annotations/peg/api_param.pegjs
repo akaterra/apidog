@@ -1,13 +1,13 @@
 // @apiParam [(group)] [{type=type}] [field[=defaultValue]] description
 
 start
-  = group:Group? _ type:Type? _ field:Field description:Description? { return { group, type, field, description }  }
+  = group:Group? _ type:Type? _ field:Field description:Description? { return { group, type, field, description } }
 
 Group
   = "(" _ name:Identifier _ ")" { return { name } }
 
 Type
-  = "{" _ name:Identifier modifiers:TypeModifiers* _ constraints:TypeConstraints? _ e:TypeEnum? "}" { return { name, modifiers, ...constraints, enum: e }  }
+  = "{" _ name:Identifier modifiers:TypeModifiers* _ constraints:TypeConstraints? _ e:TypeEnum? "}" { return { name, modifiers, ...constraints, enum: e } }
 
 TypeModifiers
   = ":" name:Identifier list:"[]"* { return { name, list: list.length } }
@@ -53,27 +53,27 @@ NumberOrNothing
   / "" { return null }
  
 String
-  = '"' chars:DoubleStringCharacter* '"' { return chars.join(''); }
-  / "'" chars:SingleStringCharacter* "'" { return chars.join(''); }
+  = '"' chars:DoubleStringCharacter* '"' { return chars.join('') }
+  / "'" chars:SingleStringCharacter* "'" { return chars.join('') }
 
 DoubleStringCharacter
-  = !('"' / "\\") char:. { return char; }
-  / "\\" sequence:EscapeSequence { return sequence; }
+  = !('"' / "\\") char:. { return char}
+  / "\\" sequence:EscapeSequence { return sequence}
 
 SingleStringCharacter
-  = !("'" / "\\") char:. { return char; }
-  / "\\" sequence:EscapeSequence { return sequence; }
+  = !("'" / "\\") char:. { return char}
+  / "\\" sequence:EscapeSequence { return sequence}
 
 EscapeSequence
   = "'"
   / '"'
   / "\\"
-  / "b"  { return "\b";   }
-  / "f"  { return "\f";   }
-  / "n"  { return "\n";   }
-  / "r"  { return "\r";   }
-  / "t"  { return "\t";   }
-  / "v"  { return "\x0B"; }
+  / "b"  { return "\b" }
+  / "f"  { return "\f" }
+  / "n"  { return "\n" }
+  / "r"  { return "\r" }
+  / "t"  { return "\t" }
+  / "v"  { return "\x0B"}
 
 _ "whitespace"
   = [ \t]*

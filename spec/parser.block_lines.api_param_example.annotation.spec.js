@@ -1,6 +1,10 @@
 const parser = require('../src/parser.block_lines');
 
 describe('parser.block_lines parseBlockLines @apiParamExample annotation', () => {
+  beforeEach(function () {
+    jasmine.addMatchers(require('jasmine-diff')(jasmine, {}));
+  });
+
   it('should parse', () => {
     const lines = [
       '@apiParamExample This is a title',
@@ -9,7 +13,7 @@ describe('parser.block_lines parseBlockLines @apiParamExample annotation', () =>
       '@apiParamExample {type} This is a title', 'A', 'B',
     ];
 
-    expect(parser.parseBlockLines(lines, {})).toEqual(jasmine.objectContaining(new parser.Block({
+    expect(parser.parseBlockLines(lines, {}).toObject()).toEqual({
       contentType: ['form', 'type'],
       paramExample: [{
         description: [],
@@ -28,6 +32,6 @@ describe('parser.block_lines parseBlockLines @apiParamExample annotation', () =>
         title: 'This is a title',
         type: 'type',
       }],
-    })));
+    });
   });
 });

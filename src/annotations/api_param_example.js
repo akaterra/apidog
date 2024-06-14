@@ -4,6 +4,7 @@
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_param_example');
 
 function construct(name) {
   const annotationName = name ? `${name}Example` : 'example';
@@ -14,18 +15,12 @@ function construct(name) {
     return block;
   }
 
-  const regex = /^({(.+)})?(.+)?/;
-
   function parse(block, text, line, index, lines, embeddedLines) {
     // if (!text) {
     //   throw new Error(`${fullName} malformed`);
     // }
 
-    const tokens = regex.exec(text);
-
-    if (!tokens) {
-      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
-    }
+    const parsed = peggy.parse(text.trim());
 
     if (!block[annotationName]) {
       block[annotationName] = [];
@@ -36,8 +31,8 @@ function construct(name) {
     block[annotationName].push(blockExample);
 
     blockExample.description = [];
-    blockExample.type = tokens[2] ? tokens[2].toLowerCase() : 'form';
-    blockExample.title = tokens[3] ? tokens[3].trim() : null;
+    blockExample.type = parsed.type?.name ? parsed.type?.name.toLowerCase() : 'form';
+    blockExample.title = parsed.description || null;
 
     if (!block.contentType) {
       block.contentType = [];
