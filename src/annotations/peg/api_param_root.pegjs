@@ -1,7 +1,7 @@
-// @apiParam [(group)] [{type=type}] [field[=defaultValue]] description
+// @apiParamRoot [(group)] {type=type} description
 
 start
-  = group:Group? _ type:Type? _ field:Field description:Description? { return { group, type, field, description } }
+  = group:Group? _ type:Type description:Description? { return { group, type, description } }
 
 Group
   = "(" _ name:Any _ ")" { return { name } }
@@ -17,24 +17,10 @@ TypeConstraints
   = "{" _ min:NumberOrNothing _ delim:("-" / "..") _ max:NumberOrNothing _ "}" { return { min, max, isNumeric: delim === '-' } }
 
 TypeEnum
-  = "=" head:(Any)|1..,","| { return head }
-
-Field
-  = "[" _ name:Path defaultValue:FieldDefaultValue? "]" { return { name, defaultValue: defaultValue ?? undefined, isRequired: false } }
-  / name:Path defaultValue:FieldDefaultValue? { return { name, defaultValue: defaultValue ?? undefined, isRequired: true } }
-
-FieldDefaultValue
-  = "=" head:Any { return head } 
+  = "=" head:(Any)|1..,","| { return head } 
 
 Description
   = [ \t]+ description:.* { return description.join('') }
-
-Path
-  = head:Any tail:PathTail* { return head + tail }
-
-PathTail
-  = "[" head:Any* "]" tail:PathTail* { return '[' + head + ']' + tail }
-  / "." head:Any tail:PathTail* { return '.' + head + tail }
 
 Any
   = head:[a-zA-Z0-9_-]+ { return head.join('') }

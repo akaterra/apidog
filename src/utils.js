@@ -10,6 +10,10 @@ function forEach(iterable, fn, ...args) {
   }
 }
 
+function isNotEmpty(value) {
+  return value !== null && value !== undefined && value !== '';
+}
+
 function quote(val) {
   if (typeof val === 'string' && (val.indexOf(' ') !== - 1 || val.indexOf(',') !== - 1)) {
     return `"${val.replace(/"/g, '\\"')}"`;
@@ -196,6 +200,7 @@ class Logger {
 
 module.exports = {
   forEach,
+  isNotEmpty,
   quote,
   strExtractByCurlyBrackets,
   strExtractByBrackets,

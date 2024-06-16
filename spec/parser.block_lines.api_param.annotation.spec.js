@@ -149,130 +149,130 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
         isNotTyped: { isTyped: false, list: [ 13 ]},
       },
       paramGroupVariant: {
-        "null": {
-          "isTyped": true,
-          "prop": {
+        null: {
+          isTyped: true,
+          prop: {
             "A_B": [
               {
-                "list": [
+                list: [
                   0
                 ],
-                "parent": 0,
-                "prop": {
+                parent: 0,
+                prop: {
                   "C": [
                     {
-                      "list": [
+                      list: [
                         0
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         1
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         2
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         3
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         4
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         5
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         6
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         7
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         9
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         10
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         11
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         16
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         18
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         20
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     }
                   ],
                   "D": [
                     {
-                      "list": [
+                      list: [
                         14
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         15
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     }
                   ]
                 }
@@ -280,51 +280,51 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
             ]
           }
         },
-        "groupA": {
-          "isTyped": true,
-          "prop": {
+        groupA: {
+          isTyped: true,
+          prop: {
             "A_B": [
               {
-                "list": [
+                list: [
                   8
                 ],
-                "parent": 8,
-                "prop": {
+                parent: 8,
+                prop: {
                   "C": [
                     {
-                      "list": [
+                      list: [
                         8
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         12
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         17
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         19
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     },
                     {
-                      "list": [
+                      list: [
                         21
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     }
                   ]
                 }
@@ -332,23 +332,23 @@ describe('parser.block_lines parseBlockLines @apiParam annotation', () => {
             ]
           }
         },
-        "isNotTyped": {
-          "isTyped": false,
-          "prop": {
+        isNotTyped: {
+          isTyped: false,
+          prop: {
             "A_B": [
               {
-                "list": [
+                list: [
                   13
                 ],
-                "parent": 13,
-                "prop": {
+                parent: 13,
+                prop: {
                   "C": [
                     {
-                      "list": [
+                      list: [
                         13
                       ],
-                      "parent": null,
-                      "prop": {}
+                      parent: null,
+                      prop: {}
                     }
                   ]
                 }

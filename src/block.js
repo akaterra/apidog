@@ -8,7 +8,7 @@ class Block {
   addToApidocString(fn) {
     if (!this._toApidocStringFns) {
       this._toApidocStringFns = [];
-    } else if (this._toApidocStringFns.includes(fn)) {
+    } else if (this._toApidocStringFns.includes(fn) || (fn.group && this._toApidocStringFns.some((f) => f.group === fn.group))) {
       return this;
     }
 

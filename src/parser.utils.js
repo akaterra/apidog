@@ -321,6 +321,10 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
     delete jsonSchema.oneOf;
   }
 
+  if (jsonSchema.properties?.['']) {
+    jsonSchema = jsonSchema.properties[''];
+  }
+
   return Object.keys(jsonSchema).length === 0 ? undefined : jsonSchema;
 }
 

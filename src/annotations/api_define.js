@@ -26,7 +26,7 @@ function parse(block, text, line, index, lines, definitions) {
   blockDefine.name = parsed.name;
   blockDefine.title = parsed.title;
 
-  definitions[parsed[1]] = blockDefine;
+  definitions[parsed.name] = blockDefine;
   block.addToApidocString(toApidocString);
 
   return block;

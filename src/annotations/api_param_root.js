@@ -3,20 +3,19 @@
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_param_root');
 
 function construct(name, usePrefix) {
-  const annotationGroupName = `${name}RootGroup`;
-  const annotationGroupVariantsName = `${name}RootGroupVariant`;
-  const annotationName = `${name}Root`;
-  const annotationPrefixName = `${name}RootPrefix`;
+  const annotationGroupName = `${name}Group`;
+  const annotationGroupVariantsName = `${name}GroupVariant`;
+  const annotationName = `${name}`;
+  const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {
     block[annotationName][block[annotationName].length - 1].description.push(text);
 
     return block;
   }
-
-  const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(.*)?$/;
 
   function parse(block, text) {
     if (!text) {
@@ -39,51 +38,41 @@ function construct(name, usePrefix) {
 
     block[annotationName].push(blockParam);
 
-    const tokens = regex.exec(text);
+    const parsed = peggy.parse(text.trim());
 
-    if (!tokens) {
-      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
-    }
+    let group = parsed.group?.name || null;
+    let field = { name: '' };
+    let type = null;
+    let description = parsed.description ? parsed.description.split('\n') : [];
 
-    let group = tokens[2] || null;
-    let type = tokens[4] || null;
-    let description = tokens[5] ? [tokens[5]] : [];
-
-    if (type) {
-      const [typeName, typeAllowedValues] = utils.strSplitBy(type, '=', 1);
-
+    if (parsed.type) {
       type = {
-        allowedValues: typeAllowedValues ? utils.strSplitByQuotedTokens(typeAllowedValues) : [],
-        modifiers: typeName.split(':').reduce((acc, val, ind) => {
-          val = val.toLowerCase();
+        allowedValues: parsed.type.enum ?? [],
+        modifiers: parsed.type.modifiers?.reduce((acc, val) => {
+          acc.list = val.list;
 
-          while (val.slice(-2) === '[]') {
-            acc.list = acc.list ? acc.list + 1 : 1;
-
-            val = val.substr(0, val.length - 2);
+          if (!val.name) {
+            return acc;
           }
 
-          if (ind === 0) {
-            acc.initial = val;
-          }
+          const name = val.name.toLowerCase();
 
-          acc[val] = true;
-
-          if (val === 'parametrizedbody') {
-            field.name = 'parametrizedBody';
-          }
-
-          if (val === 'rawbody') {
-            field.name = 'rawBody';
-          }
+          acc[name] = true;
 
           return acc;
-        }, {}),
-        name: typeName,
-      }
+        }, {
+          initial: parsed.type.name.toLowerCase(),
+          isNumericRange: parsed.type.isNumeric,
+          min: parsed.type.min,
+          max: parsed.type.max,
+          [parsed.type.name.toLowerCase()]: true,
+        }),
+        name: parsed.type.name,
+      };
     }
 
     blockParam.description = description;
+    blockParam.field = field;
     blockParam.group = group;
     blockParam.type = type;
 
@@ -95,6 +84,32 @@ function construct(name, usePrefix) {
 
     if (!block[annotationGroupVariantsName][group]) {
       block[annotationGroupVariantsName][group] = { isTyped: false, prop: {} };
+    }
+
+    if (blockParam.field) {
+      let root = block[annotationGroupVariantsName][group].prop;
+      blockParam.field.path = [''];
+
+      utils.forEach(blockParam.field.path, (key, ind, isLast) => {
+        if (!root[key]) {
+          root[key] = [];
+        }
+
+        if (isLast || root[key].length === 0) {
+          // last pushed param descriptor
+          const list = [ block[annotationName].length - 1 ];
+
+          // parent is not null when key is not last therefore has no its own param descriptor (list[0])
+          const parent = isLast ? null : list[0];
+          const variant = { list, parent, prop: {} };
+
+          root[key].push(variant);
+
+          root = variant.prop;
+        } else {
+          root = root[key][root[key].length - 1].prop;
+        }
+      });
     }
 
     if (type) {
@@ -110,6 +125,7 @@ function construct(name, usePrefix) {
   function toApidocString(block) {
     if (block[annotationName] !== undefined) {
       return block[annotationName].map((annotation) => {
+        const isRoot = annotation.field?.name === '';
         const args = [];
 
         if (annotation.group) {
@@ -122,7 +138,7 @@ function construct(name, usePrefix) {
           args.push(`{${t.name}${t.allowedValues.length ? '=' + t.allowedValues.map(utils.quote).join(',') : ''}}`);
         }
 
-        if (annotation.field) {
+        if (annotation.field && !isRoot) {
           const f = annotation.field;
 
           args.push(`${f.isOptional ? '' : '['}${f.name}${f.defaultValue ? '=' + utils.quote(f.defaultValue) : ''}${f.isOptional ? '' : ']'}`);
@@ -132,7 +148,9 @@ function construct(name, usePrefix) {
           args.push(annotation.description[0]);
         }
 
-        const apiAnnotation = `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+        const apiAnnotation = isRoot
+          ? `@api${name.charAt(0).toUpperCase()}${name.slice(1)}Root`
+          : `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 
         return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description.slice(1)];
       }).flat(1);
@@ -140,6 +158,8 @@ function construct(name, usePrefix) {
   
     return null;
   }
+
+  toApidocString.group = name;
 
   return {
     addDescription,

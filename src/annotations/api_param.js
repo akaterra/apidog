@@ -105,7 +105,7 @@ function construct(name, usePrefix) {
     }
 
     if (blockParam.field) {
-      let root = block[annotationGroupVariantsName][group].prop;
+      let root = block[annotationGroupVariantsName][group].prop['']?.[0]?.prop ?? block[annotationGroupVariantsName][group].prop;
       blockParam.field.path = utils.strSplitByPathEscaped(blockParam.field.name);
 
       utils.forEach(blockParam.field.path, (key, ind, isLast) => {
@@ -143,6 +143,7 @@ function construct(name, usePrefix) {
   function toApidocString(block) {
     if (block[annotationName] !== undefined) {
       return block[annotationName].map((annotation) => {
+        const isRoot = annotation.field?.name === '';
         const args = [];
 
         if (annotation.group) {
@@ -155,7 +156,7 @@ function construct(name, usePrefix) {
           args.push(`{${t.name}${t.allowedValues.length ? '=' + t.allowedValues.map(utils.quote).join(',') : ''}}`);
         }
 
-        if (annotation.field) {
+        if (annotation.field && !isRoot) {
           const f = annotation.field;
 
           args.push(`${f.isOptional ? '' : '['}${f.name}${f.defaultValue ? '=' + utils.quote(f.defaultValue) : ''}${f.isOptional ? '' : ']'}`);
@@ -165,7 +166,9 @@ function construct(name, usePrefix) {
           args.push(annotation.description[0]);
         }
 
-        const apiAnnotation = `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+        const apiAnnotation = isRoot
+          ? `@api${name.charAt(0).toUpperCase()}${name.slice(1)}Root`
+          : `@api${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 
         return [`${apiAnnotation} ${args.join(' ')}`, ...annotation.description.slice(1)];
       }).flat(1);
@@ -173,6 +176,8 @@ function construct(name, usePrefix) {
   
     return null;
   }
+
+  toApidocString.group = name;
 
   return {
     addDescription,

@@ -2,10 +2,10 @@ const parser = require('../../src/annotations/api');
 const {Block} = require('../../src/block');
 const Logger = require('../../src/utils').Logger;
 
-describe('@api annotation validate', () => {
+describe('@api annotation', () => {
   const logger = new Logger();
 
-  describe('when with provided config.sampleRequestUrl for http', () => {
+  describe('when used with provided config.sampleRequestUrl for http', () => {
     it('should set sample request url from full endpoint', () => {
       const block = new Block({
         api: {
@@ -167,7 +167,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for https', () => {
+  describe('when used with provided config.sampleRequestUrl for https', () => {
     it('should set sample request url from full endpoint', () => {
       const block = new Block({
         api: {
@@ -329,7 +329,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for nats pub', () => {
+  describe('when used with provided config.sampleRequestUrl for nats pub', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -371,7 +371,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for nats rpc', () => {
+  describe('when used with provided config.sampleRequestUrl for nats rpc', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -413,7 +413,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for rabbitmq pub', () => {
+  describe('when used with provided config.sampleRequestUrl for rabbitmq pub', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -455,7 +455,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for redis pub', () => {
+  describe('when used with provided config.sampleRequestUrl for redis pub', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -497,7 +497,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for redis sub', () => {
+  describe('when used with provided config.sampleRequestUrl for redis sub', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -539,7 +539,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrl for rabbitmq rpc', () => {
+  describe('when used with provided config.sampleRequestUrl for rabbitmq rpc', () => {
     it('should set sample request proxy', () => {
       const block = new Block({
         api: {
@@ -581,7 +581,7 @@ describe('@api annotation validate', () => {
     });
   });
 
-  describe('when with provided config.sampleRequestUrlWs for websocket', () => {
+  describe('when used with provided config.sampleRequestUrlWs for websocket', () => {
     it('should set sample request url from full endpoint', () => {
       const block = new Block({
         api: {
