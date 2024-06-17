@@ -122,16 +122,7 @@ module.exports = (config) => ({
 
       if (descriptor.successGroupVariant) {
         Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-          let schema;
-
-          if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
-            descriptor.success[-1] = descriptor.successRoot[0];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema({
-              $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-            }, descriptor.success).properties.$;
-          } else {
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
-          }
+          const schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
 
           if (!channelDescriptor.messages[`${groupVariantKey}_success`]) {
             channelDescriptor.messages[`${groupVariantKey}_success`] = {};
@@ -144,17 +135,8 @@ module.exports = (config) => ({
 
       if (descriptor.errorGroupVariant) {
         Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-          let schema;
+          const schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
 
-          if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
-            descriptor.error[-1] = descriptor.errorRoot[0];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema({
-              $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-            }, descriptor.error).properties.$;
-          } else {
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
-          }
-          
           if (!channelDescriptor.messages[`${groupVariantKey}_error`]) {
             channelDescriptor.messages[`${groupVariantKey}_error`] = {};
             replies.push({ $ref :`#/channels/${descriptor.id}/messages/${groupVariantKey}_error` });
@@ -270,20 +252,10 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
 
         if (groupVariantKey) {
-          let schema;
-
-          if (descriptor.headerRootGroupVariant?.[groupVariantKey]) {
-            descriptor.header[-1] = descriptor.paramRoot[0];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(
-              { $: [ { list: [ -1 ], parent: null, prop: descriptor.headerGroupVariant[groupVariantKey].prop } ] },
-              descriptor.header,
-            ).properties.$;
-          } else {
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(
-              descriptor.headerGroupVariant[groupVariantKey].prop,
-              descriptor.header,
-            );
-          }
+          const schema = parserUtils.convertParamGroupVariantToJsonSchema(
+            descriptor.headerGroupVariant[groupVariantKey].prop,
+            descriptor.header,
+          );
 
           if (!channelDescriptor.messages[groupVariantKey]) {
             channelDescriptor.messages[groupVariantKey] = {};
@@ -298,20 +270,10 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
         if (groupVariantKey) {
-          let schema;
-
-          if (descriptor.paramRootGroupVariant?.[groupVariantKey]) {
-            descriptor.param[-1] = descriptor.paramRoot[0];
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(
-              { $: [ { list: [ -1 ], parent: null, prop: descriptor.paramGroupVariant[groupVariantKey].prop } ] },
-              descriptor.param,
-            ).properties.$;
-          } else {
-            schema = parserUtils.convertParamGroupVariantToJsonSchema(
-              descriptor.paramGroupVariant[groupVariantKey].prop,
-              descriptor.param,
-            );
-          }
+          const schema = parserUtils.convertParamGroupVariantToJsonSchema(
+            descriptor.paramGroupVariant[groupVariantKey].prop,
+            descriptor.param,
+          );
 
           if (!channelDescriptor.messages[groupVariantKey]) {
             channelDescriptor.messages[groupVariantKey] = {};
