@@ -63,24 +63,11 @@ module.exports = (config) => ({
         } else {
           if (descriptor.successGroupVariant) {
             Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              let schema;
-
-              // if (descriptor.successRootGroupVariant && descriptor.successRootGroupVariant[groupVariantKey]) {
-              //   descriptor.success[-1] = descriptor.successRoot[0];
-              //   schema = maybeReplaceObjectParamsWithRef(
-              //     parserUtils.convertParamGroupVariantToJsonSchema({
-              //       $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ],
-              //     }, descriptor.success)?.properties?.$,
-              //     schemas,
-              //     compressionLevel,
-              //   );
-              // } else {
-                schema = maybeReplaceObjectParamsWithRef(
-                  parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
-                  schemas,
-                  compressionLevel,
-                );
-              // }
+              const schema = maybeReplaceObjectParamsWithRef(
+                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
+                schemas,
+                compressionLevel,
+              );
 
               responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
                 description: 'No description',
@@ -91,48 +78,15 @@ module.exports = (config) => ({
                 } : undefined,
               };
             });
-          } else if (descriptor.successRootGroupVariant) {
-            // Object.entries(descriptor.successRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            //   const success = [ descriptor.successRoot[0] ];
-            //   schema = maybeReplaceObjectParamsWithRef(
-            //     parserUtils.convertParamGroupVariantToJsonSchema({
-            //       $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
-            //     }, success)?.properties?.$,
-            //     schemas,
-            //     compressionLevel,
-            //   );
-
-            //   responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-            //     description: 'No description',
-            //     content: schema ? {
-            //       [contentTypeToOpenapiContentType[contentType]]: {
-            //         schema,
-            //       },
-            //     } : undefined,
-            //   };
-            // });
           }
 
           if (descriptor.errorGroupVariant) {
             Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              let schema;
-
-              // if (descriptor.errorRootGroupVariant && descriptor.errorRootGroupVariant[groupVariantKey]) {
-              //   descriptor.error[-1] = descriptor.errorRoot[0];
-              //   schema = maybeReplaceObjectParamsWithRef(
-              //     parserUtils.convertParamGroupVariantToJsonSchema({
-              //       $: [ { list: [ -1 ], parent: null, prop: groupVariant.prop } ]
-              //     }, descriptor.error)?.properties?.$,
-              //     schemas,
-              //     compressionLevel,
-              //   );
-              // } else {
-                schema = maybeReplaceObjectParamsWithRef(
-                  parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
-                  schemas,
-                  compressionLevel,
-                );
-              // }
+              const schema = maybeReplaceObjectParamsWithRef(
+                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
+                schemas,
+                compressionLevel,
+              );
               
               responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
                 description: 'No description',
@@ -143,26 +97,6 @@ module.exports = (config) => ({
                 } : undefined,
               };
             });
-          } else if (descriptor.errorRootGroupVariant) {
-            // Object.entries(descriptor.errorRootGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-            //   const error = [ descriptor.errorRoot[0] ];
-            //   schema = maybeReplaceObjectParamsWithRef(
-            //     parserUtils.convertParamGroupVariantToJsonSchema({
-            //       $: [ { list: [ 0 ], parent: null, prop: groupVariant.prop } ]
-            //     }, error)?.properties?.$,
-            //     schemas,
-            //     compressionLevel,
-            //   );
-    
-            //   responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
-            //     description: 'No description',
-            //     content: schema ? {
-            //       [contentTypeToOpenapiContentType[contentType]]: {
-            //         schema,
-            //       },
-            //     } : undefined,
-            //   };
-            // });
           }
         }
       }
@@ -379,22 +313,14 @@ module.exports = (config) => ({
           if (bodyParams.filter((param) => !!param).length) {
             methodDescriptor.requestBody = {
               content: descriptor.contentType.reduce((acc, contentType) => {
-                // if (descriptor.paramRootGroupVariant && descriptor.paramRootGroupVariant[groupVariantKey]) {
-                //   bodyParams[-1] = descriptor.paramRoot[0];
-                //   schema = parserUtils.convertParamGroupVariantToJsonSchema(
-                //     { $: [ { list: [ -1 ], parent: null, prop: descriptor.paramGroupVariant[groupVariantKey].prop } ] },
-                //     bodyParams,
-                //   ).properties.$;
-                // } else {
-                  schema = maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamGroupVariantToJsonSchema(
-                      descriptor.paramGroupVariant[groupVariantKey].prop,
-                      bodyParams,
-                    ),
-                    schemas,
-                    compressionLevel,
-                  );
-                // }
+                schema = maybeReplaceObjectParamsWithRef(
+                  parserUtils.convertParamGroupVariantToJsonSchema(
+                    descriptor.paramGroupVariant[groupVariantKey].prop,
+                    bodyParams,
+                  ),
+                  schemas,
+                  compressionLevel,
+                );
 
                 acc[contentTypeToOpenapiContentType[contentType]] = {
                   schema,

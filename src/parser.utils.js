@@ -195,7 +195,11 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     }
   });
 
-  return removeEmptyRequiredAndProperties(jsonSchema);
+  jsonSchema = removeEmptyRequiredAndProperties(jsonSchema);
+
+  return Object.keys(jsonSchema).length === 1 && jsonSchema.type === 'object'
+    ? null
+    : jsonSchema;
 }
 
 function convertParamsToJsonSchema(params) {

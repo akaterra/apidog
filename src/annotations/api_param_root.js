@@ -49,7 +49,9 @@ function construct(name, usePrefix) {
       type = {
         allowedValues: parsed.type.enum ?? [],
         modifiers: parsed.type.modifiers?.reduce((acc, modifier) => {
-          acc.list = modifier.list;
+          if (modifier.list) {
+            acc.list = modifier.list;
+          }
 
           if (!modifier.name) {
             return acc;
