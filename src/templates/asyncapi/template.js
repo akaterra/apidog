@@ -313,7 +313,7 @@ module.exports = (config) => ({
       //           description: query.description && query.description.join('\n'),
       //           required: !query.field.isOptional,
       //           schema: {
-      //             ...parserUtils.convertParamTypeToJsonSchema(query.type.modifiers.initial.toLowerCase()),
+      //             ...parserUtils.convertParamToJsonSchema(query.type.modifiers.initial.toLowerCase()),
       //             enum: query.type.allowedValues.length
       //               ? query.type.allowedValues
       //               : undefined,

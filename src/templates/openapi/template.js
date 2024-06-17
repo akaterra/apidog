@@ -255,7 +255,7 @@ module.exports = (config) => ({
                 required: !param.field.isOptional,
                 schema: {
                   ...maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamTypeToJsonSchema(paramType),
+                    parserUtils.convertParamToJsonSchema(param),
                     schemas,
                     compressionLevel,
                   ),
@@ -292,7 +292,7 @@ module.exports = (config) => ({
                 required: !param.field.isOptional,
                 schema: {
                   ...maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamTypeToJsonSchema(paramType),
+                    parserUtils.convertParamToJsonSchema(param),
                     schemas,
                     compressionLevel,
                   ),
@@ -352,7 +352,7 @@ module.exports = (config) => ({
                 description: param.description && param.description.join('\n'),
                 required: !param.field.isOptional,
                 schema: {
-                  ...parserUtils.convertParamTypeToJsonSchema(paramType),
+                  ...parserUtils.convertParamToJsonSchema(param),
                   enum: param.type.allowedValues?.length
                     ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
                     : undefined,

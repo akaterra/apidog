@@ -62,7 +62,7 @@ function enumUriPlaceholders(uri, fn, acc) {
   return acc;
 }
 
-const PARAM_STRING_FORMAT_BY_TYPE = {
+const SCHEMA_BY_TYPE = {
   date: true,
   datetime: 'date-time',
   'date-time': true,
@@ -81,35 +81,76 @@ const PARAM_STRING_FORMAT_BY_TYPE = {
   uri: true,
   uuid: true,
 };
-const PARAM_VALUE_BY_TYPE = {
+const SCHEMA_VALUE_BY_TYPE = {
   boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
   integer: (value) => parseInt(value),
   number: (value) => parseFloat(value),
 };
 
-function convertParamTypeToJsonSchema(type) {
-  const def = PARAM_STRING_FORMAT_BY_TYPE[type];
+function convertParamToJsonSchema(mixed) {
+  let type;
+  let param;
+
+  if (mixed && typeof mixed === 'object') {
+    type = mixed.type?.modifiers?.initial?.toLowerCase();
+    param = mixed;
+  } else {
+    type = mixed;
+    param = {};
+  }
+
+  const def = SCHEMA_BY_TYPE[type];
 
   if (def && typeof def === 'object') {
     return def;
   }
 
-  return {
-    type: type in PARAM_STRING_FORMAT_BY_TYPE
+  const schema = {
+    type: type in SCHEMA_BY_TYPE
       ? def === true
         ? 'string'
-        : PARAM_STRING_FORMAT_BY_TYPE[type]
+        : SCHEMA_BY_TYPE[type]
       : type,
-    format: type in PARAM_STRING_FORMAT_BY_TYPE
+    format: type in SCHEMA_BY_TYPE
       ? def === true
         ? type
-        : PARAM_STRING_FORMAT_BY_TYPE[type]
+        : SCHEMA_BY_TYPE[type]
       : undefined,
   };
+
+  if (mixed.field?.defaultValue !== undefined) {
+    schema.default = convertParamValueByType(type, mixed.field.defaultValue);
+  }
+
+  if (mixed.type?.allowedValues?.length) {
+    schema.enum = mixed.type.allowedValues.map((value) => convertParamValueByType(type, value));
+  }
+
+  if (mixed.type?.modifiers?.nullable) {
+    schema.type = [schema.type, 'null'];
+  }
+
+  if (typeof mixed.type?.modifiers?.min === 'number') {
+    if (mixed.type?.modifiers?.isNumericRange) {
+      schema.minimal = mixed.type.modifiers.min;
+    } else {
+      schema.minLength = mixed.type.modifiers.min;
+    }
+  }
+
+  if (typeof mixed.type?.modifiers?.max === 'number') {
+    if (mixed.type?.modifiers?.isNumericRange) {
+      schema.maximum = mixed.type.modifiers.max;
+    } else {
+      schema.maxLength = mixed.type.modifiers.max;
+    }
+  }
+
+  return schema;
 }
 
 function convertParamValueByType(type, value) {
-  return PARAM_VALUE_BY_TYPE[type] ? PARAM_VALUE_BY_TYPE[type](value) : value;
+  return SCHEMA_VALUE_BY_TYPE[type] ? SCHEMA_VALUE_BY_TYPE[type](value) : value;
 }
 
 function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptors, jsonSchema) {
@@ -156,23 +197,11 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         }
       }
 
-      if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
-        Object.assign(paramJsonSchemaRef, convertParamTypeToJsonSchema(paramType));
-        paramType = paramJsonSchemaRef.type;
-      }
-
-      if (param.field?.defaultValue !== undefined) {
-        paramJsonSchema.default = convertParamValueByType(paramType, param.field?.defaultValue);
-      }
+      Object.assign(paramJsonSchemaRef, convertParamToJsonSchema(param));
+      paramType = paramJsonSchemaRef.type;
 
       if (paramType === 'object') {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
-      } else {
-        if (param.type?.allowedValues?.length) {
-          paramJsonSchemaRef.enum = param.type.allowedValues.map((value) => convertParamValueByType(paramType, value));
-        }
-
-        paramJsonSchemaRef.type = param.type?.modifiers?.nullable ? [paramType, null] : paramType;
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
@@ -202,99 +231,99 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     : jsonSchema;
 }
 
-function convertParamsToJsonSchema(params) {
-  const jsonSchema = {
-    type: 'object',
-    required: [],
-    properties: {},
-  };
+// function convertParamsToJsonSchema(params) {
+//   const jsonSchema = {
+//     type: 'object',
+//     required: [],
+//     properties: {},
+//   };
 
-  params.forEach((param) => {
-    let nodeProperties = jsonSchema.properties;
-    let nodeRequired = jsonSchema.required;
+//   params.forEach((param) => {
+//     let nodeProperties = jsonSchema.properties;
+//     let nodeRequired = jsonSchema.required;
 
-    const path = param.field.name.split('.');
+//     const path = param.field.name.split('.');
 
-    path.forEach((key, ind) => {
-      const propertyNameAndPropertyAsListIndex = key.match(/^(.+?)(\[\d*])*$/);
+//     path.forEach((key, ind) => {
+//       const propertyNameAndPropertyAsListIndex = key.match(/^(.+?)(\[\d*])*$/);
 
-      if (propertyNameAndPropertyAsListIndex) {
-        const [, propertyName, propertyAsListIndex] = propertyNameAndPropertyAsListIndex;
+//       if (propertyNameAndPropertyAsListIndex) {
+//         const [, propertyName, propertyAsListIndex] = propertyNameAndPropertyAsListIndex;
 
-        if (!(propertyName in nodeProperties)) {
-          if (!param.field.isOptional) {
-            nodeRequired.push(propertyName);
-          }
+//         if (!(propertyName in nodeProperties)) {
+//           if (!param.field.isOptional) {
+//             nodeRequired.push(propertyName);
+//           }
 
-          nodeProperties = nodeProperties[propertyName] = {};
+//           nodeProperties = nodeProperties[propertyName] = {};
 
-          if (param.field.defaultValue) {
-            nodeProperties.default = param.field.defaultValue;
-          }
+//           if (param.field.defaultValue) {
+//             nodeProperties.default = param.field.defaultValue;
+//           }
 
-          if (param.description) {
-            nodeProperties.description = param.description.join('\n');
-          }
+//           if (param.description) {
+//             nodeProperties.description = param.description.join('\n');
+//           }
 
-          if (propertyAsListIndex) {
-            const arrayElRegex = /\[\d*]/g;
+//           if (propertyAsListIndex) {
+//             const arrayElRegex = /\[\d*]/g;
 
-            while (arrayElRegex.exec(propertyAsListIndex)) {
-              nodeProperties.type = 'array';
-              nodeProperties = nodeProperties.items = {};
-            }
-          } else {
-            if (param.type.modifiers.list) {
-              nodeProperties.type = 'array';
-              nodeProperties = nodeProperties.items = {};
-            }
-          }
+//             while (arrayElRegex.exec(propertyAsListIndex)) {
+//               nodeProperties.type = 'array';
+//               nodeProperties = nodeProperties.items = {};
+//             }
+//           } else {
+//             if (param.type.modifiers.list) {
+//               nodeProperties.type = 'array';
+//               nodeProperties = nodeProperties.items = {};
+//             }
+//           }
 
-          let paramType = param.type.modifiers.initial.toLowerCase();
+//           let paramType = param.type.modifiers.initial.toLowerCase();
 
-          if (ind < path.length - 1) {
-            nodeProperties.required = [];
-            nodeRequired = nodeProperties.required;
-            nodeProperties.type = 'object';
-            nodeProperties.properties = {};
-            nodeProperties = nodeProperties.properties
-          } else {
-            if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
-              Object.assign(nodeProperties, convertParamTypeToJsonSchema(paramType));
-              paramType = nodeProperties.type;
-            }
+//           if (ind < path.length - 1) {
+//             nodeProperties.required = [];
+//             nodeRequired = nodeProperties.required;
+//             nodeProperties.type = 'object';
+//             nodeProperties.properties = {};
+//             nodeProperties = nodeProperties.properties
+//           } else {
+//             if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
+//               Object.assign(nodeProperties, convertParamToJsonSchema(paramType));
+//               paramType = nodeProperties.type;
+//             }
 
-            if (paramType === 'object') {
-              nodeProperties.required = [];
-              nodeRequired = nodeProperties.required
-              nodeProperties.type = 'object';
-              nodeProperties.properties = {};
-              nodeProperties = nodeProperties.properties
-            } else {
-              if (param.type.allowedValues && param.type.allowedValues.length) {
-                nodeProperties.enum = PARAM_VALUE_BY_TYPE[paramType]
-                  ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
-                  : param.type.allowedValues;
-              }
+//             if (paramType === 'object') {
+//               nodeProperties.required = [];
+//               nodeRequired = nodeProperties.required
+//               nodeProperties.type = 'object';
+//               nodeProperties.properties = {};
+//               nodeProperties = nodeProperties.properties
+//             } else {
+//               if (param.type.allowedValues && param.type.allowedValues.length) {
+//                 nodeProperties.enum = PARAM_VALUE_BY_TYPE[paramType]
+//                   ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
+//                   : param.type.allowedValues;
+//               }
 
-              nodeProperties.type = paramType;
-            }
-          }
-        } else {
-          if (nodeProperties[propertyName].items) {
-            nodeRequired = nodeProperties[propertyName].items.required;
-            nodeProperties = nodeProperties[propertyName].items.properties;
-          } else {
-            nodeRequired = nodeProperties[propertyName].required;
-            nodeProperties = nodeProperties[propertyName].properties;
-          }
-        }
-      }
-    });
-  });
+//               nodeProperties.type = paramType;
+//             }
+//           }
+//         } else {
+//           if (nodeProperties[propertyName].items) {
+//             nodeRequired = nodeProperties[propertyName].items.required;
+//             nodeProperties = nodeProperties[propertyName].items.properties;
+//           } else {
+//             nodeRequired = nodeProperties[propertyName].required;
+//             nodeProperties = nodeProperties[propertyName].properties;
+//           }
+//         }
+//       }
+//     });
+//   });
 
-  return removeEmptyRequiredAndProperties(jsonSchema);
-}
+//   return removeEmptyRequiredAndProperties(jsonSchema);
+// }
 
 function removeEmptyRequiredAndProperties(jsonSchema) {
   if (jsonSchema.properties) {
@@ -342,13 +371,11 @@ function addUriDefaultScheme(uri) {
 
 module.exports = {
   addUriDefaultScheme,
+  convertParamToJsonSchema,
   convertParamValueByType,
-  convertParamTypeToJsonSchema,
   enumChapters,
   enumChaptersApis,
   enumChaptersNotes,
   enumUriPlaceholders,
   convertParamGroupVariantToJsonSchema,
-  convertParamsToJsonSchema,
-  convertParamTypeToJsonSchema,
 };
