@@ -48,14 +48,20 @@ function construct(name, usePrefix) {
     if (parsed.type) {
       type = {
         allowedValues: parsed.type.enum ?? [],
-        modifiers: parsed.type.modifiers?.reduce((acc, val) => {
-          acc.list = val.list;
+        modifiers: parsed.type.modifiers?.reduce((acc, modifier) => {
+          acc.list = modifier.list;
 
-          if (!val.name) {
+          if (!modifier.name) {
             return acc;
           }
 
-          const name = val.name.toLowerCase();
+          let name = modifier.name.toLowerCase();
+
+          while (name.slice(-2) === '[]') {
+            acc.list = acc.list ? acc.list + 1 : 1;
+
+            name = name.slice(0, -2);
+          }
 
           acc[name] = true;
 
