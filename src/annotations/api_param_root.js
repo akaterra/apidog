@@ -75,7 +75,15 @@ function construct(name, usePrefix) {
           max: parsed.type.max,
           [parsed.type.name.toLowerCase()]: true,
         }),
-        name: parsed.type.name,
+        name: parsed.type.name + parsed.type.modifiers?.map((modifier) => {
+          let name = modifier.name ? `:${modifier.name}` : '';
+
+          if (modifier.list) {
+            name += `[]`.repeat(modifier.list);
+          }
+
+          return name;
+        }).join(''),
       };
     }
 

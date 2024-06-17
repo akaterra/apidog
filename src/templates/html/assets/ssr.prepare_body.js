@@ -3,9 +3,8 @@ if (typeof module !== 'undefined') {
 }
 
 function prepareBody(params, paramDescriptors, paramsGroup) {
-  if (paramsGroup === '$') {
-    paramsGroup = null; // :( refactor
-  } else if (!paramsGroup) {
+  // FIXME
+  if (paramsGroup === '$' || !paramsGroup || paramsGroup === 'null') {
     paramsGroup = null;
   }
 
@@ -45,29 +44,49 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
       paramsDescriptor = paramDescriptors && paramDescriptors.find((param) => param.field.name === key && param.group === paramsGroup);
     }
 
-    const pathKeys = paramsDescriptor?.field.path ?? strToPathEscaped(key);
-    const parentParamsDescriptor = paramDescriptors && pathKeys.length > 1
-      ? paramDescriptors.find((param) => param.field?.path
-        ? param.group === paramsGroup && param.field.path.join('.') === pathKeys.slice(0, -1).join('.')
-        : false)
-      : null;
+    let pathKeys = paramsDescriptor.field.pathPrepared ?? paramsDescriptor?.field?.path ?? strToPathEscaped(key);
+
+    if (!paramsDescriptor.field.pathPrepared && paramDescriptors) {
+      const pathKeysTmp = [...pathKeys];
+
+      if (pathKeys.length > 1) {
+        let offset = 0;
+
+        for (let l = 1; l <= pathKeys.length; l += 1) {
+          const pathChunk = pathKeys.slice(0, -l).join('.');
+          const parentParamsDescriptor = paramDescriptors.find(
+            (param) => param.field?.path
+              ? param.group === paramsGroup && param.field.path.join('.') === pathChunk
+              : false
+          );
+
+          if (!parentParamsDescriptor) {
+            break;
+          }
+
+          if (
+            parentParamsDescriptor.type?.modifiers?.list &&
+            !arrayIndexRegex.test(pathKeys[pathKeys.length - l - 1]) &&
+            pathKeys[pathKeys.length - l - 1] !== ''
+          ) {
+            pathKeysTmp.splice(pathKeysTmp.length - l - offset, 0, 0);
+
+            offset += 1;
+          }
+        }
+      }
+
+      const typeIsList = !!paramsDescriptor?.type?.modifiers?.list;
+
+      if (typeIsList) {
+        pathKeysTmp.push(0);
+      }
+
+      paramsDescriptor.field.pathPrepared = pathKeys = pathKeysTmp;
+    }
+
     const type = paramsDescriptor?.type?.modifiers?.initial;
-    const typeIsList = paramsDescriptor?.type?.modifiers?.list;
-    const typeIsOptional = paramsDescriptor?.field?.isOptional;
     const typeModifiers = paramsDescriptor?.type?.modifiers;
-
-    // TODO only for last parent, not for all ascestors
-    if (
-      parentParamsDescriptor?.type?.modifiers?.list &&
-      !arrayIndexRegex.test(pathKeys[pathKeys.length - 2]) &&
-      pathKeys[pathKeys.length - 2] !== ''
-    ) {
-      pathKeys.splice(pathKeys.length - 1, 0, '0');
-    }
-
-    if (typeIsList) {
-      pathKeys.push('0');
-    }
 
     if (paramsDescriptor) {
       if (val === '') {
@@ -97,6 +116,11 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
         case 'boolean':
           val = val === true || val === 'true' || val === 1 || val === '1';
 
+          break;
+
+        case 'integer':
+          val = parseInt(val, 10);
+  
           break;
 
         case 'isodate':
@@ -143,10 +167,10 @@ function prepareBody(params, paramDescriptors, paramsGroup) {
 
         pathKeys.forEach((key, ind) => {
           if (key === '') {
-            key = '0';
+            key = 0;
           }
 
-          const isArrayIndex = arrayIndexRegex.test(key);
+          const isArrayIndex = typeof key === 'number' || arrayIndexRegex.test(key);
 
           if (isArrayIndex) {
             if (!Array.isArray(bodyNode[bodyNodeKey])) {
