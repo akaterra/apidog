@@ -32,7 +32,7 @@ const annotationParsers = {
   '@apiparamvalue': require('./annotations/api_param_value'),
   '@apipermission': require('./annotations/api_permission'),
   '@apiprivate': require('./annotations/api_private'),
-  '@apiquery': require('./annotations/api_query').construct('query', true),
+  '@apiquery': require('./annotations/api_param').construct('query', true),
   '@apisamplerequest': require('./annotations/api_sample_request'),
   '@apisamplerequesthook': require('./annotations/api_sample_request_hook'),
   '@apisamplerequestoption': require('./annotations/api_sample_request_option'),

@@ -17,8 +17,6 @@ function construct(name, usePrefix) {
     return block;
   }
 
-  // const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\[(.+)]|(\S+\s*=\s*".+?(?<!\\)")|(\S+\s*=\s*\S+)|(\S+))(\s+(.*))?$/;
-
   function parse(block, text) {
     if (!text) {
       throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);

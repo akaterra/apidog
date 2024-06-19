@@ -132,7 +132,9 @@ function convertParamToJsonSchema(mixed) {
 
   if (typeof mixed.type?.modifiers?.min === 'number') {
     if (mixed.type?.modifiers?.isNumericRange) {
-      schema.minimal = mixed.type.modifiers.min;
+      schema.minimum = mixed.type.modifiers.min;
+    } else if (mixed.type?.modifiers?.list > 0) {
+      // schema.minItems = mixed.type.modifiers.min;
     } else {
       schema.minLength = mixed.type.modifiers.min;
     }
@@ -141,7 +143,9 @@ function convertParamToJsonSchema(mixed) {
   if (typeof mixed.type?.modifiers?.max === 'number') {
     if (mixed.type?.modifiers?.isNumericRange) {
       schema.maximum = mixed.type.modifiers.max;
-    } else {
+    } else if (mixed.type?.modifiers?.list > 0) {
+      // schema.maxItems = mixed.type.modifiers.max;
+    }  else {
       schema.maxLength = mixed.type.modifiers.max;
     }
   }
@@ -193,6 +197,15 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             required: [],
             properties: {},
           }
+
+          if (typeof param.type?.modifiers?.min === 'number') {
+            paramJsonSchemaRef.minItems = param.type.modifiers.min;
+          }
+
+          if (typeof param.type?.modifiers?.max === 'number') {
+            paramJsonSchemaRef.maxItems = param.type.modifiers.max;
+          }
+
           paramJsonSchemaRef = paramJsonSchemaRef.items;
         }
       }
