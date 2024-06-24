@@ -7,9 +7,9 @@ function convert(spec, group, annotation, rootSpec, config) {
   return resolveDefinition(spec, group, '', '', annotation, [], rootSpec, config);
 }
 
-function resolvePropertiesDefinition(properties, group, prefix, annotation, docBlock, rootSpec, config, required) {
+function resolvePropertiesDefinition(properties, group, prefix, annotation, blocks, rootSpec, config, required) {
   Object.entries(properties).forEach(([prop, spec]) => {
-    resolveDefinition(spec, group, prefix, prop, annotation, docBlock, rootSpec, config, required);
+    resolveDefinition(spec, group, prefix, prop, annotation, blocks, rootSpec, config, required);
   });
 }
 

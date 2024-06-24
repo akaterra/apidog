@@ -68,33 +68,26 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
         switch (dirEntry.substr(extensionIndex + 1)) {
           case 'apidoc':
             blocks = blocks.concat(parseApidoc(source, definitions, config, onlyDefinitions));
-
             break;
-
+          case 'cpp':
           case 'cs':
           case 'dart':
           case 'go':
+          case 'hpp':
           case 'java':
           case 'js':
           case 'php':
           case 'ts':
             blocks = blocks.concat(parseJavaDocStyle(source, definitions, config, onlyDefinitions));
-
             break;
-
           case 'lua':
             blocks = blocks.concat(parseLua(source, definitions, config, onlyDefinitions));
-
             break;
-
           case 'py':
             blocks = blocks.concat(parsePy(source, definitions, config, onlyDefinitions));
-
             break;
-
           case 'rb':
             blocks = blocks.concat(parseRuby(source, definitions, config, onlyDefinitions));
-
             break;
         }
       }

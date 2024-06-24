@@ -37,6 +37,14 @@ function convert(spec, config) {
         title: methodSpec.summary,
         transport: { name: 'http', method },
       };
+      block.authHeader = [];
+      block.authQuery = [];
+      block.authParam = [];
+      block.header = [];
+      block.query = [];
+      block.param = [];
+      block.success = [];
+      block.error = [];
 
       if (usedVisualIds.has(methodSpec.operationId)) {
         // TODO warn
@@ -53,18 +61,25 @@ function convert(spec, config) {
             properties: { [paramSpec.name]: paramSpec.schema },
           });
 
-          if (paramSpec.in === 'query') {
-            block.query = params;
+          if (paramSpec.in === 'header') {
+            block.header.push(...params);
+          } else if (paramSpec.in === 'query') {
+            block.query.push(...params);
           } else {
-            block.param = params;
+            block.param.push(...params);
           }
         });
       }
 
-      if (methodSpec.responses) {
-        const success = [];
-        const error = [];
+      if (methodSpec.requestBody?.content) {
+        Object.entries(methodSpec.requestBody.content).forEach(([ contentType, requestBodySpec ]) => {
+          const params = parserJsonschemaUtils.convert(requestBodySpec.schema, contentType);
 
+          block.param.push(...params);
+        });
+      }
+
+      if (methodSpec.responses) {
         Object.entries(methodSpec.responses).forEach(([ responseCode, responseSpec ]) => {
           if (responseCode[0] === '2' || responseCode.slice(0, 3).toLowerCase() === 'x-2') {
 
@@ -412,7 +427,7 @@ function normalizeRefs(spec, root) {
         }
 
         CURR_RESOLVING_PATHS.add($ref);
-        val = get(root, $ref.slice(2).replace(/\//g, '.'));
+        spec[key] = val = get(root, $ref.slice(2).replace(/\//g, '.'));
         CURR_RESOLVING_PATHS.delete($ref);
       }
       
