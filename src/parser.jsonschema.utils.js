@@ -1,21 +1,25 @@
 const fs = require('fs');
 const utils = require('./utils');
 
-function convert(spec, group, annotation, rootSpec, config) {
+function convert(spec, group, groupVariants, annotation, rootSpec, config) {
   validateInternal(spec, config);
 
-  return resolveDefinition(spec, group, '', '', annotation, [], rootSpec, config);
+  return resolveDefinition(spec, group, groupVariants, '', '', annotation, [], rootSpec, config);
 }
 
-function resolvePropertiesDefinition(properties, group, prefix, annotation, blocks, rootSpec, config, required) {
+function resolvePropertiesDefinition(properties, group, groupVariants, prefix, annotation, defs, rootSpec, config, required) {
   Object.entries(properties).forEach(([prop, spec]) => {
-    resolveDefinition(spec, group, prefix, prop, annotation, blocks, rootSpec, config, required);
+    resolveDefinition(spec, group, groupVariants, prefix, prop, annotation, defs, rootSpec, config, required);
   });
 }
 
-function resolveDefinition(spec, group, prefix, key, annotation, blocks, rootSpec, config, required) {
-  if (!blocks) {
-    blocks = [];
+function resolveDefinition(spec, group, groupVariants, prefix, key, annotation, defs, rootSpec, config, required) {
+  if (!defs) {
+    defs = [];
+  }
+
+  if (!groupVariants) {
+    groupVariants = {};
   }
 
   if (!prefix) {
@@ -54,28 +58,62 @@ function resolveDefinition(spec, group, prefix, key, annotation, blocks, rootSpe
           const combinedSpec = { ...anyOf, ...rest };
 
           if (key) {
-            for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-              const paramEnum = combinedSpec.enum;
-              const block = {
-                field: { isOptional: !paramIsRequired, name: `${paramKey}[]`, defaultValue: paramDefault },
-                type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, list: 1, [combinedSpec.type]: true }, name: type },
-                description: [],
-              };
+            resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
+            // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
+            //   const paramEnum = combinedSpec.enum;
+            //   const block = {
+            //     field: { isOptional: !paramIsRequired, name: `${paramKey}[]`, defaultValue: paramDefault },
+            //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, list: 1, [combinedSpec.type]: true }, name: type },
+            //     description: [],
+            //   };
 
-              if (spec.description) {
-                block.description.push(spec.description);
-              }
+            //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
 
-              blocks.push(block);
-            }
+            //   if (spec.description) {
+            //     block.description.push(spec.description);
+            //   }
+
+            //   if (typeof spec.maximum === 'number') {
+            //     block.type.modifiers.max = spec.maximum;
+            //     block.type.modifiers.isNumericRange = true;
+            //   }
+
+            //   if (typeof spec.minimum === 'number') {
+            //     block.type.modifiers.min = spec.min;
+            //     block.type.modifiers.isNumericRange = true;
+            //   }
+
+            //   if (typeof spec.maxItems === 'number') {
+            //     block.type.modifiers.max = spec.maxItems;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.minItems === 'number') {
+            //     block.type.modifiers.min = spec.minItems;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.maxLength === 'number') {
+            //     block.type.modifiers.max = spec.maxLength;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.minLength === 'number') {
+            //     block.type.modifiers.min = spec.minLength;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   blocks.push(block);
+            // }
           }
 
           resolveDefinition(
             combinedSpec,
             group,
+            groupVariants,
             `${[prefix, key].filter(_ => _).join('.')}[]`, '',
             annotation,
-            blocks,
+            defs,
             rootSpec,
             config,
             spec.required,
@@ -101,28 +139,62 @@ function resolveDefinition(spec, group, prefix, key, annotation, blocks, rootSpe
           const combinedSpec = { ...anyOf, ...rest };
 
           if (key) {
-            for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-              const paramEnum = combinedSpec.enum;
-              const block = {
-                field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
-                type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
-                description: [],
-              };
+            resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
+            // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
+            //   const paramEnum = combinedSpec.enum;
+            //   const block = {
+            //     field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
+            //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
+            //     description: [],
+            //   };
 
-              if (spec.description) {
-                block.description.push(spec.description);
-              }
+            //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
 
-              blocks.push(block);
-            }
+            //   if (spec.description) {
+            //     block.description.push(spec.description);
+            //   }
+
+            //   if (typeof spec.maximum === 'number') {
+            //     block.type.modifiers.max = spec.maximum;
+            //     block.type.modifiers.isNumericRange = true;
+            //   }
+
+            //   if (typeof spec.minimum === 'number') {
+            //     block.type.modifiers.min = spec.min;
+            //     block.type.modifiers.isNumericRange = true;
+            //   }
+
+            //   if (typeof spec.maxItems === 'number') {
+            //     block.type.modifiers.max = spec.maxItems;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.minItems === 'number') {
+            //     block.type.modifiers.min = spec.minItems;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.maxLength === 'number') {
+            //     block.type.modifiers.max = spec.maxLength;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   if (typeof spec.minLength === 'number') {
+            //     block.type.modifiers.min = spec.minLength;
+            //     block.type.modifiers.isNumericRange = false;
+            //   }
+
+            //   blocks.push(block);
+            // }
           }
 
           resolvePropertiesDefinition(
             combinedSpec.properties,
             group,
+            groupVariants,
             `${[prefix, key].filter(_ => _).join('.')}`,
             annotation,
-            blocks,
+            defs,
             rootSpec,
             config,
             spec.required,
@@ -147,25 +219,133 @@ function resolveDefinition(spec, group, prefix, key, annotation, blocks, rootSpe
         const combinedSpec = { ...anyOf, ...rest };
 
         if (key) {
-          for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-            const paramEnum = combinedSpec.enum;
-            const block = {
-              field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
-              type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
-              description: [],
-            };
+          resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
+          // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
+          //   const paramEnum = combinedSpec.enum;
+          //   const block = {
+          //     field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
+          //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
+          //     description: [],
+          //   };
 
-            if (spec.description) {
-              block.description.push(spec.description);
-            }
+          //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
 
-            blocks.push(block);
-          }
+          //   if (spec.description) {
+          //     block.description.push(spec.description);
+          //   }
+
+          //   if (typeof spec.maximum === 'number') {
+          //     block.type.modifiers.max = spec.maximum;
+          //     block.type.modifiers.isNumericRange = true;
+          //   }
+
+          //   if (typeof spec.minimum === 'number') {
+          //     block.type.modifiers.min = spec.min;
+          //     block.type.modifiers.isNumericRange = true;
+          //   }
+
+          //   if (typeof spec.maxItems === 'number') {
+          //     block.type.modifiers.max = spec.maxItems;
+          //     block.type.modifiers.isNumericRange = false;
+          //   }
+
+          //   if (typeof spec.minItems === 'number') {
+          //     block.type.modifiers.min = spec.minItems;
+          //     block.type.modifiers.isNumericRange = false;
+          //   }
+
+          //   if (typeof spec.maxLength === 'number') {
+          //     block.type.modifiers.max = spec.maxLength;
+          //     block.type.modifiers.isNumericRange = false;
+          //   }
+
+          //   if (typeof spec.minLength === 'number') {
+          //     block.type.modifiers.min = spec.minLength;
+          //     block.type.modifiers.isNumericRange = false;
+          //   }
+
+          //   blocks.push(block);
+          // }
         }
       });
   }
 
-  return blocks;
+  return defs;
+}
+
+function resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants) {
+  for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
+    const paramEnum = combinedSpec.enum;
+    const param = {
+      field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
+      type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
+      description: [],
+    };
+
+    if (!groupVariants[group]) {
+      groupVariants[group] = { isTyped: false, prop: {} };
+    }
+
+    let root = groupVariants[group].prop['']?.[0]?.prop ?? groupVariants[group].prop;
+    param.field.path = utils.strSplitByPathEscaped(param.field.name);
+
+    utils.forEach(param.field.path, (key, ind, isLast) => {
+      if (!root[key]) {
+        root[key] = [];
+      }
+
+      if (isLast || root[key].length === 0) {
+        // last pushed param descriptor
+        const list = [ defs.length ];
+
+        // parent is not null when key is not last therefore has no its own param descriptor (list[0])
+        const parent = isLast ? null : list[0];
+        const variant = { list, parent, prop: {} };
+
+        root[key].push(variant);
+
+        root = variant.prop;
+      } else {
+        root = root[key][root[key].length - 1].prop;
+      }
+    });
+
+    if (spec.description) {
+      param.description.push(spec.description);
+    }
+
+    if (typeof spec.maximum === 'number') {
+      param.type.modifiers.max = spec.maximum;
+      param.type.modifiers.isNumericRange = true;
+    }
+
+    if (typeof spec.minimum === 'number') {
+      param.type.modifiers.min = spec.min;
+      param.type.modifiers.isNumericRange = true;
+    }
+
+    if (typeof spec.maxItems === 'number') {
+      param.type.modifiers.max = spec.maxItems;
+      param.type.modifiers.isNumericRange = false;
+    }
+
+    if (typeof spec.minItems === 'number') {
+      param.type.modifiers.min = spec.minItems;
+      param.type.modifiers.isNumericRange = false;
+    }
+
+    if (typeof spec.maxLength === 'number') {
+      param.type.modifiers.max = spec.maxLength;
+      param.type.modifiers.isNumericRange = false;
+    }
+
+    if (typeof spec.minLength === 'number') {
+      param.type.modifiers.min = spec.minLength;
+      param.type.modifiers.isNumericRange = false;
+    }
+
+    defs.push(param);
+  }
 }
 
 function resolveRef(spec, obj, config) {

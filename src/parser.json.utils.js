@@ -2,15 +2,15 @@ const fs = require('fs');
 const utils = require('./utils');
 
 function convert(json, annotation, config) {
-  const blocks = [];
+  const defs = [];
 
   validate(json);
-  resolveInternal(json, annotation, blocks, '', config);
+  resolveInternal(json, annotation, defs, '', config);
 
-  return blocks;
+  return defs;
 }
 
-function resolveInternal(json, annotation, blocks, prefix, config) {
+function resolveInternal(json, annotation, defs, prefix, config) {
   if (!json || typeof json !== 'object') {
     return;
   }
@@ -45,15 +45,15 @@ function resolveInternal(json, annotation, blocks, prefix, config) {
     if (type) {
       const isObject = type.substr(0, 6) === 'Object';
 
-      blocks.push(`${annotation} {${type}} ${prefix ? prefix + '.' + key : key}${!isObject && val !== '' ? '=' + utils.quote(val) : ''}`);
+      defs.push(`${annotation} {${type}} ${prefix ? prefix + '.' + key : key}${!isObject && val !== '' ? '=' + utils.quote(val) : ''}`);
       
       if (isObject) {
-        resolveInternal(val, annotation, blocks, `${prefix ? prefix + '.' + key : key}`, config);
+        resolveInternal(val, annotation, defs, `${prefix ? prefix + '.' + key : key}`, config);
       }
     }
   });
 
-  return blocks;
+  return defs;
 }
 
 function resolveType(type) {

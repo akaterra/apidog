@@ -1,3 +1,18 @@
+function contentTypeToInternalContentType(contentType) {
+  switch (contentType.toLowerCase().replace(/\s+$/, '')) {
+    case 'application/json':
+      return 'json';
+    case 'application/xml':
+      return 'xml';
+    case 'application/x-www-form-urlencoded':
+      return 'form';
+    case 'multipart/form-data':
+      return 'multipart';
+    default:
+      return 'json';
+  }
+}
+
 function forEach(iterable, fn, ...args) {
   let index = 0;
 
@@ -199,6 +214,7 @@ class Logger {
 }
 
 module.exports = {
+  contentTypeToInternalContentType,
   forEach,
   isNotEmpty,
   quote,

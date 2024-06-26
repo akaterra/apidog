@@ -4,12 +4,14 @@ const Ajv = require('ajv-draft-04');
 const addFormats = require('ajv-formats');
 const { Block } = require('./block');
 const parserJsonschemaUtils = require('./parser.jsonschema.utils');
+const {brotliCompress} = require('zlib');
 
 const ajv = new Ajv();
 addFormats(ajv);
 const validate = ajv.compile(JSON.parse(fs.readFileSync(__dirname + '/assets/json-schema.3.0.json', 'utf8')));
 
 function convert(spec, config) {
+  const definitions = {};
   const blocks = [];
 
   if (!validate(spec)) {
@@ -23,6 +25,10 @@ function convert(spec, config) {
 
     if (!config.version) {
       config.version = spec.info.version;
+    }
+
+    if (spec.info.description) {
+
     }
   }
 
@@ -38,13 +44,22 @@ function convert(spec, config) {
         transport: { name: 'http', method },
       };
       block.authHeader = [];
+      block.authHeaderGroup = {};
       block.authQuery = [];
+      block.authQueryGroup = {};
       block.authParam = [];
+      block.authParamGroup = {};
       block.header = [];
+      block.headerGroup = {};
       block.query = [];
+      block.queryGroup = {};
       block.param = [];
+      block.paramGroup = {};
       block.success = [];
+      block.successGroup = {};
       block.error = [];
+      block.errorGroup = {};
+      block.version = spec.info?.version;
 
       if (usedVisualIds.has(methodSpec.operationId)) {
         // TODO warn
@@ -54,26 +69,34 @@ function convert(spec, config) {
 
       if (methodSpec.parameters?.length) {
         methodSpec.parameters.forEach((paramSpec) => {
+          let addTo;
+          let addToGroup;
+
+          if (paramSpec.in === 'header') {
+            addTo = block.header;
+            addToGroup = block.headerGroup;
+          } else if (paramSpec.in === 'query') {
+            addTo = block.query;
+            addToGroup = block.queryGroup;
+          } else {
+            addTo = block.param;
+            addToGroup = block.paramGroup;
+          }
+
           const params = parserJsonschemaUtils.convert({
             type: 'object',
             require: paramSpec.required ? [ paramSpec.name ] : [],
             description: paramSpec.description,
             properties: { [paramSpec.name]: paramSpec.schema },
-          });
+          }, null, addToGroup);
 
-          if (paramSpec.in === 'header') {
-            block.header.push(...params);
-          } else if (paramSpec.in === 'query') {
-            block.query.push(...params);
-          } else {
-            block.param.push(...params);
-          }
+          addTo.push(...params);
         });
       }
 
       if (methodSpec.requestBody?.content) {
         Object.entries(methodSpec.requestBody.content).forEach(([ contentType, requestBodySpec ]) => {
-          const params = parserJsonschemaUtils.convert(requestBodySpec.schema, contentType);
+          const params = parserJsonschemaUtils.convert(requestBodySpec.schema, contentType, block.paramGroup);
 
           block.param.push(...params);
         });
@@ -81,17 +104,52 @@ function convert(spec, config) {
 
       if (methodSpec.responses) {
         Object.entries(methodSpec.responses).forEach(([ responseCode, responseSpec ]) => {
-          if (responseCode[0] === '2' || responseCode.slice(0, 3).toLowerCase() === 'x-2') {
+          if (!responseSpec.content) {
+            return;
+          }
 
+          if (
+            responseCode[0] === '2' ||
+            responseCode.toLowerCase().startsWith('x-2') ||
+            responseCode[0] === '3' ||
+            responseCode.toLowerCase().startsWith('x-3')
+          ) {
+            for (const { schema } of Object.values(responseSpec.content)) {
+              const params = parserJsonschemaUtils.convert(schema, responseCode, block.successGroup);
+
+              block.success.push(...params);
+            }
+          } else {
+            for (const { schema } of Object.values(responseSpec.content)) {
+              const params = parserJsonschemaUtils.convert(schema, responseCode, block.errorGroup);
+
+              block.error.push(...params);
+            }
           }
         });
+      }
+
+      if (methodSpec.tags?.length) {
+        block.group = methodSpec.tags[0];
+
+        const specTag = spec.tags?.find((tag) => tag.name === block.group);
+
+        if (specTag) {
+          definitions[block.group] = definitions[block.group] ?? new Block();
+
+          definitions[block.group].define = {
+            name: block.group,
+            title: specTag.name,
+            description: specTag.description,
+          };
+        }
       }
 
       blocks.push(block);
     });
   });
 
-  return blocks;
+  return { blocks, definitions };
 }
 
 // function resolveApi(spec, api, docBlocks, operations) {
