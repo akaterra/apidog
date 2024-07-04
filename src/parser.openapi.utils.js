@@ -4,14 +4,16 @@ const Ajv = require('ajv-draft-04');
 const addFormats = require('ajv-formats');
 const { Block } = require('./block');
 const parserJsonschemaUtils = require('./parser.jsonschema.utils');
-const {brotliCompress} = require('zlib');
 
 const ajv = new Ajv();
 addFormats(ajv);
 const validate = ajv.compile(JSON.parse(fs.readFileSync(__dirname + '/assets/json-schema.3.0.json', 'utf8')));
 
-function convert(spec, config) {
-  const definitions = {};
+function convert(spec, definitions, config) {
+  if (!definitions) {
+    definitions = {};
+  }
+
   const blocks = [];
 
   if (!validate(spec)) {
@@ -152,268 +154,9 @@ function convert(spec, config) {
   return { blocks, definitions };
 }
 
-// function resolveApi(spec, api, docBlocks, operations) {
-//   if (!docBlocks) {
-//     docBlocks = [];
-//   }
-
-//   for (const operation of operations || api.operations) {
-//     const docBlock = [];
-
-//     let apiUri = api.path.replace(/\{(\w+)}/g, (_, param) => `:${param}`);
-
-//     docBlock.push(`@api {${operation.method.toLowerCase()}} ${apiUri} ${operation.summary || ''}`);
-
-//     if (spec.apiVersion) {
-//       docBlock.push(`@apiVersion ${spec.apiVersion}`);
-//     }
-
-//     if (operation.deprecated) {
-//       docBlock.push(`@apiDeprecated`);
-//     }
-
-//     // if (operation.nickname) {
-//     //   docBlock.push(`@apiName ${operation.nickname}`);
-//     // }
-
-//     if (operation.notes) {
-//       docBlock.push(`@apiDescription ${operation.notes}`);
-//     }
-
-//     for (const parameter of operation.parameters) {
-//       switch (parameter.paramType) {
-//         case 'body':
-//           resolveModelByType(spec, '@apiParam', parameter.type, '', docBlock);
-
-//           break;
-
-//         case 'header':
-//           docBlock.push(`@apiHeader {${resolveType(parameter.type, parameter.format)}} ${parameter.required ? '' : '['}${parameter.name}${parameter.required ? '' : ']'} ${parameter.description || ''}`);
-
-//           break;
-
-//         case 'form':
-//         case 'path':
-//         case 'query':
-//           docBlock.push(`@apiParam {${resolveType(parameter.type, parameter.format)}} ${parameter.name} ${parameter.description || ''}`);
-
-//           break;
-
-//         default:
-//           throwError();
-//       }
-//     }
-
-//     docBlocks.push(docBlock);
-//   }
-
-//   return docBlocks;
-// }
-
-// function resolveApiOperation(spec, operation, docBlock) {
-//   if (!docBlock) {
-//     docBlock = [];
-//   }
-
-//   return docBlock;
-// }
-
-// function resolveModel(spec, annotation, model, prefix, docBlock) {
-//   if (!docBlock) {
-//     docBlock = [];
-//   }
-
-//   if (!prefix) {
-//     prefix = '';
-//   }
-
-//   validateModel(spec, model);
-
-//   Object.entries(model.properties).forEach(([key, val]) => {
-//     const isRequired = val.required || (model.required && model.required.indexOf(key) !== -1);
-
-//     docBlock.push(`${annotation} {${resolveType(val.type, val.format)}} ${isRequired ? '' : '['}${prefix}${key}${isRequired ? '' : ']'} ${val.description || ''}`);
-//   });
-
-//   return docBlock;
-// }
-
-// function resolveModelByType(spec, annotation, type, prefix, docBlock) {
-//   if (!docBlock) {
-//     docBlock = [];
-//   }
-
-//   if (!prefix) {
-//     prefix = '';
-//   }
-
-//   validateModelByType(spec, type);
-
-//   if (type in spec.models) {
-//     return resolveModel(spec, annotation, spec.models[type], prefix, docBlock);
-//   }
-
-//   throwError(`Model "${type}" is not defined`);
-// }
-
-// function resolveType(type, format) {
-//   switch (type) {
-//     case 'boolean':
-//       return 'Boolean';
-
-//     case 'integer':
-//       return 'Integer';
-
-//     case 'string':
-//       return format === 'date-time' ? 'Date' : 'String';
-//   }
-
-//   return 'String';
-// }
-
 function throwError(message) {
   throw new Error(`Malformed OpenAPI specification${message ? `: ${message}` : ''}`);
 }
-
-// function validate(spec) {
-//   if (!spec || typeof spec !== 'object') {
-//     throwError();
-//   }
-
-//   if (typeof spec.openapi !== 'string' || !spec.openapi[0] === '3') {
-//     throwError();
-//   }
-
-//   if (typeof spec.info?.version) {
-//     throwError();
-//   }
-
-//   if (!spec.paths || typeof spec.paths !== 'object') {
-//     throwError();
-//   }
-
-//   Object.values(spec.paths).forEach((pathSpec) => validateApi(spec, pathSpec));
-
-//   if (spec.componens && typeof spec.components) {
-//     if (!spec.models || typeof spec.models !== 'object') {
-//       throwError();
-//     }
-
-//     Object.values(spec.models).forEach((model) => validateModel(spec, model));
-//   }
-
-//   return spec;
-// }
-
-// function validateApi(spec, api) {
-//   if (!api || typeof api !== 'object') {
-//     throwError();
-//   }
-
-//   if (typeof api.path !== 'string') {
-//     throwError();
-//   }
-
-//   if (!Array.isArray(api.operations)) {
-//     throwError();
-//   }
-
-//   for (const operation of api.operations) {
-//     if (typeof operation.method !== 'string') {
-//       throwError();
-//     }
-
-//     if (operation.nickname && typeof operation.nickname !== 'string') {
-//       throwError();
-//     }
-
-//     if (typeof operation.notes !== 'string') {
-//       throwError();
-//     }
-
-//     if (operation.summary && typeof operation.summary !== 'string') {
-//       throwError();
-//     }
-
-//     if (!Array.isArray(operation.parameters)) {
-//       throwError();
-//     }
-
-//     for (const parameter of operation.parameters) {
-//       if (!parameter || typeof parameter !== 'object') {
-//         throwError();
-//       }
-
-//       if (parameter.description && typeof parameter.description !== 'string') {
-//         throwError();
-//       }
-
-//       if (typeof parameter.name !== 'string') {
-//         throwError();
-//       }
-
-//       if (typeof parameter.paramType !== 'string') {
-//         throwError();
-//       }
-
-//       if (parameter.required && typeof parameter.required !== 'boolean') {
-//         throwError();
-//       }
-
-//       if (parameter.type && typeof parameter.type !== 'string') {
-//         throwError();
-//       }
-//     }
-//   }
-
-//   return api;
-// }
-
-// function validateModel(spec, model) {
-//   if (!model || typeof model !== 'object') {
-//     throwError();
-//   }
-
-//   if (!model.properties || typeof model.properties !== 'object') {
-//     throwError();
-//   }
-
-//   if (model.required && !Array.isArray(model.required)) {
-//     throwError();
-//   }
-
-//   Object.entries(model.properties).forEach(([key, val]) => {
-//     if (!val || typeof val !== 'object') {
-//       throwError();
-//     }
-
-//     if (val.description && typeof val.description !== 'string') {
-//       throwError();
-//     }
-
-//     if (val.enum && !Array.isArray(val.enum)) {
-//       throwError();
-//     }
-
-//     if (val.enum) {
-//       for (const e of val.enum) {
-//         if (typeof e !== 'string') {
-//           throwError();
-//         }
-//       }
-//     }
-//   });
-
-//   return model;
-// }
-
-// function validateModelByType(spec, type) {
-//   if (!spec.models || typeof spec.models !== 'object') {
-//     throwError();
-//   }
-
-//   return validateModel(spec, spec.models[type]);
-// }
 
 function enumUriPlaceholders(uri, fn, acc) {
   const placeholderRegex = /(\{|\%7B)(\w+)(\}|\%7D)/g;
@@ -506,17 +249,4 @@ module.exports = {
 
     throw new Error(`Unknown OpenAPI source format "${source}"`);
   },
-  // resolveApi,
-  // resolveApiOperation,
-  // resolveModel,
-  // resolveModelByType,
-  // resolveType,
-  // validate,
-  // validateApi,
-  // validateModel,
-  // validateModelByType,
 };
-
-// const c = {};
-// const q = convert(module.exports.fetchSource('./spec/sample/openapi.json'), c);
-// console.log(JSON.stringify(q, undefined, 2), c)

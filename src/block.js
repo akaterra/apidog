@@ -40,6 +40,16 @@ class Block {
   }
 
   toObject() {
+    if (this.description?.length) {
+      while (true) {
+        if (this.description[this.description.length - 1].trim()) {
+          break;
+        }
+
+        this.description.pop();
+      }
+    }
+
     return objWithRemoveUndefined(Object.keys(this).reduce((acc, key) => {
       if (key.startsWith('_')) {
         return acc;

@@ -1,20 +1,17 @@
-const parseBlockLines = require('./parser.block_lines');
-const parserOpenAPI12Utils = require('./parser.openapi.1.2.utils');
+const parserOpenAPIUtils = require('./parser.openapi.utils.js');
 const utils = require('./utils');
 
-function parseOpenAPIFile(source, config) {
+function parseOpenAPI(source, definitions, config) {
   if (!config) {
     config = {logger: utils.logger};
   }
 
-  return parserOpenAPI12Utils.convert(parserOpenAPI12Utils.fetchSource(source)).map((lines) => {
-    return parseBlockLines.parseBlockLines(lines, undefined, config);
-  });
+  return parserOpenAPIUtils.convert(parserOpenAPIUtils.fetchSource(source), definitions, config).blocks;
 }
 
 module.exports = {
   normalizeDir(dir) {
     return dir.substr(0, dir.lastIndexOf('/'));
   },
-  parseOpenAPIFile,
+  parseOpenAPI,
 };

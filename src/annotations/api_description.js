@@ -11,6 +11,10 @@ const utils = require('../utils');
 const peggy = require('./peg/api_description');
 
 function addDescription(block, text) {
+  if (!text.trim() && !block.description.length) {
+    return block;
+  }
+
   block.description.push(text);
 
   return block;

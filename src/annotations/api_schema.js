@@ -8,7 +8,7 @@ const get = require('lodash.get');
 const fs = require('fs');
 const parserJsonUtils = require('../parser.json.utils');
 const parserJsonschemaUtils = require('../parser.jsonschema.utils');
-const parserOpenAPIUtils = require('../parser.openapi.1.2.utils');
+const parserOpenAPIUtils = require('../parser.openapi.utils');
 const utils = require('../utils');
 
 const regex = /^(\((.+)\)\s+|){(.+)}(\s+(.+))?/;

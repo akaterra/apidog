@@ -10,7 +10,6 @@ const parseBlockLines = require('./src/parser.block_lines');
 const parseDir = require('./src/parser.dir');
 const parseJsonschemaUtils = require('./src/parser.jsonschema.utils');
 const parseOpenAPI = require('./src/parser.openapi');
-const parseOpenAPIUtils = require('./src/parser.openapi.1.2.utils');
 const utils = require('./src/utils');
 
 const argumentParser = new ArgumentParser({
@@ -19,6 +18,12 @@ const argumentParser = new ArgumentParser({
   version: JSON.parse(fs.readFileSync(`${__dirname}/package.json`)).version,
 });
 
+argumentParser.addArgument(
+  [ '--compressionLevel' ],
+  {
+    type: 'int', default: 1, help: 'Try to generalize fields and store them as separate schemas (0 - no compression, default is 1)',
+  },
+);
 argumentParser.addArgument(
   [ '--description' ],
   {
@@ -173,13 +178,6 @@ argumentParser.addArgument(
   [ '--withSampleRequestProxy', '--withSrp' ],
   {
     action: 'storeTrue', help: 'Create (not rewrites existing) also ".gitignore", "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory',
-  },
-);
-
-argumentParser.addArgument(
-  [ '--openapi:compressionLevel' ],
-  {
-    type: 'int', default: 2, help: 'Try to generalize fields and store them as schema (1 - no compression, default is 2)',
   },
 );
 
@@ -375,14 +373,12 @@ const definitions = {
 
 const envConfig = {
   author: config.author,
+  compressionLevel: args.compressionLevel ?? config.compressionLevel ?? 0,
   description: args.description || config.description,
   keywords: config.keywords,
   logger: new utils.Logger(),
   locale: args.locale || config.locale || 'en',
   private: argsPrivate,
-  openapi: {
-    compressionLevel: (args['openapi:compressionLevel'] ?? config['openapi:compressionLevel'] ?? 2) - 1,
-  },
   ordered: args.ordered,
   outputDir,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
@@ -460,7 +456,6 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
   switch (parser.slice(0, -1) || argsParser) {
     case 'asyncapi':
       break;
-
     case 'dir':
       source = path.resolve(source);
 
@@ -486,9 +481,8 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
       }
 
       break;
-
     case 'openapi':
-      docBlocks = docBlocks.concat(parseOpenAPI.parseOpenAPIFile(source, envConfig));
+      docBlocks = docBlocks.concat(parseOpenAPI.parseOpenAPI(source, definitions, envConfig));
 
       if (index === 0 && !outputDir) {
         envConfig.outputDir = parseOpenAPI.normalizeDir(source);
@@ -499,7 +493,6 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
       }
 
       break;
-
     default:
       throw new Error(`Unknown doc blocks parser "${argsParser}"`);
   }

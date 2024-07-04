@@ -72,54 +72,51 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
 
-    if (line) {
-      if (config) {
-        config.logger.setLine(line);
+    if (config) {
+      config.logger.setLine(line);
+    }
+
+    /**
+     * Example:
+     * 
+     * @apiToken abc def
+     * 
+     * annotation = "@apiToken"
+     * text = "abc def"
+     */
+    const [annotation, text] = utils.strSplitBySpace(line.trim(), 1);
+    const annotationLowerCase = annotation ? annotation.toLowerCase() : null;
+
+    if (annotationLowerCase && annotationParsers.hasOwnProperty(annotationLowerCase)) {
+      lastTokenParser = annotationParsers[annotationLowerCase];
+
+      // merge parsed properties with block properties
+      try {
+        Object.assign(
+          block,
+          lastTokenParser.parse(
+            block,
+            text,
+            line,
+            index,
+            lines,
+            definitions,
+            config,
+            onlyDefinitions
+          )
+        );
+      } catch (e) {
+        config.logger.throw(e);
+      }
+    } else {
+      // unknown annotation
+      if (config.logger && annotationLowerCase && annotationLowerCase.slice(0, 4) === '@api') {
+        config.logger.warn(`Possibly unknown annotation: ${annotation}`);
       }
 
-      /**
-       * Example:
-       * 
-       * @apiToken abc def
-       * 
-       * annotation = "@apiToken"
-       * text = "abc def"
-       */
-      const [annotation, text] = utils.strSplitBySpace(line.trim(), 1);
-
-      if (annotation) {
-        if (annotationParsers.hasOwnProperty(annotation.toLowerCase())) {
-          lastTokenParser = annotationParsers[annotation.toLowerCase()];
-
-          // merge parsed properties with block properties
-          try {
-            Object.assign(
-              block,
-              lastTokenParser.parse(
-                block,
-                text,
-                line,
-                index,
-                lines,
-                definitions,
-                config,
-                onlyDefinitions
-              )
-            );
-          } catch (e) {
-            config.logger.throw(e);
-          }
-        } else {
-          // unknown annotation
-          if (config.logger && annotation.substr(0, 4) === '@api') {
-            config.logger.warn(`Possibly unknown annotation: ${annotation}`);
-          }
-
-          // add line of description (or another props) by using last selected annotation parser
-          if (lastTokenParser && lastTokenParser.addDescription) {
-            Object.assign(block, lastTokenParser.addDescription(block, line, config));
-          }
-        }
+      // add line of description (or another props) by using last selected annotation parser
+      if (lastTokenParser && lastTokenParser.addDescription) {
+        Object.assign(block, lastTokenParser.addDescription(block, line, config));
       }
     }
   };

@@ -94,6 +94,10 @@ apidog -h
 
 Parameters:
 
+* **--compressionLevel** - Generalize the fields declared with **@apiParam**, **@apiError** and **@apiSuccess** aggregating them into separate schemas (`components.schemas` section of OpenAPI spec for example), bigger value means bigger depth of traverse
+
+  0 means "no compression", default is 1.
+
 * **--description "description"** - Custom description that will be used as a description of the generated documentation
 
   Default is \[ package.json in input directory \].description or null by default.
@@ -118,10 +122,6 @@ Parameters:
 * **-o, --output "output directory"** - Output directory where "apidoc.html" and additional files will be written
 
   Same as **input directory** by default.
-
-* **--openapi:compressionLevel** - Generalize the fields declared with **@apiParam**, **@apiError** and **@apiSuccess** aggregating them into separate schemas (`components.schemas` section), bigger value means bigger depth of traverse
-
-  1 means "no compression", default is 2.
 
 * **--parser "dir" | "inline" | "openapi"** -- Parser to be used to parse the doc blocks sources
 

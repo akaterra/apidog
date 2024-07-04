@@ -1,6 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
+const parserOpenAPIUtils = require('../../parser.openapi.utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
 
@@ -13,7 +13,7 @@ const contentTypeToOpenapiContentType = {
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
-    const compressionLevel = config.openapi?.compressionLevel ?? 2;
+    const compressionDepth = (config.compressionLevel ?? 1) + 1;
 
     const spec = {
       openapi: '3.0.3',
@@ -66,7 +66,7 @@ module.exports = (config) => ({
               const schema = maybeReplaceObjectParamsWithRef(
                 parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
                 schemas,
-                compressionLevel,
+                compressionDepth,
               );
 
               responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
@@ -85,7 +85,7 @@ module.exports = (config) => ({
               const schema = maybeReplaceObjectParamsWithRef(
                 parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
                 schemas,
-                compressionLevel,
+                compressionDepth,
               );
               
               responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
@@ -257,7 +257,7 @@ module.exports = (config) => ({
                   ...maybeReplaceObjectParamsWithRef(
                     parserUtils.convertParamToJsonSchema(param),
                     schemas,
-                    compressionLevel,
+                    compressionDepth,
                   ),
                   enum: param.type.allowedValues?.length
                     ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
@@ -294,7 +294,7 @@ module.exports = (config) => ({
                   ...maybeReplaceObjectParamsWithRef(
                     parserUtils.convertParamToJsonSchema(param),
                     schemas,
-                    compressionLevel,
+                    compressionDepth,
                   ),
                   enum: param.type.allowedValues?.length
                     ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
@@ -319,7 +319,7 @@ module.exports = (config) => ({
                     bodyParams,
                   ),
                   schemas,
-                  compressionLevel,
+                  compressionDepth,
                 );
 
                 acc[contentTypeToOpenapiContentType[contentType]] = {

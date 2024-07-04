@@ -8,6 +8,10 @@ function parseDir(dir, blocks, filter, definitions, config) {
     config = {logger: utils.logger};
   }
 
+  if (!definitions) {
+    definitions = {};
+  }
+
   config.logger.info(`Files to be ignored: ${filter.ignore.join(', ')}`);
 
   if (!definitions) {
@@ -97,7 +101,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
   return blocks;
 }
 
-const defaultCommentPrefixContent = [null, null, null];
+const defaultCommentPrefixContent = [null, null, null, ''];
 
 function parseApidoc(source, definitions, config, onlyDefinitions) {
   const blocks = source.split(/\n{2,}/gm);
@@ -124,7 +128,7 @@ function parseJavaDocStyle(source, definitions, config, onlyDefinitions) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/\s*(\*)?(\s)?(.*)/) || defaultCommentPrefixContent)[3];
-      }).filter((line) => line), definitions, config, onlyDefinitions);
+      }), definitions, config, onlyDefinitions);
     });
   }
 
@@ -156,7 +160,7 @@ function parsePerl(source, definitions, config, onlyDefinitions) {
 
       return parserBlockLines.parseBlockLines(lines.slice(1, lines.length - 1).map((line) => {
         return (line.match(/#\s?(.*)/) || defaultCommentPrefixContent)[1];
-      }).filter((line) => line), definitions, config, onlyDefinitions);
+      }), definitions, config, onlyDefinitions);
     });
   }
 
