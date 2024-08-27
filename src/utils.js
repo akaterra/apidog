@@ -1,3 +1,5 @@
+// test
+
 function contentTypeToInternalContentType(contentType) {
   switch (contentType.toLowerCase().replace(/\s+$/, '')) {
     case 'application/json':
