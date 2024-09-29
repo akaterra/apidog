@@ -255,7 +255,7 @@ Works same as well as original **@apiDescription** but treats the description co
 
 Format:
 ```
-@apiErrorPrefix prefix
+@apiErrorPrefix [(group)] prefix
 ```
 
 Prefixes all following **@apiError**s with prefix.
@@ -409,7 +409,7 @@ Can be used with **@apiDescription**.
 
 Format:
 ```
-@apiParamPrefix prefix
+@apiParamPrefix [(group)] prefix
 ```
 
 Prefixes all following **@apiParam**s with prefix.
@@ -579,7 +579,7 @@ The subgroup will be shown as a sub navigation section of the menu.
 
 Format:
 ```
-@apiSuccessPrefix prefix
+@apiSuccessPrefix [(group)] prefix
 ```
 
 Prefixes all following **@apiSuccess**s with prefix.

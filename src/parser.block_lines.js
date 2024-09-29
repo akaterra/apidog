@@ -56,6 +56,8 @@ const annotationParsers = {
 };
 
 function parseBlockLines(lines, definitions, config, onlyDefinitions) {
+  const apiPrivateLineIndex = lines.findIndex((line) => line.trim().toLowerCase() === '@apiprivate');
+
   if (!config) {
     config = {logger: utils.logger};
   }
@@ -92,18 +94,28 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
 
       // merge parsed properties with block properties
       try {
+        const blockParams = lastTokenParser.parse(
+          block,
+          text,
+          line,
+          index,
+          lines,
+          definitions,
+          config,
+          onlyDefinitions
+        );
+
+        if (blockParams.private && config) {
+          if (config.private === false) {
+            return null;
+          } else if (Array.isArray(config.private) && config.private.some((key) => !blockParams.private.includes(key))) {
+            return null;
+          }
+        }
+
         Object.assign(
           block,
-          lastTokenParser.parse(
-            block,
-            text,
-            line,
-            index,
-            lines,
-            definitions,
-            config,
-            onlyDefinitions
-          )
+          blockParams,
         );
       } catch (e) {
         config.logger.throw(e);

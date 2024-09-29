@@ -70,19 +70,24 @@ module.exports = (config) => ({
                 compressionDepth,
               );
               const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
 
-              if (
-                responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]] &&
-                !responsesInitializedAsArray.has(responseKey + ':' + contentType)
-              ) {
-                schema = {
-                  oneOf: [
-                    responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]],
-                    schema,
-                  ],
-                };
+              if (responses[responseKey]?.content?.[contentTypeKey]) {
+                const oldShema = responses[responseKey].content[contentTypeKey].schema;
 
-                responsesInitializedAsArray.add(responseKey + ':' + contentType);
+                if (!oldShema?.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema = {
+                    oneOf: [ oldShema ],
+                  };
+                }
+
+                if (schema.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
+                } else {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
+                }
+
+                schema = responses[responseKey].content[contentTypeKey].schema;
               }
 
               responses[responseKey] = {
@@ -105,18 +110,15 @@ module.exports = (config) => ({
               );
               const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
 
-              if (
-                responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]] &&
-                !responsesInitializedAsArray.has(responseKey + ':' + contentType)
-              ) {
-                schema = {
-                  oneOf: [
-                    responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]],
-                    schema,
-                  ],
-                };
+              if (responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]) {
+                if (!responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema?.oneOf) {
+                  responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema = {
+                    oneOf: [ responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema ],
+                  };
+                }
 
-                responsesInitializedAsArray.add(responseKey + ':' + contentType);
+                responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema.oneOf.push(schema);
+                schema = responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema;
               }
 
               responses[responseKey] = {

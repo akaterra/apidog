@@ -5,6 +5,10 @@ const _ = require('./assets/i18n')._;
 
 function generate(blocks, template, definitions, config, hbs) {
   blocks = blocks.filter((block) => {
+    if (!block) {
+      return false;
+    }
+
     if (block.private) {
       if (config) {
         if (Array.isArray(block.private)) {
@@ -13,7 +17,7 @@ function generate(blocks, template, definitions, config, hbs) {
           }
 
           if (Array.isArray(config.private)) {
-            return config.private.every((key) => block.private.indexOf(key) !== -1);
+            return config.private.every((key) => block.private.includes(key));
           }
 
           return false;

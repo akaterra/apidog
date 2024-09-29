@@ -33,7 +33,7 @@ function construct(name) {
       } else {
         if (prefix === '??') {
           prefix = block[annotationName] ?? '';
-        } else if (block[annotationName]) {
+        } else {
           block[annotationStackName].push([ block[annotationName], block[annotationGroupName] ]);
         }
 
