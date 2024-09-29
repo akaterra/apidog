@@ -223,14 +223,21 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     if (oneOf.length === 1) {
       jsonSchema.properties[propKey] = oneOf[0];
     } else {
+      const oneOfNonArrayVariants = oneOf.filter((oneOf) => oneOf.type !== 'array');
+      const oneOfArrayVariants = oneOf.some((oneOf) => oneOf.type === 'array')
+        ? [ {
+          type: 'array',
+          items: { oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => oneOf.items) },
+        } ]
+        : [];
+
+      if (oneOfArrayVariants[0]?.items.oneOf.length === 1) {
+        oneOfArrayVariants[0].items = oneOfArrayVariants[0].items.oneOf[0];
+      }
+
       const oneOfVariants = [
-        ...oneOf.filter((oneOf) => oneOf.type !== 'array'),
-        ...oneOf.some((oneOf) => oneOf.type === 'array')
-          ? [{
-            type: 'array',
-            items: { oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => oneOf.items) },
-          }]
-          : []
+        ...oneOfNonArrayVariants,
+        ...oneOfArrayVariants,
       ];
 
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };

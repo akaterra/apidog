@@ -56,8 +56,6 @@ const annotationParsers = {
 };
 
 function parseBlockLines(lines, definitions, config, onlyDefinitions) {
-  const apiPrivateLineIndex = lines.findIndex((line) => line.trim().toLowerCase() === '@apiprivate');
-
   if (!config) {
     config = {logger: utils.logger};
   }

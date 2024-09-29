@@ -56,7 +56,6 @@ module.exports = (config) => ({
       });
 
       const responses = {};
-      const responsesInitializedAsArray = new Set();
 
       for (const contentType of descriptor.contentType) {
         if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {

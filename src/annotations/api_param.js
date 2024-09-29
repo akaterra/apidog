@@ -120,8 +120,11 @@ function construct(name, usePrefix) {
     }
 
     if (blockParam.field) {
-      let root = block[annotationGroupVariantsName][group].prop['']?.[0]?.prop ?? block[annotationGroupVariantsName][group].prop;
-      blockParam.field.path = utils.strSplitByPathEscaped(blockParam.field.name);
+      const rootProp = block[annotationGroupVariantsName][group].prop[''];
+      let root = rootProp?.length
+        ? rootProp[rootProp.length - 1]?.prop
+        : block[annotationGroupVariantsName][group].prop;
+      blockParam.field.path = [ ...utils.strSplitByPathEscaped(blockParam.field.name) ];
 
       utils.forEach(blockParam.field.path, (key, ind, isLast) => {
         if (!root[key]) {
