@@ -56,6 +56,7 @@ module.exports = (config) => ({
       });
 
       const responses = {};
+      const responsesInitializedAsArray = new Set();
 
       for (const contentType of descriptor.contentType) {
         if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
@@ -63,13 +64,28 @@ module.exports = (config) => ({
         } else {
           if (descriptor.successGroupVariant) {
             Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              const schema = maybeReplaceObjectParamsWithRef(
+              let schema = maybeReplaceObjectParamsWithRef(
                 parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
                 schemas,
                 compressionDepth,
               );
+              const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
 
-              responses[groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+              if (
+                responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]] &&
+                !responsesInitializedAsArray.has(responseKey + ':' + contentType)
+              ) {
+                schema = {
+                  oneOf: [
+                    responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]],
+                    schema,
+                  ],
+                };
+
+                responsesInitializedAsArray.add(responseKey + ':' + contentType);
+              }
+
+              responses[responseKey] = {
                 description: 'No description',
                 content: schema ? {
                   [contentTypeToOpenapiContentType[contentType]]: {
@@ -82,13 +98,28 @@ module.exports = (config) => ({
 
           if (descriptor.errorGroupVariant) {
             Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              const schema = maybeReplaceObjectParamsWithRef(
+              let schema = maybeReplaceObjectParamsWithRef(
                 parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
                 schemas,
                 compressionDepth,
               );
-              
-              responses[groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`] = {
+              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+
+              if (
+                responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]] &&
+                !responsesInitializedAsArray.has(responseKey + ':' + contentType)
+              ) {
+                schema = {
+                  oneOf: [
+                    responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]],
+                    schema,
+                  ],
+                };
+
+                responsesInitializedAsArray.add(responseKey + ':' + contentType);
+              }
+
+              responses[responseKey] = {
                 description: 'No description',
                 content: schema ? {
                   [contentTypeToOpenapiContentType[contentType]]: {

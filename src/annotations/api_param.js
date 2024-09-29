@@ -10,6 +10,7 @@ function construct(name, usePrefix) {
   const annotationGroupVariantsName = `${name}GroupVariant`;
   const annotationName = name;
   const annotationPrefixName = `${name}Prefix`;
+  const annotationPrefixGroupName = `${name}PrefixGroup`;
 
   function addDescription(block, text) {
     block[annotationName][block[annotationName].length - 1].description.push(text);
@@ -40,7 +41,7 @@ function construct(name, usePrefix) {
 
     const parsed = peggy.parse(text.trim());
 
-    let group = parsed.group?.name || null;
+    let group = parsed.group?.name || block[annotationPrefixGroupName] || null;
     let type = null;
     let field = null;
     let description = parsed.description ? parsed.description.split('\n') : [];
