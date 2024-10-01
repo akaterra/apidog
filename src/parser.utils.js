@@ -67,6 +67,7 @@ const SCHEMA_BY_TYPE = {
   datetime: 'date-time',
   'date-time': true,
   email: true,
+  file: { type: 'string', format: 'binary' },
   hostname: true,
   id: { type: 'integer', minimum: 0 },
   ipv4: true,
@@ -89,7 +90,6 @@ const SCHEMA_VALUE_BY_TYPE = {
 
 function convertParamToJsonSchema(mixed) {
   let type;
-  let param;
 
   if (mixed && typeof mixed === 'object') {
     type = mixed.type?.modifiers?.initial?.toLowerCase();
@@ -117,6 +117,11 @@ function convertParamToJsonSchema(mixed) {
         : SCHEMA_BY_TYPE[type]
       : undefined,
   };
+
+  if (mixed.type?.modifiers?.regex) {
+    schema.pattern = param.type.modifiers?.regex;
+    schema.type = 'string';
+  }
 
   if (mixed.field?.defaultValue !== undefined) {
     schema.default = convertParamValueByType(type, mixed.field.defaultValue);

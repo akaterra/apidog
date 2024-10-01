@@ -1,5 +1,5 @@
 /**
- * @apiParamPrefix prefix [group]
+ * @apiParamPrefix [(group)] prefix
  */
 
 const utils = require('../utils');
@@ -20,7 +20,7 @@ function construct(name) {
     let prefix = parsed.field?.name;
     let group = parsed.group?.name;
 
-    if (!prefix) {
+    if (!prefix && !group) {
       block[annotationName] = block[annotationGroupName] = undefined;
       block[annotationStackName] = [];
     } else {
@@ -31,10 +31,10 @@ function construct(name) {
           block[annotationName] = block[annotationGroupName] = undefined;
         }
       } else {
-        if (prefix === '??') {
-          prefix = block[annotationName] ?? '';
-        } else {
+        if (prefix) {
           block[annotationStackName].push([ block[annotationName], block[annotationGroupName] ]);
+        } else {
+          prefix = block[annotationName] ?? '';
         }
 
         block[annotationName] = block[annotationName] ? block[annotationName] + prefix : prefix;

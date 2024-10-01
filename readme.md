@@ -288,6 +288,7 @@ Example:
 
 Another subsequent declaration adds a prefix to the previous one.
 ".." returns to the previous prefix, empty value resets the prefix.
+To update only group use `@apiErrorPrefix (group)` syntax.
 
 Example:
 ```
@@ -442,6 +443,7 @@ Example:
 
 Another subsequent declaration adds a prefix to the previous one.
 ".." returns to the previous prefix, empty value resets the prefix.
+To update only group use `@apiParamPrefix (group)` syntax.
 
 Example:
 ```
@@ -612,6 +614,7 @@ Example:
 
 Another subsequent declaration adds a prefix to the previous one.
 ".." returns to the previous prefix, empty value resets the prefix.
+To update only group use `@apiSuccessPrefix (group)` syntax.
 
 Example:
 ```

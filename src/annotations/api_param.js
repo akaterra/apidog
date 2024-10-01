@@ -55,14 +55,22 @@ function construct(name, usePrefix) {
     }
 
     if (parsed.type) {
+      const initial = parsed.type.name.toLowerCase();
+
       type = {
         allowedValues: parsed.type.enum ?? [],
-        modifiers: parsed.type.modifiers?.reduce((acc, modifier) => {
+        modifiers: parsed.type.modifiers?.reduce((acc, modifier, i) => {
           if (modifier.list) {
             acc.list = modifier.list;
           }
 
           if (!modifier.name) {
+            return acc;
+          }
+
+          if (initial === 'regex' && i === 0) {
+            acc.regex = modifier.name;
+
             return acc;
           }
 
@@ -86,10 +94,11 @@ function construct(name, usePrefix) {
 
           return acc;
         }, {
-          initial: parsed.type.name.toLowerCase(),
+          initial,
           isNumericRange: parsed.type.isNumeric,
           min: parsed.type.min,
           max: parsed.type.max,
+          regex: null,
           [parsed.type.name.toLowerCase()]: true,
         }),
         name: parsed.type.name + parsed.type.modifiers?.map((modifier) => {

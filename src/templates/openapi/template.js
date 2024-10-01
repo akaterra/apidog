@@ -7,6 +7,7 @@ const { createHash } = require('crypto');
 const contentTypeToOpenapiContentType = {
   form: 'application/x-www-form-urlencoded',
   json: 'application/json',
+  multipart: 'multipart/form-data',
   xml: 'application/xml',
 };
 
@@ -108,16 +109,24 @@ module.exports = (config) => ({
                 compressionDepth,
               );
               const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
 
-              if (responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]) {
-                if (!responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema?.oneOf) {
-                  responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema = {
-                    oneOf: [ responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema ],
+              if (responses[responseKey]?.content?.[contentTypeKey]) {
+                const oldShema = responses[responseKey].content[contentTypeKey].schema;
+
+                if (!oldShema?.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema = {
+                    oneOf: [ oldShema ],
                   };
                 }
 
-                responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema.oneOf.push(schema);
-                schema = responses[responseKey].content[contentTypeToOpenapiContentType[contentType]].schema;
+                if (schema.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
+                } else {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
+                }
+
+                schema = responses[responseKey].content[contentTypeKey].schema;
               }
 
               responses[responseKey] = {
@@ -354,8 +363,19 @@ module.exports = (config) => ({
                   compressionDepth,
                 );
 
+                const encoding = schema?.properties ? Object.entries(schema.properties).reduce((acc, [key, value]) => {
+                  if (value?.type === 'object' && value?.properties) {
+                    acc[key] = {
+                      contentType: 'application/json',
+                    };
+                  }
+
+                  return acc;
+                }, {}) : undefined;
+
                 acc[contentTypeToOpenapiContentType[contentType]] = {
                   schema,
+                  encoding,
                 };
     
                 return acc;
