@@ -6,6 +6,8 @@
 const utils = require('../utils');
 const peggy = require('./peg/api_define');
 
+const parseApiPrivate = require('./api_private').parse;
+
 function addDescription(block, text) {
   block.define.description.push(text);
 
@@ -18,16 +20,26 @@ function parse(block, text, line, index, lines, definitions) {
   }
 
   const parsed = peggy.parse(text.trim());
+  const apiPrivate = lines.find((line) => line.trim().split(/\s+/, 2)[0]?.toLowerCase() === '@apiprivate');
 
-  const blockDefine = block.define = {};
+  if (apiPrivate) {
+    parseApiPrivate(block, apiPrivate.slice(apiPrivate.toLowerCase().indexOf('@apiprivate') + 11), line, index, lines, definitions);
+  }
 
-  blockDefine.description = [];
-  blockDefine.embeddedLines = lines.filter((line) => line.trim().slice(0, 10) !== '@apiDefine');
-  blockDefine.name = parsed.name;
-  blockDefine.title = parsed.title;
+  return [
+    block,
+    () => {
+      const blockDefine = block.define = {};
 
-  definitions[parsed.name] = blockDefine;
-  block.addToApidocString(toApidocString);
+      blockDefine.description = [];
+      blockDefine.embeddedLines = lines.filter((line) => line.trim().split(/\s+/, 2)[0]?.toLowerCase() !== '@apidefine');
+      blockDefine.name = parsed.name;
+      blockDefine.title = parsed.title;
+    
+      definitions[parsed.name] = blockDefine;
+      block.addToApidocString(toApidocString);
+    },
+  ];
 
   return block;
 }

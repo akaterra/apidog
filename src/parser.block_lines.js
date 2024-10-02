@@ -92,7 +92,7 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
 
       // merge parsed properties with block properties
       try {
-        const blockParams = lastTokenParser.parse(
+        let blockParams = lastTokenParser.parse(
           block,
           text,
           line,
@@ -102,6 +102,11 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
           config,
           onlyDefinitions
         );
+        let blockParamsAfterCheck;
+
+        if (Array.isArray(blockParams)) {
+          [ blockParams, blockParamsAfterCheck ] = blockParams;
+        }
 
         if (blockParams.private && config) {
           if (config.private === false) {
@@ -109,6 +114,10 @@ function parseBlockLines(lines, definitions, config, onlyDefinitions) {
           } else if (Array.isArray(config.private) && config.private.some((key) => !blockParams.private.includes(key))) {
             return null;
           }
+        }
+
+        if (blockParamsAfterCheck) {
+          blockParamsAfterCheck();
         }
 
         Object.assign(
