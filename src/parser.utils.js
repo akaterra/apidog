@@ -138,8 +138,6 @@ function convertParamToJsonSchema(mixed) {
   if (typeof mixed.type?.modifiers?.min === 'number') {
     if (mixed.type?.modifiers?.isNumericRange) {
       schema.minimum = mixed.type.modifiers.min;
-    } else if (mixed.type?.modifiers?.list > 0) {
-      // schema.minItems = mixed.type.modifiers.min;
     } else {
       schema.minLength = mixed.type.modifiers.min;
     }
@@ -148,9 +146,7 @@ function convertParamToJsonSchema(mixed) {
   if (typeof mixed.type?.modifiers?.max === 'number') {
     if (mixed.type?.modifiers?.isNumericRange) {
       schema.maximum = mixed.type.modifiers.max;
-    } else if (mixed.type?.modifiers?.list > 0) {
-      // schema.maxItems = mixed.type.modifiers.max;
-    }  else {
+    } else {
       schema.maxLength = mixed.type.modifiers.max;
     }
   }
@@ -203,12 +199,12 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             properties: {},
           }
 
-          if (typeof param.type?.modifiers?.min === 'number') {
-            paramJsonSchemaRef.minItems = param.type.modifiers.min;
+          if (typeof param.type?.modifiers?.listConstraints?.[i]?.min === 'number') {
+            paramJsonSchemaRef.minItems = param.type.modifiers.listConstraints[i].min;
           }
 
-          if (typeof param.type?.modifiers?.max === 'number') {
-            paramJsonSchemaRef.maxItems = param.type.modifiers.max;
+          if (typeof param.type?.modifiers?.listConstraints?.[i]?.max === 'number') {
+            paramJsonSchemaRef.maxItems = param.type.modifiers.listConstraints[i].max;
           }
 
           paramJsonSchemaRef = paramJsonSchemaRef.items;

@@ -7,11 +7,11 @@ Group
   = "(" _ name:Any _ ")" { return { name } }
 
 Type
-  = "{" _ name:Any modifiers:TypeModifiers* _ constraints:TypeConstraints? _ e:TypeEnum? "}" { return { name, modifiers, ...constraints, enum: e } }
+  = "{" _ name:Any constraints:TypeConstraints? modifiers:TypeModifiers* _ e:TypeEnum? "}" { return { name, modifiers, enum: e, ...constraints } }
 
 TypeModifiers
-  = ":" name:Any list:"[]"* { return { name, list: list.length } }
-  / list:"[]"+ { return { name: null, list: list.length } }
+  = ":" name:Any list:"[]"* constraints:TypeConstraints? { return { name, list: list.length, ...constraints } }
+  / list:"[]"+ constraints:TypeConstraints? { return { name: null, list: list.length, ...constraints } }
 
 TypeConstraints
   = "{" _ min:NumberOrNothing _ delim:("-" / "..") _ max:NumberOrNothing _ "}" { return { min, max, isNumeric: delim === '-' } }

@@ -40,8 +40,6 @@ function parse(block, text, line, index, lines, definitions) {
       block.addToApidocString(toApidocString);
     },
   ];
-
-  return block;
 }
 
 function toApidocString(block) {

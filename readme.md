@@ -19,6 +19,7 @@ Features:
   * AsyncAPI specification file (v3.0)
   * OpenAPI specification file (v3.0)
 * Server proxy
+* Extended typing and type variants
 * Send sample request plugin for html template:
     * Transports support:
         * HTTP/HTTPS (via Server proxy only HTTP)
@@ -34,7 +35,6 @@ Features:
         * JSON
         * XML
     * Nested typed params
-    * Type variants
     * Presets (saved requests)
     * Variables
 
@@ -76,8 +76,8 @@ Table of contents
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
   * [@openapi](#openapi)
+* [Extended typing and type variants](#extended-typing-and-type-variants)
 * @html template "Send sample request" plug-in
-  * [Type variants](#type-variants)
 * [Sunsetting apiDoc](#sunsetting-apidoc)
 
 ### Installation
@@ -862,26 +862,45 @@ Configuration file is a js script that by default exports the object with next p
     ws://connectionA/queue
     ```
 
+### Extnded typing and type variants
+
+* Nullable type.
+
+  ```
+  @apiParam {String:Null} string
+  ```
+
+* Array definition.
+
+  ```
+  @apiParam {String[]} strings
+  ```
+
+* Nested arrays contraints.
+
+  ```
+  @apiParam {String{1..5}[]{1-2}[]{-5}} strings arrays having dimension [1-2,0-5,1-5]
+  ```
+
+* Specified field multiple type variants.
+  This can be useful when the type of the field should be various.
+
+  ```
+  @apiParam {Type1} field
+  @apiParam {Number} field.a
+  @apiParam {Type2} field
+  @apiParam {String} field.b
+  ```
+
+  Now the "field" will have two options:
+    * First with the subfield "a" with type "Number"
+    * Second with the subfield "b" with type "String"
+
+  "Send sample request" plug-in shows them as two options to select. "OpenAPI" schema uses "$oneOf" definition.
+
 ### @html template "Send sample request" plug-in
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
-
-##### Type variants
-
-"Send sample request" plug-in allows to define multiple type variants for the specified field.
-This can be useful when some part of the request data structure should be various.
-
-Example:
-```
-@apiParam {Type1} field
-@apiParam {Number} field.a
-@apiParam {Type2} field
-@apiParam {String} field.b
-```
-
-Now the "field" will have two options of type to select:
-  * First with the subfield "a" with type "Number"
-  * Second with the subfield "b" with type "String"
 
 ##### Nats, RabbitMQ, and Redis
 To send sample requests through the transports such as Nats, RabbitMQ, and Redis use the Server proxy.

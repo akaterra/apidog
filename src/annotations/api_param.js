@@ -62,6 +62,16 @@ function construct(name, usePrefix) {
         modifiers: parsed.type.modifiers?.reduce((acc, modifier, i) => {
           if (modifier.list) {
             acc.list = modifier.list;
+
+            if (!acc.listConstraints) {
+              acc.listConstraints = [];
+            }
+
+            acc.listConstraints.push({
+              isNumericRange: modifier.isNumeric,
+              min: modifier.min,
+              max: modifier.max,
+            });
           }
 
           if (!modifier.name) {

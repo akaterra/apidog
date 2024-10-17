@@ -14,7 +14,7 @@ function parse(block, text, line, index, lines, definitions, config, onlyDefinit
   }
 
   if (!definitions[text]) {
-    throw new Error(`@apiUse refers to unknown @apiDefine "${text}"`);
+    throw new Error(`@apiUse refers to unknown @apiDefine "${text}" - check name, block @apiPrivate or "-p" CLI option`);
   }
 
   lines.splice(index, 1, ...[''].concat(definitions[text].embeddedLines));
