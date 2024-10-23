@@ -66,16 +66,21 @@ const SCHEMA_BY_TYPE = {
   date: true,
   datetime: 'date-time',
   'date-time': true,
+  double: { type: 'number', format: 'double' },
   email: true,
   file: { type: 'string', format: 'binary' },
   hostname: true,
   id: { type: 'integer', minimum: 0 },
+  int32: { type: 'integer', format: 'int32' },
+  int64: { type: 'integer', format: 'int64' },
   ipv4: true,
   ipv6: true,
   longitude: { type: 'number', minimum: -180, maximum: 180 },
   latitude: { type: 'number', minimum: -90, maximum: 90 },
   natural: { type: 'integer', minimum: 1 },
-  negativeInteger: { type: 'integer', maximum: -1 },
+  negative: { type: 'number', exclusiveMaximum: 0 },
+  negativeInteger: { type: 'integer', exclusiveMaximum: 0 },
+  positive: { type: 'number', minimum: 0 },
   positiveInteger: { type: 'integer', minimum: 0 },
   password: { type: 'string', format: 'password' },
   time: true,
@@ -251,100 +256,6 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     ? null
     : jsonSchema;
 }
-
-// function convertParamsToJsonSchema(params) {
-//   const jsonSchema = {
-//     type: 'object',
-//     required: [],
-//     properties: {},
-//   };
-
-//   params.forEach((param) => {
-//     let nodeProperties = jsonSchema.properties;
-//     let nodeRequired = jsonSchema.required;
-
-//     const path = param.field.name.split('.');
-
-//     path.forEach((key, ind) => {
-//       const propertyNameAndPropertyAsListIndex = key.match(/^(.+?)(\[\d*])*$/);
-
-//       if (propertyNameAndPropertyAsListIndex) {
-//         const [, propertyName, propertyAsListIndex] = propertyNameAndPropertyAsListIndex;
-
-//         if (!(propertyName in nodeProperties)) {
-//           if (!param.field.isOptional) {
-//             nodeRequired.push(propertyName);
-//           }
-
-//           nodeProperties = nodeProperties[propertyName] = {};
-
-//           if (param.field.defaultValue) {
-//             nodeProperties.default = param.field.defaultValue;
-//           }
-
-//           if (param.description) {
-//             nodeProperties.description = param.description.join('\n');
-//           }
-
-//           if (propertyAsListIndex) {
-//             const arrayElRegex = /\[\d*]/g;
-
-//             while (arrayElRegex.exec(propertyAsListIndex)) {
-//               nodeProperties.type = 'array';
-//               nodeProperties = nodeProperties.items = {};
-//             }
-//           } else {
-//             if (param.type.modifiers.list) {
-//               nodeProperties.type = 'array';
-//               nodeProperties = nodeProperties.items = {};
-//             }
-//           }
-
-//           let paramType = param.type.modifiers.initial.toLowerCase();
-
-//           if (ind < path.length - 1) {
-//             nodeProperties.required = [];
-//             nodeRequired = nodeProperties.required;
-//             nodeProperties.type = 'object';
-//             nodeProperties.properties = {};
-//             nodeProperties = nodeProperties.properties
-//           } else {
-//             if (paramType in PARAM_STRING_FORMAT_BY_TYPE) {
-//               Object.assign(nodeProperties, convertParamToJsonSchema(paramType));
-//               paramType = nodeProperties.type;
-//             }
-
-//             if (paramType === 'object') {
-//               nodeProperties.required = [];
-//               nodeRequired = nodeProperties.required
-//               nodeProperties.type = 'object';
-//               nodeProperties.properties = {};
-//               nodeProperties = nodeProperties.properties
-//             } else {
-//               if (param.type.allowedValues && param.type.allowedValues.length) {
-//                 nodeProperties.enum = PARAM_VALUE_BY_TYPE[paramType]
-//                   ? param.type.allowedValues.map((value) => PARAM_VALUE_BY_TYPE[paramType](value))
-//                   : param.type.allowedValues;
-//               }
-
-//               nodeProperties.type = paramType;
-//             }
-//           }
-//         } else {
-//           if (nodeProperties[propertyName].items) {
-//             nodeRequired = nodeProperties[propertyName].items.required;
-//             nodeProperties = nodeProperties[propertyName].items.properties;
-//           } else {
-//             nodeRequired = nodeProperties[propertyName].required;
-//             nodeProperties = nodeProperties[propertyName].properties;
-//           }
-//         }
-//       }
-//     });
-//   });
-
-//   return removeEmptyRequiredAndProperties(jsonSchema);
-// }
 
 function removeEmptyRequiredAndProperties(jsonSchema) {
   if (jsonSchema.properties) {

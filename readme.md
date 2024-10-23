@@ -182,7 +182,6 @@ Parameters:
 
 ##### @apiAuthHeader
 
-Format:
 ```
 @apiAuthHeader {authType} name description
 ```
@@ -191,7 +190,6 @@ Defines authorization type through header.
 
 ##### @apiAuthParam
 
-Format:
 ```
 @apiAuthParam {authType} name description
 ```
@@ -200,7 +198,6 @@ Defines authorization type through param.
 
 ##### @apiAuthQuery
 
-Format:
 ```
 @apiAuthQuery {authType} name description
 ```
@@ -209,7 +206,6 @@ Defines authorization type through query param.
 
 ##### @apiChapter
 
-Format:
 ```
 @apiChapter name
 ```
@@ -221,7 +217,6 @@ If **@apiDefine** declares definition with the same name also includes its title
 
 ##### @apiContentType
 
-Format:
 ```
 @apiContentType contentType
 ```
@@ -235,7 +230,6 @@ Currently supported data format of the sample request are FORM, JSON and XML.
 
 ##### @apiDefine
 
-Format:
 ```
 @apiDefine definition
 ```
@@ -244,7 +238,6 @@ Works same as well as original **@apiDefine** but supports embedded **@apiUse**.
 
 ##### @apiDescription
 
-Format:
 ```
 @apiDescription description
 ```
@@ -253,7 +246,6 @@ Works same as well as original **@apiDescription** but treats the description co
 
 ##### @apiErrorPrefix
 
-Format:
 ```
 @apiErrorPrefix [(group)] prefix
 ```
@@ -307,7 +299,6 @@ Example:
 
 ##### @apiErrorRoot
 
-Format:
 ```
 @apiErrorRoot (group) {type} description
 ```
@@ -334,7 +325,6 @@ Example:
 
 ##### @apiErrorValue
 
-Format:
 ```
 @apiErrorValue [{type}] value [description]
 ```
@@ -343,7 +333,6 @@ Describes custom error value.
 
 ##### @apiHeaderValue
 
-Format:
 ```
 @apiHeaderValue [{type}] value [description]
 ```
@@ -352,7 +341,6 @@ Describes custom header value.
 
 ##### @apiFamily
 
-Format:
 ```
 @apiFamily uniqueIdentifier
 ```
@@ -397,7 +385,6 @@ The second one is combined with the first and is shown under version.
 
 ##### @apiNote
 
-Format:
 ```
 @apiNote title
 ```
@@ -408,7 +395,6 @@ Can be used with **@apiDescription**.
 
 ##### @apiParamPrefix
 
-Format:
 ```
 @apiParamPrefix [(group)] prefix
 ```
@@ -462,7 +448,6 @@ Example:
 
 ##### @apiParamRoot
 
-Format:
 ```
 @apiParamRoot (group) {type} description
 ```
@@ -489,7 +474,6 @@ Example:
 
 ##### @apiParamValue
 
-Format:
 ```
 @apiParamValue [{type}] value [description]
 ```
@@ -498,7 +482,6 @@ Describes custom parameter value.
 
 ##### @apiSchema
 
-Format:
 ```
 @apiSchema [(group)] {jsonschema=pathToFile[#internal.path]} @apiParam
 ```
@@ -507,18 +490,12 @@ Format:
 @apiSchema [(group)] {openapi=pathToFile#internal.path.to.api} operationNickname
 ```
 
-```
-@apiSchema [(group)] {openapi=pathToFile#internal.path.to.model} @apiParam
-```
+Uses external schema to fill the doc block.
 
-Uses external schema to fill doc block.
-
-"jsonschema" also allows to use **$ref** definitions within schema.
-"openapi" generates doc block by api operation or **@apiParam** list by model.
+"jsonschema" allows to use **$ref** definitions within schema.
 
 ##### @apiSampleRequestOption
 
-Format:
 ```
 @apiSampleRequestOption key [val=true]
 ```
@@ -530,7 +507,6 @@ If data structure is a plain object and have to be sent in XML format it should 
 
 ##### @apiSampleRequestVariable
 
-Format:
 ```
 @apiSampleRequestVariable [(namespace)] [{responsePath}] field[=defaultValue]
 ```
@@ -569,7 +545,6 @@ Example with global bucket:
 
 ##### @apiSubgroup
 
-Format:
 ```
 @apiSubgroup name
 ```
@@ -579,7 +554,6 @@ The subgroup will be shown as a sub navigation section of the menu.
 
 ##### @apiSuccessPrefix
 
-Format:
 ```
 @apiSuccessPrefix [(group)] prefix
 ```
@@ -633,7 +607,6 @@ Example:
 
 ##### @apiSuccessRoot
 
-Format:
 ```
 @apiSuccessRoot (group) {type} description
 ```
@@ -660,7 +633,6 @@ Example:
 
 ##### @apiSuccessValue
 
-Format:
 ```
 @apiSuccessValue [{type}] value [description]
 ```
@@ -669,7 +641,6 @@ Describes custom success value.
 
 ##### @apiTag
 
-Format:
 ```
 @apiTag tag1,tag2,tag3
 ```
@@ -678,13 +649,11 @@ Defines tags. Can be multiple.
 
 ##### @apiUse
 
-Format:
 ```
 @apiUse definition
 ```
 
 Works same as well as original **@apiUse** but can be used multiply.
-
 
 ### Built-in templates
 

@@ -29,13 +29,29 @@ module.exports = (config) => ({
     };
     const schemas = {};
     const tags = {};
+    const tagsInitialized = {};
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
       if (descriptor.note) {
-        spec.info.description += `\n\n# ${descriptor.title}`;
+        let tagRef;
 
-        if (descriptor.description?.length) {
-          spec.info.description += descriptor.description.map((description) => `\n\n${description}`);
+        if (!descriptor.group?.name) {
+          tagRef = spec.info;
+        } else {
+          const [ name ] = getTagNameAndDescription(descriptor);
+
+          if (name) {
+            tags[name] = { name, description: tags[name]?.description ?? '' };
+            tagRef = tags[name];
+          }
+        }
+
+        if (tagRef) {
+          tagRef.description = tagRef.description ? tagRef.description + `\n\n# ${descriptor.title}` : `# ${descriptor.title}`;
+
+          if (descriptor.description?.length) {
+            tagRef.description += descriptor.description.map((description) => `\n\n${description}`);
+          }
         }
       }
 
@@ -159,17 +175,11 @@ module.exports = (config) => ({
       if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
         methodDescriptor.tags = [];
 
-        if (descriptor.subgroup?.title) {
-          const name = [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n') };
-          methodDescriptor.tags.push(name);
-        } else if (descriptor.group?.title) {
-          const name = [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n') };
-          methodDescriptor.tags.push(name);
-        } else if (descriptor.chapter?.title) {
-          const name = descriptor.chapter.title;
-          tags[name] = { name, description: descriptor.chapter.description.join('\n') };
+        const [ name, description ] = getTagNameAndDescription(descriptor);
+
+        if (name && !tagsInitialized[name]) {
+          tags[name] = { name, description: tags[name]?.description ? `${description}\n${tags[name]?.description}` : description };
+          tagsInitialized[name] = true;
           methodDescriptor.tags.push(name);
         }
       }
@@ -509,6 +519,31 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 2) {
   });
 
   return obj;
+}
+
+function getTagNameAndDescription(descriptor) {
+  if (descriptor.subgroup?.title) {
+    return [
+      [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / '),
+      [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n'),
+    ];
+  }
+  
+  if (descriptor.group?.title) {
+    return [
+      [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / '),
+      [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n'),
+    ];
+  }
+  
+  if (descriptor.chapter?.title) {
+    return [
+      descriptor.chapter.title,
+      descriptor.chapter.description.join('\n'),
+    ];
+  }
+
+  return [ null, null ];
 }
 
 function isPrimitiveValue(value) {
