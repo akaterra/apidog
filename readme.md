@@ -853,7 +853,7 @@ Configuration file is a js script that by default exports the object with next p
 * Nested arrays contraints.
 
   ```
-  @apiParam {String{1..5}[]{1-2}[]{-7}} strings Arrays with dimensions [1-2 elements][0-7 elements]string[1-5 chars]
+  @apiParam {String{1..5}[]{1-2}[]{-7}} strings Arrays with dimensions [1-2 items][0-7 items]string[1-5 chars]
   ```
 
 * Specified field multiple type variants.
