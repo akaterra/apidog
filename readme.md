@@ -57,6 +57,7 @@ Table of contents
   * [@apiFamily](#apifamily)
   * [@apiHeaderValue](#apiheadervalue)
   * [@apiNote](#apinote)
+  * [@apiParam](#apiparam)
   * [@apiParamPrefix](#apiparamprefix)
   * [@apiParamRoot](#apiparamroot)
   * [@apiParamValue](#apiparamvalue)
@@ -392,6 +393,10 @@ The second one is combined with the first and is shown under version.
 Adds note section that describes some additional information.
 
 Can be used with **@apiDescription**.
+
+##### @apiParam
+
+Works same as well as original **@apiParam** but in case of **@apiQuery** presented in the same group the **@apiParam** will define only body parameters. For query or path parameters **@apiQuery** usage is expected.
 
 ##### @apiParamPrefix
 
@@ -831,7 +836,7 @@ Configuration file is a js script that by default exports the object with next p
     ws://connectionA/queue
     ```
 
-### Extnded typing and type variants
+### Extended typing and type variants
 
 * Nullable type.
 

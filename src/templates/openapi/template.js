@@ -180,6 +180,9 @@ module.exports = (config) => ({
         if (name && !tagsInitialized[name]) {
           tags[name] = { name, description: tags[name]?.description ? `${description}\n${tags[name]?.description}` : description };
           tagsInitialized[name] = true;
+        }
+
+        if (name) {
           methodDescriptor.tags.push(name);
         }
       }
@@ -332,8 +335,13 @@ module.exports = (config) => ({
           methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
             const param = descriptor.param[paramIndex];
             const paramType = param.type.modifiers.initial.toLowerCase();
+            const isQueryParam = param && !descriptor.queryGroupVariant?.[groupVariantKey] && (
+              param.field.name in uriParams ||
+              descriptor.api.transport.method === 'get' ||
+              descriptor.api.transport.method === 'delete'
+            );
 
-            if (param && (param.field.name in uriParams || descriptor.api.transport.method === 'get' || descriptor.api.transport.method === 'delete')) {
+            if (isQueryParam) {
               notBodyParamIndexes.push(paramIndex);
 
               return {
@@ -410,7 +418,7 @@ module.exports = (config) => ({
 
               return {
                 name: param.field.name,
-                in: 'query',
+                in: uriParams[param.field.name] === false ? 'path' : 'query',
                 description: param.description && param.description.join('\n'),
                 required: !param.field.isOptional,
                 schema: {
