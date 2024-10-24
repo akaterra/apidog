@@ -878,6 +878,35 @@ Configuration file is a js script that by default exports the object with next p
   * @html template "Send sample request" plug-in shows them as two options to select.
   * @openapi, @asyncapi templates generate "$oneOf" definition.
 
+* apiDoc types to @openapi, @asyncapi jsonschema types mapping.
+
+  * Boolean - boolean
+  * Date - date
+  * DateTime - date-time
+  * Double - { type: 'number', format: 'double' }
+  * Email - email
+  * File - { type: 'string', format: 'binary' }
+  * Hostname - 'hostname'
+  * ID - { type: 'integer', minimum: 0 }
+  * Integer - integer
+  * Int32 - { type: 'integer', format: 'int32' }
+  * Int64 - { type: 'integer', format: 'int64' }
+  * IPv4 - ipv4
+  * IPv6 - ipv6
+  * Longitude - { type: 'number', minimum: -180, maximum: 180 }
+  * Latitude - { type: 'number', minimum: -90, maximum: 90 }
+  * Natural - { type: 'integer', minimum: 1 }
+  * Negative - { type: 'number', exclusiveMaximum: 0 }
+  * NegativeInteger - { type: 'integer', exclusiveMaximum: 0 }
+  * Number - number
+  * Positive - { type: 'number', minimum: 0 }
+  * PositiveInteger - { type: 'integer', minimum: 0 }
+  * Password - { type: 'string', format: 'password' }
+  * String - string
+  * Time - time
+  * URI - uri
+  * UUID - uuid
+
 ### @html template "Send sample request" plug-in
 
 "Send sample request" plug-in allows to do sample requests with arbitrary or structured data via various transports.
