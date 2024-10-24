@@ -880,32 +880,32 @@ Configuration file is a js script that by default exports the object with next p
 
 * apiDoc types to @openapi, @asyncapi jsonschema types mapping.
 
-  * Boolean - boolean
-  * Date - date
-  * DateTime - date-time
-  * Double - { type: 'number', format: 'double' }
-  * Email - email
-  * File - { type: 'string', format: 'binary' }
-  * Hostname - 'hostname'
-  * ID - { type: 'integer', minimum: 0 }
-  * Integer - integer
-  * Int32 - { type: 'integer', format: 'int32' }
-  * Int64 - { type: 'integer', format: 'int64' }
-  * IPv4 - ipv4
-  * IPv6 - ipv6
-  * Longitude - { type: 'number', minimum: -180, maximum: 180 }
-  * Latitude - { type: 'number', minimum: -90, maximum: 90 }
-  * Natural - { type: 'integer', minimum: 1 }
-  * Negative - { type: 'number', exclusiveMaximum: 0 }
-  * NegativeInteger - { type: 'integer', exclusiveMaximum: 0 }
-  * Number - number
-  * Positive - { type: 'number', minimum: 0 }
-  * PositiveInteger - { type: 'integer', minimum: 0 }
-  * Password - { type: 'string', format: 'password' }
-  * String - string
-  * Time - time
-  * URI - uri
-  * UUID - uuid
+  * Boolean - { "type": "boolean" }
+  * Date - { "type": "date" }
+  * DateTime - { "type": "date-time" }
+  * Double - { "type": "number", "format": "double" }
+  * Email - { "type": "email" }
+  * File - { "type": "string", "format": "binary" }
+  * Hostname - { "type": "hostname" }
+  * ID - { "type": "integer", "minimum": 0 }
+  * Integer - { "type": "integer" }
+  * Int32 - { "type": "integer", "format": "int32" }
+  * Int64 - { "type": "integer", "format": "int64" }
+  * IPv4 - { "type": "ipv4" }
+  * IPv6 - { "type": "ipv6" }
+  * Longitude - { "type": "number", "minimum": -180, "maximum": 180 }
+  * Latitude - { "type": "number", "minimum": -90, "maximum": 90 }
+  * Natural - { "type": "integer", "minimum": 1 }
+  * Negative - { "type": "number", "exclusiveMaximum": 0 }
+  * NegativeInteger - { "type": "integer", "exclusiveMaximum": 0 }
+  * Number - { "type": "number" }
+  * Positive - { "type": "number", "minimum": 0 }
+  * PositiveInteger - { "type": "integer", "minimum": 0 }
+  * Password - { "type": "string", "format": "password" }
+  * String - { "type": "string" }
+  * Time - { "type": "time" }
+  * URI - { "type": "uri" }
+  * UUID - { "type": "uuid" }
 
 ### @html template "Send sample request" plug-in
 
