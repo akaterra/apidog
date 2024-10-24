@@ -214,8 +214,9 @@ Defines authorization type through query param.
 Defines chapter.
 Can be used to split doc blocks between multiple namespaces.
 
-* @html template shows the chapter on a separate page.
-* @openapi, @asyncapi use only first chapter or allow to generate multiple schema files.
+@html template shows the chapter on a separate page.
+
+@openapi, @asyncapi use only first chapter or allow to generate multiple schema files.
 
 If **@apiDefine** declares definition with the same name also includes its title and description.
 
@@ -560,7 +561,7 @@ Example with global bucket:
 
 Defines to which subgroup the doc block belongs.
 
-* @html template shows it as a sub navigation section of the menu.
+@html template shows it as a sub navigation section of the menu.
 
 ##### @apiSuccessPrefix
 
@@ -875,8 +876,9 @@ Configuration file is a js script that by default exports the object with next p
     * First with the subfield "a" with type "Number"
     * Second with the subfield "b" with type "String"
 
-  * @html template "Send sample request" plug-in shows them as two options to select.
-  * @openapi, @asyncapi templates generate "$oneOf" definition.
+  @html template "Send sample request" plug-in shows them as two options to select.
+  
+  @openapi, @asyncapi templates generate "$oneOf" definition.
 
 * apiDoc types to @openapi, @asyncapi jsonschema types mapping.
 
