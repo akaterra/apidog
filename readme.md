@@ -214,6 +214,9 @@ Defines authorization type through query param.
 Defines chapter.
 Can be used to split doc blocks between multiple namespaces.
 
+* @html template shows the chapter on a separate page.
+* @openapi, @asyncapi use only first chapter or allow to generate multiple schema files.
+
 If **@apiDefine** declares definition with the same name also includes its title and description.
 
 ##### @apiContentType
@@ -225,7 +228,7 @@ If **@apiDefine** declares definition with the same name also includes its title
 Defines content type.
 Can be defined multiply.
 
-Content type will be used as a filter of the **@apiExample** content having corresponding {type}.
+Content type will be used as a filter of the **@apiExample** content having corresponding `{contentType}`.
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
 
@@ -390,13 +393,14 @@ The second one is combined with the first and is shown under version.
 @apiNote title
 ```
 
-Adds note section that describes some additional information.
+Adds note section that describes some additional information. Similar to **@api**.
 
 Can be used with **@apiDescription**.
 
 ##### @apiParam
 
-Works same as well as original **@apiParam** but in case of **@apiQuery** presented in the same group the **@apiParam** will define only body parameters. For query or path parameters **@apiQuery** usage is expected.
+Works same as well as original **@apiParam** but in case of **@apiQuery** presented in the same group the **@apiParam** will define only body parameters.
+For query or path parameters **@apiQuery** usage is expected.
 
 ##### @apiParamPrefix
 
@@ -555,7 +559,8 @@ Example with global bucket:
 ```
 
 Defines to which subgroup the doc block belongs.
-The subgroup will be shown as a sub navigation section of the menu.
+
+* @html template shows it as a sub navigation section of the menu.
 
 ##### @apiSuccessPrefix
 
@@ -856,7 +861,7 @@ Configuration file is a js script that by default exports the object with next p
   @apiParam {String{1..5}[]{1-2}[]{-7}} strings Arrays with dimensions [1-2 items][0-7 items]string[1-5 chars]
   ```
 
-* Specified field multiple type variants.
+* Type variants.
   This can be useful when the type of the field should be various.
 
   ```
@@ -870,7 +875,8 @@ Configuration file is a js script that by default exports the object with next p
     * First with the subfield "a" with type "Number"
     * Second with the subfield "b" with type "String"
 
-  "Send sample request" plug-in shows them as two options to select. "OpenAPI" schema uses "$oneOf" definition.
+  * @html template "Send sample request" plug-in shows them as two options to select.
+  * @openapi, @asyncapi templates generate "$oneOf" definition.
 
 ### @html template "Send sample request" plug-in
 
