@@ -1,8 +1,9 @@
 /**
- * @apiParamNote [(group)] value description
+ * @apiParamValue [(group)] value description
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_param_value');
 
 function construct(name) {
   const annotationGroupName = `${name}Group`;
@@ -13,8 +14,6 @@ function construct(name) {
 
     return block;
   }
-
-  const regex = /^(\((.+)\)\s+|)(\{(.+)}\s+|)(\S+)(\s+(.*))?$/;
 
   function parse(block, text) {
     if (!text) {
@@ -33,30 +32,12 @@ function construct(name) {
 
     block[annotationName].push(blockParam);
 
-    const tokens = regex.exec(text);
+    const parsed = peggy.parse(text.trim());
 
-    if (!tokens) {
-      throw new Error(`@api${name[0].toUpperCase()}${name.slice(1)} malformed`);
-    }
-
-    let group = tokens[2] || null;
-    let type = tokens[4] || null;
-    let value = tokens[5];
-    let description = tokens[7] ? [tokens[7]] : [];
-
-    if (type) {
-      const typeTokens = utils.strSplitBy(type, '=', 1);
-
-      type = {
-        allowedValues: typeTokens[1] ? utils.strSplitByQuotedTokens(typeTokens[1]) : [],
-        modifiers: typeTokens[0].split(':').reduce((acc, val) => {
-          acc[val.toLowerCase()] = true;
-
-          return acc;
-        }, {}),
-        name: typeTokens[0],
-      }
-    }
+    let group = parsed.group?.name || null;
+    let type = parsed.type || null;
+    let value = parsed.value;
+    let description = parsed.description ?? null;
 
     blockParam.description = description;
     blockParam.group = group;

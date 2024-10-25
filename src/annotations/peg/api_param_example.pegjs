@@ -1,15 +1,17 @@
 //
 
 start
-  = type:Type [ \t]+ description:Description { return { type, description } }
-  / type:Type { return { type, description: null } }
-  / description:Description? { return { type: null, description } }
+  = type:Type __ description:Rest { return { type, description } }
+  / description:Rest { return { type: null, description } }
 
 Type
   = "{" _ name:Any "}" { return { name } }
 
-Description
-  = description:.* { return description.join('') }
+Rest
+  = head:.* { return head.join('') || null }
+
+AtLeastOneChar
+  = head:.+ { return head.join('') || null }
 
 Any
   = head:[a-zA-Z0-9_-]+ { return head.join('') }
@@ -40,3 +42,6 @@ EscapeSequence
 
 _ "whitespace"
   = [ \t]*
+  
+__ "whitespace"
+  = [ \t]+

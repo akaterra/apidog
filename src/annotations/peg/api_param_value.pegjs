@@ -1,11 +1,14 @@
-// @apiDescription [{type}] description
+// @apiParamValue [(group)] [{type=type}] value [description]
 
 start
-  = type:Type __ description:AtLeastOneChar { return { type, description } }
-  / description:AtLeastOneChar { return { type: null, description } }
+  = group:Group? _ type:Type? _ value:Any __ description:Rest { return { group, type, value, description } }
+  / group:Group? _ type:Type? _ value:Any { return { group, type, value, description: null } }
+
+Group
+  = "(" _ name:Any _ ")" { return { name } }
 
 Type
-  = "{" _ name:Identifier "}" { return { name } }
+  = "{" _ name:Any _ "}" { return { name } }
 
 Rest
   = head:.* { return head.join('') || null }
@@ -13,9 +16,9 @@ Rest
 AtLeastOneChar
   = head:.+ { return head.join('') || null }
 
-Identifier
-  = head:[a-zA-Z_]+[a-zA-Z0-9_]* { return head.join('') }
-  / head:String { return head }
+Any
+  = head:[a-zA-Z0-9_-]+ { return head.join('') }
+  / String
  
 String
   = '"' chars:DoubleStringCharacter* '"' { return chars.join('') }
@@ -42,6 +45,6 @@ EscapeSequence
 
 _ "whitespace"
   = [ \t]*
-
+  
 __ "whitespace"
   = [ \t]+

@@ -23,7 +23,7 @@ module.exports = (config) => ({
         description: params.description,
         version: params.version,
       },
-      servers: [{ url: '/' }],
+      servers: config.server ? config.server.map((url) => ({ url })) : [{ url: '/' }],
       components: {},
       paths: {},
     };

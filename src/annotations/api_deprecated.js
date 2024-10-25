@@ -1,5 +1,5 @@
 /**
- * @apiDeprecated [explanation]
+ * @apiDeprecated [description]
  */
 
 const utils = require('../utils');

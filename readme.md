@@ -95,19 +95,19 @@ apidog -h
 
 Parameters:
 
-* **--compressionLevel** - Generalize the fields declared with **@apiParam**, **@apiError** and **@apiSuccess** aggregating them into separate schemas (`components.schemas` section of OpenAPI spec for example), bigger value means bigger depth of traverse
+* **--compressionLevel** - Generalize the fields declared with **@apiParam**, **@apiError** and **@apiSuccess** aggregating them into separate schemas (`components.schemas` section of OpenAPI spec for example), bigger value means bigger depth of traverse.
 
   0 means "no compression", default is 1.
 
-* **--description "description"** - Custom description that will be used as a description of the generated documentation
+* **--description "description"** - Custom description that will be used as a description of the generated documentation.
 
   Default is \[ package.json in input directory \].description or null by default.
 
-* **-i, --input "input directory"** - Input source(-s) to be scanned for doc blocks
+* **-i, --input "input directory"** - Input source(-s) to be scanned for doc blocks.
 
   Can be multiple. Default is current directory.
 
-* **--jsonschema "source"** - JSON Schema source(-s) to be loaded for resolving the external references
+* **--jsonschema "source"** - JSON Schema source(-s) to be loaded for resolving the external references.
 
   Can be multiple.
 
@@ -115,16 +115,16 @@ Parameters:
   apidog -i '@apiSchema {jsonschema=./schemas/my-schema.json#definitions.create} @apiParam' -o my-api/ --parser inline --jsonschema ./schemas/schema1.json --jsonschema ./schemas/schema2.json
   ```
 
-* **--ordered** - Process titles as ordered titles
+* **--ordered** - Process titles as ordered titles.
 
   Order index must be in format of "1.2.3." and must start the title.
-  Titles will be sorted numerically by order index, then the order index will be removed.
+  Titles are sorted numerically by order index, then the order index is removed.
 
 * **-o, --output "output directory"** - Output directory where "apidoc.html" and additional files will be written
 
   Same as **input directory** by default.
 
-* **--parser "dir" | "inline" | "openapi"** -- Parser to be used to parse the doc blocks sources
+* **--parser "dir" | "inline" | "openapi"** -- Parser to be used to parse the doc blocks sources.
 
   Default is "dir".
 
@@ -146,20 +146,24 @@ Parameters:
   apidog --parser openapi -i ./api-v1.openapi.json -i ./api-v2.openapi.json
   ```
 
-* **-p, --private \["tag"\]** -- Tags to filter doc blocks having all the private tags or entirely marked as private
+* **-p, --private \["tag"\]** -- Tags to filter doc blocks having all the private tags or entirely marked as private.
 
   Can be multiple. By default takes all the doc blocks.
 
-* **-s, --sampleRequestUrl, --sampleUrl** - Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests
+* **-s, --sampleRequestUrl, --sampleUrl** - Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests.
 
   Default is \[ config.json in input directory \].sampleUrl
 
-* **--sampleRequestPreset** - URL of apiDog preset backend for presets management
+* **--sampleRequestPreset** - URL of apiDog preset backend for presets management.
 
 * **--sampleRequestProxy\[:http | :natsPub | :natsSub | :rabbitmqPub | :rabbitmqSub | :redisPub | :redisSub | :ws\]** - URL of apiDog proxy backend to be used to pass requests through it.
-"http", "natsPub" (RPC also), "natsSub", "rabbitmqPub" (RPC also), "rabbitmqSub", "redisPub", "redisSub" or "websocket" specifier provides a proxy for the specified transport
+"http", "natsPub" (RPC also), "natsSub", "rabbitmqPub" (RPC also), "rabbitmqSub", "redisPub", "redisSub" or "websocket" specifier provides a proxy for the specified transport.
 
-* **-t, --template** - Alias of the built-in template or the directory where the custom template be load from
+* **--server--** - Server to be used as a prefix for all relative api paths.
+
+  Can be multiple.
+
+* **-t, --template** - Alias of the built-in template or the directory where the custom template be load from.
 
   Default is "@html".
 
@@ -171,11 +175,11 @@ Parameters:
     * @md
     * @openapi
 
-* **--title** - Custom title that will be used as a title of the generated documentation
+* **--title** - Custom title that will be used as a title of the generated documentation.
 
   Default is \[ package.json in input directory \].name, \[ config.json in input directory \].title or "Untitled" by default
 
-* **--withSrp, --withSampleRequestProxy \["update"\]** - Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory
+* **--withSrp, --withSampleRequestProxy \["update"\]** - Create (not rewrites existing) also "apidog_proxy.js", "apidog_proxy.config.js" and "package.json" in the output directory.
 
   If the above files already exist, they will not be rewritten. To rewrite files use ```--withSampleRequestProxy=update```.
 

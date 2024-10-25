@@ -163,6 +163,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--server' ],
+  {
+    action: 'append', help: 'Server to be used as a prefix for all relative api paths',
+  },
+);
+argumentParser.addArgument(
   [ '-t', '--template' ],
   {
     help: 'Alias of the built-in template (@html or @md) or the directory where the custom template be load from',
@@ -230,6 +236,7 @@ function loadConfig(dir) {
     output: configApidoc.output || configPackage.apidoc.output,
     sampleRequestPreset: configApidoc.sampleRequestPreset || configPackage.apidoc.sampleRequestPreset,
     sampleUrl: definedOrEmptyString(configApidoc.sampleUrl, configPackage.apidoc.sampleUrl),
+    server: configApidoc.server || configPackage.apidoc.server,
     templateOptions: configApidoc.templateOptions,
     title: configApidoc.title || configPackage.apidoc.title || configPackage.name,
     version: configApidoc.version || configPackage.apidoc.version || configPackage.version,
@@ -409,6 +416,7 @@ const envConfig = {
       return acc;
     }, {}),
   },
+  server: args.server || config.server,
   templateOptions: config.templateOptions,
   title: args.title || config.title,
   transports: {

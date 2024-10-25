@@ -1,7 +1,8 @@
 // @apiParamRoot [(group)] {type=type} description
 
 start
-  = group:Group? _ type:Type description:Description? { return { group, type, description } }
+  = group:Group? _ type:Type __ description:Rest { return { group, type, description } }
+  / group:Group? _ type:Type { return { group, type, description: null } }
 
 Group
   = "(" _ name:Any _ ")" { return { name } }
@@ -19,8 +20,11 @@ TypeConstraints
 TypeEnum
   = "=" head:(Any)|1..,","| { return head } 
 
-Description
-  = [ \t]+ description:.* { return description.join('') }
+Rest
+  = head:.* { return head.join('') || null }
+
+AtLeastOneChar
+  = head:.+ { return head.join('') || null }
 
 Any
   = head:[a-zA-Z0-9_-]+ { return head.join('') }
@@ -59,3 +63,6 @@ EscapeSequence
 
 _ "whitespace"
   = [ \t]*
+  
+__ "whitespace"
+  = [ \t]+

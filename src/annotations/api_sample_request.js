@@ -1,32 +1,27 @@
 /**
- * @apiSampleRequest [off]|[on]|[...]
+ * @apiSampleRequest [{type}] [off]|[on]|[...]
  */
 
 const utils = require('../utils');
-
-const regex = /^({(.+)}\s+)?(.+)/;
+const peggy = require('./peg/api_sample_request');
 
 function parse(block, text) {
   if (!text) {
     throw new Error('@apiSampleRequest malformed');
   }
 
-  const tokens = regex.exec(text);
-
-  if (!tokens) {
-    throw new Error('@apiSampleRequest malformed');
-  }
+  const parsed = peggy.parse(text.trim());
 
   if (!block.sampleRequest) {
     block.sampleRequest = [];
   }
 
-  if (tokens[3] === 'off') {
+  if (parsed.url === 'off') {
     block.sampleRequest.push(false);
-  } else if (tokens[3] === 'on') {
+  } else if (parsed.url === 'on') {
     block.sampleRequest.push(true);
   } else {
-    block.sampleRequest.push(tokens[3]);
+    block.sampleRequest.push(parsed.url);
   }
 
   return block;

@@ -9,7 +9,6 @@ function construct(name, usePrefix) {
   const annotationGroupName = `${name}Group`;
   const annotationGroupVariantsName = `${name}GroupVariant`;
   const annotationName = `${name}`;
-  const annotationPrefixName = `${name}Prefix`;
 
   function addDescription(block, text) {
     block[annotationName][block[annotationName].length - 1].description.push(text);

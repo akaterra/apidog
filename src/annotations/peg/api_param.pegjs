@@ -1,7 +1,8 @@
-// @apiParam [(group)] [{type=type}] [field[=defaultValue]] description
+// @apiParam [(group)] [{type=type}] field[=defaultValue] [description]
 
 start
-  = group:Group? _ type:Type? _ field:Field description:Description? { return { group, type, field, description } }
+  = group:Group? _ type:Type? _ field:Field __ description:Rest { return { group, type, field, description } }
+  / group:Group? _ type:Type? _ field:Field { return { group, type, field, description: null } }
 
 Group
   = "(" _ name:Any _ ")" { return { name } }
@@ -26,8 +27,11 @@ Field
 FieldDefaultValue
   = "=" head:Any { return head } 
 
-Description
-  = [ \t]+ description:.* { return description.join('') }
+Rest
+  = head:.* { return head.join('') || null }
+
+AtLeastOneChar
+  = head:.+ { return head.join('') || null }
 
 Path
   = head:Any tail:PathTail* { return head + tail }
@@ -73,3 +77,6 @@ EscapeSequence
 
 _ "whitespace"
   = [ \t]*
+
+__ "whitespace"
+  = [ \t]+
