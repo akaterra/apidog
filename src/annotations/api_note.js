@@ -9,7 +9,8 @@ function parse(block, text, line, index, lines, definitions) {
     throw new Error('@apiNote malformed');
   }
 
-  block.description = definitions[text] ? definitions[text].description : [];
+  block.description = definitions[text] ? [ ...definitions[text].description ] : [];
+  block.isDefUsed = !!definitions[text];
   block.name = text;
   block.note = block.title = definitions[text] ? definitions[text].title : text;
   block.addValidateAfter(validate).addToApidocString(toApidocString);

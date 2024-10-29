@@ -47,10 +47,14 @@ module.exports = (config) => ({
         }
 
         if (tagRef) {
-          tagRef.description = tagRef.description ? tagRef.description + `\n\n# ${descriptor.title}` : `# ${descriptor.title}`;
+          if (!descriptor.isDefUsed) {
+            tagRef.description = tagRef.description
+              ? tagRef.description + `\n# ${descriptor.title}`
+              : `# ${descriptor.title}`;
+          }
 
           if (descriptor.description?.length) {
-            tagRef.description += descriptor.description.map((description) => `\n\n${description}`);
+            tagRef.description += descriptor.description.join('\n');
           }
         }
       }

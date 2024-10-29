@@ -31,7 +31,7 @@ function parse(block, text) {
 
   lastDescriptionType = parsed.type?.name;
 
-  block.description = [parsed.description];
+  block.description = [ ...block.description ?? [], parsed.description ];
 
   if (!block.validate) {
     block.validate = [validate];

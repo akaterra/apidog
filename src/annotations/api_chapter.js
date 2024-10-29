@@ -10,10 +10,11 @@ function parse(block, text, line, index, lines, definitions) {
   }
 
   block.chapter = {
-    description: definitions[text] ? definitions[text].description : [],
+    description: definitions[text] ? [ ...definitions[text].description ?? [] ] : [],
     name: text,
     title: definitions[text] ? definitions[text].title : null,
   };
+  block.isDefUsed = !!definitions[text];
 
   block.addToApidocString(toApidocString);
 
