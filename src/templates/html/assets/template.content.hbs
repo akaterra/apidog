@@ -79,7 +79,9 @@
                   {{/ifCond}}
                   {{#each this.notes}}
                     {{#each this as |block index|}}
-                      <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{this.[0].familyId}}">{{this.title}}</a>
+                      {{#ifCond this.isDefUsed '!=' true}}
+                        <a class="left-padded menu-item color-blue{{#ifCond index '!=' 0}} hidden{{/ifCond}}" href="#{{../this.familyId}}" data-element-menu-item="{{block.id}}" data-family="{{../this.[0].familyId}}">{{../this.title}}</a>
+                      {{/ifCond}}
                     {{/each}}
                   {{/each}}
                   {{#each this.apis}}
@@ -185,16 +187,20 @@
                       <div class="section left-padded color-1 font-size-1 bold">
                         <a class="section-title color-blue" href="#{{block.familyId}}">
                           <span class="{{#if this.deprecated}}line-through{{/if}}">
-                            {{this.title}}
-                            <span class="color-3">
-                              {{#ifCond this.group.name '!=' null}}
-                                {{first ../this.group.title ../this.group.name}} /
-                              {{/ifCond}}
-                              {{#ifCond this.subgroup.name '!=' null}}
-                                {{first ../this.subgroup.title ../this.subgroup.name}} /
-                              {{/ifCond}}
-                              {{this.version}}
-                            </span>
+                            {{#ifCond this.isDefUsed '!=' true}}
+                              {{../this.title}}
+                              <span class="color-3">
+                                {{#ifCond ../this.group.name '!=' null}}
+                                  {{first ../../this.group.title ../../this.group.name}} /
+                                {{/ifCond}}
+                                {{#ifCond this.subgroup.name '!=' null}}
+                                  {{first ../../this.subgroup.title ../../this.subgroup.name}} /
+                                {{/ifCond}}
+                                {{../this.version}}
+                              </span>
+                            {{else}}
+                              <span class="color-3">&nbsp;</span>
+                            {{/ifCond}}
                           </span>
                           {{#if this.deprecated}}
                             {{#ifCond this.deprecated '!=' true}}
@@ -352,8 +358,8 @@
 
                       <!-- title:end -->
 
-                      {{#ifCond (toHtml (join this.description true)) '!=' undefined}}
-                        <div class="section left-padded top-padded bottom-padded color-2">{{toHtml (join ../this.description true)}}</div>
+                      {{#ifCond (join this.description true) '!=' ''}}
+                        <div class="section left-padded top-padded bottom-padded color-2">{{markdown (join ../this.description true)}}</div>
                       {{/ifCond}}
 
                       <div class="section flex">

@@ -5,10 +5,13 @@ module.exports = (input, align, unsafe) => {
     input = [input];
   }
 
-  input = input.filter((line) => line).map((line) => String(line));
+  const startNonEmptyIndex = input.findIndex((line) => line.trim() !== '');
+  const finalNonEmptyIndex = input.findLastIndex((line) => line.trim() !== '');
+
+  input = input.slice(startNonEmptyIndex, finalNonEmptyIndex + 1).map((line) => String(line));
 
   if (align === true) {
-    let indentIndex = 999;
+    let indentIndex = Infinity;
 
     input.forEach((line) => {
       const rowIndentIndex = line.search(/\S/);
@@ -18,7 +21,9 @@ module.exports = (input, align, unsafe) => {
       }
     });
 
-    input = input.map((line) => line.substr(indentIndex));
+    if (indentIndex !== Infinity) {
+      input = input.map((line) => line.slice(indentIndex));
+    }
   }
 
   input = input.map((line) => line || '').join('\n');
