@@ -2,7 +2,7 @@
     {{#with (context 'definitions') as |definitions|}}
         <div class="label{{#if ../../color}} {{../../color}}{{/if}}">{{#ifCond key '==' 'null'}}{{_ ../../../defaultName}}{{else}}{{first (lookup definitions key 'title') key}}{{/ifCond}}</div>
         {{#if (lookup definitions key 'description')}}
-            <div class="section left-padded color-2">{{toHtml (join (lookup definitions key 'description') true)}}</div>
+            <div class="section left-padded color-2">{{markdown (join (lookup definitions key 'description') true)}}</div>
         {{/if}}
     {{/with}}
     <div class="section">
@@ -28,7 +28,7 @@
                         </div>
                         {{#if groupVariant.isTyped}}<div class="width-15 color-2 mono">{{p.type.name}}</div>{{/if}}
                         <div class="flex-1">
-                            {{toHtml (join p.description true)}}
+                            {{markdown (join p.description true)}}
                             {{#if p.type}}
                                 {{#if p.type.allowedValues}}
                                     <div class="{{#if p.description.length}}top-padded{{/if}}">

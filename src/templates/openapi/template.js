@@ -53,6 +53,10 @@ module.exports = (config) => ({
               : `# ${descriptor.title}`;
           }
 
+          if (tagRef.description.length) {
+            tagRef.description += '\n';
+          }
+
           if (descriptor.description?.length) {
             tagRef.description += descriptor.description.join('\n');
           }

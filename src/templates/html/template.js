@@ -41,7 +41,7 @@ module.exports = (config) => ({
 
     const apidocTemplateContent = ['const templates = {};'];
 
-    for (const templateName of [[
+    for (const [ fileName, varName ] of [[
       'template.content', 'content',
     ], [
       'template.content.param_example', 'contentParamExample',
@@ -56,9 +56,9 @@ module.exports = (config) => ({
     ], [
       'template.content.ssr.param_group_variant.section', 'contentSsrParamGroupVariantSection',
     ]]) {
-      const template = fs.readFileSync(`${__dirname}/assets/${templateName[0]}.hbs`, {encoding: 'utf8'});
+      const template = fs.readFileSync(`${__dirname}/assets/${fileName}.hbs`, {encoding: 'utf8'});
 
-      apidocTemplateContent.push(`templates.${templateName[1]} = \`${template}\`;`);
+      apidocTemplateContent.push(`templates.${varName} = \`${template.split('\n').map((l) => l.trimStart()).join('\n')}\`;`);
     }
 
     if (process.env.NODE_ENV === 'test') {

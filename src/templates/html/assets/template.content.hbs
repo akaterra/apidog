@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class="section left-padded color-1 font-size-4 bold">{{title}}</div>
-      <div class="section left-padded color-2">{{toHtml description}}</div>
+      <div class="section left-padded color-2">{{markdown description}}</div>
     </div>
   </div>
 
@@ -52,7 +52,7 @@
     {{#with (context 'definitions') as |definitions|}}
       {{#if (lookup definitions ../this.title 'description')}}
         <div class="sub-container">
-          <div class="section left-padded color-2">{{toHtml (join (lookup definitions ../this.title 'description') true)}}</div>
+          <div class="section left-padded color-2">{{markdown (join (lookup definitions ../this.title 'description') true)}}</div>
         </div>
       {{/if}}
     {{/with}}
@@ -115,6 +115,7 @@
                   <div class="section left-padded color-2">{{markdown (join description true)}}</div>
                 {{/if}}
               {{/with}}
+              <div class="splitter"></div>
             {{/ifCond}}
 
             {{#each this.subgroups}}
@@ -129,14 +130,13 @@
                 </div>
                 {{#with (lookup (context 'definitions') ../this.title 'description') as |description|}}
                   {{#if description}}
-                    <div class="section left-padded color-2">{{toHtml (join description true)}}</div>
+                    <div class="section left-padded color-2">{{markdown (join description true)}}</div>
                   {{/if}}
                 {{/with}}
+                <div class="splitter"></div>
               {{/ifCond}}
 
-              <!--
-              Notes
-              -->
+              <!-- notes -->
 
               {{#each this.notes}}
                 <div class="block" data-family="{{this.0.familyId}}">
@@ -219,7 +219,7 @@
                         <!-- usage example -->
 
                         {{#if this.example.length}}
-{{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
+                          {{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
                         {{/if}}
 
                         <!-- header -->
@@ -233,7 +233,7 @@
                         {{/if}}
 
                         {{#if this.headerExample.length}}
-{{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                          {{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
                         {{/if}}
 
                         <!-- param -->
@@ -247,7 +247,7 @@
                         {{/if}}
 
                         {{#if this.paramExample.length}}
-{{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
+                          {{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
                         {{/if}}
 
                         <!-- success -->
@@ -261,7 +261,7 @@
                         {{/if}}
 
                         {{#if this.successExample.length}}
-{{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
                         {{/if}}
 
                         <!-- error -->
@@ -275,7 +275,7 @@
                         {{/if}}
 
                         {{#if this.errorExample.length}}
-{{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
+                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
                         {{/if}}
                       </div>
                     </div>
@@ -397,7 +397,7 @@
                         <!-- usage example -->
 
                         {{#if this.example.length}}
-{{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
+                          {{> contentParamExample example=this.example defaultName='usageExample' id=this.id contentType='any'}}
                         {{/if}}
 
                         <!-- auth header -->
@@ -417,7 +417,7 @@
                         {{/if}}
 
                         {{#if this.headerExample.length}}
-{{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
+                          {{> contentParamExample example=this.headerExample defaultName='headerExample' id=this.id contentType=this.contentType}}
                         {{/if}}
 
                         <!-- auth query -->
@@ -449,7 +449,7 @@
                         {{/if}}
 
                         {{#if this.paramExample.length}}
-{{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
+                          {{> contentParamExample example=this.paramExample defaultName='parameterExample' id=this.id contentType=this.contentType}}
                         {{/if}}
 
                         <!-- success -->
@@ -463,7 +463,7 @@
                         {{/if}}
 
                         {{#if this.successExample.length}}
-{{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
                         {{/if}}
 
                         <!-- error -->
@@ -477,7 +477,7 @@
                         {{/if}}
 
                         {{#if this.errorExample.length}}
-{{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
+                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
                         {{/if}}
                       </div>
                     </div>

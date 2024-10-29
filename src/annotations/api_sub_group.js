@@ -14,7 +14,8 @@ function parse(block, text, line, index, lines, definitions) {
     name: text,
     title: definitions[text] ? definitions[text].title : null,
   };
-  block.isDefUsed = !!definitions[text];
+  // block.isDefUsed = !!definitions[text] ? true : block.isDefUsed ?? false;
+
   block.addToApidocString(toApidocString);
 
   return block;

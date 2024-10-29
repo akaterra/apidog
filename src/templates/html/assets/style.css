@@ -626,10 +626,23 @@ ins.diffmod, .diffins {
   font-weight: bold;
 }
 
+.markdown pre {
+  background-color: #000;
+  color: white;
+  border-radius: 0.25rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  padding: 0.5rem;
+}
+
+.markdown pre code {
+  padding: 0;
+}
+
 .markdown code {
   background-color: #000;
-  border-radius: 0.25rem;
   color: white;
+  border-radius: 0.25rem;
   font-family: monospace;
   padding-bottom: 0.1rem;
   padding-left: 0.25rem;

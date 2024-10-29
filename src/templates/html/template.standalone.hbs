@@ -25,13 +25,13 @@
 </body>
 <script>
   const templates = {
-    content: `{{> template.content.hbs.content }}`,
-    contentParamExample: `{{> template.content.param_example.hbs.content }}`,
-    contentParamGroup: `{{> template.content.param_group.hbs.content }}`,
-    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs.content }}`,
-    contentParamValueGroup: `{{> template.content.param_value_group.hbs.content }}`,
-    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs.content }}`,
-    contentSsrParamGroupVariantSection: `{{> template.content.ssr.param_group_variant.section.hbs.content }}`,
+    content: `{{> template.content.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentParamExample: `{{> template.content.param_example.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentParamGroup: `{{> template.content.param_group.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentParamGroupVariant: `{{> template.content.param_group_variant.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentParamValueGroup: `{{> template.content.param_value_group.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentSsrParamGroupVariant: `{{> template.content.ssr.param_group_variant.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
+    contentSsrParamGroupVariantSection: `{{> template.content.ssr.param_group_variant.section.hbs.content }}`.split('\n').map((l) => l.trimStart()).join('\n'),
   };
 
   (function () {
