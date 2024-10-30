@@ -1,11 +1,16 @@
 // @apiParamRoot [(group)] {type=type} description
 
 start
-  = group:Group? _ type:Type __ description:Rest { return { group, type, description } }
-  / group:Group? _ type:Type { return { group, type, description: null } }
+  = group:Group? _ type:Type description:(__ Rest)? { return { group, type, description: description?.[1] } }
 
 Group
-  = "(" _ name:Any _ ")" { return { name } }
+  = "(" _ name:GroupName _ ")" { return { name } }
+  
+GroupName
+  = head:GroupNameCharacter+ { return head.join('') }
+
+GroupNameCharacter
+  = !")" char:. { return char }
 
 Type
   = "{" _ name:Any modifiers:TypeModifiers* _ constraints:TypeConstraints? _ e:TypeEnum? "}" { return { name, modifiers, ...constraints, enum: e } }

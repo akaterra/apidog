@@ -1,7 +1,7 @@
 // @apiDefine name title
 
 start
-  = name:Any [ \t]+ title:Title? { return { name, title } }
+  = name:Any __ title:Title? { return { name, title } }
   / name:Any { return { name, title: null } } 
 
 Title
@@ -36,3 +36,6 @@ EscapeSequence
 
 _ "whitespace"
   = [ \t]*
+
+__ "whitespace"
+  = [ \t]+

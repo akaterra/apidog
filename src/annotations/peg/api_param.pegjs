@@ -1,11 +1,16 @@
 // @apiParam [(group)] [{type=type}] field[=defaultValue] [description]
 
 start
-  = group:Group? _ type:Type? _ field:Field __ description:Rest { return { group, type, field, description } }
-  / group:Group? _ type:Type? _ field:Field { return { group, type, field, description: null } }
+  = group:Group? _ type:Type? _ field:Field description:(__ Rest)? { return { group, type, field, description: description?.[1] } }
 
 Group
-  = "(" _ name:Any _ ")" { return { name } }
+  = "(" _ name:GroupName _ ")" { return { name } }
+  
+GroupName
+  = head:GroupNameCharacter+ { return head.join('') }
+
+GroupNameCharacter
+  = !")" char:. { return char }
 
 Type
   = "{" _ name:Any constraints:TypeConstraints? modifiers:TypeModifiers* _ e:TypeEnum? "}" { return { name, modifiers, enum: e, ...constraints } }
@@ -57,12 +62,12 @@ String
   / "'" chars:SingleStringCharacter* "'" { return chars.join('') }
 
 DoubleStringCharacter
-  = !('"' / "\\") char:. { return char}
-  / "\\" sequence:EscapeSequence { return sequence}
+  = !('"' / "\\") char:. { return char }
+  / "\\" sequence:EscapeSequence { return sequence }
 
 SingleStringCharacter
-  = !("'" / "\\") char:. { return char}
-  / "\\" sequence:EscapeSequence { return sequence}
+  = !("'" / "\\") char:. { return char }
+  / "\\" sequence:EscapeSequence { return sequence }
 
 EscapeSequence
   = "'"

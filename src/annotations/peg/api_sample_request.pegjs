@@ -1,21 +1,19 @@
 // @apiSampleRequest [{type}] [off]|[on]|[...]
 
 start
-  = type:Type __ url:AtLeastOneChar { return { type, url } }
-  / url:AtLeastOneChar { return { type: null, url } }
+  = type:Type? url:AtLeastOneChar { return { type, url } }
 
 Type
-  = "{" _ name:Any _ "}" { return { name } }
+  = "{" _ name:TypeName _ "}" { return { name } }
+  
+TypeName
+  = head:TypeNameCharacter+ { return head.join('') }
 
-Rest
-  = head:.* { return head.join('') || null }
+TypeNameCharacter
+  = !"}" char:. { return char }
 
 AtLeastOneChar
   = head:.+ { return head.join('') || null }
-
-Any
-  = head:[a-zA-Z0-9_-]+ { return head.join('') }
-  / String
  
 String
   = '"' chars:DoubleStringCharacter* '"' { return chars.join('') }

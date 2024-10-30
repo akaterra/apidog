@@ -1,11 +1,16 @@
 // @apiParamValue [(group)] [{type=type}] value [description]
 
 start
-  = group:Group? _ type:Type? _ value:Any __ description:Rest { return { group, type, value, description } }
-  / group:Group? _ type:Type? _ value:Any { return { group, type, value, description: null } }
+  = group:Group? _ type:Type? _ value:Any description:(__ Rest)? { return { group, type, value, description: description?.[1] } }
 
 Group
-  = "(" _ name:Any _ ")" { return { name } }
+  = "(" _ name:GroupName _ ")" { return { name } }
+  
+GroupName
+  = head:GroupNameCharacter+ { return head.join('') }
+
+GroupNameCharacter
+  = !")" char:. { return char }
 
 Type
   = "{" _ name:Any _ "}" { return { name } }
