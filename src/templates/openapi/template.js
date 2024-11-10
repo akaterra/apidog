@@ -301,36 +301,24 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
 
         if (groupVariantKey) {
-          // const notBodyParamIndexes = [];
+          schema = maybeReplaceObjectParamsWithRef(
+            parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.headerGroupVariant[groupVariantKey].prop,
+              descriptor.header,
+            ),
+            schemas,
+            compressionDepth,
+          );
 
-          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.headerGroup[groupVariantKey].list.map((headerIndex) => {
-            const param = descriptor.header[headerIndex];
-            const paramType = param.type.modifiers.initial.toLowerCase();
-
-            if (true) {
-              // notBodyParamIndexes.push(paramIndex);
-
-              return {
-                name: param.field.name,
-                in: 'header',
-                description: param.description && param.description.join('\n'),
-                required: !param.field.isOptional,
-                schema: {
-                  ...maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamToJsonSchema(param),
-                    schemas,
-                    compressionDepth,
-                  ),
-                  enum: param.type.allowedValues?.length
-                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
-                    : undefined,
-                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
-                },
-              };
-            }
-
-            return null;
-          }).filter(_ => _));
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
+            return {
+              name: key,
+              in: 'header',
+              description: keySchema.description,
+              required: !!schema.required?.includes(key),
+              schema: keySchema,
+            };
+          }));
         }
       }
 
@@ -338,44 +326,41 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
         if (groupVariantKey) {
-          const notBodyParamIndexes = [];
+          const notBodyParamKeys = [];
 
-          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.paramGroup[groupVariantKey].list.map((paramIndex) => {
-            const param = descriptor.param[paramIndex];
-            const paramType = param.type.modifiers.initial.toLowerCase();
+          schema = maybeReplaceObjectParamsWithRef(
+            parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.paramGroupVariant[groupVariantKey].prop,
+              descriptor.param,
+            ),
+            schemas,
+            compressionDepth,
+          );
+
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
             const isQueryParam = param && !descriptor.queryGroupVariant?.[groupVariantKey] && (
               param.field.name in uriParams ||
               descriptor.api.transport.method === 'get' ||
               descriptor.api.transport.method === 'delete'
             );
 
-            if (isQueryParam) {
-              notBodyParamIndexes.push(paramIndex);
-
-              return {
-                name: param.field.name,
-                in: uriParams[param.field.name] === false ? 'path' : 'query',
-                description: param.description && param.description.join('\n'),
-                required: !param.field.isOptional,
-                schema: {
-                  ...maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamToJsonSchema(param),
-                    schemas,
-                    compressionDepth,
-                  ),
-                  enum: param.type.allowedValues?.length
-                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
-                    : undefined,
-                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
-                },
-              };
+            if (!isQueryParam) {
+              return null;
             }
 
-            return null;
+            notBodyParamKeys.push(key);
+
+            return {
+              name: key,
+              in: uriParams[key] === false ? 'path' : 'query',
+              description: keySchema.description,
+              required: !!schema.required?.includes(key),
+              schema: keySchema,
+            };
           }).filter(_ => _));
 
           // not to filter, param must stay at same index
-          const bodyParams = descriptor.param.map((param, index) => notBodyParamIndexes.includes(index) ? null : param);
+          const bodyParams = descriptor.param.map((param) => notBodyParamKeys.includes(param.field.name) ? null : param);
 
           if (bodyParams.filter((param) => !!param).length) {
             methodDescriptor.requestBody = {
@@ -415,32 +400,24 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.queryGroupVariant)[0];
 
         if (groupVariantKey) {
-          // const notBodyParamIndexes = [];
+          schema = maybeReplaceObjectParamsWithRef(
+            parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.queryGroupVariant[groupVariantKey].prop,
+              descriptor.query,
+            ),
+            schemas,
+            compressionDepth,
+          );
 
-          methodDescriptor.parameters = methodDescriptor.parameters.concat(descriptor.queryGroup[groupVariantKey].list.map((queryIndex) => {
-            const param = descriptor.query[queryIndex];
-            const paramType = param.type.modifiers.initial.toLowerCase();
-
-            if (true) {
-              // notBodyParamIndexes.push(paramIndex);
-
-              return {
-                name: param.field.name,
-                in: uriParams[param.field.name] === false ? 'path' : 'query',
-                description: param.description && param.description.join('\n'),
-                required: !param.field.isOptional,
-                schema: {
-                  ...parserUtils.convertParamToJsonSchema(param),
-                  enum: param.type.allowedValues?.length
-                    ? param.type.allowedValues.map((value) => parserUtils.convertParamValueByType(paramType, value))
-                    : undefined,
-                  default: parserUtils.convertParamValueByType(paramType, param.field.defaultValue),
-                },
-              };
-            }
-
-            return null;
-          }).filter(_ => _));
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
+            return {
+              name: key,
+              in: uriParams[key] === false ? 'path' : 'query',
+              description: keySchema.description,
+              required: !!schema.required?.includes(key),
+              schema: keySchema,
+            };
+          }));
         }
       }
     });

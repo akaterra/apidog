@@ -653,3 +653,31 @@ ins.diffmod, .diffins {
 .markdown p:not(:first-child) {
   margin-top: 1rem;
 }
+
+.markdown table {
+  border-collapse: collapse;
+  margin: 0.5rem -0.5rem 0.5rem -0.5rem;
+  width: 100%;
+}
+
+.markdown table>thead > tr {
+  text-align: left;
+}
+
+.markdown table > thead > tr > th {
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.markdown table > tbody > tr > td {
+  padding-bottom: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.markdown table > tbody > *:nth-child(odd) {
+  background-color: #f0f0f0;
+}
+
+.markdown table > tbody > *:nth-child(even) {
+  background-color: #f8f8f8;
+}

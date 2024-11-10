@@ -3,7 +3,7 @@ const handlebars = require('handlebars');
 const parserUtils = require('./parser.utils');
 const _ = require('./assets/i18n')._;
 
-function generate(blocks, template, definitions, config, hbs) {
+function generate(blocks, template, definitions, config, hbs, stats) {
   blocks = blocks.filter((block) => {
     if (!block) {
       return false;
@@ -30,7 +30,9 @@ function generate(blocks, template, definitions, config, hbs) {
     return config ? !config.private : true;
   });
 
-  let [, chapters] = generateSections(blocks, definitions, config);
+  stats.docBlocksFiltered = blocks.length;
+
+  let [ , chapters ] = generateSections(blocks, definitions, config);
 
   if (config.templateProcessor && config.templateProcessor.prepareChapters) {
     chapters = config.templateProcessor.prepareChapters(chapters);

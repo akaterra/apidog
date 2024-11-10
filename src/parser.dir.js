@@ -3,7 +3,7 @@ const path = require('path');
 const parserBlockLines = require('./parser.block_lines');
 const utils = require('./utils');
 
-function parseDir(dir, blocks, filter, definitions, config) {
+function parseDir(dir, blocks, filter, definitions, config, stats) {
   if (!config) {
     config = {logger: utils.logger};
   }
@@ -21,13 +21,13 @@ function parseDir(dir, blocks, filter, definitions, config) {
   dir = path.resolve(dir);
 
   // first pass - definitions only
-  parseDirInternal(dir, blocks, filter, definitions, config, true);
+  parseDirInternal(dir, blocks, filter, definitions, config, stats, true);
 
   // second pass - resolve definitions
-  return parseDirInternal(dir, blocks, filter, definitions, config);
+  return parseDirInternal(dir, blocks, filter, definitions, config, stats);
 }
 
-function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefinitions) {
+function parseDirInternal(dir, blocks, filter, definitions, config, stats, onlyDefinitions) {
   if (!blocks) {
     blocks = [];
   }
@@ -56,7 +56,7 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
     const fsStat = fs.statSync(dir + '/' + dirEntry);
 
     if (fsStat.isDirectory()) {
-      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, filter, definitions, config, onlyDefinitions);
+      blocks = parseDirInternal(dir + '/' + dirEntry, blocks, filter, definitions, config, stats, onlyDefinitions);
     } else if (fsStat.isFile()) {
       if (dirEntry.slice(-7) === '.min.js') {
         return blocks;
@@ -93,6 +93,11 @@ function parseDirInternal(dir, blocks, filter, definitions, config, onlyDefiniti
           case 'rb':
             blocks = blocks.concat(parseRuby(source, definitions, config, onlyDefinitions));
             break;
+        }
+
+        if (blocks && stats) {
+          stats.docBlocksProcessed = blocks.length;
+          stats.sourcesProcessed = (stats.sourcesProcessed ?? 0) + 1;
         }
       }
     }

@@ -458,6 +458,9 @@ if (linesOfInlineParser.length) {
   docBlocks = [parseBlockLines.parseBlockLines(linesOfInlineParser, definitions, envConfig)];
 }
 
+const stats = {};
+const now = Date.now();
+
 argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
   let [_, parser, source] = argInput.match(/^(dir:|inline:|openapi:|)(.*)$/) || [];
 
@@ -477,7 +480,8 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
             .map((p) => new RegExp(p)).concat(loadGitIgnore(source)).concat([/.*apidoc\.proxy$/]),
         },
         definitions,
-        envConfig
+        envConfig,
+        stats,
       ));
 
       if (index === 0 && !outputDir) {
@@ -514,6 +518,7 @@ const content = generate.generate(
   definitions,
   envConfig,
   hbs,
+  stats,
 );
 
 if (content) {
@@ -542,6 +547,9 @@ if (args.withSampleRequestProxy) {
     }
   }
 }
+
+envConfig.logger.setFile(null).setLine().info(`Sources scanned: ${stats.sourcesProcessed}, doc blocks scanned: ${stats.docBlocksProcessed}, doc blocks filtered: ${stats.docBlocksFiltered}`);
+envConfig.logger.info(`Done in ${((Date.now() - now) / 1000).toFixed(3)}s`);
 
 function definedOrEmptyString(...args) {
   return args.find((arg) => arg || arg === '');
