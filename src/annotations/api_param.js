@@ -139,7 +139,7 @@ function construct(name, usePrefix) {
     }
 
     if (blockParam.field) {
-      const rootProp = block[annotationGroupVariantsName][group].prop[''];
+      const rootProp = block[annotationGroupVariantsName][group].prop[utils.root];
       let root = rootProp?.length
         ? rootProp[rootProp.length - 1]?.prop
         : block[annotationGroupVariantsName][group].prop;

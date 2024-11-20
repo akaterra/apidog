@@ -13,13 +13,13 @@ GroupNameCharacter
   = !")" char:. { return char }
 
 Field
-  = "[" _ name:Path "]" { return { name } }
-  / name:Path dot:.? { return { name: name + (dot ?? '') } }
-  / ".." { return { name: '..' } }
+  = "[" _ name:Path dot:"."? "]" { return { name: name + (dot ?? '') } }
+  / name:Path dot:"."? { return { name: name + (dot ?? '') } }
+  / dots:"."|1..2| { return { name: dots } }
   / "??" { return { name: '??' } }
 
 Path
-  = head:Any tail:PathTail* { return head + tail }
+  = dot:"."? head:Any tail:PathTail* { return  (dot ?? '') + head + tail }
   
 PathTail
   = "[" head:Any* "]" tail:PathTail* { return '[' + head + ']' + tail }

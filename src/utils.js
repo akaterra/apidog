@@ -91,6 +91,16 @@ const A = {
   4: { '"': { OP: NOOP, ST: 1 } },
 };
 
+/**
+ * a.b.c -> ['a', 'b' 'c']
+ * a[0].b -> ['a', '0', 'b']
+ * a."b.c" -> ['a', 'b.c']
+ * a."b\"c" -> ['a', 'b"c']
+ * a..b.c -> ['a', '', 'b', 'c']
+ * a...b.c -> ['a', '', 'b', 'c']
+ * a.b.c. -> ['a', 'b', 'c']
+ * .a.b.c -> ['a', 'b', 'c']
+ */
 function strSplitByPathEscaped(str) {
   const chunks = [];
   let st = 0;
@@ -106,7 +116,7 @@ function strSplitByPathEscaped(str) {
       if (!rul.RG || rul.RG.test(sym)) {
         switch (rul.OP) {
           case PUSH:
-            if (sub || rul.TP === 'index') {
+            if (sub || rul.TP === 'index' || chunks.at(-1) || chunks.length === 0) {
               chunks.push(sub);
               sub = '';
             }
@@ -131,6 +141,10 @@ function strSplitByPathEscaped(str) {
 
   if (s < str.length) {
     chunks.push(str.slice(s));
+  }
+
+  if (chunks.length > 1 && chunks.at(-1) === '') {
+    chunks.pop();
   }
 
   return chunks;
@@ -231,4 +245,5 @@ module.exports = {
   strSplitBySpace,
   Logger,
   logger: new Logger(),
+  root: String.fromCharCode(255), // Symbol('root'),
 };

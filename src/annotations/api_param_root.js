@@ -103,7 +103,7 @@ function construct(name, usePrefix) {
 
     if (blockParam.field) {
       let root = block[annotationGroupVariantsName][group].prop;
-      blockParam.field.path = [ '' ];
+      blockParam.field.path = [ utils.root ];
 
       utils.forEach(blockParam.field.path, (key, ind, isLast) => {
         if (!root[key]) {

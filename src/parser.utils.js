@@ -1,3 +1,5 @@
+const utils = require('./utils');
+
 function enumChapters(chapters, fn, acc, scope) {
   Object.entries(chapters).forEach(([chapterName, groups]) => {
     Object.entries(groups).forEach(([groupName, subgroups]) => {
@@ -137,7 +139,7 @@ function convertParamToJsonSchema(mixed) {
   }
 
   if (mixed.type?.modifiers?.nullable) {
-    schema.type = [schema.type, 'null'];
+    schema.type = [ schema.type, 'null' ];
   }
 
   if (typeof mixed.type?.modifiers?.min === 'number') {
@@ -288,6 +290,10 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
 
   if (jsonSchema.properties?.['']) {
     jsonSchema = jsonSchema.properties[''];
+  }
+
+  if (jsonSchema.properties?.[utils.root]) {
+    jsonSchema = jsonSchema.properties[utils.root];
   }
 
   return Object.keys(jsonSchema).length === 0 ? undefined : jsonSchema;

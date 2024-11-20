@@ -39,7 +39,8 @@ AtLeastOneChar
   = head:.+ { return head.join('') || null }
 
 Path
-  = head:Any tail:PathTail* { return head + tail }
+  = dot:"."? head:Any tail:PathTail* { return (dot ?? '') + head + tail }
+  / "." { return "." }
 
 PathTail
   = "[" head:Any* "]" tail:PathTail* { return '[' + head + ']' + tail }

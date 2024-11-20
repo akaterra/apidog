@@ -338,8 +338,8 @@ module.exports = (config) => ({
           );
 
           methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
-            const isQueryParam = param && !descriptor.queryGroupVariant?.[groupVariantKey] && (
-              param.field.name in uriParams ||
+            const isQueryParam = !descriptor.queryGroupVariant?.[groupVariantKey] && (
+              key in uriParams ||
               descriptor.api.transport.method === 'get' ||
               descriptor.api.transport.method === 'delete'
             );

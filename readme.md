@@ -884,6 +884,22 @@ Configuration file is a js script that by default exports the object with next p
   
   @openapi, @asyncapi templates generate "$oneOf" definition.
 
+  To define variant on root level use multiple `@apiParamRoot {Type}` or use field names prefixed by ".":
+
+  ```
+  @apiParamRoot {Object} field
+  @apiParam {Number} a
+  @apiParamRoot {Object} field
+  @apiParam {String} b
+  ```
+
+  ```
+  @apiParam .
+  @apiParam {Number} .a
+  @apiParam .
+  @apiParam {String} .b
+  ```
+
 * apiDoc types to @openapi, @asyncapi jsonschema types mapping.
 
   * Boolean - { "type": "boolean" }

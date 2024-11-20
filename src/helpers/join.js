@@ -5,8 +5,8 @@ module.exports = (input, align, unsafe) => {
     input = [input];
   }
 
-  const startNonEmptyIndex = input.findIndex((line) => line.trim() !== '');
-  const finalNonEmptyIndex = input.findLastIndex((line) => line.trim() !== '');
+  const startNonEmptyIndex = input.findIndex((line) => line && line.trim() !== '');
+  const finalNonEmptyIndex = input.findLastIndex((line) => line && line.trim() !== '');
 
   input = input.slice(startNonEmptyIndex, finalNonEmptyIndex + 1).map((line) => String(line));
 
