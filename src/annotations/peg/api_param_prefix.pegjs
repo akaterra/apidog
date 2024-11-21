@@ -15,7 +15,7 @@ GroupNameCharacter
 Field
   = "[" _ name:Path dot:"."? "]" { return { name: name + (dot ?? '') } }
   / name:Path dot:"."? { return { name: name + (dot ?? '') } }
-  / dots:"."|1..2| { return { name: dots } }
+  / dots:"."|1..2| { return { name: dots.join('') } }
   / "??" { return { name: '??' } }
 
 Path

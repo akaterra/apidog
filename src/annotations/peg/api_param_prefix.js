@@ -236,7 +236,7 @@ function peg$parse(input, options) {
   var peg$f3 = function(char) { return char };
   var peg$f4 = function(name, dot) { return { name: name + (dot ?? '') } };
   var peg$f5 = function(name, dot) { return { name: name + (dot ?? '') } };
-  var peg$f6 = function(dots) { return { name: dots } };
+  var peg$f6 = function(dots) { return { name: dots.join('') } };
   var peg$f7 = function() { return { name: '??' } };
   var peg$f8 = function(dot, head, tail) { return  (dot ?? '') + head + tail };
   var peg$f9 = function(head, tail) { return '[' + head + ']' + tail };
