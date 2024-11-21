@@ -36,6 +36,9 @@ window.onload = () => {
   {{> path_last_key_indented.js }}
   Handlebars.registerHelper('pathLastKeyIndented', module.exports);
 
+  {{> path_root.js }}
+  Handlebars.registerHelper('pathRoot', module.exports);
+
   {{> to_html.js }}
   Handlebars.registerHelper('toHtml', module.exports);
 

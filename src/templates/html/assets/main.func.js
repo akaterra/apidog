@@ -45,7 +45,18 @@ const A = {
   4: { '"': { OP: NOOP, ST: 1 } },
 };
 
-function strToPathEscaped(str) {
+
+/**
+ * a.b.c -> ['a', 'b' 'c']
+ * a[0].b -> ['a', '0', 'b']
+ * a."b.c" -> ['a', 'b.c']
+ * a."b\"c" -> ['a', 'b"c']
+ * a..b.c -> ['a', '', 'b', 'c']
+ * a...b.c -> ['a', '', 'b', 'c']
+ * a.b.c. -> ['a', 'b', 'c']
+ * .a.b.c -> ['a', 'b', 'c']
+ */
+function strSplitByPathEscaped(str) {
   const chunks = [];
   let st = 0;
   let sub = '';
@@ -60,10 +71,11 @@ function strToPathEscaped(str) {
       if (!rul.RG || rul.RG.test(sym)) {
         switch (rul.OP) {
           case PUSH:
-            if (sub || rul.TP === 'index') {
+            if (sub || rul.TP === 'index' || chunks.at(-1) || chunks.length === 0) {
               chunks.push(sub);
               sub = '';
             }
+            // no break
           case NEXT:
             s = i + 1;
             break;
@@ -84,6 +96,10 @@ function strToPathEscaped(str) {
 
   if (s < str.length) {
     chunks.push(str.slice(s));
+  }
+
+  if (chunks.length > 1 && chunks.at(-1) === '') {
+    chunks.pop();
   }
 
   return chunks;
