@@ -40,7 +40,7 @@ function construct(name, usePrefix) {
     const parsed = peggy.parse(text.trim());
 
     let group = parsed.group?.name || null;
-    let field = { name: '' };
+    let field = { name: utils.root };
     let type = null;
     let description = parsed.description ? parsed.description.split('\n') : [];
 

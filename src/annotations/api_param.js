@@ -143,7 +143,7 @@ function construct(name, usePrefix) {
       let root = rootProp?.length
         ? rootProp[rootProp.length - 1]?.prop
         : block[annotationGroupVariantsName][group].prop;
-      blockParam.field.path = [ ...utils.strSplitByPathEscaped(blockParam.field.name) ];
+      blockParam.field.path = utils.strSplitByPathEscaped(blockParam.field.name);
 
       utils.forEach(blockParam.field.path, (key, ind, isLast) => {
         if (!root[key]) {
@@ -180,7 +180,7 @@ function construct(name, usePrefix) {
   function toApidocString(block) {
     if (block[annotationName] !== undefined) {
       return block[annotationName].map((annotation) => {
-        const isRoot = annotation.field?.name === '';
+        const isRoot = annotation.field?.name === utils.root;
         const args = [];
 
         if (annotation.group) {

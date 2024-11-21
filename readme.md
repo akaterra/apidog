@@ -867,12 +867,12 @@ Configuration file is a js script that by default exports the object with next p
   ```
 
 * Type variants.
-  This can be useful when the type of the field should be various.
+  Can be useful when the type of the field should be various.
 
   ```
-  @apiParam {Type1} field
+  @apiParam {Object} field
   @apiParam {Number} field.a
-  @apiParam {Type2} field
+  @apiParam {Object} field
   @apiParam {String} field.b
   ```
 
@@ -894,9 +894,9 @@ Configuration file is a js script that by default exports the object with next p
   ```
 
   ```
-  @apiParam .
+  @apiParam {Object} .
   @apiParam {Number} .a
-  @apiParam .
+  @apiParam {Object} .
   @apiParam {String} .b
   ```
 

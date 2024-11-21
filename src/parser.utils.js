@@ -231,11 +231,15 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     if (oneOf.length === 1) {
       jsonSchema.properties[propKey] = oneOf[0];
     } else {
+      oneOf.forEach((oneOf, i) => oneOf.index = i);
       const oneOfNonArrayVariants = oneOf.filter((oneOf) => oneOf.type !== 'array');
       const oneOfArrayVariants = oneOf.some((oneOf) => oneOf.type === 'array')
         ? [ {
           type: 'array',
-          items: { oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => oneOf.items) },
+          items: {
+            oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => ({ description: oneOf.description, ...oneOf.items, index: oneOf.index })),
+            index: Infinity,
+          },
         } ]
         : [];
 
@@ -243,10 +247,30 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         oneOfArrayVariants[0].items = oneOfArrayVariants[0].items.oneOf[0];
       }
 
-      const oneOfVariants = [
-        ...oneOfNonArrayVariants,
-        ...oneOfArrayVariants,
-      ];
+      let oneOfVariants = [];
+
+      oneOfNonArrayVariants.forEach((oneOfNonArrayVariant) => {
+        if (oneOfNonArrayVariant.index !== Infinity) {
+          oneOfVariants[oneOfNonArrayVariant.index] = oneOfNonArrayVariant;
+        }
+      });
+      oneOfArrayVariants.forEach((oneOfArrayVariant) => {
+        if (oneOfArrayVariant.items.index !== Infinity) {
+          oneOfVariants[oneOfArrayVariant.items.index] = oneOfArrayVariant;
+        }
+      });
+      oneOfNonArrayVariants.forEach((oneOfNonArrayVariant) => {
+        if (oneOfNonArrayVariant.index === Infinity) {
+          oneOfVariants.push(oneOfNonArrayVariant);
+        }
+      });
+      oneOfArrayVariants.forEach((oneOfArrayVariant) => {
+        if (oneOfArrayVariant.items.index === Infinity) {
+          oneOfVariants.push(oneOfArrayVariant);
+        }
+      });
+      oneOfVariants = oneOfVariants.filter((e) => !!e);
+      oneOfVariants.forEach((e) => delete e.index);
 
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }
