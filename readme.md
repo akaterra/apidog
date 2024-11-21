@@ -887,9 +887,9 @@ Configuration file is a js script that by default exports the object with next p
   To define variant on root level use multiple `@apiParamRoot {Type}` or use field names prefixed by ".":
 
   ```
-  @apiParamRoot {Object} field
+  @apiParamRoot {Object}
   @apiParam {Number} a
-  @apiParamRoot {Object} field
+  @apiParamRoot {Object}
   @apiParam {String} b
   ```
 
