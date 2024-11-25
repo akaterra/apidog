@@ -232,19 +232,18 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       jsonSchema.properties[propKey] = oneOf[0];
     } else {
       oneOf.forEach((oneOf, i) => oneOf.index = i);
+
       const oneOfNonArrayVariants = oneOf.filter((oneOf) => oneOf.type !== 'array');
       const oneOfArrayVariants = oneOf.some((oneOf) => oneOf.type === 'array')
         ? [ {
           type: 'array',
           items: {
-            oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => ({ description: oneOf.description, ...oneOf.items })),
-            index: oneOf.index,
+            oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => ({ description: oneOf.description, ...oneOf.items, index: oneOf.index })),
           },
         } ]
         : [];
 
       if (oneOfArrayVariants[0]?.items.oneOf.length === 1) {
-        oneOfArrayVariants[0].items.oneOf[0].index = oneOfArrayVariants[0].items.index;
         oneOfArrayVariants[0].items = oneOfArrayVariants[0].items.oneOf[0];
       }
 
@@ -272,6 +271,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       });
       oneOfVariants = oneOfVariants.filter((e) => !!e);
       oneOfVariants.forEach((e) => delete e.index);
+      oneOfVariants.forEach((e) => delete e.items?.index);
 
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }

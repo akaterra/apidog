@@ -44,11 +44,14 @@ Table of contents
 * Installation
 * CLI
 * Additional annotations
+  * [@apiAuthCookie](#apiauthcookie)
   * [@apiAuthHeader](#apiauthheader)
   * [@apiAuthParam](#apiauthparam)
   * [@apiAuthQuery](#apiauthquery)
   * [@apiChapter](#apichapter)
   * [@apiContentType](#apicontenttype)
+  * [@apiCookie](#apicookie)
+  * [@apiCookieValue](#apicookievalue)
   * [@apiDefine](#apidefine)
   * [@apiDescription](#apidescription)
   * [@apiErrorPrefix](#apierrorprefix)
@@ -185,6 +188,14 @@ Parameters:
 
 ### Additional annotations
 
+##### @apiAuthCookie
+
+```
+@apiAuthCookie {authType} name description
+```
+
+Defines authorization type through cookie set.
+
 ##### @apiAuthHeader
 
 ```
@@ -236,6 +247,22 @@ Can be defined multiply.
 Content type will be used as a filter of the **@apiExample** content having corresponding `{contentType}`.
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
+
+##### @apiCookie
+
+Describes cookie. Similar to **@apiParam**.
+
+##### @apiCookieExample
+
+Describes cookie example. Similar to **@apiParamExample**.
+
+##### @apiCookieValue
+
+```
+@apiCookieValue [{type}] value [description]
+```
+
+Describes custom cookie value.
 
 ##### @apiDefine
 

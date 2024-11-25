@@ -195,6 +195,10 @@ module.exports = (config) => ({
         }
       }
 
+      if (Object.keys(descriptor.authCookieGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
       if (Object.keys(descriptor.authHeaderGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
         spec.components.securitySchemes = {};
       }
@@ -205,6 +209,32 @@ module.exports = (config) => ({
 
       if (Object.keys(descriptor.authQueryGroupVariant ?? {})[0] && !spec.components.securitySchemes) {
         spec.components.securitySchemes = {};
+      }
+
+      if (descriptor.authCookieGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.authCookieGroupVariant)[0];
+
+        if (groupVariantKey) {
+          if (!methodDescriptor.security) {
+            methodDescriptor.security = [];
+          }
+
+          descriptor.authCookieGroup[groupVariantKey].list.forEach((authCookieIndex) => {
+            const authCookie = descriptor.authCookie[authCookieIndex];
+            methodDescriptor.security.push({ [authCookie.group || 'default']: [] });
+
+            switch (authCookie.type.modifiers.initial) {
+              case 'apikey':
+                spec.components.securitySchemes[authCookie.group || 'default'] = { type: 'apiKey', in: 'cookie', name: authCookie.field.name };
+                break;
+
+              case 'basic':
+              case 'bearer':
+                spec.components.securitySchemes[authCookie.group || 'default'] = { type: 'http', scheme: authCookie.type.modifiers.initial, name: authCookie.field.name };
+                break;
+            }
+          });
+        }
       }
 
       if (descriptor.authHeaderGroupVariant) {
@@ -252,7 +282,7 @@ module.exports = (config) => ({
 
               case 'basic':
               case 'bearer':
-                spec.components.securitySchemes[authParam.group || 'default'] = { type: authParam.type.modifiers.initial, name: authParam.field.name };
+                spec.components.securitySchemes[authParam.group || 'default'] = { type: 'http', scheme: authParam.type.modifiers.initial, name: authParam.field.name };
                 break;
             }
           });
@@ -278,11 +308,15 @@ module.exports = (config) => ({
 
               case 'basic':
               case 'bearer':
-                spec.components.securitySchemes[authQuery.group || 'default'] = { type: authQuery.type.modifiers.initial, name: authQuery.field.name };
+                spec.components.securitySchemes[authQuery.group || 'default'] = { type: 'http', scheme: authQuery.type.modifiers.initial, name: authQuery.field.name };
                 break;
             }
           });
         }
+      }
+
+      if (Object.keys(descriptor.cookieGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
+        methodDescriptor.parameters = [];
       }
 
       if (Object.keys(descriptor.paramGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
@@ -295,6 +329,31 @@ module.exports = (config) => ({
 
       if (Object.keys(descriptor.headerGroupVariant ?? {})[0] && !methodDescriptor.parameters) {
         methodDescriptor.parameters = [];
+      }
+
+      if (descriptor.cookieGroupVariant) {
+        const groupVariantKey = Object.keys(descriptor.cookieGroupVariant)[0];
+
+        if (groupVariantKey) {
+          schema = maybeReplaceObjectParamsWithRef(
+            parserUtils.convertParamGroupVariantToJsonSchema(
+              descriptor.cookieGroupVariant[groupVariantKey].prop,
+              descriptor.cookie,
+            ),
+            schemas,
+            compressionDepth,
+          );
+
+          methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
+            return {
+              name: key,
+              in: 'cookie',
+              description: keySchema.description,
+              required: !!schema.required?.includes(key),
+              schema: keySchema,
+            };
+          }));
+        }
       }
 
       if (descriptor.headerGroupVariant) {
