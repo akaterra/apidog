@@ -3,6 +3,7 @@ const parserUtils = require('../../parser.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
+const set = require('lodash.set');
 
 const contentTypeToOpenapiContentType = {
   form: 'application/x-www-form-urlencoded',
@@ -114,14 +115,20 @@ module.exports = (config) => ({
                 schema = responses[responseKey].content[contentTypeKey].schema;
               }
 
-              responses[responseKey] = {
-                description: 'No description',
-                content: schema ? {
-                  [contentTypeToOpenapiContentType[contentType]]: {
-                    schema,
-                  },
-                } : undefined,
-              };
+              if (!responses[responseKey]) {
+                responses[responseKey] = { description: 'No description', content: {} };
+              }
+
+              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+
+              if (oldSchema) {
+                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
+                oldSchema.$oneOf.push(schema);
+              } else {
+                oldSchema = schema;
+              }
+
+              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
             });
           }
 
@@ -132,7 +139,7 @@ module.exports = (config) => ({
                 schemas,
                 compressionDepth,
               );
-              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d?$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
               const contentTypeKey = contentTypeToOpenapiContentType[contentType];
 
               if (responses[responseKey]?.content?.[contentTypeKey]) {
@@ -153,14 +160,20 @@ module.exports = (config) => ({
                 schema = responses[responseKey].content[contentTypeKey].schema;
               }
 
-              responses[responseKey] = {
-                description: 'No description',
-                content: schema ? {
-                  [contentTypeToOpenapiContentType[contentType]]: {
-                    schema,
-                  },
-                } : undefined,
-              };
+              if (!responses[responseKey]) {
+                responses[responseKey] = { description: 'No description', content: {} };
+              }
+
+              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+
+              if (oldSchema) {
+                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
+                oldSchema.$oneOf.push(schema);
+              } else {
+                oldSchema = schema;
+              }
+
+              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
             });
           }
         }

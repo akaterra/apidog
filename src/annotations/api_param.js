@@ -61,7 +61,7 @@ function construct(name, usePrefix) {
         allowedValues: parsed.type.enum ?? [],
         modifiers: parsed.type.modifiers?.reduce((acc, modifier, i) => {
           if (modifier.list) {
-            acc.list = modifier.list;
+            acc.list = (acc.list ?? 0) + 1;
 
             if (!acc.listConstraints) {
               acc.listConstraints = [];
@@ -78,7 +78,7 @@ function construct(name, usePrefix) {
             return acc;
           }
 
-          if (initial === 'regex' && i === 0) {
+          if (initial === 'regex' && !modifier.list) {
             acc.regex = modifier.name;
 
             return acc;

@@ -33,6 +33,9 @@ const annotationParsers = {
   '@apisrvariable': require('./annotations/api_sample_request_variable'),
   '@apischema': require('./annotations/api_schema'),
   '@apisubgroup': require('./annotations/api_sub_group'),
+  '@apitag': require('./annotations/api_tag'),
+  '@apiuse': require('./annotations/api_use'),
+  '@apiversion': require('./annotations/api_version'),
 
   '@apicookie': require('./annotations/api_param').construct('cookie', true),
   '@apicookieexample': require('./annotations/api_param_example').construct('cookie'),
@@ -59,10 +62,6 @@ const annotationParsers = {
   '@apisuccessprefix': require('./annotations/api_param_prefix').construct('successPrefix'),
   '@apisuccessroot': require('./annotations/api_param_root').construct('success', true),
   '@apisuccessvalue': require('./annotations/api_param_value').construct('successValue'),
-
-  '@apitag': require('./annotations/api_tag'),
-  '@apiuse': require('./annotations/api_use'),
-  '@apiversion': require('./annotations/api_version'),
 };
 
 function parseBlockLines(lines, definitions, config, onlyDefinitions) {
