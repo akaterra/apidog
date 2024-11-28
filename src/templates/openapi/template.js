@@ -15,7 +15,7 @@ const contentTypeToOpenapiContentType = {
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
-    const compressionDepth = (config.compressionLevel ?? 1) + 1;
+    const compressionDepth = config.compressionLevel ?? 1;
 
     const spec = {
       openapi: '3.0.3',
@@ -76,108 +76,11 @@ module.exports = (config) => ({
       }
 
       const uriParams = {};
+      const responses = {};
 
       parserOpenAPIUtils.enumUriPlaceholders(endpoint, (placeholder, isInQuery) => {
         uriParams[placeholder] = isInQuery;
       });
-
-      const responses = {};
-
-      for (const contentType of descriptor.contentType) {
-        if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
-          responses['default'] = {description: 'No description'};
-        } else {
-          if (descriptor.successGroupVariant) {
-            Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              let schema = maybeReplaceObjectParamsWithRef(
-                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
-                schemas,
-                compressionDepth,
-              );
-              const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
-              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
-
-              if (responses[responseKey]?.content?.[contentTypeKey]) {
-                const oldShema = responses[responseKey].content[contentTypeKey].schema;
-
-                if (!oldShema?.oneOf) {
-                  responses[responseKey].content[contentTypeKey].schema = {
-                    oneOf: [ oldShema ],
-                  };
-                }
-
-                if (schema.oneOf) {
-                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
-                } else {
-                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
-                }
-
-                schema = responses[responseKey].content[contentTypeKey].schema;
-              }
-
-              if (!responses[responseKey]) {
-                responses[responseKey] = { description: 'No description', content: {} };
-              }
-
-              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
-
-              if (oldSchema) {
-                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
-                oldSchema.$oneOf.push(schema);
-              } else {
-                oldSchema = schema;
-              }
-
-              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
-            });
-          }
-
-          if (descriptor.errorGroupVariant) {
-            Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-              let schema = maybeReplaceObjectParamsWithRef(
-                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
-                schemas,
-                compressionDepth,
-              );
-              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d?$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
-              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
-
-              if (responses[responseKey]?.content?.[contentTypeKey]) {
-                const oldShema = responses[responseKey].content[contentTypeKey].schema;
-
-                if (!oldShema?.oneOf) {
-                  responses[responseKey].content[contentTypeKey].schema = {
-                    oneOf: [ oldShema ],
-                  };
-                }
-
-                if (schema.oneOf) {
-                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
-                } else {
-                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
-                }
-
-                schema = responses[responseKey].content[contentTypeKey].schema;
-              }
-
-              if (!responses[responseKey]) {
-                responses[responseKey] = { description: 'No description', content: {} };
-              }
-
-              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
-
-              if (oldSchema) {
-                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
-                oldSchema.$oneOf.push(schema);
-              } else {
-                oldSchema = schema;
-              }
-
-              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
-            });
-          }
-        }
-      }
 
       if (!descriptor.api.transport.method) {
         descriptor.api.transport.method = 'post';
@@ -409,61 +312,63 @@ module.exports = (config) => ({
             compressionDepth,
           );
 
-          methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(schema.properties ?? {}).map(([ key, keySchema ]) => {
-            const isQueryParam = !descriptor.queryGroupVariant?.[groupVariantKey] && (
-              key in uriParams ||
-              descriptor.api.transport.method === 'get' ||
-              descriptor.api.transport.method === 'delete'
-            );
+          for (const subSchema of schema.oneOf ? schema.oneOf : [ schema ]) {
+            methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(subSchema.properties ?? {}).map(([ key, keySchema ]) => {
+              const isQueryParam = !descriptor.queryGroupVariant?.[groupVariantKey] && (
+                key in uriParams ||
+                descriptor.api.transport.method === 'get' ||
+                descriptor.api.transport.method === 'delete'
+              );
 
-            if (!isQueryParam) {
-              return null;
-            }
+              if (!isQueryParam) {
+                return null;
+              }
 
-            notBodyParamKeys.push(key);
+              notBodyParamKeys.push(key);
 
-            return {
-              name: key,
-              in: uriParams[key] === false ? 'path' : 'query',
-              description: keySchema.description,
-              required: !!schema.required?.includes(key),
-              schema: keySchema,
-            };
-          }).filter(_ => _));
+              return {
+                name: key,
+                in: uriParams[key] === false ? 'path' : 'query',
+                description: keySchema.description,
+                required: !!subSchema.required?.includes(key),
+                schema: keySchema,
+              };
+            }).filter(_ => _));
 
-          // not to filter, param must stay at same index
-          const bodyParams = descriptor.param.map((param) => notBodyParamKeys.includes(param.field.name) ? null : param);
+            // not to filter, param must stay at same index
+            const bodyParams = descriptor.param.map((param) => notBodyParamKeys.includes(param.field.name) ? null : param);
 
-          if (bodyParams.filter((param) => !!param).length) {
-            methodDescriptor.requestBody = {
-              content: descriptor.contentType.reduce((acc, contentType) => {
-                schema = maybeReplaceObjectParamsWithRef(
-                  parserUtils.convertParamGroupVariantToJsonSchema(
-                    descriptor.paramGroupVariant[groupVariantKey].prop,
-                    bodyParams,
-                  ),
-                  schemas,
-                  compressionDepth,
-                );
+            if (bodyParams.filter((param) => !!param).length) {
+              methodDescriptor.requestBody = {
+                content: descriptor.contentType.reduce((acc, contentType) => {
+                  schema = maybeReplaceObjectParamsWithRef(
+                    parserUtils.convertParamGroupVariantToJsonSchema(
+                      descriptor.paramGroupVariant[groupVariantKey].prop,
+                      bodyParams,
+                    ),
+                    schemas,
+                    compressionDepth,
+                  );
 
-                const encoding = schema?.properties ? Object.entries(schema.properties).reduce((acc, [key, value]) => {
-                  if (value?.type === 'object' && value?.properties) {
-                    acc[key] = {
-                      contentType: 'application/json',
-                    };
-                  }
+                  const encoding = schema?.properties ? Object.entries(schema.properties).reduce((acc, [key, value]) => {
+                    if (value?.type === 'object' && value?.properties) {
+                      acc[key] = {
+                        contentType: 'application/json',
+                      };
+                    }
 
+                    return acc;
+                  }, {}) : undefined;
+
+                  acc[contentTypeToOpenapiContentType[contentType]] = {
+                    schema,
+                    encoding,
+                  };
+      
                   return acc;
-                }, {}) : undefined;
-
-                acc[contentTypeToOpenapiContentType[contentType]] = {
-                  schema,
-                  encoding,
-                };
-    
-                return acc;
-              }, {}),
-            };
+                }, {}),
+              };
+            }
           }
         }
       }
@@ -492,6 +397,102 @@ module.exports = (config) => ({
           }));
         }
       }
+
+      for (const contentType of descriptor.contentType) {
+        if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
+          responses['default'] = {description: 'No description'};
+        } else {
+          if (descriptor.successGroupVariant) {
+            Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              let schema = maybeReplaceObjectParamsWithRef(
+                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
+                schemas,
+                compressionDepth,
+              );
+              const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
+
+              if (responses[responseKey]?.content?.[contentTypeKey]) {
+                const oldShema = responses[responseKey].content[contentTypeKey].schema;
+
+                if (!oldShema?.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema = {
+                    oneOf: [ oldShema ],
+                  };
+                }
+
+                if (schema.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
+                } else {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
+                }
+
+                schema = responses[responseKey].content[contentTypeKey].schema;
+              }
+
+              if (!responses[responseKey]) {
+                responses[responseKey] = { description: 'No description', content: {} };
+              }
+
+              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+
+              if (oldSchema) {
+                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
+                oldSchema.$oneOf.push(schema);
+              } else {
+                oldSchema = schema;
+              }
+
+              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
+            });
+          }
+
+          if (descriptor.errorGroupVariant) {
+            Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
+              let schema = maybeReplaceObjectParamsWithRef(
+                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
+                schemas,
+                compressionDepth,
+              );
+              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d?$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
+
+              if (responses[responseKey]?.content?.[contentTypeKey]) {
+                const oldShema = responses[responseKey].content[contentTypeKey].schema;
+
+                if (!oldShema?.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema = {
+                    oneOf: [ oldShema ],
+                  };
+                }
+
+                if (schema.oneOf) {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(...schema.oneOf);
+                } else {
+                  responses[responseKey].content[contentTypeKey].schema.oneOf.push(schema);
+                }
+
+                schema = responses[responseKey].content[contentTypeKey].schema;
+              }
+
+              if (!responses[responseKey]) {
+                responses[responseKey] = { description: 'No description', content: {} };
+              }
+
+              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+
+              if (oldSchema) {
+                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
+                oldSchema.$oneOf.push(schema);
+              } else {
+                oldSchema = schema;
+              }
+
+              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
+            });
+          }
+        }
+      }
     });
 
     if (Object.keys(tags).length) {
@@ -502,12 +503,20 @@ module.exports = (config) => ({
       spec.components.schemas = schemas;
     }
 
-    const content = JSON.stringify(spec, undefined, 2);
+    let content = JSON.stringify(spec, undefined, 2);
+
+    if (config.outputPattern) {
+      content = config.outputPattern.replace(/{{content}}/g, content);
+    }
 
     if (outputDir === 'stdout') {
       return content;
     } else {
-      fs.writeFileSync(`${outputDir}/openapi.json`, JSON.stringify(spec, undefined, 2));
+      if (fs.existsSync(outputDir) && fs.lstatSync(outputDir).isDirectory()) {
+        fs.writeFileSync(`${outputDir}/openapi.json`, content);
+      } else {
+        fs.writeFileSync(outputDir, content);
+      }
     }
   },
 });

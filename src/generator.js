@@ -49,13 +49,13 @@ function generate(blocks, template, definitions, config, hbs, stats) {
     chapters,
     chaptersAsLists: Object.entries(chapters).map(([chapterName, chapter]) => {
       return {
-        id: `${chapterName}`,
+        id: `${chapterName ?? null}`,
         groups: Object.entries(chapter).map(([groupName, group]) => {
           return {
-            id: `${chapterName}___${groupName}`,
+            id: `${chapterName ?? null}___${groupName ?? null}`,
             subgroups: Object.entries(group).map(([subgroupName, subgroup]) => {
               return {
-                id: `${chapterName}___${groupName}___${subgroupName}`,
+                id: `${chapterName ?? null}___${groupName ?? null}___${subgroupName ?? null}`,
                 apis: Object.entries(subgroup).map(([name, version]) => {
                   total.names += 1;
 
@@ -233,8 +233,8 @@ function generateSections(blocks, definitions, config) {
       block.familyId = block.name;
       block.id = `${block.name}___${block.version}`;
     } else {
-      block.familyId = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}`;
-      block.id = `${block.chapter.name}___${block.group.name}___${block.subgroup.name}___${block.family}___${block.version}`;
+      block.familyId = `${block.chapter.name ?? null}___${block.group.name ?? null}___${block.subgroup.name ?? null}___${block.family ?? null}`;
+      block.id = `${block.chapter.name ?? null}___${block.group.name ?? null}___${block.subgroup.name ?? null}___${block.family ?? null}___${block.version ?? null}`;
     }
 
     block.visualId = `${getDef(block.chapter.name ?? '!')}___${getDef(block.group.name ?? '!')}___${getDef(block.subgroup.name ?? '!')}___${block.title}___${block.version}`;

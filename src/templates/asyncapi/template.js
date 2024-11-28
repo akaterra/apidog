@@ -330,12 +330,20 @@ module.exports = (config) => ({
 
     spec.tags = Object.values(tags);
 
-    const content = JSON.stringify(spec, undefined, 2);
+    let content = JSON.stringify(spec, undefined, 2);
+
+    if (config.outputPattern) {
+      content = config.outputPattern.replace(/{{content}}/g, content);
+    }
 
     if (outputDir === 'stdout') {
       return content;
     } else {
-      fs.writeFileSync(`${outputDir}/asyncapi.json`, JSON.stringify(spec, undefined, 2));
+      if (!outputDir.endsWith('/') && !fs.existsSync(outputDir)) {
+        fs.writeFileSync(outputDir, content);
+      } else {
+        fs.writeFileSync(`${outputDir}/asyncapi.json`, content);
+      }
     }
   },
 });

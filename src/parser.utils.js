@@ -1,4 +1,5 @@
 const utils = require('./utils');
+const NON_LETTERS_RGX = /[^a-z]/g;
 
 function enumChapters(chapters, fn, acc, scope) {
   Object.entries(chapters).forEach(([chapterName, groups]) => {
@@ -66,8 +67,8 @@ function enumUriPlaceholders(uri, fn, acc) {
 
 const SCHEMA_BY_TYPE = {
   date: true,
-  datetime: 'date-time',
-  'date-time': true,
+  datetime: { type:'string', format: 'date-time' },
+  'date-time': { type:'string', format: 'date-time' },
   double: { type: 'number', format: 'double' },
   email: true,
   file: { type: 'string', format: 'binary' },
@@ -81,9 +82,10 @@ const SCHEMA_BY_TYPE = {
   latitude: { type: 'number', minimum: -90, maximum: 90 },
   natural: { type: 'integer', minimum: 1 },
   negative: { type: 'number', exclusiveMaximum: 0 },
-  negativeInteger: { type: 'integer', exclusiveMaximum: 0 },
+  negativeinteger: { type: 'integer', exclusiveMaximum: 0 },
+  phonenumber: { type: 'string', pattern: '^(\\+\\d{1,5}(-|\\s){0,3})?(\\(\\d{1,3}\\)(-|\\s){0,3})?(\\d{1,5}(-|\\s){0,3}){0,3}\\d+$', minLength: 8 },
   positive: { type: 'number', minimum: 0 },
-  positiveInteger: { type: 'integer', minimum: 0 },
+  positiveinteger: { type: 'integer', minimum: 0 },
   password: { type: 'string', format: 'password' },
   time: true,
   uri: true,
@@ -99,14 +101,14 @@ function convertParamToJsonSchema(mixed) {
   let type;
 
   if (mixed && typeof mixed === 'object') {
-    type = mixed.type?.modifiers?.initial?.toLowerCase();
+    type = mixed.type?.modifiers?.initial;
     param = mixed;
   } else {
     type = mixed;
     param = {};
   }
 
-  const def = SCHEMA_BY_TYPE[type];
+  const def = SCHEMA_BY_TYPE[type?.toLowerCase().replace(NON_LETTERS_RGX, '')];
 
   if (def && typeof def === 'object') {
     return def;
@@ -169,6 +171,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
   if (!jsonSchema) {
     jsonSchema = {
       type: 'object',
+      description: 'No description',
       required: [],
       properties: {},
     };
@@ -273,6 +276,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       oneOfVariants.forEach((e) => delete e.index);
       oneOfVariants.forEach((e) => delete e.items?.index);
 
+      jsonSchema.description = oneOfVariants.filter((oneOf) => oneOf.description).map((oneOf) => oneOf.description).join('\n\n') || jsonSchema.description;
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }
   });
@@ -285,6 +289,10 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 }
 
 function removeEmptyRequiredAndProperties(jsonSchema) {
+  if (jsonSchema.hasOwnProperty('description') && !jsonSchema.description) {
+    delete jsonSchema.description;
+  }
+
   if (jsonSchema.properties) {
     Object.entries(jsonSchema.properties).forEach(([ key, val ]) => {
       if (removeEmptyRequiredAndProperties(val) === undefined) {

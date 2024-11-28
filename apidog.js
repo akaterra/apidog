@@ -73,6 +73,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--outputPattern' ],
+  {
+    help: 'Output pattern for the compiled single file, significant for "asyncapi" and "openapi" templates',
+  },
+);
+argumentParser.addArgument(
   [ '--parser' ],
   {
     help: 'Parser to be used to parse the doc blocks sources',
@@ -357,6 +363,7 @@ const config = loadConfig(argsInput[0] || '.');
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 const outputDir = args.o || args.output || config.output;
+const outputPattern = args.outputPattern || config.outputPattern;
 const definitions = {
   file: {
     description: [],
@@ -388,6 +395,7 @@ const envConfig = {
   private: argsPrivate,
   ordered: args.ordered,
   outputDir,
+  outputPattern,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
