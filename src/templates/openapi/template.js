@@ -399,10 +399,10 @@ module.exports = (config) => ({
         }
       }
 
-      for (const contentType of descriptor.contentType) {
-        if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
-          responses['default'] = {description: 'No description'};
-        } else {
+      if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
+        responses['default'] = { description: 'No response' };
+      } else {
+        for (const contentType of descriptor.successContentType || descriptor.contentType) {
           if (descriptor.successGroupVariant) {
             Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
               let schema = maybeReplaceObjectParamsWithRef(
@@ -447,7 +447,9 @@ module.exports = (config) => ({
               set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
             });
           }
+        }
 
+        for (const contentType of descriptor.errorContentType || descriptor.contentType) {
           if (descriptor.errorGroupVariant) {
             Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
               let schema = maybeReplaceObjectParamsWithRef(

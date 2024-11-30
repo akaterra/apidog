@@ -287,7 +287,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
   jsonSchema = removeEmptyRequiredAndProperties(jsonSchema);
 
-  return Object.keys(jsonSchema.properties ?? {}).length === 0 && jsonSchema.type === 'object'
+  return Object.keys(jsonSchema).length === 1 && jsonSchema.type === 'object'
     ? null
     : jsonSchema;
 }
@@ -319,6 +319,14 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
 
   if (jsonSchema.properties && Object.keys(jsonSchema.properties).length === 0) {
     delete jsonSchema.properties;
+  }
+
+  if (jsonSchema.properties && Object.keys(jsonSchema.properties).length === 0) {
+    delete jsonSchema.additionalProperties;
+  }
+
+  if (typeof jsonSchema.additionalProperties === 'boolean' && jsonSchema.type !== 'object') {
+    delete jsonSchema.additionalProperties;
   }
 
   if (jsonSchema.oneOf && !jsonSchema.oneOf.length) {
