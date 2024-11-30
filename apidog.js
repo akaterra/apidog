@@ -73,9 +73,9 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '--outputPattern' ],
+  [ '--outputFormat' ],
   {
-    help: 'Output pattern for the compiled single file, significant for "asyncapi" and "openapi" templates',
+    action: 'append', help: 'Output format for the compiled single file, significant for "asyncapi" and "openapi" templates, could be "json", "yaml", "jsConst", "tsConst" or custom, could be multiple',
   },
 );
 argumentParser.addArgument(
@@ -184,6 +184,12 @@ argumentParser.addArgument(
   [ '--title' ],
   {
     help: 'Custom title that will be used as a title of the generated documentation',
+  },
+);
+argumentParser.addArgument(
+  [ '--ver' ],
+  {
+    help: 'Custom version that will be used as a version of the generated documentation',
   },
 );
 argumentParser.addArgument(
@@ -363,7 +369,7 @@ const config = loadConfig(argsInput[0] || '.');
 const hbs = require('handlebars');
 const template = loadTemplate(args.t || args.template || '@html', hbs);
 const outputDir = args.o || args.output || config.output;
-const outputPattern = args.outputPattern || config.outputPattern;
+const outputFormat = args.outputFormat || config.outputFormat;
 const definitions = {
   file: {
     description: [],
@@ -395,7 +401,7 @@ const envConfig = {
   private: argsPrivate,
   ordered: args.ordered,
   outputDir,
-  outputPattern,
+  outputFormat,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
@@ -435,7 +441,7 @@ const envConfig = {
       sampleRequestUrl: null,
     },
   },
-  version: config.version,
+  version: args.ver || config.version,
 };
 
 let docBlocks = [];

@@ -2,6 +2,7 @@ const fs = require('fs');
 const parserUtils = require('../../parser.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
 const URL = require('url').URL;
+const yaml = require('js-yaml');
 
 const PROTOCOL_CONFIG = {
   natspub: { bindings: { nats: {} }, action: 'send' },
@@ -330,19 +331,52 @@ module.exports = (config) => ({
 
     spec.tags = Object.values(tags);
 
-    let content = JSON.stringify(spec, undefined, 2);
+    const outputFormats = config.outputFormat?.length ? config.outputFormat : [ 'json' ];
 
-    if (config.outputPattern) {
-      content = config.outputPattern.replace(/{{content}}/g, content);
-    }
+    for (const outputFormat of outputFormats) {
+      let content;
+      let outputName;
 
-    if (outputDir === 'stdout') {
-      return content;
-    } else {
-      if (!outputDir.endsWith('/') && !fs.existsSync(outputDir)) {
-        fs.writeFileSync(outputDir, content);
+      switch (outputFormat) {
+        case 'jsConst':
+          content = `export const Spec = ${JSON.stringify(spec, undefined, 2)};`;
+          outputName = 'asyncapi.js';
+          break;
+        case 'tsConst':
+          content = `export const Spec = ${JSON.stringify(spec, undefined, 2)} as const;`;
+          outputName = 'asyncapi.ts';
+          break;
+        case 'json':
+          content = JSON.stringify(spec, undefined, 2);
+          outputName = 'asyncapi.json';
+          break;
+        case 'yaml':
+          content = yaml.dump(spec);
+          outputName = 'asyncapi.yaml';
+          break;  
+        default:
+          content = outputFormat.replace(/{{content}}/g, content);
+          outputName = 'asyncapi.json';
+
+          if (content === outputFormat) {
+            throw new Error(`"{{content}}" placeholder expected for custom output format, check "outputFormat" option`);
+          }
+      }
+
+      if (outputDir === 'stdout') {
+        if (outputFormats.length > 1) {
+          throw new Error(`Multiple output formats are specified, but target output is a stdout, check "output" option or provide single "outputFormat" option`);
+        }
       } else {
-        fs.writeFileSync(`${outputDir}/asyncapi.json`, content);
+        if (fs.existsSync(outputDir) && fs.lstatSync(outputDir).isDirectory()) {
+          fs.writeFileSync(`${outputDir}/${outputName}`, content);
+        } else {
+          if (outputFormats.length > 1) {
+            throw new Error(`Multiple output formats are specified, but target output is a file, check "output" option or provide single "outputFormat" option`);
+          }
+
+          fs.writeFileSync(outputDir, content);
+        }
       }
     }
   },

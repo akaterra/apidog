@@ -4,6 +4,7 @@ const parserOpenAPIUtils = require('../../parser.openapi.utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
 const set = require('lodash.set');
+const yaml = require('js-yaml');
 
 const contentTypeToOpenapiContentType = {
   form: 'application/x-www-form-urlencoded',
@@ -503,19 +504,54 @@ module.exports = (config) => ({
       spec.components.schemas = schemas;
     }
 
-    let content = JSON.stringify(spec, undefined, 2);
+    const outputFormats = config.outputFormat?.length ? config.outputFormat : [ 'json' ];
 
-    if (config.outputPattern) {
-      content = config.outputPattern.replace(/{{content}}/g, content);
-    }
+    for (const outputFormat of outputFormats) {
+      let content;
+      let outputName;
 
-    if (outputDir === 'stdout') {
-      return content;
-    } else {
-      if (fs.existsSync(outputDir) && fs.lstatSync(outputDir).isDirectory()) {
-        fs.writeFileSync(`${outputDir}/openapi.json`, content);
+      switch (outputFormat) {
+        case 'jsConst':
+          content = `export const Spec = ${JSON.stringify(spec, undefined, 2)};`;
+          outputName = 'openapi.js';
+          break;
+        case 'tsConst':
+          content = `export const Spec = ${JSON.stringify(spec, undefined, 2)} as const;`;
+          outputName = 'openapi.ts';
+          break;
+        case 'json':
+          content = JSON.stringify(spec, undefined, 2);
+          outputName = 'openapi.json';
+          break;
+        case 'yaml':
+          content = yaml.dump(spec);
+          outputName = 'openapi.yaml';
+          break;  
+        default:
+          content = outputFormat.replace(/{{content}}/g, content);
+          outputName = 'openapi.json';
+
+          if (content === outputFormat) {
+            throw new Error(`"{{content}}" placeholder expected for custom output format, check "outputFormat" option`);
+          }
+      }
+
+      if (outputDir === 'stdout') {
+        if (outputFormats.length > 1) {
+          throw new Error(`Multiple output formats are specified, but target output is a stdout, check "output" option or provide single "outputFormat" option`);
+        }
+
+        return content;
       } else {
-        fs.writeFileSync(outputDir, content);
+        if (fs.existsSync(outputDir) && fs.lstatSync(outputDir).isDirectory()) {
+          fs.writeFileSync(`${outputDir}/${outputName}`, content);
+        } else {
+          if (outputFormats.length > 1) {
+            throw new Error(`Multiple output formats are specified, but target output is a file, check "output" option or provide single "outputFormat" option`);
+          }
+
+          fs.writeFileSync(outputDir, content);
+        }
       }
     }
   },
