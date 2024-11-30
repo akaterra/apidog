@@ -70,14 +70,14 @@ const SCHEMA_BY_TYPE = {
   datetime: { type:'string', format: 'date-time' },
   'date-time': { type:'string', format: 'date-time' },
   double: { type: 'number', format: 'double' },
-  email: true,
+  email: { type: 'string', format: 'email' },
   file: { type: 'string', format: 'binary' },
-  hostname: true,
+  hostname: { type: 'string', format: 'hostname' },
   id: { type: 'integer', minimum: 0 },
   int32: { type: 'integer', format: 'int32' },
   int64: { type: 'integer', format: 'int64' },
-  ipv4: true,
-  ipv6: true,
+  ipv4: { type: 'string', format: 'ipv4' },
+  ipv6: { type: 'string', format: 'ipv6' },
   longitude: { type: 'number', minimum: -180, maximum: 180 },
   latitude: { type: 'number', minimum: -90, maximum: 90 },
   natural: { type: 'integer', minimum: 1 },
@@ -88,8 +88,9 @@ const SCHEMA_BY_TYPE = {
   positiveinteger: { type: 'integer', minimum: 0 },
   password: { type: 'string', format: 'password' },
   time: true,
-  uri: true,
-  uuid: true,
+  uri: { type: 'string', format: 'uri' },
+  url: { type: 'string', format: 'uri' },
+  uuid: { type: 'string', format: 'uuid' },
 };
 const SCHEMA_VALUE_BY_TYPE = {
   boolean: (value) => value && value !== '0' && value !== 'false' ? true : false,
@@ -174,6 +175,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       description: 'No description',
       required: [],
       properties: {},
+      additionalProperties: false,
     };
   }
 
@@ -192,6 +194,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         description: param.description && param.description.join('\n'),
         required: [],
         properties: {},
+        additionalProperties: false,
       };
 
       if (param.field && !param.field.isOptional && !jsonSchema.required.includes(propKey)) {
@@ -207,6 +210,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             type: 'object',
             required: [],
             properties: {},
+            additionalProperties: false,
           }
 
           if (typeof param.type?.modifiers?.listConstraints?.[i]?.min === 'number') {
@@ -283,7 +287,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
   jsonSchema = removeEmptyRequiredAndProperties(jsonSchema);
 
-  return Object.keys(jsonSchema).length === 1 && jsonSchema.type === 'object'
+  return Object.keys(jsonSchema.properties ?? {}).length === 0 && jsonSchema.type === 'object'
     ? null
     : jsonSchema;
 }
