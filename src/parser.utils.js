@@ -141,8 +141,8 @@ function convertParamToJsonSchema(mixed) {
     schema.enum = mixed.type.allowedValues.map((value) => convertParamValueByType(type, value));
   }
 
-  if (mixed.type?.modifiers?.nullable) {
-    schema.type = [ schema.type, 'null' ];
+  if (mixed.type?.modifiers?.null) {
+    schema.type = Array.from(new Set([ schema.type, 'null' ]));
   }
 
   if (typeof mixed.type?.modifiers?.min === 'number') {
@@ -226,9 +226,8 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       }
 
       Object.assign(paramJsonSchemaRef, convertParamToJsonSchema(param));
-      paramType = paramJsonSchemaRef.type;
 
-      if (paramType === 'object') {
+      if (hasType(paramJsonSchemaRef, 'object')) {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
       }
 
@@ -287,9 +286,17 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
   jsonSchema = removeEmptyRequiredAndProperties(jsonSchema);
 
-  return Object.keys(jsonSchema).length === 1 && jsonSchema.type === 'object'
+  return Object.keys(jsonSchema).length === 1 && hasType(jsonSchema, 'object')
     ? null
     : jsonSchema;
+}
+
+function hasType(schema, type) {
+  if (Array.isArray(schema.type) && schema.type.includes(type)) {
+    return true;
+  }
+
+  return schema.type === type;
 }
 
 function removeEmptyRequiredAndProperties(jsonSchema) {
@@ -325,7 +332,7 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
     delete jsonSchema.additionalProperties;
   }
 
-  if (typeof jsonSchema.additionalProperties === 'boolean' && jsonSchema.type !== 'object') {
+  if (typeof jsonSchema.additionalProperties === 'boolean' && !hasType(jsonSchema, 'object')) {
     delete jsonSchema.additionalProperties;
   }
 

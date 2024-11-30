@@ -5,7 +5,7 @@ const addFormats = require('ajv-formats');
 const { Block } = require('./block');
 const parserJsonschemaUtils = require('./parser.jsonschema.utils');
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 const validate = ajv.compile(JSON.parse(fs.readFileSync(__dirname + '/assets/json-schema.3.0.json', 'utf8')));
 
