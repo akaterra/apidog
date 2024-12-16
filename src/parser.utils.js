@@ -179,15 +179,13 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     };
   }
 
-  Object.entries(paramGroupVariant).forEach(([propKey, propVariants]) => {
+  Object.entries(paramGroupVariant).forEach(([ propKey, propVariants ]) => {
     const oneOf = propVariants.map((propVariant) => {
       const param = paramDescriptors[propVariant.list[0]];
 
       if (!param || param.type?.modifiers?.undefined) {
         return;
       }
-
-      let paramType = param.type?.modifiers?.initial?.toLowerCase();
 
       const paramJsonSchema = {
         type: 'object',
@@ -275,11 +273,15 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
           oneOfVariants.push(oneOfArrayVariant);
         }
       });
+
       oneOfVariants = oneOfVariants.filter((e) => !!e);
       oneOfVariants.forEach((e) => delete e.index);
       oneOfVariants.forEach((e) => delete e.items?.index);
 
-      jsonSchema.description = oneOfVariants.filter((oneOf) => oneOf.description).map((oneOf) => oneOf.description).join('\n\n') || jsonSchema.description;
+      if (propKey === 'mapping') {
+        throw 3;
+      }
+
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }
   });
