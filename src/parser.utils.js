@@ -235,52 +235,16 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
     if (oneOf.length === 1) {
       jsonSchema.properties[propKey] = oneOf[0];
     } else {
-      oneOf.forEach((oneOf, i) => oneOf.index = i);
-
-      const oneOfNonArrayVariants = oneOf.filter((oneOf) => oneOf.type !== 'array');
-      const oneOfArrayVariants = oneOf.some((oneOf) => oneOf.type === 'array')
-        ? [ {
-          type: 'array',
-          items: {
-            oneOf: oneOf.filter((oneOf) => oneOf.type === 'array').map((oneOf) => ({ description: oneOf.description, ...oneOf.items, index: oneOf.index })),
-          },
-        } ]
-        : [];
-
-      if (oneOfArrayVariants[0]?.items.oneOf.length === 1) {
-        oneOfArrayVariants[0].items = oneOfArrayVariants[0].items.oneOf[0];
-      }
-
-      let oneOfVariants = [];
-
-      oneOfNonArrayVariants.forEach((oneOfNonArrayVariant) => {
-        if (oneOfNonArrayVariant.index !== Infinity) {
-          oneOfVariants[oneOfNonArrayVariant.index] = oneOfNonArrayVariant;
+      const oneOfVariants = oneOf.map((oneOf) => {
+        if (oneOf.type !== 'array') {
+          return oneOf;
         }
-      });
-      oneOfArrayVariants.forEach((oneOfArrayVariant) => {
-        if (oneOfArrayVariant.items.index !== Infinity) {
-          oneOfVariants[oneOfArrayVariant.items.index] = oneOfArrayVariant;
-        }
-      });
-      oneOfNonArrayVariants.forEach((oneOfNonArrayVariant) => {
-        if (oneOfNonArrayVariant.index === Infinity) {
-          oneOfVariants.push(oneOfNonArrayVariant);
-        }
-      });
-      oneOfArrayVariants.forEach((oneOfArrayVariant) => {
-        if (oneOfArrayVariant.items.index === Infinity) {
-          oneOfVariants.push(oneOfArrayVariant);
-        }
-      });
 
-      oneOfVariants = oneOfVariants.filter((e) => !!e);
-      oneOfVariants.forEach((e) => delete e.index);
-      oneOfVariants.forEach((e) => delete e.items?.index);
-
-      if (propKey === 'mapping') {
-        throw 3;
-      }
+        return {
+          description: oneOf.description,
+          ...oneOf,
+        };
+      });
 
       jsonSchema.properties[propKey] = oneOfVariants.length === 1 ? oneOfVariants[0] : { oneOf: oneOfVariants };
     }

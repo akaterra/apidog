@@ -525,6 +525,26 @@ module.exports = (config) => ({
           content = JSON.stringify(spec, undefined, 2);
           outputName = 'openapi.json';
           break;
+        case 'py':
+          const tid = '_' + Date.now() + Math.random().toString().slice(2, 12) + '_';
+          const pyReplacer = (key, val) => {
+            if (val === true) {
+              return tid + 'True';
+            }
+
+            if (val === false) {
+              return tid + 'False';
+            }
+
+            if (val === null) {
+              return tid + 'None';
+            }
+
+            return val;
+          };
+          content = `Spec = ${JSON.stringify(spec, pyReplacer, 2)}`.replace(new RegExp(`"${tid}(True|False|None)"`, 'g'), '$1');
+          outputName = 'openapi.py';
+          break;
         case 'yaml':
           content = yaml.dump(spec);
           outputName = 'openapi.yaml';
