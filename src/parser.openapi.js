@@ -3,7 +3,7 @@ const utils = require('./utils');
 
 function parseOpenAPI(source, definitions, config) {
   if (!config) {
-    config = {logger: utils.logger};
+    config = { logger: utils.logger };
   }
 
   return parserOpenAPIUtils.convert(parserOpenAPIUtils.fetchSource(source), definitions, config).blocks;

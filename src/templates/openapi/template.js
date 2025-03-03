@@ -1,17 +1,20 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
+const parserJsonSchemaUtils = require('../../parser.jsonschema.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
 const set = require('lodash.set');
 const yaml = require('js-yaml');
 
-const contentTypeToOpenapiContentType = {
+const CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE = {
   form: 'application/x-www-form-urlencoded',
   json: 'application/json',
   multipart: 'multipart/form-data',
   xml: 'application/xml',
 };
+const SPEC_VERSION = '3.0';
+const SCHEMA_NEW_NULLABLE = SPEC_VERSION === '3.1';
 
 module.exports = (config) => ({
   generate(hbs, config, params) {
@@ -19,7 +22,7 @@ module.exports = (config) => ({
     const compressionDepth = config.compressionLevel ?? 1;
 
     const spec = {
-      openapi: '3.0.3',
+      openapi: SPEC_VERSION === '3.0' ? '3.0.3' : '3.1.1',
       info: {
         title: params.title,
         description: params.description,
@@ -69,7 +72,7 @@ module.exports = (config) => ({
         return;
       }
 
-      const url = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint));
+      const url = new URL(parserJsonSchemaUtils.addUriDefaultScheme(descriptor.api.endpoint));
       const endpoint = url.pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`) + url.search.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
@@ -253,9 +256,11 @@ module.exports = (config) => ({
 
         if (groupVariantKey) {
           schema = maybeReplaceObjectParamsWithRef(
-            parserUtils.convertParamGroupVariantToJsonSchema(
+            parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
               descriptor.cookieGroupVariant[groupVariantKey].prop,
               descriptor.cookie,
+              undefined,
+              { newNullable: SCHEMA_NEW_NULLABLE },
             ),
             schemas,
             compressionDepth,
@@ -278,9 +283,11 @@ module.exports = (config) => ({
 
         if (groupVariantKey) {
           schema = maybeReplaceObjectParamsWithRef(
-            parserUtils.convertParamGroupVariantToJsonSchema(
+            parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
               descriptor.headerGroupVariant[groupVariantKey].prop,
               descriptor.header,
+              undefined,
+              { newNullable: SCHEMA_NEW_NULLABLE },
             ),
             schemas,
             compressionDepth,
@@ -305,9 +312,11 @@ module.exports = (config) => ({
           const notBodyParamKeys = [];
 
           schema = maybeReplaceObjectParamsWithRef(
-            parserUtils.convertParamGroupVariantToJsonSchema(
+            parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
               descriptor.paramGroupVariant[groupVariantKey].prop,
               descriptor.param,
+              undefined,
+              { newNullable: SCHEMA_NEW_NULLABLE },
             ),
             schemas,
             compressionDepth,
@@ -343,9 +352,11 @@ module.exports = (config) => ({
               methodDescriptor.requestBody = {
                 content: descriptor.contentType.reduce((acc, contentType) => {
                   schema = maybeReplaceObjectParamsWithRef(
-                    parserUtils.convertParamGroupVariantToJsonSchema(
+                    parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
                       descriptor.paramGroupVariant[groupVariantKey].prop,
                       bodyParams,
+                      undefined,
+                      { newNullable: SCHEMA_NEW_NULLABLE },
                     ),
                     schemas,
                     compressionDepth,
@@ -361,7 +372,7 @@ module.exports = (config) => ({
                     return acc;
                   }, {}) : undefined;
 
-                  acc[contentTypeToOpenapiContentType[contentType]] = {
+                  acc[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]] = {
                     schema,
                     encoding,
                   };
@@ -379,9 +390,11 @@ module.exports = (config) => ({
 
         if (groupVariantKey) {
           schema = maybeReplaceObjectParamsWithRef(
-            parserUtils.convertParamGroupVariantToJsonSchema(
+            parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
               descriptor.queryGroupVariant[groupVariantKey].prop,
               descriptor.query,
+              undefined,
+              { newNullable: SCHEMA_NEW_NULLABLE },
             ),
             schemas,
             compressionDepth,
@@ -406,12 +419,17 @@ module.exports = (config) => ({
           if (descriptor.successGroupVariant) {
             Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
               let schema = maybeReplaceObjectParamsWithRef(
-                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success),
+                parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
+                  groupVariant.prop,
+                  descriptor.success,
+                  undefined,
+                  { newNullable: SCHEMA_NEW_NULLABLE },
+                ),
                 schemas,
                 compressionDepth,
               );
               const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
-              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
+              const contentTypeKey = CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType];
 
               if (responses[responseKey]?.content?.[contentTypeKey]) {
                 const oldShema = responses[responseKey].content[contentTypeKey].schema;
@@ -435,7 +453,7 @@ module.exports = (config) => ({
                 responses[responseKey] = { description: 'No description', content: {} };
               }
 
-              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+              let oldSchema = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.schema;
 
               if (oldSchema) {
                 oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
@@ -444,7 +462,7 @@ module.exports = (config) => ({
                 oldSchema = schema;
               }
 
-              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
+              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
             });
           }
         }
@@ -453,12 +471,17 @@ module.exports = (config) => ({
           if (descriptor.errorGroupVariant) {
             Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
               let schema = maybeReplaceObjectParamsWithRef(
-                parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error),
+                parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
+                  groupVariant.prop,
+                  descriptor.error,
+                  undefined,
+                  { newNullable: SCHEMA_NEW_NULLABLE },
+                ),
                 schemas,
                 compressionDepth,
               );
               const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d?$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
-              const contentTypeKey = contentTypeToOpenapiContentType[contentType];
+              const contentTypeKey = CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType];
 
               if (responses[responseKey]?.content?.[contentTypeKey]) {
                 const oldShema = responses[responseKey].content[contentTypeKey].schema;
@@ -482,7 +505,7 @@ module.exports = (config) => ({
                 responses[responseKey] = { description: 'No description', content: {} };
               }
 
-              let oldSchema = responses[responseKey]?.content?.[contentTypeToOpenapiContentType[contentType]]?.schema;
+              let oldSchema = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.schema;
 
               if (oldSchema) {
                 oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
@@ -491,7 +514,7 @@ module.exports = (config) => ({
                 oldSchema = schema;
               }
 
-              set(responses[responseKey], `content.${contentTypeToOpenapiContentType[contentType]}.schema`, oldSchema);
+              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
             });
           }
         }

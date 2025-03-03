@@ -1,6 +1,7 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
-const parserOpenAPIUtils = require('../../parser.openapi.1.2.utils');
+const parserJsonSchemaUtils = require('../../parser.jsonschema.utils');
+const parserOpenAPIUtils = require('../../parser.openapi.utils');
 const URL = require('url').URL;
 const yaml = require('js-yaml');
 
@@ -72,7 +73,7 @@ module.exports = (config) => ({
         return;
       }
 
-      const url = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint));
+      const url = new URL(parserJsonSchemaUtils.addUriDefaultScheme(descriptor.api.endpoint));
       const endpoint = url.pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`) + url.search.replace(/:(\w+)/g, (_, p) => `{${p}}`);
       const uriParams = {};
 
@@ -123,7 +124,7 @@ module.exports = (config) => ({
 
       if (descriptor.successGroupVariant) {
         Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-          const schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
+          const schema = parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.success);
 
           if (!channelDescriptor.messages[`${groupVariantKey}_success`]) {
             channelDescriptor.messages[`${groupVariantKey}_success`] = {};
@@ -136,7 +137,7 @@ module.exports = (config) => ({
 
       if (descriptor.errorGroupVariant) {
         Object.entries(descriptor.errorGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
-          const schema = parserUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
+          const schema = parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(groupVariant.prop, descriptor.error);
 
           if (!channelDescriptor.messages[`${groupVariantKey}_error`]) {
             channelDescriptor.messages[`${groupVariantKey}_error`] = {};
@@ -253,7 +254,7 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
 
         if (groupVariantKey) {
-          const schema = parserUtils.convertParamGroupVariantToJsonSchema(
+          const schema = parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
             descriptor.headerGroupVariant[groupVariantKey].prop,
             descriptor.header,
           );
@@ -271,7 +272,7 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
 
         if (groupVariantKey) {
-          const schema = parserUtils.convertParamGroupVariantToJsonSchema(
+          const schema = parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
             descriptor.paramGroupVariant[groupVariantKey].prop,
             descriptor.param,
           );
