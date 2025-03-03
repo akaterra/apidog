@@ -62,9 +62,9 @@ function enumUriPlaceholders(uri, fn, acc) {
   return acc;
 }
 
-function addUriDefaultScheme(uri) {
+function addUriDefaultScheme(uri, defaultProtocol, defaultDomain) {
   if (!/^\w+:\/\//.test(uri)) {
-    return `scheme://domain${uri[0] === '/' ? '' : '/'}${uri}`;
+    return `${defaultProtocol ?? 'protocol'}://${defaultDomain ?? 'domain'}${uri[0] === '/' ? '' : '/'}${uri}`;
   }
 
   return uri;

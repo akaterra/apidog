@@ -180,7 +180,6 @@ function strExtractByRoundBrackets(str) {
   return strExtractByRegex(str, /^\[(.*)\]$/);
 }
 
-
 class Logger {
   constructor() {
     this.file = null;
