@@ -73,7 +73,7 @@ module.exports = (config) => ({
         return;
       }
 
-      const url = new URL(parserJsonSchemaUtils.addUriDefaultScheme(descriptor.api.endpoint));
+      const url = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint));
       const endpoint = url.pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`) + url.search.replace(/:(\w+)/g, (_, p) => `{${p}}`);
       const uriParams = {};
 

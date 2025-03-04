@@ -41,7 +41,8 @@ function construct(name, usePrefix) {
 
     const parsed = peggy.parse(text.trim());
 
-    let group = parsed.group?.name || block[annotationPrefixGroupName] || null;
+    let groupModifiers = parsed.group?.name.split(':') || [ block[annotationPrefixGroupName] ] || null;
+    let group = groupModifiers?.shift() || null;
     let type = null;
     let field = null;
     let description = parsed.description ? parsed.description.split('\n') : [];
@@ -126,6 +127,7 @@ function construct(name, usePrefix) {
     blockParam.description = description;
     blockParam.field = field;
     blockParam.group = group;
+    blockParam.groupModifiers = groupModifiers;
     blockParam.type = type;
 
     if (!block[annotationGroupName][group || null]) {

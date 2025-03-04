@@ -54,15 +54,10 @@ module.exports = (config) => ({
         name: descriptor.title,
         description: descriptor.description?.join('\n'),
         request: {
-          method: descriptor.api.transport.method,
-          url: {
-            raw: `${root}${protocolPath}${url.hash}`,
-            protocol: protocol,
-            host: protocolHost.split('.'),
-            port: url.port || undefined,
-            path: protocolPath?.split('/').slice(1),
-          },
+          method: descriptor.api.transport.method.toUpperCase(),
+          url: `${root}${protocolPath}${url.hash}`,
         },
+        responses: [],
       };
 
       rootItem.push(item);
@@ -74,7 +69,7 @@ module.exports = (config) => ({
           const authHeader = descriptor.authHeader[descriptor.authHeaderGroup[groupVariantKey].list[0]];
           item.request.auth = {
             type: authHeader.type.modifiers.initial,
-            [ authHeader.type.modifiers.initial ]: [ { key: authHeader.field.name, value: authHeader.type.modifiers.initial } ],
+            [authHeader.type.modifiers.initial]: [ { key: authHeader.field.name, value: authHeader.type.modifiers.initial, type: 'string' } ],
           };
         }
       }
@@ -90,8 +85,8 @@ module.exports = (config) => ({
           );
 
           item.request.header = Object.entries(sampleBody).map(([ key, value ]) => {
-            const description = value instanceof SampleParam ? value.description : undefined;
-            value = value instanceof SampleParam ? value.valueOf() : value;
+            const description = value instanceof Param ? value.description : undefined;
+            value = value instanceof Param ? value.valueOf() : value;
 
             return {
               key,
@@ -130,9 +125,9 @@ module.exports = (config) => ({
               item.request.body = {
                 mode: 'formdata',
                 formdata: Object.entries(sampleBody).map(([ key, value ]) => {
-                  const description = value instanceof SampleParam ? value.description : undefined;
-                  const type = value instanceof SampleParam ? value.type : 'text';
-                  value = value instanceof SampleParam ? value.valueOf() : value;
+                  const description = value instanceof Param ? value.description : undefined;
+                  const type = value instanceof Param ? value.type : 'text';
+                  value = value instanceof Param ? value.valueOf() : value;
 
                   return {
                     key,
@@ -168,8 +163,8 @@ module.exports = (config) => ({
               return;
             }
 
-            const description = value instanceof SampleParam ? value.description : undefined;
-            value = value instanceof SampleParam ? value.valueOf() : value;
+            const description = value instanceof Param ? value.description : undefined;
+            value = value instanceof Param ? value.valueOf() : value;
 
             return {
               key,
@@ -182,8 +177,8 @@ module.exports = (config) => ({
               return;
             }
 
-            const description = value instanceof SampleParam ? value.description : undefined;
-            value = value instanceof SampleParam ? value.valueOf() : value;
+            const description = value instanceof Param ? value.description : undefined;
+            value = value instanceof Param ? value.valueOf() : value;
 
             return {
               key,
@@ -191,6 +186,43 @@ module.exports = (config) => ({
               description,
             };
           }).filter((e) => !!e);
+        }
+      }
+
+      if (descriptor.exampleGroup) {
+        for (const [ title, example ] of Object.entries(descriptor.exampleGroup)) {
+          let i = 0;
+
+          while (true) {
+            if (!example.param?.[i] && !example.response?.[i]) {
+              break;
+            }
+
+            item.responses.push({
+              name: example.response?.[i]?.title ?? null,
+              body: example.response?.[i]?.description.join('\n') ?? null,
+              _postman_previewlanguage: example.response?.[i]?.type ?? 'text',
+              originalRequest: {
+                url: `${root}${protocolPath}${url.hash}`,
+                method: item.request.method,
+                auth: item.request.auth,
+                headers: item.request.header,
+                body: {
+                  mode: 'raw',
+                  raw: example.param?.[i]?.description.join('\n') ?? null,
+                  options: {
+                    raw: {
+                      language: example.param?.[i]?.type ?? 'text',
+                    },
+                  },
+                },
+                description: example.param?.[i]?.title ?? null,
+              },
+              status: example.response?.[i]?.groupModifiers?.[0] ?? null,
+            });
+
+            i += 1;
+          }
         }
       }
     });
@@ -245,8 +277,8 @@ const TYPE_TO_DEFAULT_VALUE = {
   date: (opts) => opts.now.slice(0, 10),
   datetime: (opts) => opts.now,
   'date-time': (opts) => opts.now,
-  email: () => 'example@exmaple.com',
-  file: () => new SampleParamFile(),
+  email: () => 'example@example.com',
+  file: () => new ParamFile(),
   hostname: () => 'example.com',
   id: () => 1,
   int32: () => 0,
@@ -254,7 +286,7 @@ const TYPE_TO_DEFAULT_VALUE = {
   integer: () => 0,
   ipv4: () => '1.2.3.4',
   ipv6: () => '::1',
-  latitude: () => 51.477928,
+  latitude: () => 51.477928, // greenwich
   longitude: () => -0.001545, // greenwich
   natural: () => 1,
   negative: () => -0.1,
@@ -271,7 +303,7 @@ const TYPE_TO_DEFAULT_VALUE = {
   uuid: () => '10000000-2345-0000-6789-000000000000',
 }
 
-class SampleParam {
+class Param {
   get type() {
     return null;
   }
@@ -290,13 +322,13 @@ class SampleParam {
   }
 }
 
-class SampleParamFile extends SampleParam {
+class ParamFile extends Param {
   get type() {
     return 'file';
   }
 
   valueOf() {
-    return this.value ?? './sample';
+    return this.value ?? './example.txt';
   }
 }
 
@@ -322,12 +354,12 @@ function convertParamGroupVariantToSampleBody(paramGroupVariant, paramDescriptor
       paramPath += '[0]'.repeat(param.type.modifiers.list);
     }
 
-    let paramValue = param.field.defaultValud !== undefined
+    let paramValue = param.field.defaultValue !== undefined
       ? param.field.defaultValue
       : param.type?.allowedValues?.[0] ?? TYPE_TO_DEFAULT_VALUE[param.type?.modifiers?.initial]?.(opts) ?? null;
 
-    if (opts?.primitiveValueAsParam && !param.type?.modifiers?.object && !(paramValue instanceof SampleParam)) {
-      paramValue = new SampleParam(String(paramValue), param.description?.join('\n').trim());
+    if (opts?.primitiveValueAsParam && !param.type?.modifiers?.object && !(paramValue instanceof Param)) {
+      paramValue = new Param(String(paramValue), param.description?.join('\n').trim());
     }
 
     set(sample, paramPath, paramValue);

@@ -1,5 +1,5 @@
 /**
- * @apiParamExample [{type}] [title]
+ * @apiParamExample [{type}] [(group)] [title]
  * [description]
  */
 
@@ -8,6 +8,7 @@ const peggy = require('./peg/api_param_example');
 
 function construct(name) {
   const annotationName = name ? `${name}Example` : 'example';
+  const annotationGroupName = `exampleGroup`;
 
   function addDescription(block, text) {
     block[annotationName][block[annotationName].length - 1].description.push(text);
@@ -22,8 +23,15 @@ function construct(name) {
 
     const parsed = peggy.parse(text.trim());
 
+    let groupModifiers = parsed.group?.name.split(':') || null;
+    let group = groupModifiers?.shift() || null;
+
     if (!block[annotationName]) {
       block[annotationName] = [];
+    }
+
+    if (!block[annotationGroupName]) {
+      block[annotationGroupName] = {};
     }
 
     const blockExample = {};
@@ -31,8 +39,10 @@ function construct(name) {
     block[annotationName].push(blockExample);
 
     blockExample.description = [];
+    blockExample.group = group;
+    blockExample.groupModifiers = groupModifiers;
+    blockExample.title = parsed.title || null;
     blockExample.type = parsed.type?.name ? parsed.type?.name.toLowerCase() : 'form';
-    blockExample.title = parsed.description || null;
 
     if (!block.contentType) {
       block.contentType = [];
@@ -41,6 +51,16 @@ function construct(name) {
     if (!block.contentType.includes(blockExample.type)) {
       block.contentType.push(blockExample.type);
     }
+
+    if (!block[annotationGroupName][group]) {
+      block[annotationGroupName][group] = {};
+    }
+
+    if (!block[annotationGroupName][group][name || 'param']) {
+      block[annotationGroupName][group][name || 'param'] = [];
+    }
+
+    block[annotationGroupName][group][name || 'param'].push(blockExample);
 
     block.addToApidocString(toApidocString);
 

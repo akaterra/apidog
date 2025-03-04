@@ -18,6 +18,7 @@ Features:
   * Markdown file
   * AsyncAPI specification file (v3.0)
   * OpenAPI specification file (v3.0)
+  * Postman specification file (v2.1)
 * Server proxy
 * Extended typing and type variants
 * Send sample request plugin for html template:
@@ -177,6 +178,7 @@ Parameters:
     * @html.standalone
     * @md
     * @openapi
+    * @postman
 
 * **--title** - Custom title that will be used as a title of the generated documentation.
 
@@ -927,7 +929,7 @@ Configuration file is a js script that by default exports the object with next p
   @apiParam {String} .b
   ```
 
-* apiDoc types to @openapi, @asyncapi jsonschema types mapping.
+* apiDoc types to **@asyncapi** and **@openapi** jsonschema types mapping.
 
   * Boolean - { "type": "boolean" }
   * Date - { "type": "date" }

@@ -72,7 +72,7 @@ module.exports = (config) => ({
         return;
       }
 
-      const url = new URL(parserJsonSchemaUtils.addUriDefaultScheme(descriptor.api.endpoint));
+      const url = new URL(parserUtils.addUriDefaultScheme(descriptor.api.endpoint));
       const endpoint = url.pathname.replace(/:(\w+)/g, (_, p) => `{${p}}`) + url.search.replace(/:(\w+)/g, (_, p) => `{${p}}`);
 
       if (!(endpoint in spec.paths)) {
@@ -372,9 +372,36 @@ module.exports = (config) => ({
                     return acc;
                   }, {}) : undefined;
 
+                  const examples = {};
+
+                  if (descriptor.exampleGroup) {
+                    for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
+                      if (example.param) {
+                        example.param.forEach((param) => {
+                          let value = param.description.join('\n').trim();
+
+                          switch (param.type) {
+                            case 'json':
+                              try {
+                                value = JSON.parse(value);
+                              } catch (e) {
+    
+                              }
+                          }
+
+                          examples[param.group] = {
+                            summary: param.title,
+                            value: value,
+                          };
+                        });
+                      }
+                    }
+                  }
+
                   acc[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]] = {
                     schema,
                     encoding,
+                    examples,
                   };
       
                   return acc;
@@ -462,7 +489,38 @@ module.exports = (config) => ({
                 oldSchema = schema;
               }
 
+              const oldExamples = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.examples ?? {};
+
+              if (descriptor.exampleGroup) {
+                for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
+                  if (example.response) {
+                    example.response.forEach((param) => {
+                      if (param.groupModifiers.length & !param.groupModifiers.includes(responseKey)) {
+                        return;
+                      }
+
+                      let value = param.description.join('\n').trim();
+
+                      switch (param.type) {
+                        case 'json':
+                          try {
+                            value = JSON.parse(value);
+                          } catch (e) {
+
+                          }
+                      }
+
+                      oldExamples[param.group] = {
+                        summary: param.title,
+                        value: value,
+                      };
+                    });
+                  }
+                }
+              }
+
               set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
+              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
             });
           }
         }
@@ -514,6 +572,37 @@ module.exports = (config) => ({
                 oldSchema = schema;
               }
 
+              const oldExamples = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.examples ?? {};
+
+              if (descriptor.exampleGroup) {
+                for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
+                  if (example.response) {
+                    example.response.forEach((param) => {
+                      if (param.groupModifiers.length & !param.groupModifiers.includes(responseKey)) {
+                        return;
+                      }
+
+                      let value = param.description.join('\n').trim();
+
+                      switch (param.type) {
+                        case 'json':
+                          try {
+                            value = JSON.parse(value);
+                          } catch (e) {
+
+                          }
+                      }
+
+                      oldExamples[param.group] = {
+                        summary: param.title,
+                        value: value,
+                      };
+                    });
+                  }
+                }
+              }
+
+              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
               set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
             });
           }
