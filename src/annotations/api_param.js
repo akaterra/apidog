@@ -6,6 +6,7 @@ const utils = require('../utils');
 const peggy = require('./peg/api_param');
 
 function construct(name, usePrefix) {
+  const annotationContentTypeName = `${name}ContentType`;
   const annotationGroupName = `${name}Group`;
   const annotationGroupVariantsName = `${name}GroupVariant`;
   const annotationName = name;
@@ -41,8 +42,7 @@ function construct(name, usePrefix) {
 
     const parsed = peggy.parse(text.trim());
 
-    let groupModifiers = parsed.group?.name.split(':') || [ block[annotationPrefixGroupName] ] || null;
-    let group = groupModifiers?.shift() || null;
+    let group = parsed.group || block[annotationPrefixGroupName] || null;
     let type = null;
     let field = null;
     let description = parsed.description ? parsed.description.split('\n') : [];
@@ -127,24 +127,35 @@ function construct(name, usePrefix) {
     blockParam.description = description;
     blockParam.field = field;
     blockParam.group = group;
-    blockParam.groupModifiers = groupModifiers;
     blockParam.type = type;
 
-    if (!block[annotationGroupName][group || null]) {
-      block[annotationGroupName][group || null] = { isTyped: false, list: [] };
+    const groupName = group?.name || null;
+
+    if (!block[annotationGroupName][groupName]) {
+      block[annotationGroupName][groupName] = {
+        isTyped: false,
+        list: [],
+        contentType: block[annotationContentTypeName]?.at(-1) ?? block.contentType?.at(-1),
+        statusCode: block.statusCode?.at(-1),
+      };
     }
 
-    block[annotationGroupName][group || null].list.push(block[annotationName].length - 1);
+    block[annotationGroupName][groupName].list.push(block[annotationName].length - 1);
 
-    if (!block[annotationGroupVariantsName][group]) {
-      block[annotationGroupVariantsName][group] = { isTyped: false, prop: {} };
+    if (!block[annotationGroupVariantsName][groupName]) {
+      block[annotationGroupVariantsName][groupName] = {
+        isTyped: false,
+        prop: {},
+        contentType: block[annotationContentTypeName]?.at(-1) ?? block.contentType?.at(-1),
+        statusCode: block.statusCode?.at(-1),
+      };
     }
 
     if (blockParam.field) {
-      const rootProp = block[annotationGroupVariantsName][group].prop[utils.root];
+      const rootProp = block[annotationGroupVariantsName][groupName].prop[utils.root];
       let root = rootProp?.length
         ? rootProp[rootProp.length - 1]?.prop
-        : block[annotationGroupVariantsName][group].prop;
+        : block[annotationGroupVariantsName][groupName].prop;
       blockParam.field.path = utils.strSplitByPathEscaped(blockParam.field.name);
 
       utils.forEach(blockParam.field.path, (key, ind, isLast) => {
@@ -170,8 +181,8 @@ function construct(name, usePrefix) {
     }
 
     if (type) {
-      block[annotationGroupName][group || null].isTyped = true; // @deprecated
-      block[annotationGroupVariantsName][group || null].isTyped = true;
+      block[annotationGroupName][groupName].isTyped = true; // @deprecated
+      block[annotationGroupVariantsName][groupName].isTyped = true;
     }
 
     block.addToApidocString(toApidocString);

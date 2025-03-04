@@ -2,6 +2,7 @@ const fs = require('fs');
 const parserUtils = require('../../parser.utils');
 const parserJsonSchemaUtils = require('../../parser.jsonschema.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.utils');
+const utils = require('../../utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
 const set = require('lodash.set');
@@ -306,14 +307,14 @@ module.exports = (config) => ({
       }
 
       if (descriptor.paramGroupVariant) {
-        const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
+        const [ groupVariantKey, groupVariant ] = Object.entries(descriptor.paramGroupVariant)[0];
 
-        if (groupVariantKey) {
+        if (groupVariant) {
           const notBodyParamKeys = [];
 
           schema = maybeReplaceObjectParamsWithRef(
             parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
-              descriptor.paramGroupVariant[groupVariantKey].prop,
+              groupVariant.prop,
               descriptor.param,
               undefined,
               { newNullable: SCHEMA_NEW_NULLABLE },
@@ -324,7 +325,7 @@ module.exports = (config) => ({
 
           for (const subSchema of schema.oneOf ? schema.oneOf : [ schema ]) {
             methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(subSchema.properties ?? {}).map(([ key, keySchema ]) => {
-              const isQueryParam = !descriptor.queryGroupVariant?.[groupVariantKey] && (
+              const isQueryParam = !groupVariant && (
                 key in uriParams ||
                 descriptor.api.transport.method === 'get' ||
                 descriptor.api.transport.method === 'delete'
@@ -353,7 +354,7 @@ module.exports = (config) => ({
                 content: descriptor.contentType.reduce((acc, contentType) => {
                   schema = maybeReplaceObjectParamsWithRef(
                     parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
-                      descriptor.paramGroupVariant[groupVariantKey].prop,
+                      groupVariant.prop,
                       bodyParams,
                       undefined,
                       { newNullable: SCHEMA_NEW_NULLABLE },
@@ -376,20 +377,40 @@ module.exports = (config) => ({
 
                   if (descriptor.exampleGroup) {
                     for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
-                      if (example.param) {
-                        example.param.forEach((param) => {
+                      const [ groupName, ] = group.split('#');
+
+                      if (groupVariantKey !== (groupName || 'null')) {
+                        continue;
+                      }
+
+                      if (example.prop.param) {
+                        example.prop.param.forEach((param) => {
+                          if (param.type !== contentType) {
+                            return;
+                          }
+
                           let value = param.description.join('\n').trim();
 
                           switch (param.type) {
                             case 'json':
                               try {
-                                value = JSON.parse(value);
+                                let val = JSON.parse(value);
+
+                                if (config?.requestDefaults) {
+                                  val = utils.convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith(
+                                    val,
+                                    groupVariant.prop,
+                                    bodyParams,
+                                  );
+                                }
+
+                                value = val;
                               } catch (e) {
-    
+                                utils.logger.warn(`Failed to parse JSON example for ${group} group: ${e.message}`, e);
                               }
                           }
 
-                          examples[param.group] = {
+                          examples[group || null] = {
                             summary: param.title,
                             value: value,
                           };
@@ -401,8 +422,11 @@ module.exports = (config) => ({
                   acc[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]] = {
                     schema,
                     encoding,
-                    examples,
                   };
+
+                  if (Object.keys(examples).length) {
+                    acc[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]].examples = examples;
+                  }
       
                   return acc;
                 }, {}),
@@ -442,7 +466,7 @@ module.exports = (config) => ({
       if (!descriptor.successGroupVariant && !descriptor.errorGroupVariant) {
         responses['default'] = { description: 'No response' };
       } else {
-        for (const contentType of descriptor.successContentType || descriptor.contentType) {
+        for (const contentType of descriptor.successContentType ?? descriptor.contentType) {
           if (descriptor.successGroupVariant) {
             Object.entries(descriptor.successGroupVariant).forEach(([groupVariantKey, groupVariant]) => {
               let schema = maybeReplaceObjectParamsWithRef(
@@ -455,7 +479,7 @@ module.exports = (config) => ({
                 schemas,
                 compressionDepth,
               );
-              const responseKey = groupVariantKey === 'null' ? '200' : /^\d\d\d$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const responseKey = groupVariant.statusCode == null ? '200' : /^\d\d\d$/.test(groupVariant.statusCode) ? groupVariant.statusCode : `x-${groupVariant.statusCode}`;
               const contentTypeKey = CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType];
 
               if (responses[responseKey]?.content?.[contentTypeKey]) {
@@ -493,9 +517,15 @@ module.exports = (config) => ({
 
               if (descriptor.exampleGroup) {
                 for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
-                  if (example.response) {
-                    example.response.forEach((param) => {
-                      if (param.groupModifiers.length & !param.groupModifiers.includes(responseKey)) {
+                  const [ groupName, ] = group.split('#');
+
+                  if (groupVariantKey !== (groupName || 'null')) {
+                    continue;
+                  }
+
+                  if (example.prop.success) {
+                    example.prop.success.forEach((param) => {
+                      if (param.type !== contentType) {
                         return;
                       }
 
@@ -504,13 +534,23 @@ module.exports = (config) => ({
                       switch (param.type) {
                         case 'json':
                           try {
-                            value = JSON.parse(value);
-                          } catch (e) {
+                            let val = JSON.parse(value);
 
+                            if (config?.responseDefaults) {
+                              val = utils.convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith(
+                                val,
+                                groupVariant.prop,
+                                descriptor.success,
+                              );
+                            }
+
+                            value = val;
+                          } catch (e) {
+                            utils.logger.warn(`Failed to parse JSON example for ${group} group: ${e.message}`, e);
                           }
                       }
 
-                      oldExamples[param.group] = {
+                      oldExamples[group] = {
                         summary: param.title,
                         value: value,
                       };
@@ -520,7 +560,10 @@ module.exports = (config) => ({
               }
 
               set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
-              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
+
+              if (Object.keys(oldExamples).length) {
+                set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
+              }
             });
           }
         }
@@ -538,7 +581,7 @@ module.exports = (config) => ({
                 schemas,
                 compressionDepth,
               );
-              const responseKey = groupVariantKey === 'null' ? '500' : /^\d\d\d?$/.test(groupVariantKey) ? groupVariantKey : `x-${groupVariantKey}`;
+              const responseKey = groupVariant.statusCode == null ? '500' : /^\d\d\d?$/.test(groupVariant.statusCode) ? groupVariant.statusCode : `x-${groupVariant.statusCode}`;
               const contentTypeKey = CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType];
 
               if (responses[responseKey]?.content?.[contentTypeKey]) {
@@ -576,9 +619,15 @@ module.exports = (config) => ({
 
               if (descriptor.exampleGroup) {
                 for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
-                  if (example.response) {
-                    example.response.forEach((param) => {
-                      if (param.groupModifiers.length & !param.groupModifiers.includes(responseKey)) {
+                  const [ groupName, ] = group.split('#');
+
+                  if (groupVariantKey !== (groupName || 'null')) {
+                    continue;
+                  }
+
+                  if (example.prop.error) {
+                    example.prop.error.forEach((param) => {
+                      if (param.type !== contentType) {
                         return;
                       }
 
@@ -587,13 +636,23 @@ module.exports = (config) => ({
                       switch (param.type) {
                         case 'json':
                           try {
-                            value = JSON.parse(value);
-                          } catch (e) {
+                            let val = JSON.parse(value);
 
+                            if (config?.responseDefaults) {
+                              val = utils.convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith(
+                                val,
+                                groupVariant.prop,
+                                descriptor.error,
+                              );
+                            }
+
+                            value = val;
+                          } catch (e) {
+                            utils.logger.warn(`Failed to parse JSON example for ${group} group: ${e.message}`, e);
                           }
                       }
 
-                      oldExamples[param.group] = {
+                      oldExamples[group] = {
                         summary: param.title,
                         value: value,
                       };
@@ -603,7 +662,10 @@ module.exports = (config) => ({
               }
 
               set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
-              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
+
+              if (Object.keys(oldExamples).length) {
+                set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
+              }
             });
           }
         }

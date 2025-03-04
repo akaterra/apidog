@@ -2,7 +2,7 @@ const fs = require('fs');
 const parserUtils = require('../../parser.utils');
 const URL = require('url').URL;
 const { createHash } = require('crypto');
-const set = require('lodash.set');
+const defaults = require('lodash.defaultsdeep');
 const yaml = require('js-yaml');
 const utils = require('../../utils');
 
@@ -78,15 +78,15 @@ module.exports = (config) => ({
         const groupVariantKey = Object.keys(descriptor.headerGroupVariant)[0];
 
         if (groupVariantKey) {
-          const sampleBody = convertParamGroupVariantToSampleBody(
+          const sampleBody = utils.convertParamGroupVariantToSampleBody(
             descriptor.headerGroupVariant[groupVariantKey].prop,
             descriptor.header,
             { primitiveValueAsParam: true },
           );
 
           item.request.header = Object.entries(sampleBody).map(([ key, value ]) => {
-            const description = value instanceof Param ? value.description : undefined;
-            value = value instanceof Param ? value.valueOf() : value;
+            const description = value instanceof utils.Param ? value.description : undefined;
+            value = value instanceof utils.Param ? value.valueOf() : value;
 
             return {
               key,
@@ -97,13 +97,15 @@ module.exports = (config) => ({
         }
       }
 
-      if (descriptor.paramGroupVariant) {
-        const groupVariantKey = Object.keys(descriptor.paramGroupVariant)[0];
+      let requestSampleBody;
 
-        if (groupVariantKey) {
+      if (descriptor.paramGroupVariant) {
+        const groupVariant = Object.values(descriptor.paramGroupVariant)[0];
+
+        if (groupVariant) {
           const contentType = descriptor.contentType[0];
-          const sampleBody = convertParamGroupVariantToSampleBody(
-            descriptor.paramGroupVariant[groupVariantKey].prop,
+          const sampleBody = requestSampleBody = utils.convertParamGroupVariantToSampleBody(
+            groupVariant.prop,
             descriptor.param,
             { primitiveValueAsParam: contentType === 'form' || contentType === 'multipart' },
           );
@@ -125,9 +127,9 @@ module.exports = (config) => ({
               item.request.body = {
                 mode: 'formdata',
                 formdata: Object.entries(sampleBody).map(([ key, value ]) => {
-                  const description = value instanceof Param ? value.description : undefined;
-                  const type = value instanceof Param ? value.type : 'text';
-                  value = value instanceof Param ? value.valueOf() : value;
+                  const description = value instanceof utils.Param ? value.description : undefined;
+                  const type = value instanceof utils.Param ? value.type : 'text';
+                  value = value instanceof utils.Param ? value.valueOf() : value;
 
                   return {
                     key,
@@ -143,17 +145,17 @@ module.exports = (config) => ({
       }
 
       if (descriptor.queryGroupVariant) {
-        const groupVariantKey = Object.keys(descriptor.queryGroupVariant)[0];
+        const groupVariant = Object.values(descriptor.queryGroupVariant)[0];
 
-        if (groupVariantKey) {
+        if (groupVariant) {
           const uriParams = {};
 
           enumUriPlaceholders(protocolPath, (placeholder, isInQuery) => {
             uriParams[placeholder] = isInQuery;
           });
 
-          const sampleBody = convertParamGroupVariantToSampleBody(
-            descriptor.queryGroupVariant[groupVariantKey].prop,
+          const sampleBody = utils.convertParamGroupVariantToSampleBody(
+            groupVariant.prop,
             descriptor.query,
             { primitiveValueAsParam: true },
           );
@@ -163,8 +165,8 @@ module.exports = (config) => ({
               return;
             }
 
-            const description = value instanceof Param ? value.description : undefined;
-            value = value instanceof Param ? value.valueOf() : value;
+            const description = value instanceof utils.Param ? value.description : undefined;
+            value = value instanceof utils.Param ? value.valueOf() : value;
 
             return {
               key,
@@ -177,8 +179,8 @@ module.exports = (config) => ({
               return;
             }
 
-            const description = value instanceof Param ? value.description : undefined;
-            value = value instanceof Param ? value.valueOf() : value;
+            const description = value instanceof utils.Param ? value.description : undefined;
+            value = value instanceof utils.Param ? value.valueOf() : value;
 
             return {
               key,
@@ -190,36 +192,115 @@ module.exports = (config) => ({
       }
 
       if (descriptor.exampleGroup) {
-        for (const [ title, example ] of Object.entries(descriptor.exampleGroup)) {
+        for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
+          const [ groupName, ] = group.split('#');
           let i = 0;
 
           while (true) {
-            if (!example.param?.[i] && !example.response?.[i]) {
+            const param = example.prop.param?.[i];
+            const success = example.prop.success?.[i];
+            const error = example.prop.error?.[i];
+
+            if (!param && !success && !error) {
               break;
             }
 
-            item.responses.push({
-              name: example.response?.[i]?.title ?? null,
-              body: example.response?.[i]?.description.join('\n') ?? null,
-              _postman_previewlanguage: example.response?.[i]?.type ?? 'text',
-              originalRequest: {
-                url: `${root}${protocolPath}${url.hash}`,
-                method: item.request.method,
-                auth: item.request.auth,
-                headers: item.request.header,
-                body: {
-                  mode: 'raw',
-                  raw: example.param?.[i]?.description.join('\n') ?? null,
-                  options: {
-                    raw: {
-                      language: example.param?.[i]?.type ?? 'text',
+            let requestValue = param.description.join('\n');
+
+            if (requestValue) {
+              switch (param.type || example.contentType) {
+                case 'json':
+                  try {
+                    let val = JSON.parse(requestValue);
+
+                    if (config?.requestDefaults) {
+                      val = defaults(
+                        val,
+                        requestSampleBody,
+                      );
+                    }
+
+                    requestValue = JSON.stringify(val, undefined, 2);
+                  } catch (e) {
+                    utils.logger.warn(`Failed to parse JSON example: ${e.message}`);
+                  }
+              }
+            }
+
+            let responses = []; // { contentType, response, statusCode, value }[]
+
+            for (const response of [ success, error ]) {
+              if (response) {
+                const contentType =
+                  response.type ||
+                  example.contentType ||
+                  (response === success ? descriptor.successContentType[0] : descriptor.errorContentType[0]);
+      
+                let responseValue = response.description.join('\n');
+
+                if (responseValue) {
+                  switch (contentType) {
+                    case 'json':
+                      try {
+                        let val = JSON.parse(responseValue);
+
+                        if (config?.responseDefaults) {
+                          const paramGroupVariant = response === success
+                            ? descriptor.successGroupVariant[groupName || null]
+                            : descriptor.errorGroupVariant[groupName || null];
+                          const paramDescriptors = response === success
+                            ? descriptor.success
+                            : descriptor.error;
+
+                          if (paramGroupVariant) {
+                            val = utils.convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith(
+                              val,
+                              paramGroupVariant.prop,
+                              paramDescriptors,
+                            );
+                          }
+                        }
+    
+                        responseValue = JSON.stringify(val, undefined, 2);
+                      } catch (e) {
+                        utils.logger.warn(`Failed to parse JSON example: ${e.message}`, e);
+                      }
+                  }
+                }
+
+                responses.push({
+                  contentType,
+                  response,
+                  statusCode: response.statusCode ?? (response === success ? 200 : 500),
+                  value: responseValue,
+                });
+              }
+            }
+
+            for (const response of responses) {
+              item.responses.push({
+                name: response?.response.title ?? null,
+                body: response?.value ?? null,
+                _postman_previewlanguage: response.contentType ?? 'text',
+                originalRequest: {
+                  url: `${root}${protocolPath}${url.hash}`,
+                  method: item.request.method,
+                  auth: item.request.auth,
+                  headers: item.request.header,
+                  body: {
+                    mode: 'raw',
+                    raw: requestValue ?? null,
+                    options: {
+                      raw: {
+                        language: response.contentType ?? 'text',
+                      },
                     },
                   },
+                  description: param?.title ?? null,
                 },
-                description: example.param?.[i]?.title ?? null,
-              },
-              status: example.response?.[i]?.groupModifiers?.[0] ?? null,
-            });
+                status: response.statusCode,
+              });
+            }
 
             i += 1;
           }
@@ -271,107 +352,6 @@ module.exports = (config) => ({
     }
   },
 });
-
-const TYPE_TO_DEFAULT_VALUE = {
-  boolean: () => true,
-  date: (opts) => opts.now.slice(0, 10),
-  datetime: (opts) => opts.now,
-  'date-time': (opts) => opts.now,
-  email: () => 'example@example.com',
-  file: () => new ParamFile(),
-  hostname: () => 'example.com',
-  id: () => 1,
-  int32: () => 0,
-  int64: () => 0,
-  integer: () => 0,
-  ipv4: () => '1.2.3.4',
-  ipv6: () => '::1',
-  latitude: () => 51.477928, // greenwich
-  longitude: () => -0.001545, // greenwich
-  natural: () => 1,
-  negative: () => -0.1,
-  negativeinteger: () => -1,
-  number: () => 0.1,
-  phonenumber: () => '+1234567890',
-  positive: () => 0.1,
-  positiveinteger: () => 1,
-  password: () => 'password123!@#',
-  string: () => '',
-  time: (opts) => opts.now.slice(11, 19),
-  uri: () => 'http://example.com',
-  url: () => 'http://example.com',
-  uuid: () => '10000000-2345-0000-6789-000000000000',
-}
-
-class Param {
-  get type() {
-    return null;
-  }
-
-  constructor(value, description) {
-    this.description = description;
-    this.value = value;
-  }
-
-  toJSON() {
-    return this.valueOf();
-  }
-
-  valueOf() {
-    return this.value;
-  }
-}
-
-class ParamFile extends Param {
-  get type() {
-    return 'file';
-  }
-
-  valueOf() {
-    return this.value ?? './example.txt';
-  }
-}
-
-function convertParamGroupVariantToSampleBody(paramGroupVariant, paramDescriptors, opts, path, sample) {
-  if (!sample) {
-    sample = {};
-  }
-
-  if (!opts?.now) {
-    opts = { ...opts, now: new Date().toISOString() };
-  }
-
-  Object.entries(paramGroupVariant).forEach(([ propKey, propVariants ]) => {
-    const param = paramDescriptors[propVariants[0].list[0]];
-
-    if (!param || param.type?.modifiers?.undefined) {
-      return;
-    }
-
-    let paramPath = path ? `${path}.${propKey}` : propKey;
-
-    if (param.type?.modifiers?.list) {
-      paramPath += '[0]'.repeat(param.type.modifiers.list);
-    }
-
-    let paramValue = param.field.defaultValue !== undefined
-      ? param.field.defaultValue
-      : param.type?.allowedValues?.[0] ?? TYPE_TO_DEFAULT_VALUE[param.type?.modifiers?.initial]?.(opts) ?? null;
-
-    if (opts?.primitiveValueAsParam && !param.type?.modifiers?.object && !(paramValue instanceof Param)) {
-      paramValue = new Param(String(paramValue), param.description?.join('\n').trim());
-    }
-
-    set(sample, paramPath, paramValue);
-    convertParamGroupVariantToSampleBody(propVariants[0].prop, paramDescriptors, opts, paramPath, sample);
-  });
-
-  if (Object.keys(sample).length === 1 && sample[utils.root]) {
-    sample = sample[utils.root];
-  }
-
-  return sample;
-}
 
 function enumUriPlaceholders(uri, fn, acc) {
   const placeholderRegex = /:(\w+)/g;

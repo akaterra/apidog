@@ -23,8 +23,7 @@ function construct(name) {
 
     const parsed = peggy.parse(text.trim());
 
-    let groupModifiers = parsed.group?.name.split(':') || null;
-    let group = groupModifiers?.shift() || null;
+    let group = parsed.group || null;
 
     if (!block[annotationName]) {
       block[annotationName] = [];
@@ -40,7 +39,6 @@ function construct(name) {
 
     blockExample.description = [];
     blockExample.group = group;
-    blockExample.groupModifiers = groupModifiers;
     blockExample.title = parsed.title || null;
     blockExample.type = parsed.type?.name ? parsed.type?.name.toLowerCase() : 'form';
 
@@ -52,15 +50,19 @@ function construct(name) {
       block.contentType.push(blockExample.type);
     }
 
-    if (!block[annotationGroupName][group]) {
-      block[annotationGroupName][group] = {};
+    if (!block[annotationGroupName][group?.name ?? null]) {
+      block[annotationGroupName][group?.name ?? null] = {
+        prop: {},
+        contentType: blockExample.type || block.contentType?.at(-1),
+        statusCode: block.statusCode?.at(-1),
+      };
     }
 
-    if (!block[annotationGroupName][group][name || 'param']) {
-      block[annotationGroupName][group][name || 'param'] = [];
+    if (!block[annotationGroupName][group?.name ?? null].prop[name || 'param']) {
+      block[annotationGroupName][group?.name ?? null].prop[name || 'param'] = [];
     }
 
-    block[annotationGroupName][group][name || 'param'].push(blockExample);
+    block[annotationGroupName][group?.name ?? null].prop[name || 'param'].push(blockExample);
 
     block.addToApidocString(toApidocString);
 

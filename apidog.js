@@ -91,6 +91,18 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--requestDefaults' ],
+  {
+    action: 'storeTrue', help: 'Generate request default fields using request body schema',
+  },
+);
+argumentParser.addArgument(
+  [ '--responseDefaults' ],
+  {
+    action: 'storeTrue', help: 'Generate response default fields using response schema',
+  },
+);
+argumentParser.addArgument(
   [ '-s', '--sampleRequestUrl', '--sampleUrl' ],
   {
     help: 'Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests',
@@ -246,6 +258,8 @@ function loadConfig(dir) {
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     output: configApidoc.output || configPackage.apidoc.output,
+    requestDefaults: configApidoc.requestDefaults || configPackage.apidoc.requestDefaults,
+    responseDefaults: configApidoc.responseDefaults || configPackage.apidoc.responseDefaults,
     sampleRequestPreset: configApidoc.sampleRequestPreset || configPackage.apidoc.sampleRequestPreset,
     sampleUrl: definedOrEmptyString(configApidoc.sampleUrl, configPackage.apidoc.sampleUrl),
     server: configApidoc.server || configPackage.apidoc.server,
@@ -402,6 +416,8 @@ const envConfig = {
   ordered: args.ordered,
   outputDir,
   outputFormat,
+  requestDefaults: args.requestDefaults || config.requestDefaults,
+  responseDefaults: args.responseDefaults || config.responseDefaults,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],

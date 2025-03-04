@@ -14,12 +14,16 @@ function parse(block, text) {
   }
 
   block.contentType = Array.from(new Set(block.contentType.concat(utils.strSplitByComma(text))));
-  block.addToApidocString(toApidocString);
+  block.addToApidocString((block) => toApidocString(block, text));
 
   return block;
 }
 
-function toApidocString(block) {
+function toApidocString(block, contentType) {
+  if (contentType !== undefined) {
+    return `@apiContentType ${contentType}`;
+  }
+
   if (block.contentType !== undefined) {
     return block.contentType.map((contentType) => `@apiContentType ${contentType}`);
   }

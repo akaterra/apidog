@@ -154,6 +154,10 @@ Parameters:
 
   Can be multiple. By default takes all the doc blocks.
 
+* **--requestDefaults** - Generate request default fields using request body schema.
+
+* **--responseDefaults** - Generate response default fields using response schema.
+
 * **-s, --sampleRequestUrl, --sampleUrl** - Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests.
 
   Default is \[ config.json in input directory \].sampleUrl

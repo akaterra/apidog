@@ -1,4 +1,115 @@
-// test
+const defaults = require('lodash.defaultsdeep');
+const set = require('lodash.set');
+
+const TYPE_TO_DEFAULT_VALUE = {
+  boolean: () => true,
+  date: (opts) => opts.now.slice(0, 10),
+  datetime: (opts) => opts.now,
+  'date-time': (opts) => opts.now,
+  email: () => 'example@example.com',
+  file: () => new ParamFile(),
+  hostname: () => 'example.com',
+  id: () => 1,
+  int32: () => 0,
+  int64: () => 0,
+  integer: () => 0,
+  ipv4: () => '1.2.3.4',
+  ipv6: () => '::1',
+  latitude: () => 51.477928, // greenwich
+  longitude: () => -0.001545, // greenwich
+  natural: () => 1,
+  negative: () => -0.1,
+  negativeinteger: () => -1,
+  number: () => 0.1,
+  phonenumber: () => '+1234567890',
+  positive: () => 0.1,
+  positiveinteger: () => 1,
+  password: () => 'password123!@#',
+  string: () => '',
+  time: (opts) => opts.now.slice(11, 19),
+  uri: () => 'http://example.com',
+  url: () => 'http://example.com',
+  uuid: () => '10000000-2345-0000-6789-000000000000',
+}
+
+class Param {
+  get type() {
+    return null;
+  }
+
+  constructor(value, description) {
+    this.description = description;
+    this.value = value;
+  }
+
+  toJSON() {
+    return this.valueOf();
+  }
+
+  valueOf() {
+    return this.value;
+  }
+}
+
+class ParamFile extends Param {
+  get type() {
+    return 'file';
+  }
+
+  valueOf() {
+    return this.value ?? './example.txt';
+  }
+}
+
+function convertParamGroupVariantToSampleBody(paramGroupVariant, paramDescriptors, opts, path, sample) {
+  if (!sample) {
+    sample = {};
+  }
+
+  if (!opts?.now) {
+    opts = { ...opts, now: new Date().toISOString() };
+  }
+
+  Object.entries(paramGroupVariant).forEach(([ propKey, propVariants ]) => {
+    const param = paramDescriptors[propVariants[0].list[0]];
+
+    if (!param || param.type?.modifiers?.undefined) {
+      return;
+    }
+
+    let paramPath = path ? `${path}.${propKey}` : propKey;
+
+    if (param.type?.modifiers?.list) {
+      paramPath += '[0]'.repeat(param.type.modifiers.list);
+    }
+
+    let paramValue = param.field.defaultValue !== undefined
+      ? param.field.defaultValue
+      : param.type?.allowedValues?.[0] ?? TYPE_TO_DEFAULT_VALUE[param.type?.modifiers?.initial]?.(opts) ?? null;
+
+    if (opts?.primitiveValueAsParam && !param.type?.modifiers?.object && !(paramValue instanceof Param)) {
+      paramValue = new Param(String(paramValue), param.description?.join('\n').trim());
+    }
+
+    set(sample, paramPath, paramValue);
+    convertParamGroupVariantToSampleBody(propVariants[0].prop, paramDescriptors, opts, paramPath, sample);
+  });
+
+  if (Object.keys(sample).length === 1 && sample[module.exports.root]) {
+    sample = sample[module.exports.root];
+  }
+
+  return sample;
+}
+
+function convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith(src, paramGroupVariant, paramDescriptors, opts, path, sample) {
+  sample = defaults(
+    src,
+    convertParamGroupVariantToSampleBody(paramGroupVariant, paramDescriptors, opts, path, sample),
+  );
+
+  return sample;
+}
 
 function contentTypeToInternalContentType(contentType) {
   switch (contentType.toLowerCase().replace(/\s+$/, '')) {
@@ -211,14 +322,14 @@ class Logger {
     return this;
   }
 
-  warn(message) {
-    console.warn(this.generateMessage(message));
+  warn(message, ...arg) {
+    console.warn(this.generateMessage(message), ...arg);
 
     return this;
   }
 
-  throw(error) {
-    console.warn(this.generateMessage(String(error)));
+  throw(error, ...arg) {
+    console.warn(this.generateMessage(String(error)), ...arg);
 
     throw error;
   }
@@ -229,6 +340,8 @@ class Logger {
 }
 
 module.exports = {
+  convertParamGroupVariantToSampleBody,
+  convertParamGroupVariantToSampleBodyAndMergeAsDefaultWith,
   contentTypeToInternalContentType,
   forEach,
   isNotEmpty,
@@ -245,4 +358,6 @@ module.exports = {
   Logger,
   logger: new Logger(),
   root: String.fromCharCode(255), // Symbol('root'),
+  Param,
+  ParamFile,
 };
