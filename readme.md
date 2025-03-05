@@ -55,6 +55,7 @@ Table of contents
   * [@apiCookieValue](#apicookievalue)
   * [@apiDefine](#apidefine)
   * [@apiDescription](#apidescription)
+  * [@apiErrorContentType](#apierrorcontenttype)
   * [@apiErrorPrefix](#apierrorprefix)
   * [@apiErrorRoot](#apierrorroot)
   * [@apiErrorValue](#apierrorvalue)
@@ -68,7 +69,9 @@ Table of contents
   * [@apiSchema](#apischema)
   * [@apiSampleRequestOption](#apisamplerequestoption)
   * [@apiSampleRequestVariable](#apisamplerequestvariable)
+  * [@apiStatusCode](#apistatuscode)
   * [@apiSubgroup](#apisubgroup)
+  * [@apiSuccessContentType](#apisuccesscontenttype)
   * [@apiSuccessPrefix](#apisuccessprefix)
   * [@apiSuccessRoot](#apisuccessroot)
   * [@apiSuccessValue](#apisuccessvalue)
@@ -247,10 +250,9 @@ If **@apiDefine** declares definition with the same name also includes its title
 @apiContentType contentType
 ```
 
-Defines content type.
-Can be defined multiply.
+Defines then content type for the following **@apiParam** and **apiParamExample**.
 
-Content type will be used as a filter of the **@apiExample** content having corresponding `{contentType}`.
+Content type will be used as a filter of the **@apiParamExample** content having corresponding `{contentType}`.
 Also the data of the sample request will be formatted according to it.
 Currently supported data format of the sample request are FORM, JSON and XML.
 
@@ -285,6 +287,14 @@ Works same as well as original **@apiDefine** but supports embedded **@apiUse**.
 ```
 
 Works same as well as original **@apiDescription** but treats the description content as Markdown for @html template.
+
+##### @apiErrorContentType
+
+```
+@apiErrorContentType contentType
+```
+
+Defines the content type for the following **@apiError** and **@apiErrorExample**.
 
 ##### @apiErrorPrefix
 
@@ -590,6 +600,14 @@ Example with global bucket:
  */
 ```
 
+##### @apiStatusCode
+
+```
+@apiStatusCode statusCode
+```
+
+Defines the status code for the following **@apiSuccessExample** and **@apiErrorExamples**.
+
 ##### @apiSubgroup
 
 ```
@@ -599,6 +617,14 @@ Example with global bucket:
 Defines to which subgroup the doc block belongs.
 
 @html template shows it as a sub navigation section of the menu.
+
+##### @apiSuccessContentType
+
+```
+@apiSuccessContentType contentType
+```
+
+Defines the content type for the following **@apiSuccess** and **@apiSuccessExample**.
 
 ##### @apiSuccessPrefix
 
