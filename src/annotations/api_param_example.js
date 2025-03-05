@@ -99,11 +99,11 @@ function construct(name) {
   };
 }
 
-const paramExample = construct('param', '@apiParamExample');
+const example = construct('param', '@apiExample');
 
 module.exports = {
-  addDescription: paramExample.addDescription,
+  addDescription: example.addDescription,
   construct,
-  parse: paramExample.parse,
-  toApidocString: paramExample.toApidocString,
+  parse: example.parse,
+  toApidocString: example.toApidocString,
 };

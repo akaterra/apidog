@@ -14,7 +14,7 @@ const annotationParsers = {
   '@apidescription': require('./annotations/api_description'),
   '@apigroup': require('./annotations/api_group'),
   '@apierrorcontenttype': require('./annotations/api_error_content_type'),
-  '@apiexample': require('./annotations/api_param_example').construct(),
+  '@apiexample': require('./annotations/api_param_example'),
   '@apifamily': require('./annotations/api_family'),
   '@apiignore': require('./annotations/api_ignore'),
   '@apiname': require('./annotations/api_name'),
@@ -55,7 +55,7 @@ const annotationParsers = {
   '@apiheadervalue': require('./annotations/api_param_value').construct('headerValue'),
 
   '@apiparam': require('./annotations/api_param'),
-  '@apiparamexample': require('./annotations/api_param_example'),
+  '@apiparamexample': require('./annotations/api_param_example').construct('param'),
   '@apiparamprefix': require('./annotations/api_param_prefix'),
   '@apiparamroot': require('./annotations/api_param_root'),
   '@apiparamvalue': require('./annotations/api_param_value'),

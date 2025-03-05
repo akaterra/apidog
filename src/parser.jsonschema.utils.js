@@ -60,52 +60,6 @@ function resolveDefinition(spec, group, groupVariants, prefix, key, annotation, 
 
           if (key) {
             resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
-            // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-            //   const paramEnum = combinedSpec.enum;
-            //   const block = {
-            //     field: { isOptional: !paramIsRequired, name: `${paramKey}[]`, defaultValue: paramDefault },
-            //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, list: 1, [combinedSpec.type]: true }, name: type },
-            //     description: [],
-            //   };
-
-            //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
-
-            //   if (spec.description) {
-            //     block.description.push(spec.description);
-            //   }
-
-            //   if (typeof spec.maximum === 'number') {
-            //     block.type.modifiers.max = spec.maximum;
-            //     block.type.modifiers.isNumericRange = true;
-            //   }
-
-            //   if (typeof spec.minimum === 'number') {
-            //     block.type.modifiers.min = spec.min;
-            //     block.type.modifiers.isNumericRange = true;
-            //   }
-
-            //   if (typeof spec.maxItems === 'number') {
-            //     block.type.modifiers.max = spec.maxItems;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.minItems === 'number') {
-            //     block.type.modifiers.min = spec.minItems;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.maxLength === 'number') {
-            //     block.type.modifiers.max = spec.maxLength;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.minLength === 'number') {
-            //     block.type.modifiers.min = spec.minLength;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   blocks.push(block);
-            // }
           }
 
           resolveDefinition(
@@ -141,52 +95,6 @@ function resolveDefinition(spec, group, groupVariants, prefix, key, annotation, 
 
           if (key) {
             resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
-            // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-            //   const paramEnum = combinedSpec.enum;
-            //   const block = {
-            //     field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
-            //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
-            //     description: [],
-            //   };
-
-            //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
-
-            //   if (spec.description) {
-            //     block.description.push(spec.description);
-            //   }
-
-            //   if (typeof spec.maximum === 'number') {
-            //     block.type.modifiers.max = spec.maximum;
-            //     block.type.modifiers.isNumericRange = true;
-            //   }
-
-            //   if (typeof spec.minimum === 'number') {
-            //     block.type.modifiers.min = spec.min;
-            //     block.type.modifiers.isNumericRange = true;
-            //   }
-
-            //   if (typeof spec.maxItems === 'number') {
-            //     block.type.modifiers.max = spec.maxItems;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.minItems === 'number') {
-            //     block.type.modifiers.min = spec.minItems;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.maxLength === 'number') {
-            //     block.type.modifiers.max = spec.maxLength;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   if (typeof spec.minLength === 'number') {
-            //     block.type.modifiers.min = spec.minLength;
-            //     block.type.modifiers.isNumericRange = false;
-            //   }
-
-            //   blocks.push(block);
-            // }
           }
 
           resolvePropertiesDefinition(
@@ -221,52 +129,6 @@ function resolveDefinition(spec, group, groupVariants, prefix, key, annotation, 
 
         if (key) {
           resolveDefinitionBlocks(spec, combinedSpec, paramIsRequired, paramKey, paramDefault, defs, group, groupVariants);
-          // for (const type of resolveType(combinedSpec.type, null, combinedSpec.enum)) {
-          //   const paramEnum = combinedSpec.enum;
-          //   const block = {
-          //     field: { isOptional: !paramIsRequired, name: paramKey, defaultValue: paramDefault },
-          //     type: { allowedValues: paramEnum, modifiers: { initial: combinedSpec.type, [combinedSpec.type]: true }, name: type },
-          //     description: [],
-          //   };
-
-          //   block.field.path = utils.strSplitByPathEscaped(block.field.name);
-
-          //   if (spec.description) {
-          //     block.description.push(spec.description);
-          //   }
-
-          //   if (typeof spec.maximum === 'number') {
-          //     block.type.modifiers.max = spec.maximum;
-          //     block.type.modifiers.isNumericRange = true;
-          //   }
-
-          //   if (typeof spec.minimum === 'number') {
-          //     block.type.modifiers.min = spec.min;
-          //     block.type.modifiers.isNumericRange = true;
-          //   }
-
-          //   if (typeof spec.maxItems === 'number') {
-          //     block.type.modifiers.max = spec.maxItems;
-          //     block.type.modifiers.isNumericRange = false;
-          //   }
-
-          //   if (typeof spec.minItems === 'number') {
-          //     block.type.modifiers.min = spec.minItems;
-          //     block.type.modifiers.isNumericRange = false;
-          //   }
-
-          //   if (typeof spec.maxLength === 'number') {
-          //     block.type.modifiers.max = spec.maxLength;
-          //     block.type.modifiers.isNumericRange = false;
-          //   }
-
-          //   if (typeof spec.minLength === 'number') {
-          //     block.type.modifiers.min = spec.minLength;
-          //     block.type.modifiers.isNumericRange = false;
-          //   }
-
-          //   blocks.push(block);
-          // }
         }
       });
   }
@@ -391,19 +253,14 @@ function resolveType(type, format, isEnum) {
       switch (type.toLowerCase()) {
         case 'boolean':
           return isEnum ? 'Boolean:Enum' : 'Boolean';
-  
         case 'integer':
           return isEnum ? 'Integer:Enum' : 'Integer';
-
         case 'null':
           return 'Null';
-    
         case 'number':
           return isEnum ? 'Number:Enum' : 'Number';
-    
         case 'object':
           return 'Object';
-    
         case 'string':
           if (format === 'date-time') {
             return isEnum ? 'Date:Enum' : 'Date';
@@ -484,6 +341,7 @@ const SCHEMA_BY_TYPE = {
   positive: { type: 'number', minimum: 0 },
   positiveinteger: { type: 'integer', minimum: 0 },
   password: { type: 'string', format: 'password' },
+  secretkey: { type: 'string', format: 'password' },
   time: true,
   uri: { type: 'string', format: 'uri' },
   url: { type: 'string', format: 'uri' },
@@ -506,24 +364,21 @@ function convertParamToJsonSchema(mixed, opts) {
     param = {};
   }
 
-  const def = SCHEMA_BY_TYPE[type?.toLowerCase().replace(NON_LETTERS_RGX, '')];
-
-  if (def && typeof def === 'object') {
-    return def;
-  }
-
-  const schema = {
-    type: type in SCHEMA_BY_TYPE
-      ? def === true
-        ? 'string'
-        : SCHEMA_BY_TYPE[type]
-      : type,
-    format: type in SCHEMA_BY_TYPE
-      ? def === true
-        ? type
-        : SCHEMA_BY_TYPE[type]
-      : undefined,
-  };
+  const schemaByType = SCHEMA_BY_TYPE[type?.toLowerCase().replace(NON_LETTERS_RGX, '')];
+  const schema = schemaByType
+    ? { ...schemaByType }
+    : {
+      type: type in SCHEMA_BY_TYPE
+        ? def === true
+          ? 'string'
+          : SCHEMA_BY_TYPE[type]
+        : type,
+      format: type in SCHEMA_BY_TYPE
+        ? def === true
+          ? type
+          : SCHEMA_BY_TYPE[type]
+        : undefined,
+    };
 
   if (mixed.type?.modifiers?.regex) {
     schema.pattern = param.type.modifiers?.regex;

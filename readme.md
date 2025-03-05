@@ -913,6 +913,12 @@ Configuration file is a js script that by default exports the object with next p
   @apiParam {String:Null} string
   ```
 
+* Enum type.
+
+  ```
+  @apiParam {String:Enum="A","B","C"} string
+  ```
+
 * Array definition.
 
   ```
@@ -983,6 +989,7 @@ Configuration file is a js script that by default exports the object with next p
   * Positive - { "type": "number", "minimum": 0 }
   * PositiveInteger - { "type": "integer", "minimum": 0 }
   * Password - { "type": "string", "format": "password" }
+  * SecretKey - { "type": "string", "format": "password" }
   * String - { "type": "string" }
   * Time - { "type": "time" }
   * URI - { "type": "uri" }
