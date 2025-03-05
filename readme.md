@@ -606,7 +606,7 @@ Example with global bucket:
 @apiStatusCode statusCode
 ```
 
-Defines the status code for the following **@apiSuccessExample** and **@apiErrorExamples**.
+Defines the status code for the following **@apiSuccessExample** and **@apiErrorExample**.
 
 ##### @apiSubgroup
 
