@@ -463,7 +463,7 @@
                         {{/if}}
 
                         {{#if this.successExample.length}}
-                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType color='color-green'}}
+                          {{> contentParamExample example=this.successExample defaultName='successExample' id=this.id contentType=this.contentType defaultStatusCode='200' showStatusCode='true' color='color-green'}}
                         {{/if}}
 
                         <!-- error -->
@@ -477,7 +477,7 @@
                         {{/if}}
 
                         {{#if this.errorExample.length}}
-                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType color='color-red'}}
+                          {{> contentParamExample example=this.errorExample defaultName='errorExample' id=this.id contentType=this.contentType defaultStatusCode='5XX' showStatusCode='true' color='color-red'}}
                         {{/if}}
                       </div>
                     </div>

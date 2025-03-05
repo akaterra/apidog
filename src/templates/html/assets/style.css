@@ -86,7 +86,7 @@ ins.diffmod, .diffins {
 }
 
 .left-padded {
-  padding-left: 0.5rem;
+  padding-left: 0.5rem !important;
 }
 
 .rtl .left-padded {
@@ -95,7 +95,7 @@ ins.diffmod, .diffins {
 }
 
 .right-padded {
-  padding-right: 0.5rem;
+  padding-right: 0.5rem !important;
 }
 
 .rtl .right-padded {
@@ -104,11 +104,19 @@ ins.diffmod, .diffins {
 }
 
 .top-padded {
-  padding-top: 0.5rem;
+  padding-top: 0.5rem !important;
+}
+
+.no-top-padded {
+  padding-top: 0 !important;
 }
 
 .bottom-padded {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.5rem !important;
+}
+
+.no-bottom-padded {
+  padding-bottom: 0 !important;
 }
 
 .margin-left-25 {

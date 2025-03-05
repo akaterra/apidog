@@ -39,6 +39,7 @@ function construct(name) {
 
     blockExample.description = [];
     blockExample.group = group;
+    blockExample.statusCode = block.statusCode?.at(-1);
     blockExample.title = parsed.title || null;
     blockExample.type = parsed.type?.name ? parsed.type?.name.toLowerCase() : 'form';
 
@@ -54,7 +55,7 @@ function construct(name) {
       block[annotationGroupName][group?.name ?? null] = {
         prop: {},
         contentType: blockExample.type || block.contentType?.at(-1),
-        statusCode: block.statusCode?.at(-1),
+        statusCode: blockExample.statusCode,
       };
     }
 
