@@ -3,6 +3,7 @@ const set = require('lodash.set');
 
 const TYPE_TO_DEFAULT_VALUE = {
   boolean: () => true,
+  currency: () => 'USD',
   date: (opts) => opts.now.slice(0, 10),
   datetime: (opts) => opts.now,
   'date-time': (opts) => opts.now,

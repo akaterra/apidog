@@ -320,9 +320,10 @@ function validateInternal(spec, config) {
 
 
 const SCHEMA_BY_TYPE = {
+  currency: { type: 'string', minLength: 3, maxLength: 3 },
   date: true,
   datetime: { type:'string', format: 'date-time' },
-  'date-time': { type:'string', format: 'date-time' },
+  'date-time': { type: 'string', format: 'date-time' },
   double: { type: 'number', format: 'double' },
   email: { type: 'string', format: 'email' },
   file: { type: 'string', format: 'binary' },
@@ -365,18 +366,18 @@ function convertParamToJsonSchema(mixed, opts) {
   }
 
   const schemaByType = SCHEMA_BY_TYPE[type?.toLowerCase().replace(NON_LETTERS_RGX, '')];
-  const schema = schemaByType
+  const schema = schemaByType && typeof schemaByType === 'object'
     ? { ...schemaByType }
     : {
-      type: type in SCHEMA_BY_TYPE
-        ? def === true
+      type: schemaByType
+        ? schemaByType === true
           ? 'string'
-          : SCHEMA_BY_TYPE[type]
+          : schemaByType
         : type,
-      format: type in SCHEMA_BY_TYPE
-        ? def === true
+      format: schemaByType
+        ? schemaByType === true
           ? type
-          : SCHEMA_BY_TYPE[type]
+          : schemaByType
         : undefined,
     };
 
