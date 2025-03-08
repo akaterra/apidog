@@ -325,7 +325,7 @@ module.exports = (config) => ({
 
           for (const subSchema of schema.oneOf ? schema.oneOf : [ schema ]) {
             methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(subSchema.properties ?? {}).map(([ key, keySchema ]) => {
-              const isQueryParam = !groupVariant && (
+              const isQueryParam = (
                 key in uriParams ||
                 descriptor.api.transport.method === 'get' ||
                 descriptor.api.transport.method === 'delete'
@@ -504,16 +504,7 @@ module.exports = (config) => ({
                 responses[responseKey] = { description: 'No description', content: {} };
               }
 
-              let oldSchema = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.schema;
-
-              if (oldSchema) {
-                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
-                oldSchema.$oneOf.push(schema);
-              } else {
-                oldSchema = schema;
-              }
-
-              const oldExamples = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.examples ?? {};
+              const oldExamples = responses[responseKey]?.content?.[contentTypeKey]?.examples ?? {};
 
               if (descriptor.exampleGroup) {
                 for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
@@ -559,10 +550,10 @@ module.exports = (config) => ({
                 }
               }
 
-              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
+              set(responses[responseKey], `content.${contentTypeKey}.schema`, schema);
 
               if (Object.keys(oldExamples).length) {
-                set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
+                set(responses[responseKey], `content.${contentTypeKey}.examples`, oldExamples);
               }
             });
           }
@@ -606,16 +597,7 @@ module.exports = (config) => ({
                 responses[responseKey] = { description: 'No description', content: {} };
               }
 
-              let oldSchema = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.schema;
-
-              if (oldSchema) {
-                oldSchema = { $oneOf: oldSchema.$oneOf ? oldSchema.$oneOf : [ oldSchema ] };
-                oldSchema.$oneOf.push(schema);
-              } else {
-                oldSchema = schema;
-              }
-
-              const oldExamples = responses[responseKey]?.content?.[CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]]?.examples ?? {};
+              const oldExamples = responses[responseKey]?.content?.[contentTypeKey]?.examples ?? {};
 
               if (descriptor.exampleGroup) {
                 for (const [ group, example ] of Object.entries(descriptor.exampleGroup)) {
@@ -661,10 +643,10 @@ module.exports = (config) => ({
                 }
               }
 
-              set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.schema`, oldSchema);
+              set(responses[responseKey], `content.${contentTypeKey}.schema`, schema);
 
               if (Object.keys(oldExamples).length) {
-                set(responses[responseKey], `content.${CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE[contentType]}.examples`, oldExamples);
+                set(responses[responseKey], `content.${contentTypeKey}.examples`, oldExamples);
               }
             });
           }
