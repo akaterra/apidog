@@ -9,6 +9,16 @@ const utils = require('../../utils');
 module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
+    const opts = {
+      defaultCurrencyValue: config.defaultCurrencyValue,
+      defaultEmailValue: config.defaultEmailValue,
+      defaultHostnameValue: config.defaultHostnameValue,
+      defaultPhoneNumberValue: config.defaultPhoneNumberValue,
+      defaultPasswordValue: config.defaultPasswordValue,
+      defaultSecretKeyValue: config.defaultSecretKeyValue,
+      defaultUriValue: config.defaultUriValue,
+      defaultUrlValue: config.defaultUrlValue,
+    };
 
     const spec = {
       info: {
@@ -257,6 +267,7 @@ module.exports = (config) => ({
                               val,
                               paramGroupVariant.prop,
                               paramDescriptors,
+                              opts,
                             );
                           }
                         }

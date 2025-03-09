@@ -25,6 +25,18 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '--default:currency' ],
+  {
+    help: 'Default "currency" value',
+  },
+);
+argumentParser.addArgument(
+  [ '--default:email' ],
+  {
+    help: 'Default "email" value',
+  },
+);
+argumentParser.addArgument(
   [ '--description' ],
   {
     help: 'Custom description that will be used as a description of the generated documentation',
@@ -408,6 +420,8 @@ const definitions = {
 const envConfig = {
   author: config.author,
   compressionLevel: args.compressionLevel ?? config.compressionLevel ?? 0,
+  defaultCurrencyValue: args['default:currency'] || config['default:currency'],
+  defaultEmailValue: args['default:email'] || config['default'],
   description: args.description || config.description,
   keywords: config.keywords,
   logger: new utils.Logger(),

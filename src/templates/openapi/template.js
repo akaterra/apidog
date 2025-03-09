@@ -21,6 +21,16 @@ module.exports = (config) => ({
   generate(hbs, config, params) {
     const outputDir = config.outputDir;
     const compressionDepth = config.compressionLevel ?? 1;
+    const opts = {
+      defaultCurrencyValue: config.defaultCurrencyValue,
+      defaultEmailValue: config.defaultEmailValue,
+      defaultHostnameValue: config.defaultHostnameValue,
+      defaultPhoneNumberValue: config.defaultPhoneNumberValue,
+      defaultPasswordValue: config.defaultPasswordValue,
+      defaultSecretKeyValue: config.defaultSecretKeyValue,
+      defaultUriValue: config.defaultUriValue,
+      defaultUrlValue: config.defaultUrlValue,
+    };
 
     const spec = {
       openapi: SPEC_VERSION === '3.0' ? '3.0.3' : '3.1.1',
@@ -401,6 +411,7 @@ module.exports = (config) => ({
                                     val,
                                     groupVariant.prop,
                                     bodyParams,
+                                    opts,
                                   );
                                 }
 
@@ -532,6 +543,7 @@ module.exports = (config) => ({
                                 val,
                                 groupVariant.prop,
                                 descriptor.success,
+                                opts,
                               );
                             }
 
@@ -625,6 +637,7 @@ module.exports = (config) => ({
                                 val,
                                 groupVariant.prop,
                                 descriptor.error,
+                                opts,
                               );
                             }
 

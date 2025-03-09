@@ -84,6 +84,7 @@ Table of contents
   * [@html.standalone](#htmlstandalone)
   * [@md](#md)
   * [@openapi](#openapi)
+  * [@postman](#postman)
 * [Extended typing and type variants](#extended-typing-and-type-variants)
 * @html template "Send sample request" plug-in
 * [Sunsetting apiDoc](#sunsetting-apidoc)
@@ -797,6 +798,14 @@ apidog -t @openapi
 
 Compiles to OpenAPI v3.0 specification JSON file.
 
+##### @postman
+
+```sh
+apidog -t @postman
+```
+
+Compiles to Postman v2.1 specification JSON file.
+
 ### Server proxy
 
 The proxy can be created by providing **--withSampleRequestProxy** CLI flag:
@@ -968,6 +977,7 @@ Configuration file is a js script that by default exports the object with next p
 * apiDoc types to **@asyncapi** and **@openapi** jsonschema types mapping.
 
   * Boolean - { "type": "boolean" }
+  * Currency - { "type": "string", "minLength": 3, "maxLength": 3 }
   * Date - { "type": "date" }
   * DateTime - { "type": "date-time" }
   * Double - { "type": "number", "format": "double" }
