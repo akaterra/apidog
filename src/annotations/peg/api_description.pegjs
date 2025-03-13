@@ -5,18 +5,18 @@ start
   / description:AtLeastOneChar { return { type: null, description } }
 
 Type
-  = "{" _ name:Identifier "}" { return { name } }
+  = "{" _ name:Any "}" { return { name } }
 
 Rest
   = head:.* { return head.join('') || null }
 
 AtLeastOneChar
   = head:.+ { return head.join('') || null }
-
-Identifier
-  = head:[a-zA-Z_]+[a-zA-Z0-9_]* { return head.join('') }
-  / head:String { return head }
  
+Any
+  = head:[a-zA-Z0-9_-]+ { return head.join('') }
+  / String
+
 String
   = '"' chars:DoubleStringCharacter* '"' { return chars.join('') }
   / "'" chars:SingleStringCharacter* "'" { return chars.join('') }

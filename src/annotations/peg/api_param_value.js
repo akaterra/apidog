@@ -218,7 +218,7 @@ function peg$parse(input, options) {
   var peg$e18 = peg$otherExpectation("whitespace");
   var peg$e19 = peg$classExpectation([" ", "\t"], false, false);
 
-  var peg$f0 = function(group, type, value, description) { return { group, type, value, description: description?.[1] } };
+  var peg$f0 = function(group, type, value, description) { return { group, type, value, description } };
   var peg$f1 = function(name) { return { name } };
   var peg$f2 = function(head) { return head.join('') };
   var peg$f3 = function(char) { return char };
@@ -401,7 +401,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parsestart() {
-    var s0, s1, s2, s3, s4, s5, s6, s7, s8;
+    var s0, s1, s2, s3, s4, s5, s6, s7;
 
     s0 = peg$currPos;
     s1 = peg$parseGroup();
@@ -416,21 +416,10 @@ function peg$parse(input, options) {
     s4 = peg$parse_();
     s5 = peg$parseAny();
     if (s5 !== peg$FAILED) {
-      s6 = peg$currPos;
-      s7 = peg$parse__();
-      if (s7 !== peg$FAILED) {
-        s8 = peg$parseRest();
-        s7 = [s7, s8];
-        s6 = s7;
-      } else {
-        peg$currPos = s6;
-        s6 = peg$FAILED;
-      }
-      if (s6 === peg$FAILED) {
-        s6 = null;
-      }
+      s6 = peg$parse_();
+      s7 = peg$parseRest();
       peg$savedPos = s0;
-      s0 = peg$f0(s1, s3, s5, s6);
+      s0 = peg$f0(s1, s3, s5, s7);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;

@@ -1,20 +1,13 @@
 // @apiParamPrefix [{type}] [(group)] [title]
 
 start
-  = type:Type _ group:Group? __ title:Rest { return { type, group, title } }
-  / title:Rest { return { type: null, title } }
-
+  = type:Type? _ group:Group? _ title:Rest? { return { type, group, title } }
+ 
 Type
-  = "{" _ name:Any "}" { return { name } }
+  = "{" _ name:Any _ "}" { return { name } }
 
 Group
-  = "(" _ name:GroupName _ ")" { return { name } }
-  
-GroupName
-  = head:GroupNameCharacter+ { return head.join('') }
-
-GroupNameCharacter
-  = !")" char:. { return char }
+  = "(" _ name:Any _ ")" { return { name } }
 
 Rest
   = head:.* { return head.join('') || null }

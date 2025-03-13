@@ -1,7 +1,7 @@
 // @apiParamValue [(group)] [{type=type}] value [description]
 
 start
-  = group:Group? _ type:Type? _ value:Any description:(__ Rest)? { return { group, type, value, description: description?.[1] } }
+  = group:Group? _ type:Type? _ value:Any _ description:Rest? { return { group, type, value, description } }
 
 Group
   = "(" _ name:GroupName _ ")" { return { name } }

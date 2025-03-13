@@ -4,13 +4,7 @@ start
   = group:Group? _ field:Field? { return { group, field } }
 
 Group
-  = "(" _ name:GroupName _ ")" { return { name } }
-  
-GroupName
-  = head:GroupNameCharacter+ { return head.join('') }
-
-GroupNameCharacter
-  = !")" char:. { return char }
+  = "(" _ name:Any _ ")" { return { name } }
 
 Field
   = "[" _ name:Path dot:"."? "]" { return { name: name + (dot ?? '') } }

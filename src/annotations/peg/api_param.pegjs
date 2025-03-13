@@ -1,17 +1,11 @@
 // @apiParam [(group)] [{type=type}] field[=defaultValue] [description]
 
 start
-  = group:Group? _ type:Type? _ field:Field description:(__ Rest)? { return { group, type, field, description: description?.[1] } }
+  = group:Group? _ type:Type? _ field:Field _ description:Rest? { return { group, type, field, description } }
 
 Group
-  = "(" _ name:GroupName _ ")" { return { name } }
+  = "(" _ name:Any _ ")" { return { name } }
   
-GroupName
-  = head:GroupNameCharacter+ { return head.join('') }
-
-GroupNameCharacter
-  = !")" char:. { return char }
-
 Type
   = "{" _ name:Any constraints:TypeConstraints? modifiers:TypeModifiers* _ e:TypeEnum? "}" { return { name, modifiers, enum: e, ...constraints } }
 
