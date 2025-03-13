@@ -32,6 +32,37 @@ module.exports = (config) => ({
     const rootItems = new Map();
 
     parserUtils.enumChapters(params.chapters, ({descriptor}) => {
+      if (descriptor.note) {
+        let tagRef;
+
+        if (!descriptor.group?.name) {
+          tagRef = spec.info;
+        } else {
+          const [ name ] = getTagNameAndDescription(descriptor);
+
+          if (name) {
+            tags[name] = { name, description: tags[name]?.description ?? '' };
+            tagRef = tags[name];
+          }
+        }
+
+        if (tagRef) {
+          if (!descriptor.isDefUsed) {
+            tagRef.description = tagRef.description
+              ? tagRef.description + `\n# ${descriptor.title}`
+              : `# ${descriptor.title}`;
+          }
+
+          if (tagRef.description.length) {
+            tagRef.description += '\n';
+          }
+
+          if (descriptor.description?.length) {
+            tagRef.description += descriptor.description.join('\n');
+          }
+        }
+      }
+
       if (!descriptor.api) {
         return;
       }
@@ -62,10 +93,10 @@ module.exports = (config) => ({
 
       const item = {
         name: descriptor.title,
-        description: descriptor.description?.join('\n'),
         request: {
           method: descriptor.api.transport.method.toUpperCase(),
           url: `${root}${protocolPath}${url.hash}`,
+          description: descriptor.description?.join('\n'),
         },
         responses: [],
       };
