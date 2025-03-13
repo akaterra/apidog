@@ -41,7 +41,7 @@ PathTail
   / "." head:Any tail:PathTail* { return '.' + head + tail }
 
 Any
-  = head:[a-zA-Z0-9_-]+ { return head.join('') }
+  = head:[a-zA-Z0-9_\-!@#$%^&]+ { return head.join('') }
   / String
 
 Number

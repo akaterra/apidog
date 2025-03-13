@@ -14,7 +14,7 @@ AtLeastOneChar
   = head:.+ { return head.join('') || null }
  
 Any
-  = head:[a-zA-Z0-9_-]+ { return head.join('') }
+  = head:[a-zA-Z0-9_\-!@#$%^&]+ { return head.join('') }
   / String
 
 String
