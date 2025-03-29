@@ -103,6 +103,12 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
+  [ '-ph', '--placeholder' ],
+  {
+    action: 'append', help: 'Add value for placeholder which will be replaced in the generated documentation',
+  },
+);
+argumentParser.addArgument(
   [ '--requestDefaults' ],
   {
     action: 'storeTrue', help: 'Generate request default fields using request body schema',
@@ -270,6 +276,7 @@ function loadConfig(dir) {
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
     name: configApidoc.name || configPackage.apidoc.name || configPackage.name,
     output: configApidoc.output || configPackage.apidoc.output,
+    placeholders: configApidoc.placeholders || configPackage.apidoc.placeholders,
     requestDefaults: configApidoc.requestDefaults || configPackage.apidoc.requestDefaults,
     responseDefaults: configApidoc.responseDefaults || configPackage.apidoc.responseDefaults,
     sampleRequestPreset: configApidoc.sampleRequestPreset || configPackage.apidoc.sampleRequestPreset,
@@ -430,6 +437,12 @@ const envConfig = {
   ordered: args.ordered,
   outputDir,
   outputFormat,
+  placeholders: (args.placeholder || config.placeholders || []).reduce((acc, placeholder) => {
+    const [ key, value ] = placeholder.split('=');
+    acc[key] = value;
+
+    return acc;
+  }, {}),
   requestDefaults: args.requestDefaults || config.requestDefaults,
   responseDefaults: args.responseDefaults || config.responseDefaults,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,

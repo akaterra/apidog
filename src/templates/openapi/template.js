@@ -74,7 +74,7 @@ module.exports = (config) => ({
           }
 
           if (descriptor.description?.length) {
-            tagRef.description += descriptor.description.join('\n');
+            tagRef.description += utils.joinDescription(descriptor.description);
           }
         }
       }
@@ -108,7 +108,7 @@ module.exports = (config) => ({
       };
 
       if (descriptor.description) {
-        methodDescriptor.description = descriptor.description.join('\n');
+        methodDescriptor.description = utils.joinDescription(descriptor.description);
       }
 
       if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
@@ -399,7 +399,7 @@ module.exports = (config) => ({
                             return;
                           }
 
-                          let value = param.description.join('\n').trim();
+                          let value = utils.joinDescription(param.description).trim();
 
                           switch (param.type) {
                             case 'json':
@@ -531,7 +531,7 @@ module.exports = (config) => ({
                         return;
                       }
 
-                      let value = param.description.join('\n').trim();
+                      let value = utils.joinDescription(param.description).trim();
 
                       switch (param.type) {
                         case 'json':
@@ -625,7 +625,7 @@ module.exports = (config) => ({
                         return;
                       }
 
-                      let value = param.description.join('\n').trim();
+                      let value = utils.joinDescription(param.description).trim();
 
                       switch (param.type) {
                         case 'json':
@@ -727,6 +727,8 @@ module.exports = (config) => ({
           }
       }
 
+      content = utils.replacePlaceholders(content, config.placeholders);
+
       if (outputDir === 'stdout') {
         if (outputFormats.length > 1) {
           throw new Error(`Multiple output formats are specified, but target output is a stdout, check "output" option or provide single "outputFormat" option`);
@@ -826,21 +828,21 @@ function getTagNameAndDescription(descriptor) {
   if (descriptor.subgroup?.title) {
     return [
       [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / '),
-      [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n'),
+      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ]),
     ];
   }
   
   if (descriptor.group?.title) {
     return [
       [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / '),
-      [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n'),
+      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ]),
     ];
   }
   
   if (descriptor.chapter?.title) {
     return [
       descriptor.chapter.title,
-      descriptor.chapter.description.join('\n'),
+      utils.joinDescription(descriptor.chapter.description),
     ];
   }
 

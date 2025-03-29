@@ -58,7 +58,7 @@ module.exports = (config) => ({
           }
 
           if (descriptor.description?.length) {
-            tagRef.description += descriptor.description.join('\n');
+            tagRef.description += utils.joinDescription(descriptor.description);
           }
         }
       }
@@ -81,7 +81,7 @@ module.exports = (config) => ({
         if (!rootItems.has(descriptor.group.name)) {
           rootItems.set(descriptor.group.name, {
             name: descriptor.group.title,
-            description: descriptor.group.description?.join('\n'),
+            description: utils.joinDescription(descriptor.group.description),
             item: [],
           });
 
@@ -96,7 +96,7 @@ module.exports = (config) => ({
         request: {
           method: descriptor.api.transport.method.toUpperCase(),
           url: `${root}${protocolPath}${url.hash}`,
-          description: descriptor.description?.join('\n'),
+          description: utils.joinDescription(descriptor.description),
         },
         responses: [],
       };
@@ -246,7 +246,7 @@ module.exports = (config) => ({
               break;
             }
 
-            let requestValue = param.description.join('\n');
+            let requestValue = utils.joinDescription(param.description);
 
             if (requestValue) {
               switch (param.type || example.contentType) {
@@ -277,7 +277,7 @@ module.exports = (config) => ({
                   example.contentType ||
                   (response === success ? descriptor.successContentType[0] : descriptor.errorContentType[0]);
       
-                let responseValue = response.description.join('\n');
+                let responseValue = utils.joinDescription(response.description);
 
                 if (responseValue) {
                   switch (contentType) {
@@ -373,6 +373,8 @@ module.exports = (config) => ({
             throw new Error(`"{{content}}" placeholder expected for custom output format, check "outputFormat" option`);
           }
       }
+
+      content = utils.replacePlaceholders(content, config.placeholders);
 
       if (outputDir === 'stdout') {
         if (outputFormats.length > 1) {

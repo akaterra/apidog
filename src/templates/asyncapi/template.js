@@ -2,6 +2,7 @@ const fs = require('fs');
 const parserUtils = require('../../parser.utils');
 const parserJsonSchemaUtils = require('../../parser.jsonschema.utils');
 const parserOpenAPIUtils = require('../../parser.openapi.utils');
+const utils = require('../../utils');
 const URL = require('url').URL;
 const yaml = require('js-yaml');
 
@@ -92,7 +93,7 @@ module.exports = (config) => ({
       const channelDescriptor = spec.channels[descriptor.id];
 
       if (descriptor.description) {
-        channelDescriptor.description = descriptor.description.join('\n');
+        channelDescriptor.description = utils.joinDescription(descriptor.description);
       }
 
       if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
@@ -100,15 +101,15 @@ module.exports = (config) => ({
 
         if (descriptor.subgroup?.title) {
           const name = [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ].join('\n') };
+          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ]) };
           channelDescriptor.tags.push(name);
         } else if (descriptor.group?.title) {
           const name = [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: [ ...descriptor.chapter.description, ...descriptor.group.description ].join('\n') };
+          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ]) };
           channelDescriptor.tags.push(name);
         } else if (descriptor.chapter?.title) {
           const name = descriptor.chapter.title;
-          tags[name] = { name, description: descriptor.chapter.description.join('\n') };
+          tags[name] = { name, description: utils.joinDescription(descriptor.chapter.description) };
           channelDescriptor.tags.push(name);
         }
       }
@@ -363,6 +364,8 @@ module.exports = (config) => ({
             throw new Error(`"{{content}}" placeholder expected for custom output format, check "outputFormat" option`);
           }
       }
+
+      content = utils.replacePlaceholders(content, config.placeholders);
 
       if (outputDir === 'stdout') {
         if (outputFormats.length > 1) {

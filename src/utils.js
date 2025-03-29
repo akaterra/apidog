@@ -144,6 +144,30 @@ function isNotEmpty(value) {
   return value !== null && value !== undefined && value !== '';
 }
 
+function joinDescription(description) {
+  if (!description || !Array.isArray(description)) {
+    return description;
+  }
+
+  return description.join('\n');
+}
+
+function replacePlaceholders(str, placeholders) {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
+  if (!placeholders || typeof placeholders !== 'object') {
+    return str;
+  }
+
+  for (const [ key, val ] of Object.entries(placeholders)) {
+    str = str.replaceAll(key, val);
+  }
+
+  return str;
+}
+
 function quote(val) {
   if (typeof val === 'string' && (val.indexOf(' ') !== - 1 || val.indexOf(',') !== - 1)) {
     return `"${val.replace(/"/g, '\\"')}"`;
@@ -347,6 +371,8 @@ module.exports = {
   contentTypeToInternalContentType,
   forEach,
   isNotEmpty,
+  joinDescription,
+  replacePlaceholders,
   quote,
   strExtractByCurlyBrackets,
   strExtractByBrackets,
