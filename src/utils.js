@@ -224,8 +224,9 @@ const A = {
   0: { '.': { OP: PUSH, ST: 0 }, '[': { OP: PUSH, ST: 1 }, '"': { OP: NEXT, ST: 3 } },
   1: { ']': { OP: PUSH, ST: 2, TP: 'index' }, '"': { OP: NOOP, ST: 4 } },
   2: { '.': { OP: NEXT, ST: 0 }, '[': { OP: NEXT, ST: 1 }, '*': { RG: /./, OP: NOOP, ST: 0 } },
-  3: { '"': { OP: PUSH, ST: 0 } },
+  3: { '"': { OP: PUSH, ST: 5 } },
   4: { '"': { OP: NOOP, ST: 1 } },
+  5: { '.': { OP: NOOP, ST: 0 }, '[': { OP: NOOP, ST: 1 }, '*': { RG: /./, OP: NOOP, ST: 5 } },
 };
 
 /**

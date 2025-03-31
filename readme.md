@@ -934,6 +934,14 @@ Configuration file is a js script that by default exports the object with next p
   @apiParam {String[]} strings
   ```
 
+* Positional array definition.
+
+  ```
+  @apiParam {Number[]{1-5}} items 5 items have "number" type
+  @apiParam {String} items[0] 1st item has "string" type
+  @apiParam {Number{1-5}} items[1] 2nd item has "number" type in range 1-5
+  ```
+
 * Nested arrays contraints.
 
   ```

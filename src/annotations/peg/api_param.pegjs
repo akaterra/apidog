@@ -10,8 +10,8 @@ Type
   = "{" _ name:Any constraints:TypeConstraints? modifiers:TypeModifiers* _ e:TypeEnum? "}" { return { name, modifiers, enum: e, ...constraints } }
 
 TypeModifiers
-  = ":" name:Any list:"[]"* constraints:TypeConstraints? { return { name, list: list.length, ...constraints } }
-  / list:"[]"+ constraints:TypeConstraints? { return { name: null, list: list.length, ...constraints } }
+  = ":" name:Any list:("[" Number? "]")* constraints:TypeConstraints? { return { name, list: list.length, ldef: list.map((l) => l[1]), ...constraints } }
+  / list:("[" Number? "]")+ constraints:TypeConstraints? { return { name: null, list: list.length, ldef: list.map((l) => l[1]), ...constraints } }
 
 TypeConstraints
   = "{" _ min:NumberOrNothing _ delim:("-" / "..") _ max:NumberOrNothing _ "}" { return { min, max, isNumeric: delim === '-' } }

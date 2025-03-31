@@ -323,7 +323,6 @@ const SCHEMA_BY_TYPE = {
   currency: { type: 'string', minLength: 3, maxLength: 3 },
   date: true,
   datetime: { type:'string', format: 'date-time' },
-  'date-time': { type: 'string', format: 'date-time' },
   double: { type: 'number', format: 'double' },
   email: { type: 'string', format: 'email' },
   file: { type: 'string', format: 'binary' },
@@ -456,6 +455,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
         jsonSchema.required.push(propKey);
       }
 
+      let paramJsonSchemaRefPrev = paramJsonSchema;
       let paramJsonSchemaRef = paramJsonSchema;
 
       if (param.type?.modifiers?.list) {
@@ -466,7 +466,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             required: [],
             properties: {},
             additionalProperties: false,
-          }
+          };
 
           if (typeof param.type?.modifiers?.listConstraints?.[i]?.min === 'number') {
             paramJsonSchemaRef.minItems = param.type.modifiers.listConstraints[i].min;
@@ -476,6 +476,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
             paramJsonSchemaRef.maxItems = param.type.modifiers.listConstraints[i].max;
           }
 
+          paramJsonSchemaRefPrev = paramJsonSchemaRef;
           paramJsonSchemaRef = paramJsonSchemaRef.items;
         }
       }
@@ -484,6 +485,14 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       if (hasType(paramJsonSchemaRef, 'object')) {
         convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
+      } else if (param.type?.modifiers?.list) {
+        const paramJsonSchemaRefTmp = convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors);
+
+        paramJsonSchemaRefPrev.prefixItems = Object.entries(paramJsonSchemaRefTmp.properties ?? {}).reduce((acc, [ key, def ]) => {
+          acc[key] = def;
+
+          return acc;
+        }, []);
       }
 
       return removeEmptyRequiredAndProperties(paramJsonSchema);
@@ -541,6 +550,10 @@ function removeEmptyRequiredAndProperties(jsonSchema) {
 
   if (jsonSchema.items && Object.keys(jsonSchema.items).length === 0) {
     delete jsonSchema.items;
+  }
+
+  if (jsonSchema.prefixItems && !jsonSchema.prefixItems.length) {
+    delete jsonSchema.prefixItems;
   }
 
   if (jsonSchema.required && jsonSchema.required.length === 0) {
