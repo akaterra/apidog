@@ -10,6 +10,8 @@ const TYPE_TO_DEFAULT_VALUE = {
   email: (opts) => opts?.defaultEmailValue ?? 'example@example.com',
   file: () => new ParamFile(),
   hostname: (opts) => opts?.defaultHostnameValue ?? 'example.com',
+  hourminute: (opts) => opts.now.slice(11, 16),
+  hourminutesecond: (opts) => opts.now.slice(11, 19),
   id: () => 1,
   int32: () => 0,
   int64: () => 0,
@@ -18,6 +20,7 @@ const TYPE_TO_DEFAULT_VALUE = {
   ipv6: () => '::1',
   latitude: () => 51.477928, // greenwich
   longitude: () => -0.001545, // greenwich
+  minutesecond: (opts) => opts.now.slice(14, 19),
   natural: () => 1,
   negative: () => -0.1,
   negativeinteger: () => -1,
@@ -144,12 +147,12 @@ function isNotEmpty(value) {
   return value !== null && value !== undefined && value !== '';
 }
 
-function joinDescription(description) {
+function joinDescription(description, concatLineSymbol = '') {
   if (!description || !Array.isArray(description)) {
     return description;
   }
 
-  return description.join('\n');
+  return description.map((l) => l.length && l[0] === concatLineSymbol ? l.slice(1) + ' ' : l + '\n').join('').trimEnd();
 }
 
 function replacePlaceholders(str, placeholders) {

@@ -19,6 +19,12 @@ const argumentParser = new ArgumentParser({
 });
 
 argumentParser.addArgument(
+  [ '--concatLineSymbol' ],
+  {
+    help: 'Symbol to be used as a marker for concatenating lines in the description',
+  },
+);
+argumentParser.addArgument(
   [ '--compressionLevel' ],
   {
     type: 'int', default: 1, help: 'Try to generalize fields and store them as separate schemas (0 - no compression, default is 1)',
@@ -271,6 +277,7 @@ function loadConfig(dir) {
 
   const config = {
     author: configApidoc.author || configPackage.apidoc.author || configPackage.author,
+    concatLineSymbol: args.concatLineSymbol || configApidoc.concatLineSymbol || configPackage.apidoc.concatLineSymbol,
     description: configApidoc.description || configPackage.apidoc.description || configPackage.description,
     input: configApidoc.input || configPackage.apidoc.input,
     keywords: configApidoc.keywords || configPackage.apidoc.keywords || configPackage.keywords,
@@ -427,6 +434,7 @@ const definitions = {
 const envConfig = {
   author: config.author,
   compressionLevel: args.compressionLevel ?? config.compressionLevel ?? 0,
+  concatLineSymbol: args.concatLineSymbol || config.concatLineSymbol,
   defaultCurrencyValue: args['default:currency'] || config['default:currency'],
   defaultEmailValue: args['default:email'] || config['default'],
   description: args.description || config.description,

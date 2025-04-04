@@ -54,7 +54,7 @@ module.exports = (config) => ({
         if (!descriptor.group?.name) {
           tagRef = spec.info;
         } else {
-          const [ name ] = getTagNameAndDescription(descriptor);
+          const [ name ] = getTagNameAndDescription(descriptor, config);
 
           if (name) {
             tags[name] = { name, description: tags[name]?.description ?? '' };
@@ -74,7 +74,7 @@ module.exports = (config) => ({
           }
 
           if (descriptor.description?.length) {
-            tagRef.description += utils.joinDescription(descriptor.description);
+            tagRef.description += utils.joinDescription(descriptor.description, config.concatLineSymbol);
           }
         }
       }
@@ -108,13 +108,13 @@ module.exports = (config) => ({
       };
 
       if (descriptor.description) {
-        methodDescriptor.description = utils.joinDescription(descriptor.description);
+        methodDescriptor.description = utils.joinDescription(descriptor.description, config.concatLineSymbol);
       }
 
       if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
         methodDescriptor.tags = [];
 
-        const [ name, description ] = getTagNameAndDescription(descriptor);
+        const [ name, description ] = getTagNameAndDescription(descriptor, config);
 
         if (name && !tagsInitialized[name]) {
           tags[name] = { name, description: tags[name]?.description ? `${description}\n${tags[name]?.description}` : description };
@@ -399,7 +399,7 @@ module.exports = (config) => ({
                             return;
                           }
 
-                          let value = utils.joinDescription(param.description).trim();
+                          let value = utils.joinDescription(param.description, config.concatLineSymbol).trim();
 
                           switch (param.type) {
                             case 'json':
@@ -531,7 +531,7 @@ module.exports = (config) => ({
                         return;
                       }
 
-                      let value = utils.joinDescription(param.description).trim();
+                      let value = utils.joinDescription(param.description, config.concatLineSymbol).trim();
 
                       switch (param.type) {
                         case 'json':
@@ -625,7 +625,7 @@ module.exports = (config) => ({
                         return;
                       }
 
-                      let value = utils.joinDescription(param.description).trim();
+                      let value = utils.joinDescription(param.description, config.concatLineSymbol).trim();
 
                       switch (param.type) {
                         case 'json':
@@ -824,25 +824,25 @@ function maybeReplaceObjectParamsWithRef(obj, schemaRefs, depth = 2) {
   return obj;
 }
 
-function getTagNameAndDescription(descriptor) {
+function getTagNameAndDescription(descriptor, config) {
   if (descriptor.subgroup?.title) {
     return [
       [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / '),
-      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ]),
+      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ], config.concatLineSymbol),
     ];
   }
   
   if (descriptor.group?.title) {
     return [
       [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / '),
-      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ]),
+      utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ], config.concatLineSymbol),
     ];
   }
   
   if (descriptor.chapter?.title) {
     return [
       descriptor.chapter.title,
-      utils.joinDescription(descriptor.chapter.description),
+      utils.joinDescription(descriptor.chapter.description, config.concatLineSymbol),
     ];
   }
 

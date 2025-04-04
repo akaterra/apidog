@@ -58,7 +58,7 @@ module.exports = (config) => ({
           }
 
           if (descriptor.description?.length) {
-            tagRef.description += utils.joinDescription(descriptor.description);
+            tagRef.description += utils.joinDescription(descriptor.description, config.concatLineSymbol);
           }
         }
       }
@@ -81,7 +81,7 @@ module.exports = (config) => ({
         if (!rootItems.has(descriptor.group.name)) {
           rootItems.set(descriptor.group.name, {
             name: descriptor.group.title,
-            description: utils.joinDescription(descriptor.group.description),
+            description: utils.joinDescription(descriptor.group.description, config.concatLineSymbol),
             item: [],
           });
 
@@ -96,7 +96,7 @@ module.exports = (config) => ({
         request: {
           method: descriptor.api.transport.method.toUpperCase(),
           url: `${root}${protocolPath}${url.hash}`,
-          description: utils.joinDescription(descriptor.description),
+          description: utils.joinDescription(descriptor.description, config.concatLineSymbol),
         },
         responses: [],
       };
@@ -246,7 +246,7 @@ module.exports = (config) => ({
               break;
             }
 
-            let requestValue = utils.joinDescription(param.description);
+            let requestValue = utils.joinDescription(param.description, config.concatLineSymbol);
 
             if (requestValue) {
               switch (param.type || example.contentType) {
@@ -277,7 +277,7 @@ module.exports = (config) => ({
                   example.contentType ||
                   (response === success ? descriptor.successContentType[0] : descriptor.errorContentType[0]);
       
-                let responseValue = utils.joinDescription(response.description);
+                let responseValue = utils.joinDescription(response.description, config.concatLineSymbol);
 
                 if (responseValue) {
                   switch (contentType) {

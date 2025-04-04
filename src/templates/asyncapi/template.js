@@ -93,7 +93,7 @@ module.exports = (config) => ({
       const channelDescriptor = spec.channels[descriptor.id];
 
       if (descriptor.description) {
-        channelDescriptor.description = utils.joinDescription(descriptor.description);
+        channelDescriptor.description = utils.joinDescription(descriptor.description, config.concatLineSymbol);
       }
 
       if (descriptor.chapter?.name || descriptor.group?.name || descriptor?.subgroup?.name) {
@@ -101,15 +101,15 @@ module.exports = (config) => ({
 
         if (descriptor.subgroup?.title) {
           const name = [ descriptor.chapter.title, descriptor.group.title, descriptor.subgroup?.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ]) };
+          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description, ...descriptor.subgroup.description ], config.concatLineSymbol) };
           channelDescriptor.tags.push(name);
         } else if (descriptor.group?.title) {
           const name = [ descriptor.chapter.title, descriptor.group.title ].filter((e) => !!e).join(' / ');
-          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ]) };
+          tags[name] = { name, description: utils.joinDescription([ ...descriptor.chapter.description, ...descriptor.group.description ], config.concatLineSymbol) };
           channelDescriptor.tags.push(name);
         } else if (descriptor.chapter?.title) {
           const name = descriptor.chapter.title;
-          tags[name] = { name, description: utils.joinDescription(descriptor.chapter.description) };
+          tags[name] = { name, description: utils.joinDescription(descriptor.chapter.description, config.concatLineSymbol) };
           channelDescriptor.tags.push(name);
         }
       }
