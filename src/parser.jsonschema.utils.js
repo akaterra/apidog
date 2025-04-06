@@ -328,15 +328,18 @@ const SCHEMA_BY_TYPE = {
   file: { type: 'string', format: 'binary' },
   hostname: { type: 'string', format: 'hostname' },
   hourminute: { type: 'string', pattern: '^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$' },
+  hourminuterange: { type: 'string', pattern: '^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])-(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$' },
   hourminutesecond: { type: 'string', pattern: '^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$' },
+  hourminutesecondrange: { type: 'string', pattern: '^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])-(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$' },
   id: { type: 'integer', minimum: 0 },
   int32: { type: 'integer', format: 'int32' },
   int64: { type: 'integer', format: 'int64' },
   ipv4: { type: 'string', format: 'ipv4' },
   ipv6: { type: 'string', format: 'ipv6' },
-  longitude: { type: 'number', minimum: -180, maximum: 180 },
-  latitude: { type: 'number', minimum: -90, maximum: 90 },
+  longitude: { type: 'number', minimum: -180, maximum: 180, multipleOf: 1e-6 },
+  latitude: { type: 'number', minimum: -90, maximum: 90, multipleOf: 1e-6 },
   minutesecond: { type: 'string', pattern: '^([0-5][0-9]):([0-5][0-9])$' },
+  minutesecondrange: { type: 'string', pattern: '^([0-5][0-9]):([0-5][0-9])-(0[0-5][0-9]):([0-5][0-9])$' },
   natural: { type: 'integer', minimum: 1 },
   negative: { type: 'number', exclusiveMaximum: 0 },
   negativeinteger: { type: 'integer', exclusiveMaximum: 0 },
@@ -418,6 +421,20 @@ function convertParamToJsonSchema(mixed, opts) {
     } else {
       schema.maxLength = mixed.type.modifiers.max;
     }
+  }
+
+  const multipleOfModifier = mixed.type?.modifiers
+    ? Object.keys(mixed.type.modifiers).find((key) => key.startsWith('multipleof'))
+    : null;
+
+  if (multipleOfModifier) {
+    const multipleOf = parseFloat(multipleOfModifier.slice(11).replace(/_/g, '.'));
+
+    if (isNaN(multipleOf)) {
+      throw new Error(`Invalid "MultipleOf" value "${multipleOfModifier.slice(11)}"`);
+    }
+
+    schema.multipleOf = multipleOf;
   }
 
   return schema;

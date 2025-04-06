@@ -321,6 +321,7 @@ module.exports = (config) => ({
 
         if (groupVariant) {
           const notBodyParamKeys = [];
+          const hasQueryGroupVariant = Object.keys(descriptor.queryGroupVariant ?? {})[0] === groupVariantKey;
 
           schema = maybeReplaceObjectParamsWithRef(
             parserJsonSchemaUtils.convertParamGroupVariantToJsonSchema(
@@ -335,7 +336,7 @@ module.exports = (config) => ({
 
           for (const subSchema of schema.oneOf ? schema.oneOf : [ schema ]) {
             methodDescriptor.parameters = methodDescriptor.parameters.concat(Object.entries(subSchema.properties ?? {}).map(([ key, keySchema ]) => {
-              const isQueryParam = (
+              const isQueryParam = !hasQueryGroupVariant && (
                 key in uriParams ||
                 descriptor.api.transport.method === 'get' ||
                 descriptor.api.transport.method === 'delete'

@@ -11,7 +11,9 @@ const TYPE_TO_DEFAULT_VALUE = {
   file: () => new ParamFile(),
   hostname: (opts) => opts?.defaultHostnameValue ?? 'example.com',
   hourminute: (opts) => opts.now.slice(11, 16),
+  hourminuterange: (opts) => `${opts.now.slice(11, 16)}-${opts.now.slice(11, 16)}`,
   hourminutesecond: (opts) => opts.now.slice(11, 19),
+  hourminutesecondrange: (opts) => `${opts.now.slice(11, 19)}-${opts.now.slice(11, 19)}`,
   id: () => 1,
   int32: () => 0,
   int64: () => 0,
@@ -21,6 +23,7 @@ const TYPE_TO_DEFAULT_VALUE = {
   latitude: () => 51.477928, // greenwich
   longitude: () => -0.001545, // greenwich
   minutesecond: (opts) => opts.now.slice(14, 19),
+  minutesecondrange: (opts) => `${opts.now.slice(14, 19)}-${opts.now.slice(14, 19)}`,
   natural: () => 1,
   negative: () => -0.1,
   negativeinteger: () => -1,
@@ -28,7 +31,7 @@ const TYPE_TO_DEFAULT_VALUE = {
   phonenumber: (opts) => opts?.defaultPhoneNumberValue ?? '+1234567890',
   positive: () => 0.1,
   positiveinteger: () => 1,
-  password: (opts) => opts?.defaultPasswordValue ?? 'pa$$word',
+  password: (opts) => opts?.defaultPasswordValue ?? 'pa$$worD!!',
   secretkey: (opts) => opts?.defaultSecretKeyValue ?? 'secret1234',
   string: () => '',
   time: (opts) => opts.now.slice(11, 19),
@@ -152,7 +155,15 @@ function joinDescription(description, concatLineSymbol = '') {
     return description;
   }
 
-  return description.map((l) => l.length && l[0] === concatLineSymbol ? l.slice(1) + ' ' : l + '\n').join('').trimEnd();
+  return description.map((l, i) => {
+    l = l.length && l[0] === concatLineSymbol ? l.slice(1) : l;
+
+    if (description[i + 1]?.length && description[i + 1][0] === concatLineSymbol) {
+      return l + ' ';
+    }
+
+    return i === description.length - 1 ? l : l + '\n';
+  }).join('');
 }
 
 function replacePlaceholders(str, placeholders) {
