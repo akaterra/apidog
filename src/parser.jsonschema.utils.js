@@ -465,7 +465,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
 
       const paramJsonSchema = {
         type: 'object',
-        description: param.description && param.description.join('\n'),
+        description: utils.joinDescription(param.description, opts?.concatLineSymbol),
         required: [],
         properties: {},
         additionalProperties: false,
@@ -504,9 +504,9 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       Object.assign(paramJsonSchemaRef, convertParamToJsonSchema(param, opts));
 
       if (hasType(paramJsonSchemaRef, 'object')) {
-        convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef);
+        convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, paramJsonSchemaRef, opts);
       } else if (param.type?.modifiers?.list) {
-        const paramJsonSchemaRefTmp = convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors);
+        const paramJsonSchemaRefTmp = convertParamGroupVariantToJsonSchema(propVariant.prop, paramDescriptors, null, opts);
 
         paramJsonSchemaRefPrev.prefixItems = Object.entries(paramJsonSchemaRefTmp.properties ?? {}).reduce((acc, [ key, def ]) => {
           acc[key] = def;

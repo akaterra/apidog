@@ -22,6 +22,7 @@ module.exports = (config) => ({
     const outputDir = config.outputDir;
     const compressionDepth = config.compressionLevel ?? 1;
     const opts = {
+      concatLineSymbol: config.concatLineSymbol,
       defaultCurrencyValue: config.defaultCurrencyValue,
       defaultEmailValue: config.defaultEmailValue,
       defaultHostnameValue: config.defaultHostnameValue,
@@ -30,6 +31,7 @@ module.exports = (config) => ({
       defaultSecretKeyValue: config.defaultSecretKeyValue,
       defaultUriValue: config.defaultUriValue,
       defaultUrlValue: config.defaultUrlValue,
+      newNullable: SCHEMA_NEW_NULLABLE,
     };
 
     const spec = {
@@ -271,7 +273,7 @@ module.exports = (config) => ({
               descriptor.cookieGroupVariant[groupVariantKey].prop,
               descriptor.cookie,
               undefined,
-              { newNullable: SCHEMA_NEW_NULLABLE },
+              opts,
             ),
             schemas,
             compressionDepth,
@@ -298,7 +300,7 @@ module.exports = (config) => ({
               descriptor.headerGroupVariant[groupVariantKey].prop,
               descriptor.header,
               undefined,
-              { newNullable: SCHEMA_NEW_NULLABLE },
+              opts,
             ),
             schemas,
             compressionDepth,
@@ -328,7 +330,7 @@ module.exports = (config) => ({
               groupVariant.prop,
               descriptor.param,
               undefined,
-              { newNullable: SCHEMA_NEW_NULLABLE },
+              opts,
             ),
             schemas,
             compressionDepth,
@@ -368,7 +370,7 @@ module.exports = (config) => ({
                       groupVariant.prop,
                       bodyParams,
                       undefined,
-                      { newNullable: SCHEMA_NEW_NULLABLE },
+                      opts,
                     ),
                     schemas,
                     compressionDepth,
@@ -457,7 +459,7 @@ module.exports = (config) => ({
               descriptor.queryGroupVariant[groupVariantKey].prop,
               descriptor.query,
               undefined,
-              { newNullable: SCHEMA_NEW_NULLABLE },
+              opts,
             ),
             schemas,
             compressionDepth,
@@ -486,7 +488,7 @@ module.exports = (config) => ({
                   groupVariant.prop,
                   descriptor.success,
                   undefined,
-                  { newNullable: SCHEMA_NEW_NULLABLE },
+                  opts,
                 ),
                 schemas,
                 compressionDepth,
@@ -580,7 +582,7 @@ module.exports = (config) => ({
                   groupVariant.prop,
                   descriptor.error,
                   undefined,
-                  { newNullable: SCHEMA_NEW_NULLABLE },
+                  opts,
                 ),
                 schemas,
                 compressionDepth,
