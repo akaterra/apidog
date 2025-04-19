@@ -46,8 +46,18 @@ function construct(name, usePrefix) {
     let type = null;
     let field = null;
     let description = parsed.description ? parsed.description.split('\n') : [];
+    let isFieldForReinit = false;
+    let isFieldForRemove = false;
 
     if (parsed.field) {
+      if (parsed.field.name.startsWith('^')) {
+        parsed.field.name = parsed.field.name.slice(1);
+        isFieldForReinit = true;
+      } else if (parsed.field.name.startsWith('!')) {
+        parsed.field.name = parsed.field.name.slice(1);
+        isFieldForRemove = true;
+      }
+
       field = {
         defaultValue: parsed.field.defaultValue,
         isOptional: !parsed.field.isRequired,
@@ -164,12 +174,22 @@ function construct(name, usePrefix) {
         }
 
         if (isLast || root[key].length === 0) {
+          if (isFieldForRemove) {
+            delete root[key];
+
+            return;
+          }
+
           // last pushed param descriptor
           const list = [ block[annotationName].length - 1 ];
 
           // parent is not null when key is not last therefore has no its own param descriptor (list[0])
           const parent = isLast ? null : list[0];
           const variant = { list, parent, prop: {} };
+
+          if (isFieldForReinit) {
+            root[key] = [];
+          }
 
           root[key].push(variant);
 

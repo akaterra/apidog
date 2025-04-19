@@ -158,9 +158,9 @@ Parameters:
 
   Can be multiple. By default takes all the doc blocks.
 
-* **--requestDefaults** - Generate request default fields using request body schema.
+* **--default:request** - Generate request default fields using request body schema.
 
-* **--responseDefaults** - Generate response default fields using response schema.
+* **--default:response** - Generate response default fields using response schema.
 
 * **-s, --sampleRequestUrl, --sampleUrl** - Base URL that will be used as a prefix for all relative api paths (of HTTP/HTTPS and WebSocket types) in sample requests.
 
@@ -992,6 +992,41 @@ Configuration file is a js script that by default exports the object with next p
   @apiParam {Number} .a
   @apiParam {Object} .
   @apiParam {String} .b
+  ```
+
+  To define variant as item of array use field names prefixed by ".":
+
+  ```
+  @apiParam {Object[]} items
+  @apiParam {Object} .items.a
+  @apiParam {Number} .items.a.a
+  @apiParam {String} .items.b
+  ```
+
+  To reinit variant use field names prefixed by "^":
+
+  ```
+  @apiDefine fields
+  @apiParam {Number} a
+  @apiParam {String} b
+
+  ...
+
+  @apiUse fields
+  @apiParam {String} ^a
+  ```
+
+  To delete variant use field names prefixed by "!":
+
+  ```
+  @apiDefine fields
+  @apiParam {Number} a
+  @apiParam {String} b
+
+  ...
+
+  @apiUse fields
+  @apiParam !a
   ```
 
 * apiDoc types to **@asyncapi** and **@openapi** jsonschema types mapping.

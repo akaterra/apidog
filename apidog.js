@@ -49,13 +49,13 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '-f', '--fileFilter' ],
+  [ '-f', '--file:filter' ],
   {
     action: 'append', help: 'RegExp pattern to filter files that should be parsed',
   },
 );
 argumentParser.addArgument(
-  [ '--fileIgnore' ],
+  [ '--file:ignore' ],
   {
     action: 'append', help: 'RegExp pattern to ignore files that should be parsed',
   },
@@ -109,19 +109,19 @@ argumentParser.addArgument(
   },
 );
 argumentParser.addArgument(
-  [ '-ph', '--placeholder' ],
+  [ '--placeholder' ],
   {
     action: 'append', help: 'Add value for placeholder which will be replaced in the generated documentation',
   },
 );
 argumentParser.addArgument(
-  [ '--requestDefaults' ],
+  [ '--default:request' ],
   {
     action: 'storeTrue', help: 'Generate request default fields using request body schema',
   },
 );
 argumentParser.addArgument(
-  [ '--responseDefaults' ],
+  [ '--default:response' ],
   {
     action: 'storeTrue', help: 'Generate response default fields using response schema',
   },
@@ -451,8 +451,8 @@ const envConfig = {
 
     return acc;
   }, {}),
-  requestDefaults: args.requestDefaults || config.requestDefaults,
-  responseDefaults: args.responseDefaults || config.responseDefaults,
+  requestDefaults: args['default:request'] || config.requestDefaults,
+  responseDefaults: args['default:response'] || config.responseDefaults,
   sampleRequestPreset: args.sampleRequestPreset || config.sampleRequestPreset,
   sampleRequestProxy: args.sampleRequestProxy || config.sampleRequestProxy,
   sampleRequestProxyHttp: args['sampleRequestProxy:http'] || config['sampleRequestProxy:http'],
@@ -539,9 +539,9 @@ argsInput.filter((argInput) => argInput).forEach((argInput, index) => {
         source,
         [],
         {
-          filter: (args.f || args.fileFilter || [])
+          filter: (args.f || args['file:filter'] || [])
             .map((p) => new RegExp(p)),
-          ignore: (args.f || args.fileIgnore || [])
+          ignore: (args.f || args['file:ignore'] || [])
             .map((p) => new RegExp(p)).concat(loadGitIgnore(source)).concat([/.*apidoc\.proxy$/]),
         },
         definitions,
