@@ -42,7 +42,7 @@ function construct(name, usePrefix) {
 
     const parsed = peggy.parse(text.trim());
 
-    let group = parsed.group || block[annotationPrefixGroupName] || null;
+    let group = parsed.group || block[annotationPrefixGroupName] || block.parseCfg?.group || null;
     let type = null;
     let field = null;
     let description = parsed.description ? parsed.description.split('\n') : [];

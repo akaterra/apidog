@@ -14,8 +14,8 @@ const CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE = {
   multipart: 'multipart/form-data',
   xml: 'application/xml',
 };
-const SPEC_VERSION = '3.0';
-const SCHEMA_NEW_NULLABLE = SPEC_VERSION === '3.1';
+const SPEC_VERSION = '3.1';
+const SCHEMA_NEW_NULLABLE = SPEC_VERSION >= '3.1';
 
 module.exports = (config) => ({
   generate(hbs, config, params) {

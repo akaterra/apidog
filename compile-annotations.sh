@@ -1,1 +1,1 @@
-find src/annotations/peg -name *.pegjs | xargs -L 1 peggy
+find src/annotations/peg -name *.pegjs | xargs -L 1 npx peggy

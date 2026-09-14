@@ -29,6 +29,7 @@
     "express": "4.19.2",
     "jasmine": "3.3.0",
     "nats": "2.23.0",
+    "peggy": "^5.1.0",
     "redis": "4.6.13",
     "socket.io": "4.7.5",
     "supertest": "7.0.0",

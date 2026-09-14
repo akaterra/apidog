@@ -18,7 +18,7 @@ function construct(name) {
     const parsed = peggy.parse(text.trim());
 
     let prefix = parsed.field?.name;
-    let group = parsed.group?.name;
+    let group = parsed.group;
 
     if (!prefix && !group) {
       block[annotationName] = block[annotationGroupName] = undefined;

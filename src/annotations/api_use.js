@@ -1,23 +1,22 @@
 /**
- * @apiUse name
+ * @apiUse [(group)] definition
  */
 
 const utils = require('../utils');
+const peggy = require('./peg/api_use');
 
 function parse(block, text, line, index, lines, definitions, config, onlyDefinitions) {
   if (onlyDefinitions) {
     return block;
   }
 
-  if (!text) {
-    throw new Error('@apiUse malformed');
+  const parsed = peggy.parse(text.trim());
+
+  if (!definitions[parsed.definition]) {
+    throw new Error(`@apiUse refers to unknown @apiDefine "${parsed.definition}" - check name, block @apiPrivate or CLI "-p" option`);
   }
 
-  if (!definitions[text]) {
-    throw new Error(`@apiUse refers to unknown @apiDefine "${text}" - check name, block @apiPrivate or "-p" CLI option`);
-  }
-
-  lines.splice(index, 1, ...[''].concat(definitions[text].embeddedLines));
+  lines.splice(index, 1, '', ...definitions[parsed.definition].embeddedLines);
 
   return block;
 }

@@ -19,6 +19,7 @@ const annotationParsers = {
   '@apiignore': require('./annotations/api_ignore'),
   '@apiname': require('./annotations/api_name'),
   '@apinote': require('./annotations/api_note'),
+  '@apiparsecfg': require('./annotations/api_parse_cfg'),
   '@apipermission': require('./annotations/api_permission'),
   '@apiprivate': require('./annotations/api_private'),
   '@apiquery': require('./annotations/api_param').construct('query', true),
