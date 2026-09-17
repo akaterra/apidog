@@ -92,13 +92,23 @@ function construct(name, usePrefix) {
     blockParam.type = type;
 
     if (!block[annotationGroupName][group || null]) {
-      block[annotationGroupName][group || null] = { isTyped: false, list: [] };
+      block[annotationGroupName][group || null] = {
+        isTyped: false,
+        list: [],
+        statusCode: block.statusCode?.at(-1),
+        description: blockParam.description,
+      };
     }
 
     block[annotationGroupName][group || null].list.push(block[annotationName].length - 1);
 
     if (!block[annotationGroupVariantsName][group]) {
-      block[annotationGroupVariantsName][group] = { isTyped: false, prop: {} };
+      block[annotationGroupVariantsName][group] = {
+        isTyped: false,
+        prop: {},
+        statusCode: block.statusCode?.at(-1),
+        description: blockParam.description,
+      };
     }
 
     if (blockParam.field) {

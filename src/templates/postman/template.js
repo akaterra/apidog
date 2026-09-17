@@ -1,7 +1,6 @@
 const fs = require('fs');
 const parserUtils = require('../../parser.utils');
 const URL = require('url').URL;
-const { createHash } = require('crypto');
 const defaults = require('lodash.defaultsdeep');
 const yaml = require('js-yaml');
 const utils = require('../../utils');

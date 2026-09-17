@@ -515,7 +515,7 @@ module.exports = (config) => ({
               }
 
               if (!responses[responseKey]) {
-                responses[responseKey] = { description: 'No description', content: {} };
+                responses[responseKey] = { description: utils.joinDescription(groupVariant.description || 'No description', config.concatLineSymbol).trim(), content: {} };
               }
 
               const oldExamples = responses[responseKey]?.content?.[contentTypeKey]?.examples ?? {};
@@ -609,7 +609,7 @@ module.exports = (config) => ({
               }
 
               if (!responses[responseKey]) {
-                responses[responseKey] = { description: 'No description', content: {} };
+                responses[responseKey] = { description: utils.joinDescription(groupVariant.description || 'No description', config.concatLineSymbol).trim(), content: {} };
               }
 
               const oldExamples = responses[responseKey]?.content?.[contentTypeKey]?.examples ?? {};
