@@ -40,8 +40,9 @@ function resolveDefinition(spec, group, groupVariants, prefix, key, annotation, 
   const paramIsRequired = required ? required.includes(key) : false;
   const paramKey = prefix ? prefix + '.' + key : key;
   const paramTitle = spec.title;
+  const type = hasType(spec, 'array');
 
-  switch (spec.type) {
+  switch (type) {
     case 'array':
       if (spec.items) {
         const { anyOf, oneOf, ...rest } = spec.items;
@@ -476,11 +477,12 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       }
 
       let paramJsonSchemaRefPrev = paramJsonSchema;
-      let paramJsonSchemaRef = paramJsonSchema;
+      let paramJsonSchemaRef = paramJsonSchemaRefPrev;
 
       if (param.type?.modifiers?.list) {
         for (let i = 0; i < param.type.modifiers.list; i += 1) {
           paramJsonSchemaRef.type = 'array';
+
           paramJsonSchemaRef.items = {
             type: 'object',
             required: [],
@@ -522,7 +524,7 @@ function convertParamGroupVariantToJsonSchema(paramGroupVariant, paramDescriptor
       jsonSchema.properties[propKey] = oneOf[0];
     } else {
       const oneOfVariants = oneOf.map((oneOf) => {
-        if (oneOf.type !== 'array') {
+        if (hasType(oneOf, 'array')) {
           return oneOf;
         }
 
