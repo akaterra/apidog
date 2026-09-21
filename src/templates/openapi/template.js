@@ -15,6 +15,7 @@ const CONTENT_TYPE_TO_OPENAPI_CONTENT_TYPE = {
   xml: 'application/xml',
 };
 const SPEC_VERSION = '3.1';
+const SCHEMA_ADD_NULL_TO_ENUM = true;
 const SCHEMA_NEW_NULLABLE = SPEC_VERSION >= '3.1';
 
 module.exports = (config) => ({
@@ -22,6 +23,7 @@ module.exports = (config) => ({
     const outputDir = config.outputDir;
     const compressionDepth = config.compressionLevel ?? 1;
     const opts = {
+      addNullToEnum: SCHEMA_ADD_NULL_TO_ENUM,
       concatLineSymbol: config.concatLineSymbol,
       defaultCurrencyValue: config.defaultCurrencyValue,
       defaultEmailValue: config.defaultEmailValue,
