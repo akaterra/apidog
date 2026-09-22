@@ -400,7 +400,7 @@ function convertParamToJsonSchema(mixed, opts) {
     schema.enum = mixed.type.allowedValues.map((value) => convertParamValueByType(type, value));
   }
 
-  if (opts?.addNullToEnum && Array.isArray(schema.enum) && !schema.enum.includes(null)) {
+  if (mixed.type?.modifiers?.null && opts?.addNullToEnum && Array.isArray(schema.enum) && !schema.enum.includes(null)) {
     schema.enum.push(null);
   }
 
