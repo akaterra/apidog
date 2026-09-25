@@ -404,9 +404,19 @@ function convertParamToJsonSchema(mixed, opts) {
     schema.enum.push(null);
   }
 
+  if (mixed.type?.modifiers?.const) {
+    if (schema.default === undefined) {
+      throw new Error(`Const modifier requires a default value for type "${type}"`);
+    }
+
+    schema.const = convertParamValueByType(type, schema.default);
+    schema.default = undefined;
+    schema.type = undefined;
+  }
+
   if (mixed.type?.modifiers?.null) {
     if (opts?.newNullable) {
-      schema.type = Array.from(new Set([ schema.type, 'null' ]));
+      schema.type = Array.from(new Set([ schema.type, 'null' ].filter(Boolean)));
     } else {
       schema.nullable = true;
     }
